@@ -1363,4 +1363,32 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
 
         $this->assertTrue($key->verify($plaintext, $sig));
     }
+
+    /**
+     * @group github1958
+     */
+    public function testPKCS8RC2MD5CBC()
+    {
+        // openssl pkcs8 -in private.pem -topk8 -v1 PBE-MD5-RC2-64 -out enckey.pem
+
+        // EncryptionAlgorithm: pbeWithMD5AndRC2-CBC
+
+        $key = '-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIICETAbBgkqhkiG9w0BBQYwDgQI7qAHhVoX0XcCAggABIIB8Cnn5w+b41WxKfIj
+9Fn+SnPeozCfVXALVst33Cx5yaIWeufHrRnRFTM5XyzcwmpsB6WDgEfRfkoocb9a
+E9iLIv/vAu+Ak6Olexc+e6KCkNrA5QkqBjiGVar52zIYPdFK1ZLJRprZae/h5XTN
+71zkuKryZM/XlR2wVmV54N+Sh0aQRDPF9NbURnijQ7AyEbxHVIEbOPFMnoEwoQnF
+43ZR0NGJuqNoiixBVqd7NImwXQB+1yn1Xl6dcOD80m/Tz09QvjczuULcNgZjPAQc
+wakFABHqCWAzGdta/pum7aKmfeUwlvBfu7GFQAercIao3xkYzRjLhRBQ3f4FYut/
+D4p4R12oTOCP5xdvFpHitdvmjRD2jdRUSAhE/SOIP1JniejFxqJs7ORiHktjgcBc
+2+7tVEpcuugcF7mZrMSlOqd00/+xFchOqjHvqXMmHvvKwUTWBwgUaXY19vcEPslj
+nWOpCG6zlvOQceM+8T07V3A+uuh3BTRtWjIk8Fc1wwwyjfwH6mkhDgR5n8EiBmDn
+eHjBR3QaVdcFLmCKlxn4Ke5l/56e6DeWKsLKsGbWzUO3F76WEpl7rIQTRNlHZ+0U
+ShOAPu7NCjiC91Ukn2LojPHcg48D6oECpe/PQqg6nFUiXWjex7QdNRu83RMcN58Y
+NIRifWY=
+-----END ENCRYPTED PRIVATE KEY-----';
+        $pass = 'password';
+
+        $this->pkcs8tester($key, $pass);
+    }
 }
