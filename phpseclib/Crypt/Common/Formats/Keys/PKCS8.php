@@ -219,7 +219,7 @@ abstract class PKCS8 extends PKCS
     {
         switch ($algo) {
             case 'desCBC':
-                $cipher = new TripleDES('cbc');
+                $cipher = new DES('cbc');
                 break;
             case 'des-EDE3-CBC':
                 $cipher = new TripleDES('cbc');
