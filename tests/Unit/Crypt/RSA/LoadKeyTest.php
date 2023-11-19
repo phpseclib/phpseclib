@@ -1396,7 +1396,7 @@ NIRifWY=
     /**
      * @group github1958
      */
-    public function testPKCS8DES()
+    public function testPKCS8DES(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v2 des -out enckey.pem
 
