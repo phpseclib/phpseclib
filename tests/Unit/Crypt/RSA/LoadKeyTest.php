@@ -1391,4 +1391,34 @@ NIRifWY=
 
         $this->pkcs8tester($key, $pass);
     }
+
+    /**
+     * @group github1958
+     */
+    public function testPKCS8DES()
+    {
+        // openssl pkcs8 -in private.pem -topk8 -v2 des -out enckey.pem
+
+        // EncryptionAlgorithm: id-PBES2
+        // EncryptionScheme: desCBC
+
+        $key = '-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIICQTBLBgkqhkiG9w0BBQ0wPjApBgkqhkiG9w0BBQwwHAQIx5iE4vTZRSQCAggA
+MAwGCCqGSIb3DQIJBQAwEQYFKw4DAgcECO73En/5bVgbBIIB8IvIeLsS5iL1Ntdo
+s4DDTTk2Ea46F6eFmKuiu/UWJAFLZb7ZU4kGx+2GfDbnsR47swU/xNDQD6qxEgpF
+AT4QDgLldreY4BcFgTrRSShn8IO8yRNYCVslhngPtVv4OjcMxtJKPSsApJOY9JAC
+z4ew5oycLO8buDtAukCAEHWEK/su9piSDP5KCGniYySZ+eg49sw/AOGaueLEOYmt
+wqmock/VIcp8qwLpOBWxfMjfcTEjyMcm3tKm5UoYfmnO7h9mk1O2NCnVu3zNvFE0
+/P/KwcFJU2OIHVJlrTsiCY0CwG7nco8X9DbhpXtwX+80WkZ5jn1C+lgaO80ZvqgV
+KiI1biFJ1FymINw8bTgPfYPHBkoDUA9nHcHlP7vLJu3gTrhLxoit2yEEeK6+G8M5
+lgdlcnbf5nb5e9ygpY/JANd33F4f4+P0sgBPPzRNmNG50obvxYJLGQ1QVT6Jmn5f
+FEchPJS+w3RLIdfi+FCnfnmuHCrHm5iBEiJ545TCiQyIosamuUQKyxoGZxy1kGlE
+Rue+5+0riuyBCL4M+wNOANjqt48ReFo+1pVw3GJVl7XfOTOh1VN8pAxPFNZTMhb3
+xr7sn6L7NLdA32N8yqGbo6MeEof4gJ6fq1PkJG+EPkVzIo0VJ5lnxMZYlCwKCdME
+vtpiPBM=
+-----END ENCRYPTED PRIVATE KEY----';
+        $pass = 'password';
+
+        $this->pkcs8tester($key, $pass);
+    }
 }
