@@ -2066,7 +2066,7 @@ class SSH2
             [$type] = Strings::unpackSSH2('C', $response);
 
             if ($type == MessageType::EXT_INFO) {
-                list($nr_extensions) = Strings::unpackSSH2('N', $response);
+                [$nr_extensions] = Strings::unpackSSH2('N', $response);
                 for ($i = 0; $i < $nr_extensions; $i++) {
                     [$extension_name, $extension_value] = Strings::unpackSSH2('ss', $response);
                     if ($extension_name == 'server-sig-algs') {
@@ -2075,12 +2075,10 @@ class SSH2
                 }
 
                 $response = $this->get_binary_packet();
-                list($type) = Strings::unpackSSH2('C', $response);
+                [$type] = Strings::unpackSSH2('C', $response);
             }
 
-            list($service) = Strings::unpackSSH2('s', $response);
-
-            [$type, $service] = Strings::unpackSSH2('Cs', $response);
+            [$service] = Strings::unpackSSH2('s', $response);
             if ($type != MessageType::SERVICE_ACCEPT || $service != 'ssh-userauth') {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
                 throw new UnexpectedValueException('Expected SSH_MSG_SERVICE_ACCEPT');
