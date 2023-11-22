@@ -1185,7 +1185,6 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
     }
 
     /**
-<<<<<<< HEAD
      * @group github1586
      */
     public function testComputeKeyIdentifier(): void
