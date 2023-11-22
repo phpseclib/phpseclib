@@ -706,4 +706,20 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
 
         $this->assertTrue($key->verify('hello world!', $signature));
     }
+
+    public function testExcessivelyLargeBinaryField()
+    {
+        $this->expectException('\OutOfBoundsException');
+
+        $key = '-----BEGIN PUBLIC KEY-----
+MIIBDDCB0wYHKoZIzj0CATCBxwIBATAgBgcqhkjOPQECMBUCBH////8GCSqGSM49
+AQIDAgICAMEwTQQZABeFj+t6mJdRaeFx93tAh94JisipEd97AQQZAP37Sb/mw6if
+rK2qeh5bvHzBwuXYMUeIFAMVABA/rsdNaW5naHVhUXV3f8Wxke8wBDMEAfSBvF8P
++Ep0rWzfb970v2F5YlNy2MDF4QAl45nykDcSzPPqnjoa0X+wsyAbavfOGwUCGQEA
+AAAAAAAAAAAAAADH80p3j0Q6zJIOukkCAQIDNAAEAE2mUTAwdPK952h3G8ZinK8B
+z9DYTLdGkQDqox3AtEs9nn6kE1O/vHE4bqMegjj4gbA=
+-----END PUBLIC KEY-----';
+        $key = EC::loadFormat('PKCS8', $key);
+        $this->assertInstanceOf(PublicKey::class, $key);
+    }
 }
