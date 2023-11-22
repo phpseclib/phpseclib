@@ -707,7 +707,7 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
         $this->assertTrue($key->verify('hello world!', $signature));
     }
 
-    public function testExcessivelyLargeBinaryField()
+    public function testExcessivelyLargeBinaryField(): void
     {
         $this->expectException('\OutOfBoundsException');
 
