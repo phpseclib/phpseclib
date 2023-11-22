@@ -344,14 +344,6 @@ class SSH2
     private $languages_client_to_server = false;
 
     /**
-     * Server Signature Algorithms
-     *
-     * @link https://www.rfc-editor.org/rfc/rfc8308.html#section-3.1
-     * @var array|false
-     */
-    private $server_sig_algs = false;
-
-    /**
      * Preferred Algorithms
      *
      * @see self::setPreferredAlgorithms()
@@ -2350,7 +2342,7 @@ class SSH2
                 for ($i = 0; $i < $nr_extensions; $i++) {
                     list($extension_name, $extension_value) = Strings::unpackSSH2('ss', $response);
                     if ($extension_name == 'server-sig-algs') {
-                        $this->server_sig_algs = explode(',', $extension_value);
+                        $this->supported_private_key_algorithms = explode(',', $extension_value);
                     }
                 }
 
@@ -2634,9 +2626,7 @@ class SSH2
         if ($publickey instanceof RSA) {
             $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
             $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
-            if ($this->server_sig_algs) {
-                $algos = array_intersect($algos, $this->server_sig_algs);
-            } elseif (isset($this->preferred['hostkey'])) {
+            if (isset($this->preferred['hostkey'])) {
                 $algos = array_intersect($algos, $this->preferred['hostkey']);
             }
             $algo = self::array_intersect_first($algos, $this->supported_private_key_algorithms);
