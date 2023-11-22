@@ -358,15 +358,6 @@ class SSH2
     var $languages_client_to_server = false;
 
     /**
-     * Server Signature Algorithms
-     *
-     * @link https://www.rfc-editor.org/rfc/rfc8308.html#section-3.1
-     * @var array|false
-     * @access private
-     */
-    var $server_sig_algs = false;
-
-    /**
      * Preferred Algorithms
      *
      * @see self::setPreferredAlgorithms()
@@ -2438,7 +2429,7 @@ class SSH2
                             return false;
                         }
                         $temp = unpack('Nlength', $this->_string_shift($response, 4));
-                        $this->server_sig_algs = explode(',', $this->_string_shift($response, $temp['length']));
+                        $this->supported_private_key_algorithms = explode(',', $this->_string_shift($response, $temp['length']));
                     }
                 }
 
@@ -2817,9 +2808,7 @@ class SSH2
         );
 
         $algos = array('rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa');
-        if ($this->server_sig_algs) {
-            $algos = array_intersect($algos, $this->server_sig_algs);
-        } elseif (isset($this->preferred['hostkey'])) {
+        if (isset($this->preferred['hostkey'])) {
             $algos = array_intersect($algos, $this->preferred['hostkey']);
         }
         $algo = $this->_array_intersect_first($algos, $this->supported_private_key_algorithms);
