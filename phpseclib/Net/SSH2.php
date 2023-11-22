@@ -331,6 +331,14 @@ class SSH2
     private array|false $languages_client_to_server = false;
 
     /**
+     * Server Signature Algorithms
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc8308.html#section-3.1
+     * @var array|false
+     */
+    private $server_sig_algs = false;
+
+    /**
      * Preferred Algorithms
      *
      * @see self::setPreferredAlgorithms()
@@ -1260,6 +1268,8 @@ class SSH2
         $c2s_compression_algorithms = $preferred['client_to_server']['comp'] ??
             SSH2::getSupportedCompressionAlgorithms();
 
+        $kex_algorithms = array_merge($kex_algorithms, array('ext-info-c'));
+
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
             case $this->server_identifier == 'SSH-2.0-SSHD':
@@ -2053,6 +2063,23 @@ class SSH2
                 throw $e;
             }
 
+            [$type] = Strings::unpackSSH2('C', $response);
+
+            if ($type == MessageType::EXT_INFO) {
+                list($nr_extensions) = Strings::unpackSSH2('N', $response);
+                for ($i = 0; $i < $nr_extensions; $i++) {
+                    [$extension_name, $extension_value] = Strings::unpackSSH2('ss', $response);
+                    if ($extension_name == 'server-sig-algs') {
+                        $this->server_sig_algs = explode(',', $extension_value);
+                    }
+                }
+
+                $response = $this->get_binary_packet();
+                list($type) = Strings::unpackSSH2('C', $response);
+            }
+
+            list($service) = Strings::unpackSSH2('s', $response);
+
             [$type, $service] = Strings::unpackSSH2('Cs', $response);
             if ($type != MessageType::SERVICE_ACCEPT || $service != 'ssh-userauth') {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
@@ -2317,7 +2344,9 @@ class SSH2
         if ($publickey instanceof RSA) {
             $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
             $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
-            if (isset($this->preferred['hostkey'])) {
+            if ($this->server_sig_algs) {
+                $algos = array_intersect($this->server_sig_algs, $algos);
+            } elseif (isset($this->preferred['hostkey'])) {
                 $algos = array_intersect($this->preferred['hostkey'], $algos);
             }
             $algo = self::array_intersect_first($algos, $this->supported_private_key_algorithms);
