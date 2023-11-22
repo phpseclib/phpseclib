@@ -361,6 +361,15 @@ class Net_SSH2
     var $languages_client_to_server = false;
 
     /**
+     * Server Signature Algorithms
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc8308.html#section-3.1
+     * @var array|false
+     * @access private
+     */
+    var $server_sig_algs = false;
+
+    /**
      * Preferred Algorithms
      *
      * @see self::setPreferredAlgorithms()
@@ -1139,6 +1148,7 @@ class Net_SSH2
             4 => 'NET_SSH2_MSG_DEBUG',
             5 => 'NET_SSH2_MSG_SERVICE_REQUEST',
             6 => 'NET_SSH2_MSG_SERVICE_ACCEPT',
+            7 => 'NET_SSH2_MSG_EXT_INFO', // RFC 8308
             20 => 'NET_SSH2_MSG_KEXINIT',
             21 => 'NET_SSH2_MSG_NEWKEYS',
             30 => 'NET_SSH2_MSG_KEXDH_INIT',
@@ -1510,6 +1520,8 @@ class Net_SSH2
         $c2s_compression_algorithms = isset($preferred['client_to_server']['comp']) ?
             $preferred['client_to_server']['comp'] :
             $this->getSupportedCompressionAlgorithms();
+
+        $kex_algorithms = array_merge($kex_algorithms, array('ext-info-c'));
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
@@ -2418,6 +2430,35 @@ class Net_SSH2
             }
             extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
+            if ($type == NET_SSH2_MSG_EXT_INFO) {
+                if (strlen($response) < 4) {
+                    return false;
+                }
+                $nr_extensions = unpack('Nlength', $this->_string_shift($response, 4));
+                for ($i = 0; $i < $nr_extensions['length']; $i++) {
+                    if (strlen($response) < 4) {
+                        return false;
+                    }
+                    $temp = unpack('Nlength', $this->_string_shift($response, 4));
+                    $extension_name = $this->_string_shift($response, $temp['length']);
+                    if ($extension_name == 'server-sig-algs') {
+                        if (strlen($response) < 4) {
+                            return false;
+                        }
+                        $temp = unpack('Nlength', $this->_string_shift($response, 4));
+                        $this->server_sig_algs = explode(',', $this->_string_shift($response, $temp['length']));
+                    }
+                }
+
+                $response = $this->_get_binary_packet();
+                if ($response === false) {
+                    $this->bitmap = 0;
+                    user_error('Connection closed by server');
+                    return false;
+                }
+                extract(unpack('Ctype', $this->_string_shift($response, 1)));
+            }
+
             if ($type != NET_SSH2_MSG_SERVICE_ACCEPT) {
                 user_error('Expected SSH_MSG_SERVICE_ACCEPT');
                 return false;
@@ -2788,7 +2829,9 @@ class Net_SSH2
         );
 
         $algos = array('rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa');
-        if (isset($this->preferred['hostkey'])) {
+        if ($this->server_sig_algs) {
+            $algos = array_intersect($this->server_sig_algs, $algos);
+        } elseif (isset($this->preferred['hostkey'])) {
             $algos = array_intersect($this->preferred['hostkey'], $algos);
         }
         $algo = $this->_array_intersect_first($algos, $this->supported_private_key_algorithms);
