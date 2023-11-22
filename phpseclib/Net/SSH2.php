@@ -2635,9 +2635,9 @@ class SSH2
             $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
             $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
             if ($this->server_sig_algs) {
-                $algos = array_intersect($this->server_sig_algs, $algos);
+                $algos = array_intersect($algos, $this->server_sig_algs);
             } elseif (isset($this->preferred['hostkey'])) {
-                $algos = array_intersect($this->preferred['hostkey'], $algos);
+                $algos = array_intersect($algos, $this->preferred['hostkey']);
             }
             $algo = self::array_intersect_first($algos, $this->supported_private_key_algorithms);
             switch ($algo) {
