@@ -3101,6 +3101,8 @@ class SSH2
         $this->session_id = false;
         $this->retry_connect = true;
         $this->get_seq_no = $this->send_seq_no = 0;
+        $this->channel_status = [];
+        $this->channel_id_last_interactive = 0
     }
 
     /**
