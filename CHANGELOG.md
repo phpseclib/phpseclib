@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.34 - 2023-11-27
+
+- SSH2: add support for RFC8308 (#1960)
+- SSH2: don't use AES GCM for TurboFTP Server (#1957)
+- SSH2: reset more internal variables when connection is reset (#1961)
+- PKCS8: PBES1 / RC2 and PBES2 / DES keys didn't work (#1958)
+- EC/Signature/Format: add new IEEE format (#1956)
+- Math/BigInteger/Engines/PHP: PHP 8.2.13+ fixes Windows JIT issue
+- Math/BinaryField: fix for excessively large degrees (CVE-2023-49316)
+- Math/PrimeField: fix occasional error with squareRoot method
+
 ## 3.0.33 - 2023-10-21
 
 - SSH2: fix for PHP 7.3 (#1953)
