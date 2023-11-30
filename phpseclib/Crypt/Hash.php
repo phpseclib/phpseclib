@@ -866,7 +866,7 @@ class Hash
             $result+= $argument < 0 ? ($argument & 0x7FFFFFFF) + 0x80000000 : $argument;
         }
 
-        if (function_exists('php_uname') && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM') {
+        if (function_exists('php_uname') && is_string(php_uname('m')) && (php_uname('m') & "\xDF\xDF\xDF") != 'ARM') {
             return fmod($result, $mod);
         }
 
