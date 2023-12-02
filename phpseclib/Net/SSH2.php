@@ -1536,7 +1536,7 @@ class SSH2
             $preferred['client_to_server']['comp'] :
             SSH2::getSupportedCompressionAlgorithms();
 
-        $kex_algorithms = array_merge($kex_algorithms, array('ext-info-c'));
+        $kex_algorithms = array_merge($kex_algorithms, ['ext-info-c']);
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
