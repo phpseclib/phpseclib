@@ -92,7 +92,7 @@ abstract class AsymmetricKey
      */
     private $comment;
 
-    abstract public function toString(string $type, array $options = []): string;
+    abstract public function toString(string $type, array $options = []): array|string;
 
     /**
      * The constructor
