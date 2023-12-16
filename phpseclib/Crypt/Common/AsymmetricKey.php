@@ -94,7 +94,7 @@ abstract class AsymmetricKey
 
     /**
      * @param string $type
-     * @return string
+     * @return array|string
      */
     abstract public function toString($type, array $options = []);
 
