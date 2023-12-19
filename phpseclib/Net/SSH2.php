@@ -1915,7 +1915,9 @@ class SSH2
      */
     public function login(string $username, ...$args): bool
     {
-        $this->auth[] = func_get_args();
+        if (!$this->retry_connect) {
+            $this->auth[] = func_get_args();
+        }
 
         // try logging with 'none' as an authentication method first since that's what
         // PuTTY does
