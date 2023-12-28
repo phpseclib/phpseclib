@@ -1103,6 +1103,16 @@ class SSH2
     private $errorOnMultipleChannels;
 
     /**
+     * Terrapin Countermeasure
+     *
+     * "During initial KEX, terminate the connection if any unexpected or out-of-sequence packet is received"
+     * -- https://github.com/openssh/openssh-portable/commit/1edb00c58f8a6875fad6a497aa2bacf37f9e6cd5
+     *
+     * @var int
+     */
+    private $extra_packets;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1536,7 +1546,7 @@ class SSH2
             $preferred['client_to_server']['comp'] :
             SSH2::getSupportedCompressionAlgorithms();
 
-        $kex_algorithms = array_merge($kex_algorithms, ['ext-info-c']);
+        $kex_algorithms = array_merge($kex_algorithms, ['ext-info-c', 'kex-strict-c-v00@openssh.com']);
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
@@ -1592,6 +1602,7 @@ class SSH2
         if ($kexinit_payload_server === false) {
             $this->send_binary_packet($kexinit_payload_client);
 
+            $this->extra_packets = 0;
             $kexinit_payload_server = $this->get_binary_packet();
 
             if (
@@ -1623,6 +1634,11 @@ class SSH2
             $this->languages_server_to_client,
             $first_kex_packet_follows
         ) = Strings::unpackSSH2('L10C', $response);
+        if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
+            if ($this->session_id === false && $this->extra_packets) {
+                throw new \UnexpectedValueException('Possible Terrapin Attack detected');
+            }
+        }
 
         $this->supported_private_key_algorithms = $this->server_host_key_algorithms;
 
@@ -1879,6 +1895,10 @@ class SSH2
         if ($type != NET_SSH2_MSG_NEWKEYS) {
             $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
             throw new \UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
+        }
+
+        if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
+            $this->get_seq_no = $this->send_seq_no = 0;
         }
 
         $keyBytes = pack('Na*', strlen($keyBytes), $keyBytes);
@@ -3769,9 +3789,11 @@ class SSH2
                 $this->bitmap = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
+                $this->extra_packets++;
                 $payload = $this->get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_DEBUG:
+                $this->extra_packets++;
                 Strings::shift($payload, 2); // second byte is "always_display"
                 list($message) = Strings::unpackSSH2('s', $payload);
                 $this->errors[] = "SSH_MSG_DEBUG: $message";
@@ -3780,6 +3802,7 @@ class SSH2
             case NET_SSH2_MSG_UNIMPLEMENTED:
                 return false;
             case NET_SSH2_MSG_KEXINIT:
+                // this is here for key re-exchanges after the initial key exchange
                 if ($this->session_id !== false) {
                     if (!$this->key_exchange($payload)) {
                         $this->bitmap = 0;
