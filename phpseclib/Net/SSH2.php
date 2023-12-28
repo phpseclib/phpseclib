@@ -1100,6 +1100,14 @@ class Net_SSH2
     var $smartMFA = true;
 
     /**
+     * Extra packets counter
+     *
+     * @var bool
+     * @access private
+     */
+    var $extra_packets;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1512,7 +1520,7 @@ class Net_SSH2
             $preferred['client_to_server']['comp'] :
             $this->getSupportedCompressionAlgorithms();
 
-        $kex_algorithms = array_merge($kex_algorithms, array('ext-info-c'));
+        $kex_algorithms = array_merge($kex_algorithms, array('ext-info-c', 'kex-strict-c-v00@openssh.com'));
 
         // some SSH servers have buggy implementations of some of the above algorithms
         switch (true) {
@@ -1576,6 +1584,7 @@ class Net_SSH2
                 return false;
             }
 
+            $this->extra_packets = 0;
             $kexinit_payload_server = $this->_get_binary_packet();
             if ($kexinit_payload_server === false) {
                 $this->bitmap = 0;
@@ -1600,6 +1609,12 @@ class Net_SSH2
         }
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
         $this->kex_algorithms = explode(',', $this->_string_shift($response, $temp['length']));
+        if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
+            if ($this->session_id === false && $this->extra_packets) {
+                user_error('Possible Terrapin Attack detected');
+                return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+            }
+        }
 
         if (strlen($response) < 4) {
             return false;
@@ -1984,6 +1999,10 @@ class Net_SSH2
         if ($type != NET_SSH2_MSG_NEWKEYS) {
             user_error('Expected SSH_MSG_NEWKEYS');
             return false;
+        }
+
+        if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
+            $this->get_seq_no = $this->send_seq_no = 0;
         }
 
         $this->encrypt = $this->_encryption_algorithm_to_crypt_instance($encrypt);
@@ -3780,9 +3799,11 @@ class Net_SSH2
                 $this->bitmap = 0;
                 return false;
             case NET_SSH2_MSG_IGNORE:
+                $this->extra_packets++;
                 $payload = $this->_get_binary_packet($skip_channel_filter);
                 break;
             case NET_SSH2_MSG_DEBUG:
+                $this->extra_packets++;
                 $this->_string_shift($payload, 2);
                 if (strlen($payload) < 4) {
                     return false;
@@ -3794,6 +3815,7 @@ class Net_SSH2
             case NET_SSH2_MSG_UNIMPLEMENTED:
                 return false;
             case NET_SSH2_MSG_KEXINIT:
+                // this is here for key re-exchanges after the initial key exchange
                 if ($this->session_id !== false) {
                     $this->send_kex_first = false;
                     if (!$this->_key_exchange($payload)) {
