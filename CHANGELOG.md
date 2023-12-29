@@ -1,11 +1,23 @@
 # Changelog
 
+## 1.0.22 - 2023-12-28
+
+- SFTP: fix issue with get() downloading to files / streams (#1934)
+- SFTP: fix SFTPv2 errors when logging errors (#1933)
+- SSH2: implement terrapin attack countermeasures (#1972)
+- SSH2: only capture login info once (#1970)
+- SSH2: add support for RFC8308 (#1960)
+- Rijndael: fix for PHP 8.3+ compatability (#1944)
+- Crypt/Base: improve ARM detection code (#1949)
+- X509: fix for weird characters in subjaltname (#1943)
+- ASN1: fix string conversion code for 32-bit PHP installs (#1931)
+
 ## 1.0.21 - 2023-07-09
 
 - fix deprecation errors in newer PHP versions
 - OpenSSL 3.0.1+ deprecated some algorithms
-- RSA: add support for loading OpenSSH encrypted keys
-- RSA: add support for loading PuTTY v3 keys (#1737, #1733, #1531, #1490)
+- RSA: add support for loading OpenSSH encrypted keys (#1737, #1733, #1531, #1490)
+- RSA: add support for loading PuTTY v3 keys
 - SSH2: if logging in with rsa-sha2-256/512 fails, try ssh-rsa (#1865)
 - SSH2: add EOF test isConnected() (#1926)
 - SFTP: try without path canonicalization if initial realpath() fails (#1796)
