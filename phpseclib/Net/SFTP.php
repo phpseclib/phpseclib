@@ -2129,8 +2129,8 @@ class SFTP extends SSH2
             $offset = $start;
         } elseif ($mode & (self::RESUME | self::RESUME_START)) {
             // if NET_SFTP_OPEN_APPEND worked as it should _size() wouldn't need to be called
-            $size = $this->stat($remote_file)['size'];
-            $offset = $size !== false ? $size : 0;
+            $size = $this->size($remote_file);
+            $offset = $size !== false ? max($size, 0) : 0;
         } else {
             $offset = 0;
             if ($this->version >= 5) {
