@@ -149,7 +149,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             // we use specified curves to avoid issues with OpenSSL possibly not supporting a given named curve;
             // doing this may mean some curve-specific optimizations can't be used but idk if OpenSSL even
             // has curve-specific optimizations
-            $result = openssl_sign($message, $signature, $this->toString('PKCS8', ['namedCurve' => false]), $this->hash->getHash());
+            $result = openssl_sign($message, $signature, $this->withPassword()->toString('PKCS8', ['namedCurve' => false]), $this->hash->getHash());
 
             if ($result) {
                 if ($shortFormat == 'ASN1') {
