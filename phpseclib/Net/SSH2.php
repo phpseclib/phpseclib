@@ -3531,6 +3531,9 @@ class SSH2
         }
 
         $start = microtime(true);
+        $sec = (int) floor($this->curTimeout);
+        $usec = (int) (1000000 * ($this->curTimeout - $sec));
+        stream_set_timeout($this->fsock, $sec, $usec);
         $raw = stream_get_contents($this->fsock, $this->decrypt_block_size);
 
         if (!strlen($raw)) {
