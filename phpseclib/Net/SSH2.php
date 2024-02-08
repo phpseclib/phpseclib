@@ -1116,6 +1116,8 @@ class SSH2
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
+     * If $host is a stream resource then $port doesn't do anything, altho $timeout
+     * still will be used
      *
      * @param mixed $host
      * @param int $port
@@ -1214,6 +1216,8 @@ class SSH2
             ? \WeakReference::create($this)
             : $this;
 
+        $this->timeout = $timeout;
+
         if (is_resource($host)) {
             $this->fsock = $host;
             return;
@@ -1222,7 +1226,6 @@ class SSH2
         if (Strings::is_stringable($host)) {
             $this->host = $host;
             $this->port = $port;
-            $this->timeout = $timeout;
         }
     }
 
