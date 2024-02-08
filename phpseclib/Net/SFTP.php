@@ -3064,7 +3064,7 @@ class SFTP extends SSH2
     }
 
     /**
-     * Returns all errors
+     * Returns all errors on the SFTP layer
      */
     public function getSFTPErrors(): array
     {
@@ -3072,7 +3072,7 @@ class SFTP extends SSH2
     }
 
     /**
-     * Returns the last error
+     * Returns the last error on the SFTP layer
      */
     public function getLastSFTPError(): string
     {
