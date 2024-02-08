@@ -1108,6 +1108,8 @@ class SSH2
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
+     * If $host is a stream resource then $port doesn't do anything, altho $timeout
+     * still will be used
      *
      * @param mixed $host
      * @param int $port
@@ -1198,6 +1200,8 @@ class SSH2
                   31 => 'NET_SSH2_MSG_KEX_ECDH_REPLY')
         );
 
+        $this->timeout = $timeout;
+
         if (is_resource($host)) {
             $this->fsock = $host;
             return;
@@ -1206,7 +1210,6 @@ class SSH2
         if (is_string($host)) {
             $this->host = $host;
             $this->port = $port;
-            $this->timeout = $timeout;
         }
     }
 
