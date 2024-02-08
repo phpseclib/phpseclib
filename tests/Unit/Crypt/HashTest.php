@@ -428,7 +428,7 @@ class HashTest extends PhpseclibTestCase
         $this->assertSame($hash->getLengthInBytes(), $length);
     }
 
-    public function lengths(): array
+    public static function lengths(): array
     {
         return [
             // known
@@ -441,7 +441,7 @@ class HashTest extends PhpseclibTestCase
         ];
     }
 
-    public function UMACs(): array
+    public static function UMACs(): array
     {
         return [
             ['', 'umac-32', '113145FB', "umac-32 and message of <empty>"],

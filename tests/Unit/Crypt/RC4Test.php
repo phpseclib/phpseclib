@@ -16,7 +16,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class RC4Test extends PhpseclibTestCase
 {
-    public function engineVectors(): array
+    public static function engineVectors(): array
     {
         $engines = [
             'PHP',

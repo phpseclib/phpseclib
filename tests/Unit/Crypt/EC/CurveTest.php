@@ -18,7 +18,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class CurveTest extends PhpseclibTestCase
 {
-    public function curves(): array
+    public static function curves(): array
     {
         $curves = [];
         foreach (new \DirectoryIterator(__DIR__ . '/../../../../phpseclib/Crypt/EC/Curves/') as $file) {
@@ -40,7 +40,7 @@ class CurveTest extends PhpseclibTestCase
         return $curves;
     }
 
-    public function allCurves(): array
+    public static function allCurves(): array
     {
         $curves = [];
         foreach (new \DirectoryIterator(__DIR__ . '/../../../../phpseclib/Crypt/EC/Curves/') as $file) {
@@ -57,7 +57,7 @@ class CurveTest extends PhpseclibTestCase
         return $curves;
     }
 
-    public function curvesWithOIDs(): array
+    public static function curvesWithOIDs(): array
     {
         $class = new \ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
 

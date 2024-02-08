@@ -15,13 +15,13 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class RC2Test extends PhpseclibTestCase
 {
-    public $engines = [
+    public static $engines = [
         'PHP',
         'Eval',
         'OpenSSL',
     ];
 
-    public function engineVectors(): array
+    public static function engineVectors(): array
     {
         // tests from https://tools.ietf.org/html/rfc2268#page-8
         $tests = [
@@ -38,7 +38,7 @@ class RC2Test extends PhpseclibTestCase
 
         $result = [];
 
-        foreach ($this->engines as $engine) {
+        foreach (self::$engines as $engine) {
             foreach ($tests as $test) {
                 $result[] = [$engine, $test[0], $test[1], $test[2], $test[3]];
             }

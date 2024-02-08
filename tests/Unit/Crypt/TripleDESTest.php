@@ -15,13 +15,13 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class TripleDESTest extends PhpseclibTestCase
 {
-    public $engines = [
+    public static $engines = [
         'PHP',
         'Eval',
         'OpenSSL',
     ];
 
-    public function engineVectors(): array
+    public static function engineVectors(): array
     {
         // tests from http://csrc.nist.gov/publications/nistpubs/800-20/800-20.pdf#page=273
         $tests = [
@@ -95,7 +95,7 @@ class TripleDESTest extends PhpseclibTestCase
 
         $result = [];
 
-        foreach ($this->engines as $engine) {
+        foreach (self::$engines as $engine) {
             foreach ($tests as $test) {
                 $result[] = [$engine, $test[0], $test[1], $test[2]];
             }
@@ -122,7 +122,7 @@ class TripleDESTest extends PhpseclibTestCase
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
-    public function engineIVVectors(): array
+    public static function engineIVVectors(): array
     {
         $engines = [
             'PHP',
@@ -184,7 +184,7 @@ class TripleDESTest extends PhpseclibTestCase
         $des->setKey('abcdefghijklmnopqrstuvwx');
         $des->setIV(str_repeat("\0", $des->getBlockLength() >> 3));
 
-        foreach ($this->engines as $engine) {
+        foreach (self::$engines as $engine) {
             $des->setPreferredEngine($engine);
             if (!$des->isValidEngine($engine)) {
                 self::markTestSkipped("Unable to initialize $engine engine");
@@ -209,7 +209,7 @@ class TripleDESTest extends PhpseclibTestCase
     /**
      * @return list<array{string, string}>
      */
-    public function provideForCorrectSelfUseInLambda(): array
+    public static function provideForCorrectSelfUseInLambda(): array
     {
         return [
             ['YWFhYWFhYWFhYWFhYWFhYWFhYWG9l9gm', 'fDSmC5bbLdx8NKYLltst3Hw0pguW2y3cfDSmC5bbLdxmhqEOIeS2ig=='],

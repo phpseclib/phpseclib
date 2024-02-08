@@ -15,9 +15,9 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class RandomTest extends PhpseclibTestCase
 {
-    public function stringLengthData(): array
+    public static function stringLengthData(): array
     {
-        return array_map([$this, 'wrap'], [
+        return array_map(fn($x) => [$x], [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17, 19, 20, 23, 29, 31, 37,
             41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 111, 128, 1000,
             1024, 10000, 12345, 100000, 123456,
@@ -51,11 +51,5 @@ class RandomTest extends PhpseclibTestCase
             );
             $values[$rand] = true;
         }
-    }
-
-    protected function wrap($x): array
-    {
-        // array() is not a function, but $this->wrap() is.
-        return [$x];
     }
 }
