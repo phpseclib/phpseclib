@@ -4714,7 +4714,9 @@ class Net_SSH2
     }
 
     /**
-     * Returns all errors
+     * Returns all errors / debug messages on the SSH layer
+     *
+     * If you are looking for messages from the SFTP layer, please see SFTP::getSFTPErrors()
      *
      * @return string[]
      * @access public
@@ -4725,7 +4727,9 @@ class Net_SSH2
     }
 
     /**
-     * Returns the last error
+     * Returns the last error received on the SSH layer
+     *
+     * If you are looking for messages from the SFTP layer, please see SFTP::getLastSFTPError()
      *
      * @return string
      * @access public
