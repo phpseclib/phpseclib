@@ -178,7 +178,7 @@ abstract class TestCase extends PhpseclibTestCase
      */
     public function continuousBufferBatteryCombosWithoutSingleCombos(): array
     {
-        return array_filter(self::$continuousBufferBatteryCombos(), fn (array $continuousBufferBatteryCombo) => count($continuousBufferBatteryCombo[2]) > 1);
+        return array_filter(self::continuousBufferBatteryCombos(), fn (array $continuousBufferBatteryCombo) => count($continuousBufferBatteryCombo[2]) > 1);
     }
 
     /**
