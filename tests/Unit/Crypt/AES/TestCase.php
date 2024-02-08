@@ -30,7 +30,7 @@ abstract class TestCase extends PhpseclibTestCase
      *
      * @return array
      */
-    public function continuousBufferCombos()
+    public static function continuousBufferCombos()
     {
         $modes = [
             'ctr',
@@ -133,7 +133,7 @@ abstract class TestCase extends PhpseclibTestCase
      *
      * @return list<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombos()
+    public static function continuousBufferBatteryCombos()
     {
         $modes = [
             'ctr',
@@ -176,9 +176,9 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @return array<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombosWithoutSingleCombos()
+    public static function continuousBufferBatteryCombosWithoutSingleCombos()
     {
-        return array_filter($this->continuousBufferBatteryCombos(), function (array $continuousBufferBatteryCombo) {
+        return array_filter(self::continuousBufferBatteryCombos(), function (array $continuousBufferBatteryCombo) {
             return count($continuousBufferBatteryCombo[2]) > 1;
         });
     }

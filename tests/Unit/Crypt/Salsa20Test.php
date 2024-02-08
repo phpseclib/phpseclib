@@ -13,7 +13,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class Salsa20Test extends PhpseclibTestCase
 {
-    public function engineVectors()
+    public static function engineVectors()
     {
         $engines = [
             'PHP',

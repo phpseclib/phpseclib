@@ -18,7 +18,7 @@ class GCMTest extends PhpseclibTestCase
      *
      * @return array
      */
-    public function engine128Vectors()
+    public static function engine128Vectors()
     {
         $engines = [
             'PHP',
@@ -131,7 +131,7 @@ class GCMTest extends PhpseclibTestCase
      *
      * @return array
      */
-    public function engine256Vectors()
+    public static function engine256Vectors()
     {
         $engines = [
             'PHP',

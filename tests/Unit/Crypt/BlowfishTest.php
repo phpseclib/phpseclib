@@ -14,7 +14,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class BlowfishTest extends PhpseclibTestCase
 {
-    public function engineVectors()
+    public static function engineVectors()
     {
         $engines = [
             'PHP',

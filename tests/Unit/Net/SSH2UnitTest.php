@@ -14,7 +14,7 @@ use phpseclib3\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
 {
-    public function formatLogDataProvider()
+    public static function formatLogDataProvider()
     {
         return [
             [
