@@ -750,6 +750,33 @@ class Math_BigInteger
     }
 
     /**
+     * Return the size of a BigInteger in bits
+     *
+     * @return int
+     */
+    function getLength()
+    {
+        if (MATH_BIGINTEGER_MODE != MATH_BIGINTEGER_MODE_INTERNAL) {
+            return strlen($this->toBits());
+        }
+
+        $max = count($this->value) - 1;
+        return $max != -1 ?
+            $max * MATH_BIGINTEGER_BASE + ceil(log($a->value[$max] + 1, 2)) :
+            0;
+    }
+
+    /**
+     * Return the size of a BigInteger in bytes
+     *
+     * @return int
+     */
+    function getLengthInBytes()
+    {
+        return ceil($this->getLength() / 8);
+    }
+
+    /**
      * Copy an object
      *
      * PHP5 passes objects by reference while PHP4 passes by value.  As such, we need a function to guarantee
@@ -3286,6 +3313,11 @@ class Math_BigInteger
             $min = $temp;
         }
 
+        $length = $max->getLength();
+        if ($length > 8196) {
+            user_error('Generation of random prime numbers larger than 8196 has been disabled');
+        }
+
         static $one, $two;
         if (!isset($one)) {
             $one = new Math_BigInteger(1);
@@ -3393,7 +3425,14 @@ class Math_BigInteger
      */
     function isPrime($t = false)
     {
-        $length = strlen($this->toBytes());
+        $length = $this->getLength();
+        // OpenSSL limits RSA keys to 16384 bits. The length of an RSA key is equal to the length of the modulo, which is
+        // produced by multiplying the primes p and q by one another. The largest number two 8196 bit primes can produce is
+        // a 16384 bit number so, basically, 8196 bit primes are the largest OpenSSL will generate and if that's the largest
+        // that it'll generate it also stands to reason that that's the largest you'll be able to test primality on
+        if ($length > 8196) {
+            user_error('Primality testing is not supported for numbers larger than 8196 bits');
+        }
 
         if (!$t) {
             // see HAC 4.49 "Note (controlling the error probability)"
