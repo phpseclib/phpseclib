@@ -1392,4 +1392,16 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
 
         $this->assertFalse($x509->validateURL('https://aa'));
     }
+
+    public function testLargeInteger()
+    {
+        // cert has an elliptic curve public key with a specified curve (vs a named curve) with
+        // an excessively large integer value
+        $cert = file_get_contents(__DIR__ . '/mal-cert-01.der');
+
+        $x509 = new X509();
+        $x509->loadX509($cert);
+        $this->expectException(\RuntimeException::class);
+        $x509->getPublicKey();
+    }
 }
