@@ -1150,7 +1150,7 @@ abstract class ASN1
         $len = strlen($content);
         // see https://github.com/openjdk/jdk/blob/2deb318c9f047ec5a4b160d66a4b52f93688ec42/src/java.base/share/classes/sun/security/util/ObjectIdentifier.java#L55
         if ($len > 4096) {
-            //user_error('Object Identifier size is limited to 4096 bytes');
+            //throw new \RuntimeException("Object identifier size is limited to 4096 bytes ($len bytes present)");
             return false;
         }
 
