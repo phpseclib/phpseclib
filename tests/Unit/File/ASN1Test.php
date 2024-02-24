@@ -450,4 +450,17 @@ class ASN1Test extends PhpseclibTestCase
         $decoded = ASN1::decodeBER($em);
         $this->assertNull($decoded);
     }
+
+    public function testLongOID()
+    {
+        $cert = file_get_contents(dirname(__FILE__) . '/ASN1/mal-cert-02.der');
+
+        $asn1 = new ASN1();
+        //$this->setExpectedException('PHPUnit_Framework_Error_Notice');
+        $decoded = $asn1->decodeBER($cert);
+        $this->assertFalse($decoded[0]);
+
+        //$x509 = new X509();
+        //$x509->loadX509($cert);
+    }
 }
