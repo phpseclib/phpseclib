@@ -453,7 +453,7 @@ class Unit_File_ASN1Test extends PhpseclibTestCase
     {
         $cert = file_get_contents(dirname(__FILE__) . '/ASN1/mal-cert-02.der');
 
-        $asn1 = new File_ASN1();
+        $asn1 = new ASN1();
         //$this->setExpectedException('PHPUnit_Framework_Error_Notice');
         $decoded = $asn1->decodeBER($cert);
         $this->assertFalse($decoded[0]);
