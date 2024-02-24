@@ -455,9 +455,8 @@ class ASN1Test extends PhpseclibTestCase
     {
         $cert = file_get_contents(dirname(__FILE__) . '/ASN1/mal-cert-02.der');
 
-        $asn1 = new ASN1();
-        $decoded = $asn1->decodeBER($cert);
-        $this->assertFalse($decoded[0]);
+        $decoded = ASN1::decodeBER($cert);
+        $this->assertNull($decoded);
 
         //$x509 = new X509();
         //$x509->loadX509($cert);
