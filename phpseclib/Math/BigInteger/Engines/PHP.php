@@ -1251,4 +1251,17 @@ abstract class PHP extends Engine
         }
         return false;
     }
+
+    /**
+     * Return the size of a BigInteger in bits
+     *
+     * @return int
+     */
+    public function getLength()
+    {
+        $max = count($this->value) - 1;
+        return $max != -1 ?
+            $max * static::BASE + intval(ceil(log($this->value[$max] + 1, 2))) :
+            0;
+    }
 }

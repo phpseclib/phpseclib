@@ -593,7 +593,7 @@ abstract class Engine implements \JsonSerializable
      */
     public function getLengthInBytes(): int
     {
-        return strlen($this->toBytes());
+        return (int) ceil($this->getLength() / 8);
     }
 
     /**
