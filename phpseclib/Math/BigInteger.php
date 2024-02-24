@@ -163,23 +163,23 @@ class BigInteger
      *
      * @see __construct()
      */
-    protected static $base;
-    protected static $baseFull;
-    protected static $maxDigit;
-    protected static $msb;
+    static $base;
+    static $baseFull;
+    static $maxDigit;
+    static $msb;
 
     /**
      * $max10 in greatest $max10Len satisfying
      * $max10 = 10**$max10Len <= 2**$base.
      */
-    protected static $max10;
+    static $max10;
 
     /**
      * $max10Len in greatest $max10Len satisfying
      * $max10 = 10**$max10Len <= 2**$base.
      */
-    protected static $max10Len;
-    protected static $maxDigit2;
+    static $max10Len;
+    static $maxDigit2;
     /**#@-*/
 
     /**
