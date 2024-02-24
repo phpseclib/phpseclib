@@ -742,7 +742,7 @@ class BigInteger
 
         $max = count($this->value) - 1;
         return $max != -1 ?
-            $max * self::$base + ceil(log($a->value[$max] + 1, 2)) :
+            $max * self::$base + intval(ceil(log($this->value[$max] + 1, 2))) :
             0;
     }
 
@@ -753,7 +753,7 @@ class BigInteger
      */
     function getLengthInBytes()
     {
-        return ceil($this->getLength() / 8);
+        return (int) ceil($this->getLength() / 8);
     }
 
     /**
