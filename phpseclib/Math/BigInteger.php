@@ -736,13 +736,13 @@ class BigInteger
      */
     function getLength()
     {
-        if (MATH_BIGINTEGER_MODE != MATH_BIGINTEGER_MODE_INTERNAL) {
+        if (MATH_BIGINTEGER_MODE != self::MODE_INTERNAL) {
             return strlen($this->toBits());
         }
 
         $max = count($this->value) - 1;
         return $max != -1 ?
-            $max * MATH_BIGINTEGER_BASE + ceil(log($a->value[$max] + 1, 2)) :
+            $max * self::$base + ceil(log($a->value[$max] + 1, 2)) :
             0;
     }
 
