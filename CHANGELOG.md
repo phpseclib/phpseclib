@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.36 - 2024-02-25
+
+- BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
+- ASN1: limit OID length (CVE-2024-27355)
+- EC: when using openssl to do signing use unencrypted key (#1979)
+- SSH2: add different options to isConnected() (#1983)
+
 ## 3.0.35 - 2023-12-18
 
 - SSH2: implement terrapin attack countermeasures (#1972)
@@ -236,6 +243,12 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.47 - 2024-02-25
+
+- BigInteger: add getLength() and getLengthInBytes() methods
+- BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
+- ASN1: limit OID length (CVE-2024-27355)
 
 ## 2.0.46 - 2023-12-28
 
@@ -602,6 +615,12 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.23 - 2024-02-25
+
+- BigInteger: add getLength() and getLengthInBytes() methods
+- BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
+- ASN1: limit OID length (CVE-2024-27355)
 
 ## 1.0.22 - 2023-12-28
 
