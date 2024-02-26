@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.23 - 2024-02-25
+
+- BigInteger: add getLength() and getLengthInBytes() methods
+- BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
+- ASN1: limit OID length (CVE-2024-27355)
+
 ## 1.0.22 - 2023-12-28
 
 - SFTP: fix issue with get() downloading to files / streams (#1934)
