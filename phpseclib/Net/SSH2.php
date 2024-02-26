@@ -3022,7 +3022,6 @@ class SSH2
 
     /**
      * Is the connection still active?
-     */
      *
      * $level has 3x possible values:
      * 0 (default): phpseclib takes a passive approach to see if the connection is still active by calling feof()
