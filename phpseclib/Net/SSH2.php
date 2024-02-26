@@ -2840,7 +2840,7 @@ class SSH2
         //    throw new \RuntimeException('If you want to run multiple exec()\'s you will need to disable (and re-enable if appropriate) a PTY for each one.');
         //}
 
-        $this->openChannel(self::CHANNEL_EXEC);
+        $this->open_channel(self::CHANNEL_EXEC);
 
         if ($this->request_pty === true) {
             $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
@@ -2937,7 +2937,7 @@ class SSH2
      * @param bool $skip_extended
      * @return bool
      */
-    protected function openChannel($channel, $skip_extended = false)
+    protected function open_channel($channel, $skip_extended = false)
     {
         if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != NET_SSH2_MSG_CHANNEL_CLOSE) {
             throw new \RuntimeException('Please close the channel (' . $channel . ') before trying to open it again');
@@ -2994,7 +2994,7 @@ class SSH2
             throw new InsufficientSetupException('Operation disallowed prior to login()');
         }
 
-        $this->openChannel(self::CHANNEL_SHELL);
+        $this->open_channel(self::CHANNEL_SHELL);
 
         $terminal_modes = pack('C', NET_SSH2_TTY_OP_END);
         $packet = Strings::packSSH2(
@@ -3242,7 +3242,7 @@ class SSH2
      */
     public function startSubsystem($subsystem)
     {
-        $this->openChannel(self::CHANNEL_SUBSYSTEM);
+        $this->open_channel(self::CHANNEL_SUBSYSTEM);
 
         $packet = Strings::packSSH2(
             'CNsCs',
@@ -3369,7 +3369,7 @@ class SSH2
             if ($level == 1) {
                 $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
             } else {
-                $this->openChannel(self::CHANNEL_KEEP_ALIVE);
+                $this->open_channel(self::CHANNEL_KEEP_ALIVE);
                 $this->close_channel(self::CHANNEL_KEEP_ALIVE);
             }
             return true;
@@ -3448,7 +3448,7 @@ class SSH2
         }
 
         try {
-            $this->openChannel(self::CHANNEL_KEEP_ALIVE);
+            $this->open_channel(self::CHANNEL_KEEP_ALIVE);
         } catch (\RuntimeException $e) {
             return $this->reconnect();
         }
