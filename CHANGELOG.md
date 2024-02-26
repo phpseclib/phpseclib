@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.47 - 2024-02-25
+
+- BigInteger: add getLength() and getLengthInBytes() methods
+- BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
+- ASN1: limit OID length (CVE-2024-27355)
+
 ## 2.0.46 - 2023-12-28
 
 - SSH2: implement terrapin attack countermeasures (#1972)
@@ -365,6 +371,12 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.23 - 2024-02-25
+
+- BigInteger: add getLength() and getLengthInBytes() methods
+- BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
+- ASN1: limit OID length (CVE-2024-27355)
 
 ## 1.0.22 - 2023-12-28
 
