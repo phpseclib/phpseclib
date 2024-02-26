@@ -347,7 +347,7 @@ class SFTP extends SSH2
      */
     private function partial_init_sftp_connection(): bool
     {
-        $response = $this->openChannel(self::CHANNEL, true);
+        $response = $this->open_channel(self::CHANNEL, true);
         if ($response === true && $this->isTimeout()) {
             return false;
         }
