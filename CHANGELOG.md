@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.37 - 2024-03-02
+
+- SSH2: don't set stream timeout if timeout is 0 (#1986)
+
 ## 3.0.36 - 2024-02-25
 
 - BigInteger: put guardrails on isPrime() and randomPrime() (CVE-2024-27354)
