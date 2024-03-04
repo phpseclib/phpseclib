@@ -2526,7 +2526,7 @@ class SSH2
      * @psalm-return ($callback is callable ? bool : string|bool)
      * @throws RuntimeException on connection error
      */
-    public function exec(string $command, callable $callback = null)
+    public function exec(string $command, $callback = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
