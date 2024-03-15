@@ -614,7 +614,7 @@ abstract class SymmetricKey
      * @throws LengthException if the key isn't long enough
      * @throws BadMethodCallException if Poly1305 is enabled whilst in GCM mode
      */
-    public function setPoly1305Key(string $key = null): void
+    public function setPoly1305Key(?string $key = null): void
     {
         if ($this->mode == self::MODE_GCM) {
             throw new BadMethodCallException('Poly1305 cannot be used in GCM mode');

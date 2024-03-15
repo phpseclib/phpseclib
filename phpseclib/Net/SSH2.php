@@ -2526,7 +2526,7 @@ class SSH2
      * @psalm-return ($callback is callable ? bool : string|bool)
      * @throws RuntimeException on connection error
      */
-    public function exec(string $command, callable $callback = null)
+    public function exec(string $command, ?callable $callback = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
@@ -2833,7 +2833,7 @@ class SSH2
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
      * @see self::write()
      */
-    public function read(string $expect = '', int $mode = self::READ_SIMPLE, int $channel = null)
+    public function read(string $expect = '', int $mode = self::READ_SIMPLE, ?int $channel = null)
     {
         if (!$this->isAuthenticated()) {
             throw new InsufficientSetupException('Operation disallowed prior to login()');
@@ -2892,7 +2892,7 @@ class SSH2
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
      * @see SSH2::read()
      */
-    public function write(string $cmd, int $channel = null): void
+    public function write(string $cmd, ?int $channel = null): void
     {
         if (!$this->isAuthenticated()) {
             throw new InsufficientSetupException('Operation disallowed prior to login()');
@@ -2977,7 +2977,7 @@ class SSH2
      *
      * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      */
-    public function reset(int $channel = null): void
+    public function reset(?int $channel = null): void
     {
         if ($channel === null) {
             $channel = $this->get_interactive_channel();
@@ -3931,7 +3931,7 @@ class SSH2
      *
      * @see self::_get_binary_packet()
      */
-    protected function send_binary_packet(string $data, string $logged = null): void
+    protected function send_binary_packet(string $data, ?string $logged = null): void
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->bitmap = 0;
