@@ -506,7 +506,7 @@ abstract class PKCS8 extends PKCS
      * @param string $publicKey optional
      * @param array $options optional
      */
-    protected static function wrapPrivateKey(string $key, $attr, $params, $password, string $oid = null, string $publicKey = '', array $options = []): string
+    protected static function wrapPrivateKey(string $key, $attr, $params, $password, ?string $oid = null, string $publicKey = '', array $options = []): string
     {
         self::initialize_static_variables();
 
@@ -610,7 +610,7 @@ abstract class PKCS8 extends PKCS
     /**
      * Wrap a public key appropriately
      */
-    protected static function wrapPublicKey(string $key, $params, string $oid = null): string
+    protected static function wrapPublicKey(string $key, $params, ?string $oid = null): string
     {
         self::initialize_static_variables();
 

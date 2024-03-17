@@ -407,7 +407,7 @@ abstract class EC extends AsymmetricKey
      * @see self::verify()
           * @see self::sign()
      */
-    public function withContext(string $context = null): EC
+    public function withContext(?string $context = null): EC
     {
         if (!$this->curve instanceof TwistedEdwardsCurve) {
             throw new UnsupportedCurveException('Only Ed25519 and Ed448 support contexts');

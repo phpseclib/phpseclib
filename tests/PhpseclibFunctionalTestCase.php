@@ -15,7 +15,7 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
     /**
      * @return null
      */
-    protected function requireEnv(string $variable, string $message = null)
+    protected function requireEnv(string $variable, ?string $message = null)
     {
         if ($this->_getEnv($variable) === false) {
             $msg = $message ? $message : sprintf(

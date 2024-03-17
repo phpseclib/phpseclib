@@ -1296,7 +1296,7 @@ class SFTP extends SSH2
      *
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
-    public function touch(string $filename, int $time = null, int $atime = null): bool
+    public function touch(string $filename, ?int $time = null, ?int $atime = null): bool
     {
         if (!$this->precheck()) {
             return false;
@@ -1813,7 +1813,7 @@ class SFTP extends SSH2
      * @throws BadFunctionCallException if you're uploading via a callback and the callback function is invalid
      * @throws FileNotFoundException if you're uploading via a file and the file doesn't exist
      */
-    public function put(string $remote_file, $data, int $mode = self::SOURCE_STRING, int $start = -1, int $local_start = -1, callable $progressCallback = null): bool
+    public function put(string $remote_file, $data, int $mode = self::SOURCE_STRING, int $start = -1, int $local_start = -1, ?callable $progressCallback = null): bool
     {
         if (!$this->precheck()) {
             return false;
@@ -2060,7 +2060,7 @@ class SFTP extends SSH2
      * @return string|bool
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
-    public function get(string $remote_file, $local_file = false, int $offset = 0, int $length = -1, callable $progressCallback = null)
+    public function get(string $remote_file, $local_file = false, int $offset = 0, int $length = -1, ?callable $progressCallback = null)
     {
         if (!$this->precheck()) {
             return false;
