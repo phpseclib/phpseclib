@@ -1641,7 +1641,7 @@ class X509
     /**
      * Get Distinguished Name properties
      */
-    public function getDNProp(string $propName, array $dn = null, bool $withType = false)
+    public function getDNProp(string $propName, ?array $dn = null, bool $withType = false)
     {
         if (!isset($dn)) {
             $dn = $this->dn;
@@ -1744,7 +1744,7 @@ class X509
      * @param array|null $dn optional
      * @return array|bool|string
      */
-    public function getDN($format = self::DN_ARRAY, array $dn = null)
+    public function getDN($format = self::DN_ARRAY, ?array $dn = null)
     {
         if (!isset($dn)) {
             $dn = isset($this->currentCert['tbsCertList']) ? $this->currentCert['tbsCertList']['issuer'] : $this->dn;
@@ -3074,7 +3074,7 @@ class X509
      * @param bool $create optional
      * @return array|false
      */
-    private function &extensions(?array &$root, string $path = null, bool $create = false)
+    private function &extensions(?array &$root, ?string $path = null, bool $create = false)
     {
         if (!isset($root)) {
             $root = $this->currentCert;
@@ -3125,7 +3125,7 @@ class X509
      *
      * @param string|null $path optional
      */
-    private function removeExtensionHelper(string $id, string $path = null): bool
+    private function removeExtensionHelper(string $id, ?string $path = null): bool
     {
         $extensions = &$this->extensions($this->currentCert, $path);
 
@@ -3157,7 +3157,7 @@ class X509
      * @param array|null $cert optional
      * @param string|null $path optional
      */
-    private function getExtensionHelper(string $id, array $cert = null, string $path = null)
+    private function getExtensionHelper(string $id, ?array $cert = null, ?string $path = null)
     {
         $extensions = $this->extensions($cert, $path);
 
@@ -3180,7 +3180,7 @@ class X509
      * @param array|null $cert optional
      * @param string|null $path optional
      */
-    private function getExtensionsHelper(array $cert = null, string $path = null): array
+    private function getExtensionsHelper(?array $cert = null, ?string $path = null): array
     {
         $exts = $this->extensions($cert, $path);
         $extensions = [];
@@ -3201,7 +3201,7 @@ class X509
      * @param bool $replace optional
      * @param string|null $path optional
      */
-    private function setExtensionHelper(string $id, $value, bool $critical = false, bool $replace = true, string $path = null): bool
+    private function setExtensionHelper(string $id, $value, bool $critical = false, bool $replace = true, ?string $path = null): bool
     {
         $extensions = &$this->extensions($this->currentCert, $path, true);
 
@@ -3241,7 +3241,7 @@ class X509
      *
      * @param array|null $cert optional
      */
-    public function getExtension(string $id, array $cert = null, string $path = null)
+    public function getExtension(string $id, ?array $cert = null, ?string $path = null)
     {
         return $this->getExtensionHelper($id, $cert, $path);
     }
@@ -3252,7 +3252,7 @@ class X509
      * @param array|null $cert optional
      * @param string|null $path optional
      */
-    public function getExtensions(array $cert = null, string $path = null): array
+    public function getExtensions(?array $cert = null, ?string $path = null): array
     {
         return $this->getExtensionsHelper($cert, $path);
     }
@@ -3321,7 +3321,7 @@ class X509
      * @param int $disposition optional
      * @param array|null $csr optional
      */
-    public function getAttribute(string $id, int $disposition = self::ATTR_ALL, array $csr = null)
+    public function getAttribute(string $id, int $disposition = self::ATTR_ALL, ?array $csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3359,7 +3359,7 @@ class X509
      *
      * @param array|null $csr optional
      */
-    public function getAttributes(array $csr = null): array
+    public function getAttributes(?array $csr = null): array
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3627,7 +3627,7 @@ class X509
      *
      * @param string|null $date optional
      */
-    public function revoke(string $serial, string $date = null): bool
+    public function revoke(string $serial, ?string $date = null): bool
     {
         if (isset($this->currentCert['tbsCertList'])) {
             if (is_array($rclist = &$this->subArray($this->currentCert, 'tbsCertList/revokedCertificates', true))) {
@@ -3682,7 +3682,7 @@ class X509
      * @param array|null $crl optional
      * @return array|bool
      */
-    public function listRevoked(array $crl = null)
+    public function listRevoked(?array $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -3724,7 +3724,7 @@ class X509
      *
      * @param array|null $crl optional
      */
-    public function getRevokedCertificateExtension(string $serial, string $id, array $crl = null)
+    public function getRevokedCertificateExtension(string $serial, string $id, ?array $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -3745,7 +3745,7 @@ class X509
      * @param array|null $crl optional
      * @return array|bool
      */
-    public function getRevokedCertificateExtensions(string $serial, array $crl = null)
+    public function getRevokedCertificateExtensions(string $serial, ?array $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
