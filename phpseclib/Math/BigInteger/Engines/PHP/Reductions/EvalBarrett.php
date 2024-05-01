@@ -100,7 +100,7 @@ abstract class EvalBarrett extends Base
         $cutoff = count($m) + (count($m) >> 1);
 
         $code = '
-            if (count($n) > ' . (2 * count($m)) . ') {
+            if (count($n) >= ' . (2 * count($m)) . ') {
                 $lhs = new ' . $class . '();
                 $rhs = new ' . $class . '();
                 $lhs->value = $n;

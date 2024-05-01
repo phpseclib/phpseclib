@@ -66,7 +66,7 @@ abstract class Barrett extends Base
 
         $m_length = strlen($m);
 
-        if (strlen($n) > 2 * $m_length) {
+        if (strlen($n) >= 2 * $m_length) {
             return bcmod($n, $m);
         }
 

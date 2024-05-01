@@ -56,7 +56,7 @@ abstract class Barrett extends Base
         $m_length = count($m);
 
         // if (self::compareHelper($n, $static::square($m)) >= 0) {
-        if (count($n) > 2 * $m_length) {
+        if (count($n) >= 2 * $m_length) {
             $lhs = new $class();
             $rhs = new $class();
             $lhs->value = $n;
