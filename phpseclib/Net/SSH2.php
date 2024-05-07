@@ -2799,10 +2799,12 @@ class Net_SSH2
     {
         $this->agent = $agent;
         $keys = $agent->requestIdentities();
+        $orig_algorithms = $this->supported_private_key_algorithms;
         foreach ($keys as $key) {
             if ($this->_privatekey_login($username, $key)) {
                 return true;
             }
+            $this->supported_private_key_algorithms = $orig_algorithms;
         }
 
         return false;
