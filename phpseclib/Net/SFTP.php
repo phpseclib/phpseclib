@@ -503,7 +503,7 @@ class SFTP extends SSH2
                 throw $e;
             }
             $this->canonicalize_paths = false;
-            $this->reset_connection(DisconnectReason::CONNECTION_LOST);
+            $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
         }
 
         $this->update_stat_cache($this->pwd, []);
@@ -2910,9 +2910,9 @@ class SFTP extends SSH2
     /**
      * Resets a connection for re-use
      */
-    protected function reset_connection(int $reason): void
+    protected function reset_connection(): void
     {
-        parent::reset_connection($reason);
+        parent::reset_connection();
         $this->use_request_id = false;
         $this->pwd = false;
         $this->requestBuffer = [];
