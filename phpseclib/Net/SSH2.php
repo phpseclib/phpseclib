@@ -3427,7 +3427,7 @@ class SSH2
                         if (strlen($packet->raw) < $this->decrypt_block_size) {
                             return;
                         }
-                        $packet->plain .= $this->decrypt->decrypt(substr($packet->raw, 0, $this->decrypt_block_size));
+                        $packet->plain = $this->decrypt->decrypt(substr($packet->raw, 0, $this->decrypt_block_size));
                         $packet->packet_length = $extractPacketLength(Strings::shift($packet->plain, $packet_length_header_size));
                         $packet->size = $packet_length_header_size + $packet->packet_length;
                         $added_validation_length = $packet_length_header_size;
