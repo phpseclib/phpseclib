@@ -3450,7 +3450,8 @@ class SSH2
         // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
         // "implementations SHOULD check that the packet length is reasonable"
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
-        if ($packet->packet_length <= 0 || $packet->packet_length > 0x9000
+        if (
+            $packet->packet_length <= 0 || $packet->packet_length > 0x9000
             || ($packet->packet_length + $added_validation_length) % $this->decrypt_block_size != 0
         ) {
             $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
