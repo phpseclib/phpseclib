@@ -2911,7 +2911,7 @@ class SFTP extends SSH2
     /**
      * Resets the SFTP channel for re-use
      */
-    private function reset_sftp()
+    private function reset_sftp(): void
     {
         $this->use_request_id = false;
         $this->pwd = false;
