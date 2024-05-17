@@ -3693,7 +3693,7 @@ class Net_SFTP extends Net_SSH2
     {
         $this->use_request_id = false;
         $this->pwd = false;
-        $this->requestBuffer = [];
+        $this->requestBuffer = array();
         $this->partial_init = false;
     }
 
