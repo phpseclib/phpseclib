@@ -813,7 +813,8 @@ class Net_SFTP extends Net_SSH2
                 return false;
             }
             $this->canonicalize_paths = false;
-            $this->_reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+            $this->_reset_sftp();
+            return $this->_init_sftp_connection();
         }
 
         $this->_update_stat_cache($this->pwd, array());
@@ -3684,6 +3685,19 @@ class Net_SFTP extends Net_SSH2
     }
 
     /**
+     * Resets the SFTP channel for re-use
+     *
+     * @access private
+     */
+    function _reset_sftp()
+    {
+        $this->use_request_id = false;
+        $this->pwd = false;
+        $this->requestBuffer = [];
+        $this->partial_init = false;
+    }
+
+    /**
      * Resets a connection for re-use
      *
      * @param int $reason
@@ -3692,10 +3706,7 @@ class Net_SFTP extends Net_SSH2
     function _reset_connection($reason)
     {
         parent::_reset_connection($reason);
-        $this->use_request_id = false;
-        $this->pwd = false;
-        $this->requestBuffer = array();
-        $this->partial_init = false;
+        $this->_reset_sftp();
     }
 
     /**
