@@ -1919,10 +1919,8 @@ class SSH2
      *
      * @link https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/ssh2-aesctr-openssh.html
      * @link https://bugzilla.mindrot.org/show_bug.cgi?id=1291
-     * @param string $algorithm Name of the encryption algorithm
-     * @return bool
      */
-    private static function bad_algorithm_candidate($algorithm): bool
+    private static function bad_algorithm_candidate(string $algorithm): bool
     {
         switch ($algorithm) {
             case 'arcfour256':
@@ -3039,9 +3037,6 @@ class SSH2
      * 2: phpseclib takes an active approach to see if the connection is still active by sending an SSH_MSG_CHANNEL_OPEN
      *    packet and imediately trying to close that channel. some routers, in particular, however, will only let you
      *    open one channel, so this approach could yield false positives
-     *
-     * @param int $level
-     * @return bool
      */
     public function isConnected(int $level = 0): bool
     {
@@ -3229,7 +3224,7 @@ class SSH2
             }
             $this->send_keep_alive();
 
-            list($sec, $usec) = $this->get_stream_timeout();
+            [$sec, $usec] = $this->get_stream_timeout();
             stream_set_timeout($this->fsock, $sec, $usec);
             $start = microtime(true);
             $raw = stream_get_contents($this->fsock, $packet->size - strlen($packet->raw));
@@ -4050,7 +4045,7 @@ class SSH2
     /**
      * Sends a keep-alive message, if keep-alive is enabled and interval is met
      */
-    private function send_keep_alive()
+    private function send_keep_alive(): void
     {
         $elapsed = microtime(true) - $this->keep_alive_sent;
         if ($this->keepAlive > 0 && $elapsed >= $this->keepAlive) {
