@@ -1008,7 +1008,7 @@ class Net_SSH2
      * @var bool
      * @access private
      */
-    var $retry_connect = false;
+    var $login_credentials_finalized = false;
 
     /**
      * Binary Packet Buffer
@@ -2297,7 +2297,7 @@ class Net_SSH2
     function login($username)
     {
         $args = func_get_args();
-        if (!$this->retry_connect) {
+        if (!$this->login_credentials_finalized) {
             $this->auth[] = $args;
         }
 
@@ -2388,6 +2388,7 @@ class Net_SSH2
 
             foreach ($newargs as $arg) {
                 if ($this->_login_helper($username, $arg)) {
+                    $this->login_credentials_finalized = true;
                     return true;
                 }
             }
@@ -2423,10 +2424,14 @@ class Net_SSH2
                 return false;
             }
 
+            $bad_key_size_fix = $this->bad_key_size_fix;
             $response = $this->_get_binary_packet();
             if ($response === false) {
-                if ($this->retry_connect) {
-                    $this->retry_connect = false;
+                // bad_key_size_fix is only ever re-assigned to true
+                // under certain conditions. when it's newly set we'll
+                // retry the connection with that new setting but we'll
+                // only try it once.
+                if ($bad_key_size_fix != $this->bad_key_size_fix) {
                     if (!$this->_connect()) {
                         return false;
                     }
@@ -3564,7 +3569,6 @@ class Net_SSH2
     function _reconnect()
     {
         $this->_reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-        $this->retry_connect = true;
         if (!$this->_connect()) {
             return false;
         }
@@ -3588,7 +3592,6 @@ class Net_SSH2
         $this->hmac_check = $this->hmac_create = false;
         $this->hmac_size = false;
         $this->session_id = false;
-        $this->retry_connect = true;
         $this->get_seq_no = $this->send_seq_no = 0;
     }
 
