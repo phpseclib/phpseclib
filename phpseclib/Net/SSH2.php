@@ -1000,7 +1000,7 @@ class SSH2
      *
      * @var bool
      */
-    private $retry_connect = false;
+    private $login_credentials_finalized = false;
 
     /**
      * Binary Packet Buffer
@@ -2216,7 +2216,7 @@ class SSH2
      */
     public function login($username, ...$args)
     {
-        if (!$this->retry_connect) {
+        if (!$this->login_credentials_finalized) {
             $this->auth[] = func_get_args();
         }
 
@@ -2319,6 +2319,7 @@ class SSH2
 
             foreach ($newargs as $arg) {
                 if ($this->login_helper($username, $arg)) {
+                    $this->login_credentials_finalized = true;
                     return true;
                 }
             }
@@ -2349,10 +2350,14 @@ class SSH2
             $this->send_binary_packet($packet);
 
             try {
+                $bad_key_size_fix = $this->bad_key_size_fix;
                 $response = $this->get_binary_packet();
             } catch (\Exception $e) {
-                if ($this->retry_connect) {
-                    $this->retry_connect = false;
+                // bad_key_size_fix is only ever re-assigned to true
+                // under certain conditions. when it's newly set we'll
+                // retry the connection with that new setting but we'll
+                // only try it once.
+                if ($bad_key_size_fix != $this->bad_key_size_fix) {
                     $this->connect();
                     return $this->login_helper($username, $password);
                 }
@@ -3467,7 +3472,6 @@ class SSH2
     private function reconnect()
     {
         $this->reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-        $this->retry_connect = true;
         $this->connect();
         foreach ($this->auth as $auth) {
             $result = $this->login(...$auth);
@@ -3488,7 +3492,6 @@ class SSH2
         $this->hmac_check = $this->hmac_create = false;
         $this->hmac_size = false;
         $this->session_id = false;
-        $this->retry_connect = true;
         $this->get_seq_no = $this->send_seq_no = 0;
         $this->channel_status = [];
         $this->channel_id_last_interactive = 0;
