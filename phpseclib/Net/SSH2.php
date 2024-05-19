@@ -4965,10 +4965,30 @@ class SSH2
                     $obj->setKeyLength(preg_replace('#[^\d]#', '', $algo));
                 }
                 switch ($algo) {
+                    // Eval engines do not exist for ChaCha20 or RC4 because they would not benefit from one.
+                    // to benefit from an Eval engine they'd need to loop a variable amount of times, they'd
+                    // need to do table lookups (eg. sbox subsitutions). ChaCha20 doesn't do either because
+                    // it's a so-called ARX cipher, meaning that the only operations it does are add (A), rotate (R)
+                    // and XOR (X). RC4 does do table lookups but being a stream cipher it works differently than
+                    // block ciphers. with RC4 you XOR the plaintext against a keystream and the keystream changes
+                    // as you encrypt stuff. the only table lookups are made against this keystream and thus table
+                    // lookups are kinda unavoidable. with AES and DES, however, the table lookups that are done
+                    // are done against substitution boxes (sboxes), which are invariant.
+
+                    // OpenSSL can't be used as an engine, either, because OpenSSL doesn't support continuous buffers
+                    // as SSH2 uses and altho you can emulate a continuous buffer with block ciphers you can't do so
+                    // with stream ciphers. As for ChaCha20...  for the ChaCha20 part OpenSSL could prob be used but
+                    // the big slow down isn't with ChaCha20 - it's with Poly1305. SSH constructs the key for that
+                    // differently than how OpenSSL does it (OpenSSL does it as the RFC describes, SSH doesn't).
+
+                    // libsodium can't be used because it doesn't support RC4 and it doesn't construct the Poly1305
+                    // keys in the same way that SSH does
+
+                    // mcrypt could prob be used for RC4 but mcrypt hasn't been included in PHP core for yearss
                     case 'chacha20-poly1305@openssh.com':
                     case 'arcfour128':
                     case 'arcfour256':
-                        if ($engine != 'Eval') {
+                        if ($engine != 'PHP') {
                             continue 2;
                         }
                         break;
