@@ -3320,12 +3320,9 @@ class SSH2
                 }
             }
         }
-
+        $padding_length = 0;
         $payload = $packet->plain;
         extract(unpack('Cpadding_length', Strings::shift($payload, 1)));
-        /**
-         * @var int $padding_length
-         */
         if ($padding_length > 0) {
             Strings::pop($payload, $padding_length);
         }
@@ -3401,26 +3398,20 @@ class SSH2
         if (strlen($packet->raw) < $packet_length_header_size) {
             return;
         }
-        $extractPacketLength = function ($payload) {
-            extract(unpack('Npacket_length', $payload));
-            /**
-             * @var integer $packet_length
-             */
-            return $packet_length;
-        };
+        $packet_length = 0;
         $added_validation_length = 0; // indicates when the packet length header is included when validating packet length against block size
         if ($this->decrypt) {
             switch ($this->decryptName) {
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
-                    $packet->packet_length = $extractPacketLength(substr($packet->raw, 0, $packet_length_header_size));
-                    $packet->size = $packet_length_header_size + $packet->packet_length + $this->decrypt_block_size; // expect tag
+                    extract(unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size)));
+                    $packet->size = $packet_length_header_size + $packet_length + $this->decrypt_block_size; // expect tag
                     break;
                 case 'chacha20-poly1305@openssh.com':
                     $this->lengthDecrypt->setNonce(pack('N2', 0, $this->get_seq_no));
                     $packet_length_header = $this->lengthDecrypt->decrypt(substr($packet->raw, 0, $packet_length_header_size));
-                    $packet->packet_length = $extractPacketLength($packet_length_header);
-                    $packet->size = $packet_length_header_size + $packet->packet_length + 16; // expect tag
+                    extract(unpack('Npacket_length', $packet_length_header));
+                    $packet->size = $packet_length_header_size + $packet_length + 16; // expect tag
                     break;
                 default:
                     if (!$this->hmac_check instanceof Hash || !$this->hmac_check_etm) {
@@ -3428,26 +3419,26 @@ class SSH2
                             return;
                         }
                         $packet->plain = $this->decrypt->decrypt(substr($packet->raw, 0, $this->decrypt_block_size));
-                        $packet->packet_length = $extractPacketLength(Strings::shift($packet->plain, $packet_length_header_size));
-                        $packet->size = $packet_length_header_size + $packet->packet_length;
+                        extract(unpack('Npacket_length', Strings::shift($packet->plain, $packet_length_header_size)));
+                        $packet->size = $packet_length_header_size + $packet_length;
                         $added_validation_length = $packet_length_header_size;
                     } else {
-                        $packet->packet_length = $extractPacketLength(substr($packet->raw, 0, $packet_length_header_size));
-                        $packet->size = $packet_length_header_size + $packet->packet_length;
+                        extract(unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size)));
+                        $packet->size = $packet_length_header_size + $packet_length;
                     }
                     break;
             }
         } else {
-            $packet->packet_length = $extractPacketLength(substr($packet->raw, 0, $packet_length_header_size));
-            $packet->size = $packet_length_header_size + $packet->packet_length;
+            extract(unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size)));
+            $packet->size = $packet_length_header_size + $packet_length;
             $added_validation_length = $packet_length_header_size;
         }
         // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
         // "implementations SHOULD check that the packet length is reasonable"
         // PuTTY uses 0x9000 as the actual max packet size and so to shall we
         if (
-            $packet->packet_length <= 0 || $packet->packet_length > 0x9000
-            || ($packet->packet_length + $added_validation_length) % $this->decrypt_block_size != 0
+            $packet_length <= 0 || $packet_length > 0x9000
+            || ($packet_length + $added_validation_length) % $this->decrypt_block_size != 0
         ) {
             $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
             throw new InvalidPacketLengthException('Invalid packet length');
@@ -3455,6 +3446,7 @@ class SSH2
         if ($this->hmac_check instanceof Hash) {
             $packet->size += $this->hmac_size;
         }
+        $packet->packet_length = $packet_length;
     }
 
     /**
