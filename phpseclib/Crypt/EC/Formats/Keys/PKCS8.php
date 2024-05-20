@@ -129,13 +129,22 @@ abstract class PKCS8 extends Progenitor
         $components = [];
 
         if (isset($key['privateKey'])) {
-            $components['curve'] = $key['privateKeyAlgorithm']['algorithm'] == 'id-Ed25519' ? new Ed25519() : new Ed448();
-
-            // 0x04 == octet string
-            // 0x20 == length (32 bytes)
-            if (substr($key['privateKey'], 0, 2) != "\x04\x20") {
-                throw new RuntimeException('The first two bytes of the private key field should be 0x0420');
+            if ($key['privateKeyAlgorithm']['algorithm'] == 'id-Ed25519') {
+                $components['curve'] = new Ed25519();
+                // 0x04 == octet string
+                // 0x20 == length (32 bytes)
+                if (substr($key['privateKey'], 0, 2) != "\x04\x20") {
+                    throw new \RuntimeException('The first two bytes of the Ed25519 private key field should be 0x0420');
+                }
+            } else {
+                $components['curve'] = new Ed448();
+                // 0x04 == octet string
+                // 0x39 == length (57 bytes)
+                if (substr($key['privateKey'], 0, 2) != "\x04\x39") {
+                    throw new \RuntimeException('The first two bytes of the Ed448 private key field should be 0x0439');
+                }
             }
+
             $arr = $components['curve']->extractSecret(substr($key['privateKey'], 2));
             $components['dA'] = $arr['dA'];
             $components['secret'] = $arr['secret'];
