@@ -503,7 +503,8 @@ class SFTP extends SSH2
                 throw $e;
             }
             $this->canonicalize_paths = false;
-            $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
+            $this->reset_sftp();
+            return $this->init_sftp_connection();
         }
 
         $this->update_stat_cache($this->pwd, []);
@@ -2908,15 +2909,23 @@ class SFTP extends SSH2
     }
 
     /**
+     * Resets the SFTP channel for re-use
+     */
+    private function reset_sftp(): void
+    {
+        $this->use_request_id = false;
+        $this->pwd = false;
+        $this->requestBuffer = [];
+        $this->partial_init = false;
+    }
+
+    /**
      * Resets a connection for re-use
      */
     protected function reset_connection(): void
     {
         parent::reset_connection();
-        $this->use_request_id = false;
-        $this->pwd = false;
-        $this->requestBuffer = [];
-        $this->partial_init = false;
+        $this->reset_sftp();
     }
 
     /**
