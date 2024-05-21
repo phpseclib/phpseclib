@@ -297,6 +297,33 @@ WEKBIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
         $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
     }
 
+    // Generate with:
+    // openssl genpkey -algorithm ed448 | openssl ec -pubout
+    public function testEd448PublicKey()
+    {
+        $expected = '-----BEGIN PUBLIC KEY-----
+MEMwBQYDK2VxAzoAsA7zbld48IfDhm7Qd6FYrvnljtjhPRRqZi04NWyj8VXrWe1x
+BMLQFJEE0JDmKayUWpUWsRXwmb6A
+-----END PUBLIC KEY-----';
+        $key = PublicKeyLoader::load($expected);
+        $this->assertSameNL('Ed448', $key->getCurve());
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
+    }
+
+    // Generate with:
+    // openssl genpkey -algorithm ed448
+    public function testEd448PrivateKey()
+    {
+        $expected = '-----BEGIN PRIVATE KEY-----
+MEcCAQAwBQYDK2VxBDsEOettXaJYob4hJNKJNOD+FfMvdesLKNp0KwochI6AKmAb
+tWhtkn99WOjd1PsGMh9zz2Vhdg3MwasOMQ==
+-----END PRIVATE KEY-----';
+        $key = PublicKeyLoader::load($expected);
+        $this->assertSameNL($expected, $key->toString('PKCS8'));
+        $this->assertSameNL('Ed448', $key->getCurve());
+        $this->assertSameNL('Ed448', $key->getPublicKey()->getCurve());
+    }
+
     public function testPuTTYnistp256()
     {
         $key = PublicKeyLoader::load($expected = 'PuTTY-User-Key-File-2: ecdsa-sha2-nistp256
