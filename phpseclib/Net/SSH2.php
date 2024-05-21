@@ -3829,6 +3829,28 @@ class Net_SSH2
                     }
                     $payload = $this->_get_binary_packet($skip_channel_filter);
                 }
+                break;
+            case NET_SSH2_MSG_EXT_INFO:
+                $this->_string_shift($payload, 1);
+                if (strlen($payload) < 4) {
+                    return false;
+                }
+                $nr_extensions = unpack('Nlength', $this->_string_shift($payload, 4));
+                for ($i = 0; $i < $nr_extensions['length']; $i++) {
+                    if (strlen($payload) < 4) {
+                        return false;
+                    }
+                    $temp = unpack('Nlength', $this->_string_shift($payload, 4));
+                    $extension_name = $this->_string_shift($payload, $temp['length']);
+                    if ($extension_name == 'server-sig-algs') {
+                        if (strlen($payload) < 4) {
+                            return false;
+                        }
+                        $temp = unpack('Nlength', $this->_string_shift($payload, 4));
+                        $this->supported_private_key_algorithms = explode(',', $this->_string_shift($payload, $temp['length']));
+                    }
+                }
+                $payload = $this->_get_binary_packet($skip_channel_filter);
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
