@@ -2366,20 +2366,6 @@ class SSH2
             }
 
             list($type) = Strings::unpackSSH2('C', $response);
-
-            if ($type == NET_SSH2_MSG_EXT_INFO) {
-                list($nr_extensions) = Strings::unpackSSH2('N', $response);
-                for ($i = 0; $i < $nr_extensions; $i++) {
-                    list($extension_name, $extension_value) = Strings::unpackSSH2('ss', $response);
-                    if ($extension_name == 'server-sig-algs') {
-                        $this->supported_private_key_algorithms = explode(',', $extension_value);
-                    }
-                }
-
-                $response = $this->get_binary_packet();
-                list($type) = Strings::unpackSSH2('C', $response);
-            }
-
             list($service) = Strings::unpackSSH2('s', $response);
 
             if ($type != NET_SSH2_MSG_SERVICE_ACCEPT || $service != 'ssh-userauth') {
@@ -3850,6 +3836,17 @@ class SSH2
                     }
                     $payload = $this->get_binary_packet($skip_channel_filter);
                 }
+                break;
+            case NET_SSH2_MSG_EXT_INFO:
+                list($_,$nr_extensions) = Strings::unpackSSH2('CN', $payload);
+                for ($i = 0; $i < $nr_extensions; $i++) {
+                    list($extension_name, $extension_value) = Strings::unpackSSH2('ss', $payload);
+                    if ($extension_name == 'server-sig-algs') {
+                        $this->supported_private_key_algorithms = explode(',', $extension_value);
+                    }
+                }
+                $payload = $this->get_binary_packet($skip_channel_filter);
+                break;
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
