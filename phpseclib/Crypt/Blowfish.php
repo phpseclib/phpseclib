@@ -412,7 +412,7 @@ class Blowfish extends BlockCipher
             $this->bctx['p'][$i    ] = $l;
             $this->bctx['p'][$i + 1] = $r;
         }
-        for ($i = 0; $i < 0x400; $i+= 0x100) {
+        for ($i = 0; $i < 0x400; $i += 0x100) {
             for ($j = 0; $j < 256; $j += 2) {
                 [$l, $r] = array_values(unpack('N*', $data = $this->encryptBlock($data)));
                 $this->bctx['sb'][$i | $j] = $l;
@@ -504,7 +504,7 @@ class Blowfish extends BlockCipher
      * @param int[] $p
      * @see self::_bcrypt_hash()
      */
-    private static function expand0state(array $key, array &$sbox0, array &$sbox, array &$p): void
+    private static function expand0state(array $key, array &$sbox, array &$p): void
     {
         // expand0state is basically the same thing as this:
         //return self::expandstate(array_fill(0, 16, 0), $key);
