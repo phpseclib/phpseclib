@@ -2366,20 +2366,6 @@ class SSH2
             }
 
             list($type) = Strings::unpackSSH2('C', $response);
-
-            if ($type == NET_SSH2_MSG_EXT_INFO) {
-                list($nr_extensions) = Strings::unpackSSH2('N', $response);
-                for ($i = 0; $i < $nr_extensions; $i++) {
-                    list($extension_name, $extension_value) = Strings::unpackSSH2('ss', $response);
-                    if ($extension_name == 'server-sig-algs') {
-                        $this->supported_private_key_algorithms = explode(',', $extension_value);
-                    }
-                }
-
-                $response = $this->get_binary_packet();
-                list($type) = Strings::unpackSSH2('C', $response);
-            }
-
             list($service) = Strings::unpackSSH2('s', $response);
 
             if ($type != NET_SSH2_MSG_SERVICE_ACCEPT || $service != 'ssh-userauth') {
@@ -3852,26 +3838,15 @@ class SSH2
                 }
                 break;
             case NET_SSH2_MSG_EXT_INFO:
-                $this->_string_shift($payload, 1);
-                if (strlen($payload) < 4) {
-                    return false;
-                }
-                $nr_extensions = unpack('Nlength', $this->_string_shift($payload, 4));
-                for ($i = 0; $i < $nr_extensions['length']; $i++) {
-                    if (strlen($payload) < 4) {
-                        return false;
-                    }
-                    $temp = unpack('Nlength', $this->_string_shift($payload, 4));
-                    $extension_name = $this->_string_shift($payload, $temp['length']);
+                Strings::shift($payload, 1);
+                list($nr_extensions) = Strings::unpackSSH2('N', $payload);
+                for ($i = 0; $i < $nr_extensions; $i++) {
+                    list($extension_name, $extension_value) = Strings::unpackSSH2('ss', $payload);
                     if ($extension_name == 'server-sig-algs') {
-                        if (strlen($payload) < 4) {
-                            return false;
-                        }
-                        $temp = unpack('Nlength', $this->_string_shift($payload, 4));
-                        $this->supported_private_key_algorithms = explode(',', $this->_string_shift($payload, $temp['length']));
+                        $this->supported_private_key_algorithms = explode(',', $extension_value);
                     }
                 }
-                $payload = $this->_get_binary_packet($skip_channel_filter);
+                $payload = $this->get_binary_packet($skip_channel_filter);
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
