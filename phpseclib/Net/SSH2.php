@@ -3024,9 +3024,6 @@ class SSH2
      * 2: phpseclib takes an active approach to see if the connection is still active by sending an SSH_MSG_CHANNEL_OPEN
      *    packet and imediately trying to close that channel. some routers, in particular, however, will only let you
      *    open one channel, so this approach could yield false positives
-     *
-     * @param int $level
-     * @return bool
      */
     public function isConnected(int $level = 0): bool
     {

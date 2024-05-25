@@ -1395,7 +1395,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $this->assertFalse($x509->validateURL('https://aa'));
     }
 
-    public function testLargeInteger()
+    public function testLargeInteger(): void
     {
         // cert has an elliptic curve public key with a specified curve (vs a named curve) with
         // an excessively large integer value

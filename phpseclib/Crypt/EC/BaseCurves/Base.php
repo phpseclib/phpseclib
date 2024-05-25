@@ -64,7 +64,7 @@ abstract class Base
     /**
      * Returns the length, in bytes, of the modulo
      *
-     * @return integer
+     * @return Integer
      */
     public function getLengthInBytes(): int
     {
@@ -74,7 +74,7 @@ abstract class Base
     /**
      * Returns the length, in bits, of the modulo
      *
-     * @return integer
+     * @return Integer
      */
     public function getLength(): int
     {

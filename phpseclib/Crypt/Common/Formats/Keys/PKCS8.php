@@ -669,7 +669,7 @@ abstract class PKCS8 extends PKCS
 
         $decoded = self::preParse($key);
 
-        $r = ASN1::asn1map($decoded[0], ASN1\Maps\EncryptedPrivateKeyInfo::MAP);
+        $r = ASN1::asn1map($decoded[0], Maps\EncryptedPrivateKeyInfo::MAP);
         if (!is_array($r)) {
             throw new RuntimeException('Unable to parse using EncryptedPrivateKeyInfo map');
         }
@@ -679,7 +679,7 @@ abstract class PKCS8 extends PKCS
             if (!$decoded) {
                 throw new RuntimeException('Unable to decode BER');
             }
-            $r['encryptionAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], ASN1\Maps\PBES2params::MAP);
+            $r['encryptionAlgorithm']['parameters'] = ASN1::asn1map($decoded[0], Maps\PBES2params::MAP);
 
             $kdf = &$r['encryptionAlgorithm']['parameters']['keyDerivationFunc'];
             switch ($kdf['algorithm']) {

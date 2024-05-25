@@ -453,7 +453,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertNull($decoded);
     }
 
-    public function testLongOID()
+    public function testLongOID(): void
     {
         $cert = file_get_contents(dirname(__FILE__) . '/ASN1/mal-cert-02.der');
 

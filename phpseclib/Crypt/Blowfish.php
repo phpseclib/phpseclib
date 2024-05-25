@@ -386,7 +386,7 @@ class Blowfish extends BlockCipher
         /* key-expanding p[] and S-Box building sb[] */
         $this->bctx = [
             'p'  => [],
-            'sb' => self::$sbox
+            'sb' => self::$sbox,
         ];
 
         // unpack binary string in unsigned chars
@@ -543,7 +543,7 @@ class Blowfish extends BlockCipher
         [$p[16], $p[17]] = self::encryptBlockHelperFast($p[14], $p[15], $sbox, $p);
         // @codingStandardsIgnoreEnd
 
-        list($sbox[0], $sbox[1]) = self::encryptBlockHelperFast($p[16], $p[17], $sbox, $p);
+        [$sbox[0], $sbox[1]] = self::encryptBlockHelperFast($p[16], $p[17], $sbox, $p);
         for ($i = 2; $i < 1024; $i += 2) {
             [$sbox[$i], $sbox[$i + 1]] = self::encryptBlockHelperFast($sbox[$i - 2], $sbox[$i - 1], $sbox, $p);
         }

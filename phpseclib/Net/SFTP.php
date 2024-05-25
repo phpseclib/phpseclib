@@ -46,7 +46,6 @@ use phpseclib3\Net\SFTP\OpenFlag;
 use phpseclib3\Net\SFTP\OpenFlag5;
 use phpseclib3\Net\SFTP\PacketType as SFTPPacketType;
 use phpseclib3\Net\SFTP\StatusCode;
-use phpseclib3\Net\SSH2\DisconnectReason;
 use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
 
 /**
