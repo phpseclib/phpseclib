@@ -2086,20 +2086,6 @@ class SSH2
             }
 
             [$type] = Strings::unpackSSH2('C', $response);
-
-            if ($type == MessageType::EXT_INFO) {
-                [$nr_extensions] = Strings::unpackSSH2('N', $response);
-                for ($i = 0; $i < $nr_extensions; $i++) {
-                    [$extension_name, $extension_value] = Strings::unpackSSH2('ss', $response);
-                    if ($extension_name == 'server-sig-algs') {
-                        $this->supported_private_key_algorithms = explode(',', $extension_value);
-                    }
-                }
-
-                $response = $this->get_binary_packet();
-                [$type] = Strings::unpackSSH2('C', $response);
-            }
-
             [$service] = Strings::unpackSSH2('s', $response);
             if ($type != MessageType::SERVICE_ACCEPT || $service != 'ssh-userauth') {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
@@ -3518,6 +3504,17 @@ class SSH2
                     }
                     $payload = $this->get_binary_packet($skip_channel_filter);
                 }
+                break;
+            case MessageType::EXT_INFO:
+                Strings::shift($payload, 1);
+                [$nr_extensions] = Strings::unpackSSH2('N', $payload);
+                for ($i = 0; $i < $nr_extensions; $i++) {
+                    [$extension_name, $extension_value] = Strings::unpackSSH2('ss', $payload);
+                    if ($extension_name == 'server-sig-algs') {
+                        $this->supported_private_key_algorithms = explode(',', $extension_value);
+                    }
+                }
+                $payload = $this->get_binary_packet($skip_channel_filter);
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
