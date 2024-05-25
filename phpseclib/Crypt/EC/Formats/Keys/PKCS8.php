@@ -129,21 +129,14 @@ abstract class PKCS8 extends Progenitor
         $components = [];
 
         if (isset($key['privateKey'])) {
-            if ($key['privateKeyAlgorithm']['algorithm'] == 'id-Ed25519') {
-                $components['curve'] = new Ed25519();
-                // 0x04 == octet string
-                // 0x20 == length (32 bytes)
-                if (substr($key['privateKey'], 0, 2) != "\x04\x20") {
-                    throw new \RuntimeException('The first two bytes of the Ed25519 private key field should be 0x0420');
-                }
-            } else {
-                // Assume Ed448
-                $components['curve'] = new Ed448();
-                // 0x04 == octet string
-                // 0x39 == length (57 bytes)
-                if (substr($key['privateKey'], 0, 2) != "\x04\x39") {
-                    throw new \RuntimeException('The first two bytes of the Ed448 private key field should be 0x0439');
-                }
+            $components['curve'] = $key['privateKeyAlgorithm']['algorithm'] == 'id-Ed25519' ? new Ed25519() : new Ed448();
+            $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
+            if (substr($key['privateKey'], 0, 2) != $expected) {
+                throw new \RuntimeException(
+                    'The first two bytes of the ' .
+                    $key['privateKeyAlgorithm']['algorithm'] .
+                    ' private key field should be 0x' . bin2hex($expected)
+                );
             }
             $arr = $components['curve']->extractSecret(substr($key['privateKey'], 2));
             $components['dA'] = $arr['dA'];
@@ -216,24 +209,13 @@ abstract class PKCS8 extends Progenitor
         }
 
         if ($curve instanceof TwistedEdwardsCurve) {
-            if ($curve instanceof Ed25519) {
-                return self::wrapPrivateKey(
-                    "\x04\x20" . $secret,
-                    [],
-                    null,
-                    $password,
-                    'id-Ed25519'
-                );
-            } else {
-                // Assume Ed448
-                return self::wrapPrivateKey(
-                    "\x04\x39" . $secret,
-                    [],
-                    null,
-                    $password,
-                    'id-Ed448'
-                );
-            }
+            return self::wrapPrivateKey(
+                chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . $secret,
+                [],
+                null,
+                $password,
+                $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448'
+            );
         }
 
         $publicKey = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
