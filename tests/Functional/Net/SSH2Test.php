@@ -578,7 +578,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     /**
      * @return array
      */
-    public function getCryptoAlgorithms()
+    public static function getCryptoAlgorithms()
     {
         $map = [
             'kex' => SSH2::getSupportedKEXAlgorithms(),
