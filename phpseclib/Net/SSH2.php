@@ -2360,7 +2360,7 @@ class SSH2
                 $response = $this->get_binary_packet();
             } catch (InvalidPacketLengthException $e) {
                 // the first opportunity to encounter the "bad key size" error
-                if (!$this->bad_key_size_fix && self::bad_algorithm_candidate($this->decryptName ?? '')) {
+                if (!$this->bad_key_size_fix && $this->decryptName != null && self::bad_algorithm_candidate($this->decryptName)) {
                     // bad_key_size_fix is only ever re-assigned to true here
                     // retry the connection with that new setting but we'll
                     // only try it once.
@@ -3551,7 +3551,7 @@ class SSH2
             }
             $this->send_keep_alive();
 
-            [$sec, $usec] = $this->get_stream_timeout();
+            list($sec, $usec) = $this->get_stream_timeout();
             stream_set_timeout($this->fsock, $sec, $usec);
             $start = microtime(true);
             $raw = stream_get_contents($this->fsock, $packet->size - strlen($packet->raw));
@@ -3821,7 +3821,7 @@ class SSH2
                         $this->supported_private_key_algorithms = explode(',', $extension_value);
                     }
                 }
-                $payload = $this->get_binary_packet($skip_channel_filter);
+                $payload = $this->get_binary_packet();
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
