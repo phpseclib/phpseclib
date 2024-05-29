@@ -3490,7 +3490,7 @@ class SSH2
                         $this->supported_private_key_algorithms = explode(',', $extension_value);
                     }
                 }
-                $payload = $this->get_binary_packet($skip_channel_filter);
+                $payload = $this->get_binary_packet();
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
