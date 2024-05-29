@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Tests\Functional\Net;
 
+use phpseclib3\Exception\NoSupportedAlgorithmsException;
 use phpseclib3\Net\SSH2;
 use phpseclib3\Tests\PhpseclibFunctionalTestCase;
 
@@ -554,5 +555,97 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertSame(1, $ssh->getOpenChannelCount());
         $ssh->reset(SSH2::CHANNEL_SHELL);
         $this->assertSame(0, $ssh->getOpenChannelCount());
+    }
+
+    public function testPing()
+    {
+        $ssh = $this->getSSH2();
+        // assert on unauthenticated ssh2
+        $this->assertNotEmpty($ssh->getServerIdentification());
+        $this->assertFalse($ssh->ping());
+        $this->assertTrue($ssh->isConnected());
+        $this->assertSame(0, $ssh->getOpenChannelCount());
+
+        $ssh = $this->getSSH2Login();
+        $this->assertTrue($ssh->ping());
+        $this->assertSame(0, $ssh->getOpenChannelCount());
+    }
+
+    /**
+     * @return array
+     */
+    public static function getCryptoAlgorithms()
+    {
+        $map = [
+            'kex' => SSH2::getSupportedKEXAlgorithms(),
+            'hostkey' => SSH2::getSupportedHostKeyAlgorithms(),
+            'comp' => SSH2::getSupportedCompressionAlgorithms(),
+            'crypt' => SSH2::getSupportedEncryptionAlgorithms(),
+            'mac' => SSH2::getSupportedMACAlgorithms(),
+        ];
+        $tests = [];
+        foreach ($map as $type => $algorithms) {
+            foreach ($algorithms as $algorithm) {
+                $tests[] = [$type, $algorithm];
+            }
+        }
+        return $tests;
+    }
+
+    /**
+     * @dataProvider getCryptoAlgorithms
+     * @param string $type
+     * @param string $algorithm
+     */
+    public function testCryptoAlgorithms($type, $algorithm)
+    {
+        $ssh = $this->getSSH2();
+        try {
+            switch ($type) {
+                case 'kex':
+                case 'hostkey':
+                    $ssh->setPreferredAlgorithms([$type => [$algorithm]]);
+                    $this->assertEquals($algorithm, $ssh->getAlgorithmsNegotiated()[$type]);
+                    break;
+                case 'comp':
+                case 'crypt':
+                    $ssh->setPreferredAlgorithms([
+                        'client_to_server' => [$type => [$algorithm]],
+                        'server_to_client' => [$type => [$algorithm]],
+                    ]);
+                    $this->assertEquals($algorithm, $ssh->getAlgorithmsNegotiated()['client_to_server'][$type]);
+                    $this->assertEquals($algorithm, $ssh->getAlgorithmsNegotiated()['server_to_client'][$type]);
+                    break;
+                case 'mac':
+                    $macCryptAlgorithms = array_filter(
+                        SSH2::getSupportedEncryptionAlgorithms(),
+                        function ($algorithm) use ($ssh) {
+                            return !self::callFunc($ssh, 'encryption_algorithm_to_crypt_instance', [$algorithm])
+                                ->usesNonce();
+                        }
+                    );
+                    $ssh->setPreferredAlgorithms([
+                        'client_to_server' => ['crypt' => $macCryptAlgorithms, 'mac' => [$algorithm]],
+                        'server_to_client' => ['crypt' => $macCryptAlgorithms, 'mac' => [$algorithm]],
+                    ]);
+                    $this->assertEquals($algorithm, $ssh->getAlgorithmsNegotiated()['client_to_server']['mac']);
+                    $this->assertEquals($algorithm, $ssh->getAlgorithmsNegotiated()['server_to_client']['mac']);
+                    break;
+            }
+        } catch (NoSupportedAlgorithmsException $e) {
+            self::markTestSkipped("{$type} algorithm {$algorithm} is not supported by server");
+        }
+
+        $username = $this->getEnv('SSH_USERNAME');
+        $password = $this->getEnv('SSH_PASSWORD');
+        $this->assertTrue(
+            $ssh->login($username, $password),
+            "SSH2 login using {$type} {$algorithm} failed."
+        );
+
+        $ssh->setTimeout(1);
+        $ssh->write("pwd\n");
+        $this->assertNotEmpty($ssh->read('', SSH2::READ_NEXT));
+        $ssh->disconnect();
     }
 }

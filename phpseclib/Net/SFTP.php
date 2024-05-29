@@ -2921,9 +2921,9 @@ class SFTP extends SSH2
     /**
      * Resets a connection for re-use
      */
-    protected function reset_connection(int $reason): void
+    protected function reset_connection(): void
     {
-        parent::reset_connection($reason);
+        parent::reset_connection();
         $this->reset_sftp();
     }
 
