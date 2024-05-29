@@ -1920,7 +1920,6 @@ class SSH2
      * @link https://www.chiark.greenend.org.uk/~sgtatham/putty/wishlist/ssh2-aesctr-openssh.html
      * @link https://bugzilla.mindrot.org/show_bug.cgi?id=1291
      * @param string $algorithm Name of the encryption algorithm
-     * @return bool
      */
     private static function bad_algorithm_candidate($algorithm): bool
     {
@@ -4040,7 +4039,7 @@ class SSH2
     /**
      * Sends a keep-alive message, if keep-alive is enabled and interval is met
      */
-    private function send_keep_alive()
+    private function send_keep_alive(): void
     {
         $elapsed = microtime(true) - $this->keep_alive_sent;
         if ($this->keepAlive > 0 && $elapsed >= $this->keepAlive) {

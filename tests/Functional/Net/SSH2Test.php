@@ -557,7 +557,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertSame(0, $ssh->getOpenChannelCount());
     }
 
-    public function testPing()
+    public function testPing(): void
     {
         $ssh = $this->getSSH2();
         // assert on unauthenticated ssh2
@@ -597,7 +597,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
      * @param string $type
      * @param string $algorithm
      */
-    public function testCryptoAlgorithms($type, $algorithm)
+    public function testCryptoAlgorithms($type, $algorithm): void
     {
         $ssh = $this->getSSH2();
         try {
