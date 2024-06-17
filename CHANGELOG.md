@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.38 - 2024-06-17
+
+- BigInteger: EvalBarrett / Barrett could sometimes slow to a crawl (#1994)
+- SSH2: fix bug that prevented RC4 and ChaCha20 from ever being used
+- SSH2: SSH_MSG_EXT_INFO didn't work during key re-exchange (#2001, #2002)
+- SSH2: improvements to timeout handling (#2006)
+- System/SSH/Agent: reset supported_private_key_algorithms for every key (#1995)
+- Composer: use paragonie/constant_time_encoding (#1998)
+- Crypt/EC/Formats/PKCS8: fix Ed448 keys (#2003)
+
 ## 3.0.37 - 2024-03-02
 
 - SSH2: don't set stream timeout if timeout is 0 (#1986)
