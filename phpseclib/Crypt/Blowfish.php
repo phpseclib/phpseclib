@@ -458,7 +458,7 @@ class Blowfish extends BlockCipher
             }
         }
 
-        return pack('L*', ...$cdata);
+        return pack('V*', ...$cdata);
     }
 
     /**
