@@ -3369,7 +3369,7 @@ class SSH2
                     ? "SSH_MSG_$constantName"
                     : "UNKNOWN ($value)",
                 round($current - $this->last_packet, 4),
-                round($stop - $start, 4)
+                round($elapsed, 4)
             );
             $this->append_log($message_number, $payload);
             $this->last_packet = $current;
