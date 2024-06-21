@@ -3701,7 +3701,7 @@ class SSH2
             $current = microtime(true);
             $message_number = isset(self::$message_numbers[ord($payload[0])]) ? self::$message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
-                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
+                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($elapsed, 4) . 's)';
             $this->append_log($message_number, $payload);
             $this->last_packet = $current;
         }
