@@ -786,14 +786,6 @@ class SSH2
     private $keepAlive;
 
     /**
-     * Timestamp for the last sent keep alive message
-     *
-     * @see self::send_keep_alive()
-     * @var float|null
-     */
-    private $keep_alive_sent = null;
-
-    /**
      * Real-time log file pointer
      *
      * @see self::_append_log()
@@ -3489,7 +3481,7 @@ class SSH2
         $this->hmac_check = $this->hmac_create = false;
         $this->hmac_size = false;
         $this->session_id = false;
-        $this->keep_alive_sent = null;
+        $this->last_packet = null;
         $this->get_seq_no = $this->send_seq_no = 0;
         $this->channel_status = [];
         $this->channel_id_last_interactive = 0;
@@ -3507,7 +3499,7 @@ class SSH2
             $usec = (int) (1000000 * ($this->curTimeout - $sec));
         }
         if ($this->keepAlive > 0) {
-            $elapsed = microtime(true) - $this->keep_alive_sent;
+            $elapsed = microtime(true) - $this->last_packet;
             if ($elapsed < $this->curTimeout) {
                 $sec = (int) floor($elapsed);
                 $usec = (int) (1000000 * ($elapsed - $sec));
@@ -3569,7 +3561,7 @@ class SSH2
             if (!$packet->packet_length) {
                 $this->get_binary_packet_size($packet);
             }
-        };
+        }
 
         if (strlen($packet->raw) != $packet->size) {
             throw new \RuntimeException('Size of packet was not expected length');
@@ -4380,10 +4372,11 @@ class SSH2
      */
     private function send_keep_alive()
     {
-        $elapsed = microtime(true) - $this->keep_alive_sent;
-        if ($this->keepAlive > 0 && $elapsed >= $this->keepAlive) {
-            $this->keep_alive_sent = microtime(true);
-            $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
+        if ($this->bitmap & self::MASK_CONNECTED) {
+            $elapsed = microtime(true) - $this->last_packet;
+            if ($this->keepAlive > 0 && $elapsed >= $this->keepAlive) {
+                $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
+            }
         }
     }
 
