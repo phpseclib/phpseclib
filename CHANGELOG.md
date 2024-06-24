@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.39 - 2024-06-24
+
+- SSH2: fix when keep alive packets are sent (#2009)
+- SSH2: fix for undefined variable when logging is enabled (#2010 / #2011)
+
 ## 3.0.38 - 2024-06-17
 
 - BigInteger: EvalBarrett / Barrett could sometimes slow to a crawl (#1994)
