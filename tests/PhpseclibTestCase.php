@@ -89,9 +89,39 @@ abstract class PhpseclibTestCase extends TestCase
     protected static function getVar($obj, $var)
     {
         $reflection = new \ReflectionClass(get_class($obj));
-        $prop = $reflection->getProperty($var);
+        // private variables are not inherited, climb hierarchy until located
+        while (true) {
+            try {
+                $prop = $reflection->getProperty($var);
+                break;
+            } catch (\ReflectionException $e) {
+                $reflection = $reflection->getParentClass();
+                if (!$reflection) {
+                    throw $e;
+                }
+            }
+        }
         $prop->setAccessible(true);
         return $prop->getValue($obj);
+    }
+
+    protected static function setVar($obj, $var, $value)
+    {
+        $reflection = new \ReflectionClass(get_class($obj));
+        // private variables are not inherited, climb hierarchy until located
+        while (true) {
+            try {
+                $prop = $reflection->getProperty($var);
+                break;
+            } catch (\ReflectionException $e) {
+                $reflection = $reflection->getParentClass();
+                if (!$reflection) {
+                    throw $e;
+                }
+            }
+        }
+        $prop->setAccessible(true);
+        $prop->setValue($obj, $value);
     }
 
     public static function callFunc($obj, $func, $params = [])

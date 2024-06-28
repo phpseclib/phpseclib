@@ -825,11 +825,9 @@ class SSH2
     private $quiet_mode = false;
 
     /**
-     * Time of first network activity
-     *
-     * @var float
+     * Time of last read/write network activity
      */
-    private $last_packet;
+    private $last_packet = null;
 
     /**
      * Exit status returned from ssh if any
@@ -3500,9 +3498,10 @@ class SSH2
         }
         if ($this->keepAlive > 0) {
             $elapsed = microtime(true) - $this->last_packet;
-            if ($elapsed < $this->curTimeout) {
-                $sec = (int) floor($elapsed);
-                $usec = (int) (1000000 * ($elapsed - $sec));
+            $timeout = max($this->keepAlive - $elapsed, 0);
+            if (!$this->curTimeout || $timeout < $this->curTimeout) {
+                $sec = (int) floor($timeout);
+                $usec = (int) (1000000 * ($timeout - $sec));
             }
         }
         return [$sec, $usec];
@@ -3524,6 +3523,7 @@ class SSH2
         if ($this->binary_packet_buffer == null) {
             // buffer the packet to permit continued reads across timeouts
             $this->binary_packet_buffer = (object) [
+                'read_time' => 0, // the time to read the packet from the socket
                 'raw' => '', // the raw payload read from the socket
                 'plain' => '', // the packet in plain text, excluding packet_length header
                 'packet_length' => null, // the packet_length value pulled from the payload
@@ -3548,6 +3548,7 @@ class SSH2
             $start = microtime(true);
             $raw = stream_get_contents($this->fsock, $packet->size - strlen($packet->raw));
             $elapsed = microtime(true) - $start;
+            $packet->read_time += $elapsed;
             if ($this->curTimeout > 0) {
                 $this->curTimeout -= $elapsed;
             }
@@ -3693,10 +3694,10 @@ class SSH2
             $current = microtime(true);
             $message_number = isset(self::$message_numbers[ord($payload[0])]) ? self::$message_numbers[ord($payload[0])] : 'UNKNOWN (' . ord($payload[0]) . ')';
             $message_number = '<- ' . $message_number .
-                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($elapsed, 4) . 's)';
+                              ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($packet->read_time, 4) . 's)';
             $this->append_log($message_number, $payload);
-            $this->last_packet = $current;
         }
+        $this->last_packet = microtime(true);
 
         return $this->filter($payload);
     }
@@ -4355,8 +4356,8 @@ class SSH2
             $message_number = '-> ' . $message_number .
                               ' (since last: ' . round($current - $this->last_packet, 4) . ', network: ' . round($stop - $start, 4) . 's)';
             $this->append_log($message_number, $logged);
-            $this->last_packet = $current;
         }
+        $this->last_packet = microtime(true);
 
         if (strlen($packet) != $sent) {
             $this->bitmap = 0;
