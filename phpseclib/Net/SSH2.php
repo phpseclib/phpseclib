@@ -826,6 +826,8 @@ class SSH2
 
     /**
      * Time of last read/write network activity
+     *
+     * @var float
      */
     private $last_packet = null;
 
