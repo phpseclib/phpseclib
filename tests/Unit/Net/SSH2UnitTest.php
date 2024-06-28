@@ -221,7 +221,10 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(20, $ssh->getTimeout());
     }
 
-    public function testGetStreamTimeout(): void
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testGetStreamTimeout()
     {
         // no curTimeout, no keepAlive
         $ssh = $this->createSSHMock();
