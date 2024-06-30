@@ -571,6 +571,27 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertSame(0, $ssh->getOpenChannelCount());
     }
 
+    public function testKeepAlive()
+    {
+        $ssh = $this->getSSH2();
+        $username = $this->getEnv('SSH_USERNAME');
+        $password = $this->getEnv('SSH_PASSWORD');
+
+        $ssh->setKeepAlive(1);
+        $ssh->setTimeout(1);
+
+        $this->assertNotEmpty($ssh->getServerIdentification());
+        $this->assertTrue(
+            $ssh->login($username, $password),
+            'SSH2 login using password failed.'
+        );
+
+        $ssh->write("pwd\n");
+        sleep(1); // permit keep alive to proc on next read
+        $this->assertNotEmpty($ssh->read('', SSH2::READ_NEXT));
+        $ssh->disconnect();
+    }
+
     /**
      * @return array
      */
