@@ -222,6 +222,56 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
+     * @requires PHPUnit < 10
+     */
+    public function testGetStreamTimeout()
+    {
+        // no curTimeout, no keepAlive
+        $ssh = $this->createSSHMock();
+        $this->assertEquals([0, 0], self::callFunc($ssh, 'get_stream_timeout'));
+
+        // curTimeout, no keepAlive
+        $ssh = $this->createSSHMock();
+        $ssh->setTimeout(1);
+        $this->assertEquals([1, 0], self::callFunc($ssh, 'get_stream_timeout'));
+
+        // no curTimeout, keepAlive
+        $ssh = $this->createSSHMock();
+        $ssh->setKeepAlive(2);
+        self::setVar($ssh, 'last_packet', microtime(true));
+        list($sec, $usec) = self::callFunc($ssh, 'get_stream_timeout');
+        $this->assertGreaterThanOrEqual(1, $sec);
+        $this->assertLessThanOrEqual(2, $sec);
+
+        // smaller curTimeout, keepAlive
+        $ssh = $this->createSSHMock();
+        $ssh->setTimeout(1);
+        $ssh->setKeepAlive(2);
+        self::setVar($ssh, 'last_packet', microtime(true));
+        $this->assertEquals([1, 0], self::callFunc($ssh, 'get_stream_timeout'));
+
+        // curTimeout, smaller keepAlive
+        $ssh = $this->createSSHMock();
+        $ssh->setTimeout(5);
+        $ssh->setKeepAlive(2);
+        self::setVar($ssh, 'last_packet', microtime(true));
+        list($sec, $usec) = self::callFunc($ssh, 'get_stream_timeout');
+        $this->assertGreaterThanOrEqual(1, $sec);
+        $this->assertLessThanOrEqual(2, $sec);
+
+        // no curTimeout, keepAlive, no last_packet
+        $ssh = $this->createSSHMock();
+        $ssh->setKeepAlive(2);
+        $this->assertEquals([0, 0], self::callFunc($ssh, 'get_stream_timeout'));
+
+        // no curTimeout, keepAlive, last_packet exceeds keepAlive
+        $ssh = $this->createSSHMock();
+        $ssh->setKeepAlive(2);
+        self::setVar($ssh, 'last_packet', microtime(true) - 2);
+        $this->assertEquals([0, 0], self::callFunc($ssh, 'get_stream_timeout'));
+    }
+
+    /**
      * @return \phpseclib3\Net\SSH2
      */
     protected function createSSHMock()
