@@ -3037,7 +3037,7 @@ class SSH2
         }
         try {
             if ($level == 1) {
-                $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
+                $this->send_binary_packet(pack('CN', MessageType::IGNORE, 0));
             } else {
                 $this->open_channel(self::CHANNEL_KEEP_ALIVE);
                 $this->close_channel(self::CHANNEL_KEEP_ALIVE);
@@ -4041,7 +4041,7 @@ class SSH2
         if ($this->bitmap & self::MASK_CONNECTED) {
             $elapsed = microtime(true) - $this->last_packet;
             if ($this->keepAlive > 0 && $elapsed >= $this->keepAlive) {
-                $this->send_binary_packet(pack('CN', NET_SSH2_MSG_IGNORE, 0));
+                $this->send_binary_packet(pack('CN', MessageType::IGNORE, 0));
             }
         }
     }
