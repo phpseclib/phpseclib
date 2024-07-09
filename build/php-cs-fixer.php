@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 return (new PhpCsFixer\Config())
-    ->setFinder(PhpCsFixer\Finder::create()->in(__DIR__ . '/..'))
+    ->setFinder(PhpCsFixer\Finder::create()
+        ->in(__DIR__ . '/..')
+        // https://github.com/phpseclib/phpseclib/pull/2016#discussion_r1691282898
+        ->notPath('phpseclib/Crypt/Blowfish.php'))
     ->setCacheFile(__DIR__ . '/php-cs-fixer.cache')
     ->setRiskyAllowed(true)
     // https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/doc/rules/index.rst

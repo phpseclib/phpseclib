@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @var iterable<SplFileInfo> $files */
 $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__));
 foreach ($files as $file) {
@@ -17,7 +19,7 @@ foreach ($files as $file) {
             '~ function assertIsObject\(\$actual, \$message = \'\'\)~' => ' function _assertIsObject($actual, string $message = \'\')',
             '~ function assertIsString\(\$actual, \$message = \'\'\)~' => ' function _assertIsString($actual, string $message = \'\')',
             '~ function assertStringContainsString\(\$needle, \$haystack, \$message = \'\'\)~' => ' function _assertStringContainsString(string $needle, string $haystack, string $message = \'\')',
-            '~ function assertStringNotContainsString\(\$needle, \$haystack, \$message = \'\'\)~' => ' function _assertStringNotContainsString(string $needle, string $haystack, string $message = \'\')'
+            '~ function assertStringNotContainsString\(\$needle, \$haystack, \$message = \'\'\)~' => ' function _assertStringNotContainsString(string $needle, string $haystack, string $message = \'\')',
         ];
         $updatedFileContents = preg_replace(
             array_keys($patternToReplacementMap),
