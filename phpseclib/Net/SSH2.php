@@ -1748,7 +1748,6 @@ class SSH2
 
                 $response = $this->get_binary_packet_or_close(NET_SSH2_MSG_KEXDH_GEX_GROUP);
                 list($type, $primeBytes, $gBytes) = Strings::unpackSSH2('Css', $response);
-
                 $this->updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEXDH_GEX_GROUP');
                 $prime = new BigInteger($primeBytes, -256);
                 $g = new BigInteger($gBytes, -256);
@@ -2412,7 +2411,6 @@ class SSH2
         $this->send_binary_packet($packet, $logged);
 
         $response = $this->get_binary_packet_or_close();
-
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
@@ -4023,7 +4021,10 @@ class SSH2
                 }
                 return true;
             }
-            list($type, $channel) = Strings::unpackSSH2('CN', $response);
+            list($type) = Strings::unpackSSH2('C', $response);
+            if (strlen($response) >= 4) {
+                list($channel) = Strings::unpackSSH2('N', $response);
+            }
 
             // will not be setup yet on incoming channel open request
             if (isset($channel) && isset($this->channel_status[$channel]) && isset($this->window_size_server_to_client[$channel])) {
