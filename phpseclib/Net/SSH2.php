@@ -70,6 +70,7 @@ use phpseclib3\Exception\InvalidPacketLengthException;
 use phpseclib3\Exception\LengthException;
 use phpseclib3\Exception\LogicException;
 use phpseclib3\Exception\NoSupportedAlgorithmsException;
+use phpseclib3\Exception\OperationTimeoutException;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\UnexpectedValueException;
@@ -1489,6 +1490,10 @@ class SSH2
 
                 $response = $this->get_binary_packet();
 
+                if ($response === true) {
+                    throw new OperationTimeoutException();
+                }
+
                 [$type, $primeBytes, $gBytes] = Strings::unpackSSH2('Css', $response);
                 if ($type != MessageTypeExtra::KEXDH_GEX_GROUP) {
                     $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
@@ -1533,6 +1538,10 @@ class SSH2
         }
 
         $response = $this->get_binary_packet();
+
+        if ($response === true) {
+            throw new OperationTimeoutException();
+        }
 
         [
             $type,
@@ -1613,6 +1622,10 @@ class SSH2
         $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
+
+        if ($response === true) {
+            throw new OperationTimeoutException();
+        }
 
         if ($response === false) {
             $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
@@ -2086,6 +2099,10 @@ class SSH2
                 throw $e;
             }
 
+            if ($response === true) {
+                throw new OperationTimeoutException();
+            }
+
             [$type] = Strings::unpackSSH2('C', $response);
             [$service] = Strings::unpackSSH2('s', $response);
             if ($type != MessageType::SERVICE_ACCEPT || $service != 'ssh-userauth') {
@@ -2127,6 +2144,10 @@ class SSH2
             $this->send_binary_packet($packet);
 
             $response = $this->get_binary_packet();
+
+            if ($response === true) {
+                throw new OperationTimeoutException();
+            }
 
             [$type] = Strings::unpackSSH2('C', $response);
             switch ($type) {
@@ -2172,6 +2193,9 @@ class SSH2
         $response = $this->get_binary_packet();
         if ($response === false) {
             return false;
+        }
+        if ($response === true) {
+            throw new OperationTimeoutException();
         }
         [$type] = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2237,6 +2261,10 @@ class SSH2
             $response = $this->last_interactive_response;
         } else {
             $orig = $response = $this->get_binary_packet();
+        }
+
+        if ($response === true) {
+            throw new OperationTimeoutException();
         }
 
         [$type] = Strings::unpackSSH2('C', $response);
@@ -2421,6 +2449,10 @@ class SSH2
 
         $response = $this->get_binary_packet();
 
+        if ($response === true) {
+            throw new OperationTimeoutException();
+        }
+
         [$type] = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case MessageType::USERAUTH_FAILURE:
@@ -2456,6 +2488,10 @@ class SSH2
         $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet();
+
+        if ($response === true) {
+            throw new OperationTimeoutException();
+        }
 
         [$type] = Strings::unpackSSH2('C', $response);
         switch ($type) {
