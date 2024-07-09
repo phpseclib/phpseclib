@@ -571,7 +571,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         $this->assertSame(0, $ssh->getOpenChannelCount());
     }
 
-    public function testKeepAlive()
+    public function testKeepAlive(): void
     {
         $ssh = $this->getSSH2();
         $username = $this->getEnv('SSH_USERNAME');
