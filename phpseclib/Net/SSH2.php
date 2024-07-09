@@ -3760,7 +3760,7 @@ class SSH2
      *
      * @see self::_get_binary_packet()
      * @param string $payload
-     * @return string|bool
+     * @return string
      */
     private function filter($payload)
     {
@@ -3831,13 +3831,7 @@ class SSH2
                     Strings::shift($payload, 1);
                     list($request_name) = Strings::unpackSSH2('s', $payload);
                     $this->errors[] = "SSH_MSG_GLOBAL_REQUEST: $request_name";
-
-                    try {
-                        $this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE));
-                    } catch (\RuntimeException $e) {
-                        return $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-                    }
-
+                    $this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE));
                     $payload = $this->get_binary_packet();
                     break;
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
@@ -3883,12 +3877,7 @@ class SSH2
                                 '', // description
                                 '' // language tag
                             );
-
-                            try {
-                                $this->send_binary_packet($packet);
-                            } catch (\RuntimeException $e) {
-                                return $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-                            }
+                            $this->send_binary_packet($packet);
                     }
 
                     $payload = $this->get_binary_packet();
@@ -4214,7 +4203,7 @@ class SSH2
     protected function send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            $this->bitmap = 0;
+            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
             throw new ConnectionClosedException('Connection closed prematurely');
         }
 
@@ -4342,7 +4331,7 @@ class SSH2
         $this->last_packet = microtime(true);
 
         if (strlen($packet) != $sent) {
-            $this->bitmap = 0;
+            $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
             $message = $sent === false ?
                 'Unable to write ' . strlen($packet) . ' bytes' :
                 "Only $sent of " . strlen($packet) . " bytes were sent";
