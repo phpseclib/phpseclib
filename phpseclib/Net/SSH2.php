@@ -713,8 +713,6 @@ class SSH2
 
     /**
      * Time of last read/write network activity
-     *
-     * @var float
      */
     private float|null $last_packet = null;
 
