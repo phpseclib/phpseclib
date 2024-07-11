@@ -28,6 +28,8 @@ use phpseclib3\Math\BigInteger;
  */
 abstract class IEEE
 {
+    const PART_LENGTH = 66;
+
     /**
      * Loads a signature
      *
@@ -58,7 +60,7 @@ abstract class IEEE
     {
         $r = $r->toBytes();
         $s = $s->toBytes();
-        $len = max(strlen($r), strlen($s));
+        $len = static::PART_LENGTH;
         return str_pad($r, $len, "\0", STR_PAD_LEFT) . str_pad($s, $len, "\0", STR_PAD_LEFT);
     }
 }
