@@ -28,7 +28,7 @@ use phpseclib3\Math\BigInteger;
  */
 abstract class IEEE
 {
-    const PART_LENGTH = 66;
+    const PART_LENGTHS = [32, 48, 66];
 
     /**
      * Loads a signature
@@ -60,7 +60,11 @@ abstract class IEEE
     {
         $r = $r->toBytes();
         $s = $s->toBytes();
-        $len = static::PART_LENGTH;
+        $min = max(strlen($r), strlen($s));
+        $len = array_reduce(static::PART_LENGTHS, function ($accumulator, $item) use ($min) {
+            return $item >= $min && (null === $accumulator || $item < $accumulator) ? $item : $accumulator;
+        });
+
         return str_pad($r, $len, "\0", STR_PAD_LEFT) . str_pad($s, $len, "\0", STR_PAD_LEFT);
     }
 }
