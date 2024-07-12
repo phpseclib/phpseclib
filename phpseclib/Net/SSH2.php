@@ -4481,12 +4481,14 @@ class SSH2
     protected function send_channel_packet($client_channel, $data)
     {
         while (strlen($data)) {
-            while (!$this->window_size_client_to_server[$client_channel]) {
-                if ($this->isTimeout()) {
-                    throw new TimeoutException('Timed out waiting for server');
-                }
+            if (!$this->window_size_client_to_server[$client_channel]) {
                 // using an invalid channel will let the buffers be built up for the valid channels
                 $this->get_channel_packet(-$client_channel);
+                if ($this->isTimeout()) {
+                    throw new TimeoutException('Timed out waiting for server');
+                } elseif (!$this->window_size_client_to_server[$client_channel]) {
+                    throw new \RuntimeException('Client to server window was not adjusted');
+                }
             }
 
             /* The maximum amount of data allowed is determined by the maximum
