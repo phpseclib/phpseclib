@@ -12,7 +12,6 @@ use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\TimeoutException;
 use phpseclib3\Net\SSH2;
-use phpseclib3\Net\SSH2\MessageType;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
@@ -291,7 +290,7 @@ class SSH2UnitTest extends PhpseclibTestCase
             });
         $ssh->expects($this->once())
             ->method('send_binary_packet')
-            ->with(Strings::packSSH2('CNs', MessageType::CHANNEL_DATA, 1, 'hello world'));
+            ->with(Strings::packSSH2('CNs', NET_SSH2_MSG_CHANNEL_DATA, 1, 'hello world'));
         self::setVar($ssh, 'server_channels', [1 => 1]);
         self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
         self::setVar($ssh, 'window_size_client_to_server', [1 => 0]);
@@ -318,7 +317,7 @@ class SSH2UnitTest extends PhpseclibTestCase
             });
         $ssh->expects($this->once())
             ->method('send_binary_packet')
-            ->with(Strings::packSSH2('CNs', MessageType::CHANNEL_DATA, 1, ' world'));
+            ->with(Strings::packSSH2('CNs', NET_SSH2_MSG_CHANNEL_DATA, 1, ' world'));
         self::setVar($ssh, 'channel_buffers_write', [1 => 'hello']);
         self::setVar($ssh, 'server_channels', [1 => 1]);
         self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
@@ -349,7 +348,7 @@ class SSH2UnitTest extends PhpseclibTestCase
             });
         $ssh->expects($this->once())
             ->method('send_binary_packet')
-            ->with(Strings::packSSH2('CNs', MessageType::CHANNEL_DATA, 1, 'hello'));
+            ->with(Strings::packSSH2('CNs', NET_SSH2_MSG_CHANNEL_DATA, 1, 'hello'));
         self::setVar($ssh, 'server_channels', [1 => 1]);
         self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
         self::setVar($ssh, 'window_size_client_to_server', [1 => 5]);
