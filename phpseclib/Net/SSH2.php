@@ -626,7 +626,7 @@ class SSH2
     protected $server_channels = [];
 
     /**
-     * Channel Buffers
+     * Channel Read Buffers
      *
      * If a client requests a packet from one channel but receives two packets from another those packets should
      * be placed in a buffer
@@ -636,6 +636,17 @@ class SSH2
      * @var array
      */
     private $channel_buffers = [];
+
+    /**
+     * Channel Write Buffers
+     *
+     * If a client sends a packet and receives a timeout error mid-transmission, buffer the data written so it
+     * can be de-duplicated upon resuming write
+     *
+     * @see self::send_channel_packet()
+     * @var array
+     */
+    private $channel_buffers_write = [];
 
     /**
      * Channel Status
@@ -3446,6 +3457,8 @@ class SSH2
         $this->get_seq_no = $this->send_seq_no = 0;
         $this->channel_status = [];
         $this->channel_id_last_interactive = 0;
+        $this->channel_buffers = [];
+        $this->channel_buffers_write = [];
     }
 
     /**
@@ -4480,6 +4493,14 @@ class SSH2
      */
     protected function send_channel_packet($client_channel, $data)
     {
+        if (isset($this->channel_buffers_write[$client_channel])
+            && strpos($data, $this->channel_buffers_write[$client_channel]) === 0
+        ) {
+            // if buffer holds identical initial data content, resume send from the unmatched data portion
+            $data = substr($data, strlen($this->channel_buffers_write[$client_channel]));
+        } else {
+            $this->channel_buffers_write[$client_channel] = '';
+        }
         while (strlen($data)) {
             if (!$this->window_size_client_to_server[$client_channel]) {
                 // using an invalid channel will let the buffers be built up for the valid channels
@@ -4487,7 +4508,7 @@ class SSH2
                 if ($this->isTimeout()) {
                     throw new TimeoutException('Timed out waiting for server');
                 } elseif (!$this->window_size_client_to_server[$client_channel]) {
-                    throw new \RuntimeException('Client to server window was not adjusted');
+                    throw new \RuntimeException('Data window was not adjusted');
                 }
             }
 
@@ -4509,7 +4530,9 @@ class SSH2
             );
             $this->window_size_client_to_server[$client_channel] -= strlen($temp);
             $this->send_binary_packet($packet);
+            $this->channel_buffers_write[$client_channel] .= $temp;
         }
+        unset($this->channel_buffers_write[$client_channel]);
     }
 
     /**
