@@ -104,7 +104,6 @@ class SSH2
     const MASK_LOGIN_REQ     = 0x00000004;
     const MASK_LOGIN         = 0x00000008;
     const MASK_SHELL         = 0x00000010;
-    const MASK_WINDOW_ADJUST = 0x00000020;
 
     /*
      * Channel constants
@@ -3157,6 +3156,7 @@ class SSH2
      * @return void
      * @throws \RuntimeException on connection error
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
+     * @throws TimeoutException if the write could not be completed within the requested self::setTimeout()
      */
     public function write($cmd, $channel = null)
     {
@@ -3176,6 +3176,8 @@ class SSH2
             }
         }
 
+        $this->curTimeout = $this->timeout;
+        $this->is_timeout = false;
         $this->send_channel_packet($channel, $cmd);
     }
 
@@ -3882,13 +3884,6 @@ class SSH2
 
                     $payload = $this->get_binary_packet();
                     break;
-                case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
-                    Strings::shift($payload, 1);
-                    list($channel, $window_size) = Strings::unpackSSH2('NN', $payload);
-
-                    $this->window_size_client_to_server[$channel] += $window_size;
-
-                    $payload = ($this->bitmap & self::MASK_WINDOW_ADJUST) ? true : $this->get_binary_packet();
             }
         }
 
@@ -3969,6 +3964,7 @@ class SSH2
      *
      * - the server closes the channel
      * - if the connection times out
+     * - if a window adjust packet is received on the given negated client channel
      * - if the channel status is CHANNEL_OPEN and the response was CHANNEL_OPEN_CONFIRMATION
      * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_SUCCESS
      * - if the channel status is CHANNEL_CLOSE and the response was CHANNEL_CLOSE
@@ -3977,7 +3973,10 @@ class SSH2
      *
      * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_FAILURE
      *
-     * @param int $client_channel
+     * @param int $client_channel Specifies the channel to return data for, and data received
+     *        on other channels is buffered. The respective negative value of a channel is
+     *        also supported for the case that the caller is awaiting adjustment of the data
+     *        window, and where data received on that respective channel is also buffered.
      * @param bool $skip_extended
      * @return mixed
      * @throws \RuntimeException on connection error
@@ -4029,6 +4028,14 @@ class SSH2
                 }
 
                 switch ($type) {
+                    case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
+                        list($window_size) = Strings::unpackSSH2('N', $response);
+                        $this->window_size_client_to_server[$channel] += $window_size;
+                        if ($channel == -$client_channel) {
+                            return true;
+                        }
+
+                        continue 2;
                     case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                         /*
                         if ($client_channel == self::CHANNEL_EXEC) {
@@ -4474,11 +4481,12 @@ class SSH2
     protected function send_channel_packet($client_channel, $data)
     {
         while (strlen($data)) {
-            if (!$this->window_size_client_to_server[$client_channel]) {
-                $this->bitmap ^= self::MASK_WINDOW_ADJUST;
+            while (!$this->window_size_client_to_server[$client_channel]) {
+                if ($this->isTimeout()) {
+                    throw new TimeoutException('Timed out waiting for server');
+                }
                 // using an invalid channel will let the buffers be built up for the valid channels
-                $this->get_channel_packet(-1);
-                $this->bitmap ^= self::MASK_WINDOW_ADJUST;
+                $this->get_channel_packet(-$client_channel);
             }
 
             /* The maximum amount of data allowed is determined by the maximum
