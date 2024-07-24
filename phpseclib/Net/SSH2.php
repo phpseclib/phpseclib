@@ -2678,11 +2678,11 @@ class SSH2
         $packet = $part1 . chr(0) . $part2;
         $this->send_binary_packet($packet);
 
-        $response = $this->get_binary_packet_or_close([
+        $response = $this->get_binary_packet_or_close(
             NET_SSH2_MSG_USERAUTH_SUCCESS,
             NET_SSH2_MSG_USERAUTH_FAILURE,
             NET_SSH2_MSG_USERAUTH_PK_OK,
-        ]);
+        );
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2715,10 +2715,10 @@ class SSH2
 
         $this->send_binary_packet($packet);
 
-        $response = $this->get_binary_packet_or_close([
+        $response = $this->get_binary_packet_or_close(
             NET_SSH2_MSG_USERAUTH_SUCCESS,
             NET_SSH2_MSG_USERAUTH_FAILURE,
-        ]);
+        );
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -3486,18 +3486,15 @@ class SSH2
     /**
      * Retrieves the next packet with added timeout and type handling
      *
-     * @param string|string[]|null $message_types Message types to enforce in response, closing if not met
+     * @param string $message_types Message types to enforce in response, closing if not met
      * @return string
      * @throws ConnectionClosedException If an error has occurred preventing read of the next packet
      */
-    private function get_binary_packet_or_close($message_types = null)
+    private function get_binary_packet_or_close(...$message_types)
     {
-        if (is_int($message_types)) {
-            $message_types = [$message_types];
-        }
         try {
             $packet = $this->get_binary_packet();
-            if (is_array($message_types) && !in_array(ord($packet[0]), $message_types)) {
+            if (count($message_types) > 0 && !in_array(ord($packet[0]), $message_types)) {
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
                 throw new ConnectionClosedException('Bad message type. Expected: #'
                     . implode(', #', $message_types) . '. Got: #' . ord($packet[0]));
