@@ -2681,7 +2681,7 @@ class SSH2
         $response = $this->get_binary_packet_or_close(
             NET_SSH2_MSG_USERAUTH_SUCCESS,
             NET_SSH2_MSG_USERAUTH_FAILURE,
-            NET_SSH2_MSG_USERAUTH_PK_OK,
+            NET_SSH2_MSG_USERAUTH_PK_OK
         );
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2717,7 +2717,7 @@ class SSH2
 
         $response = $this->get_binary_packet_or_close(
             NET_SSH2_MSG_USERAUTH_SUCCESS,
-            NET_SSH2_MSG_USERAUTH_FAILURE,
+            NET_SSH2_MSG_USERAUTH_FAILURE
         );
 
         list($type) = Strings::unpackSSH2('C', $response);
