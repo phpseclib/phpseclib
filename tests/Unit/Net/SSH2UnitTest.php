@@ -223,7 +223,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     /**
      * @requires PHPUnit < 10
      */
-    public function testGetStreamTimeout()
+    public function testGetStreamTimeout(): void
     {
         // no curTimeout, no keepAlive
         $ssh = $this->createSSHMock();
@@ -238,7 +238,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh = $this->createSSHMock();
         $ssh->setKeepAlive(2);
         self::setVar($ssh, 'last_packet', microtime(true));
-        list($sec, $usec) = self::callFunc($ssh, 'get_stream_timeout');
+        [$sec, $usec] = self::callFunc($ssh, 'get_stream_timeout');
         $this->assertGreaterThanOrEqual(1, $sec);
         $this->assertLessThanOrEqual(2, $sec);
 
@@ -254,7 +254,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->setTimeout(5);
         $ssh->setKeepAlive(2);
         self::setVar($ssh, 'last_packet', microtime(true));
-        list($sec, $usec) = self::callFunc($ssh, 'get_stream_timeout');
+        [$sec, $usec] = self::callFunc($ssh, 'get_stream_timeout');
         $this->assertGreaterThanOrEqual(1, $sec);
         $this->assertLessThanOrEqual(2, $sec);
 
@@ -273,7 +273,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     /**
      * @requires PHPUnit < 10
      */
-    public function testSendChannelPacketNoBufferedData()
+    public function testSendChannelPacketNoBufferedData(): void
     {
         $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
             ->disableOriginalConstructor()
@@ -282,7 +282,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->expects($this->once())
             ->method('get_channel_packet')
             ->with(-1)
-            ->willReturnCallback(function () use ($ssh) {
+            ->willReturnCallback(function () use ($ssh): void {
                 self::setVar($ssh, 'window_size_client_to_server', [1 => 0x7FFFFFFF]);
             });
         $ssh->expects($this->once())
@@ -300,7 +300,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     /**
      * @requires PHPUnit < 10
      */
-    public function testSendChannelPacketBufferedData()
+    public function testSendChannelPacketBufferedData(): void
     {
         $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
             ->disableOriginalConstructor()
@@ -309,7 +309,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->expects($this->once())
             ->method('get_channel_packet')
             ->with(-1)
-            ->willReturnCallback(function () use ($ssh) {
+            ->willReturnCallback(function () use ($ssh): void {
                 self::setVar($ssh, 'window_size_client_to_server', [1 => 0x7FFFFFFF]);
             });
         $ssh->expects($this->once())
@@ -328,7 +328,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     /**
      * @requires PHPUnit < 10
      */
-    public function testSendChannelPacketTimeout()
+    public function testSendChannelPacketTimeout(): void
     {
         $this->expectException(TimeoutException::class);
         $this->expectExceptionMessage('Timed out waiting for server');
@@ -340,7 +340,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->expects($this->once())
             ->method('get_channel_packet')
             ->with(-1)
-            ->willReturnCallback(function () use ($ssh) {
+            ->willReturnCallback(function () use ($ssh): void {
                 self::setVar($ssh, 'is_timeout', true);
             });
         $ssh->expects($this->once())
@@ -358,7 +358,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     /**
      * @requires PHPUnit < 10
      */
-    public function testSendChannelPacketNoWindowAdjustment()
+    public function testSendChannelPacketNoWindowAdjustment(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Data window was not adjusted');
@@ -380,9 +380,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
     }
 
-    /**
-     * @return \phpseclib3\Net\SSH2
-     */
     protected function createSSHMock(): SSH2
     {
         return $this->getMockBuilder('phpseclib3\Net\SSH2')

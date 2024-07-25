@@ -724,8 +724,6 @@ class SSH2
 
     /**
      * Time of last read/write network activity
-     *
-     * @var float
      */
     private float|null $last_packet = null;
 
@@ -1483,7 +1481,7 @@ class SSH2
                 $this->updateLogHistory('UNKNOWN (34)', 'SSH_MSG_KEXDH_GEX_REQUEST');
 
                 $response = $this->get_binary_packet_or_close(MessageTypeExtra::KEXDH_GEX_GROUP);
-                list($type, $primeBytes, $gBytes) = Strings::unpackSSH2('Css', $response);
+                [$type, $primeBytes, $gBytes] = Strings::unpackSSH2('Css', $response);
                 $this->updateLogHistory('UNKNOWN (31)', 'SSH_MSG_KEXDH_GEX_GROUP');
 
                 $prime = new BigInteger($primeBytes, -256);
@@ -3653,8 +3651,6 @@ class SSH2
      *        on other channels is buffered. The respective negative value of a channel is
      *        also supported for the case that the caller is awaiting adjustment of the data
      *        window, and where data received on that respective channel is also buffered.
-     * @param bool $skip_extended
-     * @return mixed
      * @throws RuntimeException on connection error
      */
     protected function get_channel_packet(int $client_channel, bool $skip_extended = false)
@@ -4143,8 +4139,9 @@ class SSH2
      */
     protected function send_channel_packet(int $client_channel, string $data): void
     {
-        if (isset($this->channel_buffers_write[$client_channel])
-            && strpos($data, $this->channel_buffers_write[$client_channel]) === 0
+        if (
+            isset($this->channel_buffers_write[$client_channel])
+            && str_starts_with($data, $this->channel_buffers_write[$client_channel])
         ) {
             // if buffer holds identical initial data content, resume send from the unmatched data portion
             $data = substr($data, strlen($this->channel_buffers_write[$client_channel]));
