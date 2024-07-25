@@ -10,7 +10,9 @@ declare(strict_types=1);
 
 namespace phpseclib3\Tests\Unit\Net;
 
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\InsufficientSetupException;
+use phpseclib3\Exception\TimeoutException;
 use phpseclib3\Net\SSH2;
 use phpseclib3\Tests\PhpseclibTestCase;
 
@@ -266,6 +268,116 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->setKeepAlive(2);
         self::setVar($ssh, 'last_packet', microtime(true) - 2);
         $this->assertEquals([0, 0], self::callFunc($ssh, 'get_stream_timeout'));
+    }
+
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testSendChannelPacketNoBufferedData()
+    {
+        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())
+            ->method('get_channel_packet')
+            ->with(-1)
+            ->willReturnCallback(function () use ($ssh) {
+                self::setVar($ssh, 'window_size_client_to_server', [1 => 0x7FFFFFFF]);
+            });
+        $ssh->expects($this->once())
+            ->method('send_binary_packet')
+            ->with(Strings::packSSH2('CNs', NET_SSH2_MSG_CHANNEL_DATA, 1, 'hello world'));
+        self::setVar($ssh, 'server_channels', [1 => 1]);
+        self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
+        self::setVar($ssh, 'window_size_client_to_server', [1 => 0]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 0x7FFFFFFF]);
+
+        self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
+        $this->assertEmpty(self::getVar($ssh, 'channel_buffers_write'));
+    }
+
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testSendChannelPacketBufferedData()
+    {
+        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())
+            ->method('get_channel_packet')
+            ->with(-1)
+            ->willReturnCallback(function () use ($ssh) {
+                self::setVar($ssh, 'window_size_client_to_server', [1 => 0x7FFFFFFF]);
+            });
+        $ssh->expects($this->once())
+            ->method('send_binary_packet')
+            ->with(Strings::packSSH2('CNs', NET_SSH2_MSG_CHANNEL_DATA, 1, ' world'));
+        self::setVar($ssh, 'channel_buffers_write', [1 => 'hello']);
+        self::setVar($ssh, 'server_channels', [1 => 1]);
+        self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
+        self::setVar($ssh, 'window_size_client_to_server', [1 => 0]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 0x7FFFFFFF]);
+
+        self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
+        $this->assertEmpty(self::getVar($ssh, 'channel_buffers_write'));
+    }
+
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testSendChannelPacketTimeout()
+    {
+        $this->expectException(TimeoutException::class);
+        $this->expectExceptionMessage('Timed out waiting for server');
+
+        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())
+            ->method('get_channel_packet')
+            ->with(-1)
+            ->willReturnCallback(function () use ($ssh) {
+                self::setVar($ssh, 'is_timeout', true);
+            });
+        $ssh->expects($this->once())
+            ->method('send_binary_packet')
+            ->with(Strings::packSSH2('CNs', NET_SSH2_MSG_CHANNEL_DATA, 1, 'hello'));
+        self::setVar($ssh, 'server_channels', [1 => 1]);
+        self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
+        self::setVar($ssh, 'window_size_client_to_server', [1 => 5]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 0x7FFFFFFF]);
+
+        self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
+        $this->assertEquals([1 => 'hello'], self::getVar($ssh, 'channel_buffers_write'));
+    }
+
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testSendChannelPacketNoWindowAdjustment()
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Data window was not adjusted');
+
+        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())
+            ->method('get_channel_packet')
+            ->with(-1);
+        $ssh->expects($this->never())
+            ->method('send_binary_packet');
+        self::setVar($ssh, 'server_channels', [1 => 1]);
+        self::setVar($ssh, 'packet_size_client_to_server', [1 => 0x7FFFFFFF]);
+        self::setVar($ssh, 'window_size_client_to_server', [1 => 0]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 0x7FFFFFFF]);
+
+        self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
     }
 
     /**
