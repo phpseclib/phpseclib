@@ -66,6 +66,7 @@ use phpseclib3\Exception\ConnectionClosedException;
 use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\InvalidPacketLengthException;
 use phpseclib3\Exception\NoSupportedAlgorithmsException;
+use phpseclib3\Exception\TimeoutException;
 use phpseclib3\Exception\UnableToConnectException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedCurveException;
@@ -103,7 +104,6 @@ class SSH2
     const MASK_LOGIN_REQ     = 0x00000004;
     const MASK_LOGIN         = 0x00000008;
     const MASK_SHELL         = 0x00000010;
-    const MASK_WINDOW_ADJUST = 0x00000020;
 
     /*
      * Channel constants
@@ -626,7 +626,7 @@ class SSH2
     protected $server_channels = [];
 
     /**
-     * Channel Buffers
+     * Channel Read Buffers
      *
      * If a client requests a packet from one channel but receives two packets from another those packets should
      * be placed in a buffer
@@ -636,6 +636,17 @@ class SSH2
      * @var array
      */
     private $channel_buffers = [];
+
+    /**
+     * Channel Write Buffers
+     *
+     * If a client sends a packet and receives a timeout error mid-transmission, buffer the data written so it
+     * can be de-duplicated upon resuming write
+     *
+     * @see self::send_channel_packet()
+     * @var array
+     */
+    private $channel_buffers_write = [];
 
     /**
      * Channel Status
@@ -1457,13 +1468,7 @@ class SSH2
         }
 
         if (!$this->send_kex_first) {
-            $response = $this->get_binary_packet();
-
-            if (is_bool($response) || !strlen($response) || ord($response[0]) != NET_SSH2_MSG_KEXINIT) {
-                $this->bitmap = 0;
-                throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
-            }
-
+            $response = $this->get_binary_packet_or_close(NET_SSH2_MSG_KEXINIT);
             $this->key_exchange($response);
         }
 
@@ -1607,17 +1612,7 @@ class SSH2
             $this->send_binary_packet($kexinit_payload_client);
 
             $this->extra_packets = 0;
-            $kexinit_payload_server = $this->get_binary_packet();
-
-            if (
-                is_bool($kexinit_payload_server)
-                || !strlen($kexinit_payload_server)
-                || ord($kexinit_payload_server[0]) != NET_SSH2_MSG_KEXINIT
-            ) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
-                throw new \UnexpectedValueException('Expected SSH_MSG_KEXINIT');
-            }
-
+            $kexinit_payload_server = $this->get_binary_packet_or_close(NET_SSH2_MSG_KEXINIT);
             $send_kex = false;
         }
 
@@ -1761,13 +1756,8 @@ class SSH2
                 $this->send_binary_packet($packet);
                 $this->updateLogHistory('UNKNOWN (34)', 'NET_SSH2_MSG_KEXDH_GEX_REQUEST');
 
-                $response = $this->get_binary_packet();
-
+                $response = $this->get_binary_packet_or_close(NET_SSH2_MSG_KEXDH_GEX_GROUP);
                 list($type, $primeBytes, $gBytes) = Strings::unpackSSH2('Css', $response);
-                if ($type != NET_SSH2_MSG_KEXDH_GEX_GROUP) {
-                    $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
-                    throw new \UnexpectedValueException('Expected SSH_MSG_KEX_DH_GEX_GROUP');
-                }
                 $this->updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEXDH_GEX_GROUP');
                 $prime = new BigInteger($primeBytes, -256);
                 $g = new BigInteger($gBytes, -256);
@@ -1806,7 +1796,7 @@ class SSH2
                 $this->updateLogHistory('UNKNOWN (32)', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
         }
 
-        $response = $this->get_binary_packet();
+        $response = $this->get_binary_packet_or_close(constant($serverKexReplyMessage));
 
         list(
             $type,
@@ -1815,10 +1805,6 @@ class SSH2
             $this->signature
         ) = Strings::unpackSSH2('Csss', $response);
 
-        if ($type != constant($serverKexReplyMessage)) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
-            throw new \UnexpectedValueException("Expected $serverKexReplyMessage");
-        }
         switch ($serverKexReplyMessage) {
             case 'NET_SSH2_MSG_KEX_ECDH_REPLY':
                 $this->updateLogHistory('NET_SSH2_MSG_KEXDH_REPLY', 'NET_SSH2_MSG_KEX_ECDH_REPLY');
@@ -1885,19 +1871,7 @@ class SSH2
 
         $packet = pack('C', NET_SSH2_MSG_NEWKEYS);
         $this->send_binary_packet($packet);
-
-        $response = $this->get_binary_packet();
-
-        if ($response === false) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-            throw new ConnectionClosedException('Connection closed by server');
-        }
-
-        list($type) = Strings::unpackSSH2('C', $response);
-        if ($type != NET_SSH2_MSG_NEWKEYS) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
-            throw new \UnexpectedValueException('Expected SSH_MSG_NEWKEYS');
-        }
+        $response = $this->get_binary_packet_or_close(NET_SSH2_MSG_NEWKEYS);
 
         if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
             $this->get_seq_no = $this->send_seq_no = 0;
@@ -2349,7 +2323,7 @@ class SSH2
             $this->send_binary_packet($packet);
 
             try {
-                $response = $this->get_binary_packet();
+                $response = $this->get_binary_packet_or_close(NET_SSH2_MSG_SERVICE_ACCEPT);
             } catch (InvalidPacketLengthException $e) {
                 // the first opportunity to encounter the "bad key size" error
                 if (!$this->bad_key_size_fix && $this->decryptName != null && self::bad_algorithm_candidate($this->decryptName)) {
@@ -2360,15 +2334,12 @@ class SSH2
                     return $this->reconnect();
                 }
                 throw $e;
-            } catch (\Exception $e) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-                throw $e;
             }
 
             list($type) = Strings::unpackSSH2('C', $response);
             list($service) = Strings::unpackSSH2('s', $response);
 
-            if ($type != NET_SSH2_MSG_SERVICE_ACCEPT || $service != 'ssh-userauth') {
+            if ($service != 'ssh-userauth') {
                 $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
                 throw new \UnexpectedValueException('Expected SSH_MSG_SERVICE_ACCEPT');
             }
@@ -2406,7 +2377,7 @@ class SSH2
 
             $this->send_binary_packet($packet);
 
-            $response = $this->get_binary_packet();
+            $response = $this->get_binary_packet_or_close();
 
             list($type) = Strings::unpackSSH2('C', $response);
             switch ($type) {
@@ -2449,10 +2420,7 @@ class SSH2
 
         $this->send_binary_packet($packet, $logged);
 
-        $response = $this->get_binary_packet();
-        if ($response === false) {
-            return false;
-        }
+        $response = $this->get_binary_packet_or_close();
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
             case NET_SSH2_MSG_USERAUTH_PASSWD_CHANGEREQ: // in theory, the password can be changed
@@ -2520,7 +2488,7 @@ class SSH2
         if (strlen($this->last_interactive_response)) {
             $response = $this->last_interactive_response;
         } else {
-            $orig = $response = $this->get_binary_packet();
+            $orig = $response = $this->get_binary_packet_or_close();
         }
 
         list($type) = Strings::unpackSSH2('C', $response);
@@ -2710,7 +2678,11 @@ class SSH2
         $packet = $part1 . chr(0) . $part2;
         $this->send_binary_packet($packet);
 
-        $response = $this->get_binary_packet();
+        $response = $this->get_binary_packet_or_close(
+            NET_SSH2_MSG_USERAUTH_SUCCESS,
+            NET_SSH2_MSG_USERAUTH_FAILURE,
+            NET_SSH2_MSG_USERAUTH_PK_OK
+        );
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2731,9 +2703,6 @@ class SSH2
             case NET_SSH2_MSG_USERAUTH_SUCCESS:
                 $this->bitmap |= self::MASK_LOGIN;
                 return true;
-            default:
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-                throw new ConnectionClosedException('Unexpected response to publickey authentication pt 1');
         }
 
         $packet = $part1 . chr(1) . $part2;
@@ -2746,7 +2715,10 @@ class SSH2
 
         $this->send_binary_packet($packet);
 
-        $response = $this->get_binary_packet();
+        $response = $this->get_binary_packet_or_close(
+            NET_SSH2_MSG_USERAUTH_SUCCESS,
+            NET_SSH2_MSG_USERAUTH_FAILURE
+        );
 
         list($type) = Strings::unpackSSH2('C', $response);
         switch ($type) {
@@ -2759,9 +2731,6 @@ class SSH2
                 $this->bitmap |= self::MASK_LOGIN;
                 return true;
         }
-
-        $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-        throw new ConnectionClosedException('Unexpected response to publickey authentication pt 2');
     }
 
     /**
@@ -3198,6 +3167,7 @@ class SSH2
      * @return void
      * @throws \RuntimeException on connection error
      * @throws InsufficientSetupException on unexpected channel status, possibly due to closure
+     * @throws TimeoutException if the write could not be completed within the requested self::setTimeout()
      */
     public function write($cmd, $channel = null)
     {
@@ -3217,6 +3187,8 @@ class SSH2
             }
         }
 
+        $this->curTimeout = $this->timeout;
+        $this->is_timeout = false;
         $this->send_channel_packet($channel, $cmd);
     }
 
@@ -3485,6 +3457,8 @@ class SSH2
         $this->get_seq_no = $this->send_seq_no = 0;
         $this->channel_status = [];
         $this->channel_id_last_interactive = 0;
+        $this->channel_buffers = [];
+        $this->channel_buffers_write = [];
     }
 
     /**
@@ -3510,12 +3484,37 @@ class SSH2
     }
 
     /**
+     * Retrieves the next packet with added timeout and type handling
+     *
+     * @param string $message_types Message types to enforce in response, closing if not met
+     * @return string
+     * @throws ConnectionClosedException If an error has occurred preventing read of the next packet
+     */
+    private function get_binary_packet_or_close(...$message_types)
+    {
+        try {
+            $packet = $this->get_binary_packet();
+            if (count($message_types) > 0 && !in_array(ord($packet[0]), $message_types)) {
+                $this->disconnect_helper(NET_SSH2_DISCONNECT_PROTOCOL_ERROR);
+                throw new ConnectionClosedException('Bad message type. Expected: #'
+                    . implode(', #', $message_types) . '. Got: #' . ord($packet[0]));
+            }
+            return $packet;
+        } catch (TimeoutException $e) {
+            $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
+            throw new ConnectionClosedException('Connection closed due to timeout');
+        }
+    }
+
+    /**
      * Gets Binary Packets
      *
      * See '6. Binary Packet Protocol' of rfc4253 for more info.
      *
      * @see self::_send_binary_packet()
-     * @return bool|string
+     * @return string
+     * @throws TimeoutException If user requested timeout was reached while waiting for next packet
+     * @throws ConnectionClosedException If an error has occurred preventing read of the next packet
      */
     private function get_binary_packet()
     {
@@ -3541,7 +3540,7 @@ class SSH2
             }
             if ($this->curTimeout < 0) {
                 $this->is_timeout = true;
-                return true;
+                throw new TimeoutException('Timed out waiting for server');
             }
             $this->send_keep_alive();
 
@@ -3773,7 +3772,7 @@ class SSH2
      *
      * @see self::_get_binary_packet()
      * @param string $payload
-     * @return string|bool
+     * @return string
      */
     private function filter($payload)
     {
@@ -3782,8 +3781,8 @@ class SSH2
                 Strings::shift($payload, 1);
                 list($reason_code, $message) = Strings::unpackSSH2('Ns', $payload);
                 $this->errors[] = 'SSH_MSG_DISCONNECT: ' . self::$disconnect_reasons[$reason_code] . "\r\n$message";
-                $this->bitmap = 0;
-                return false;
+                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+                throw new ConnectionClosedException('Connection closed by server');
             case NET_SSH2_MSG_IGNORE:
                 $this->extra_packets++;
                 $payload = $this->get_binary_packet();
@@ -3796,13 +3795,13 @@ class SSH2
                 $payload = $this->get_binary_packet();
                 break;
             case NET_SSH2_MSG_UNIMPLEMENTED:
-                return false;
+                break; // return payload
             case NET_SSH2_MSG_KEXINIT:
                 // this is here for key re-exchanges after the initial key exchange
                 if ($this->session_id !== false) {
                     if (!$this->key_exchange($payload)) {
-                        $this->bitmap = 0;
-                        return false;
+                        $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                        throw new ConnectionClosedException('Key exchange failed');
                     }
                     $payload = $this->get_binary_packet();
                 }
@@ -3820,7 +3819,7 @@ class SSH2
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
-        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && !is_bool($payload) && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
+        if (($this->bitmap & self::MASK_CONNECTED) && !$this->isAuthenticated() && ord($payload[0]) == NET_SSH2_MSG_USERAUTH_BANNER) {
             Strings::shift($payload, 1);
             list($this->banner_message) = Strings::unpackSSH2('s', $payload);
             $payload = $this->get_binary_packet();
@@ -3828,10 +3827,6 @@ class SSH2
 
         // only called when we've already logged in
         if (($this->bitmap & self::MASK_CONNECTED) && $this->isAuthenticated()) {
-            if (is_bool($payload)) {
-                return $payload;
-            }
-
             switch (ord($payload[0])) {
                 case NET_SSH2_MSG_CHANNEL_REQUEST:
                     if (strlen($payload) == 31) {
@@ -3848,13 +3843,7 @@ class SSH2
                     Strings::shift($payload, 1);
                     list($request_name) = Strings::unpackSSH2('s', $payload);
                     $this->errors[] = "SSH_MSG_GLOBAL_REQUEST: $request_name";
-
-                    try {
-                        $this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE));
-                    } catch (\RuntimeException $e) {
-                        return $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-                    }
-
+                    $this->send_binary_packet(pack('C', NET_SSH2_MSG_REQUEST_FAILURE));
                     $payload = $this->get_binary_packet();
                     break;
                 case NET_SSH2_MSG_CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
@@ -3900,23 +3889,11 @@ class SSH2
                                 '', // description
                                 '' // language tag
                             );
-
-                            try {
-                                $this->send_binary_packet($packet);
-                            } catch (\RuntimeException $e) {
-                                return $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
-                            }
+                            $this->send_binary_packet($packet);
                     }
 
                     $payload = $this->get_binary_packet();
                     break;
-                case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
-                    Strings::shift($payload, 1);
-                    list($channel, $window_size) = Strings::unpackSSH2('NN', $payload);
-
-                    $this->window_size_client_to_server[$channel] += $window_size;
-
-                    $payload = ($this->bitmap & self::MASK_WINDOW_ADJUST) ? true : $this->get_binary_packet();
             }
         }
 
@@ -3997,6 +3974,7 @@ class SSH2
      *
      * - the server closes the channel
      * - if the connection times out
+     * - if a window adjust packet is received on the given negated client channel
      * - if the channel status is CHANNEL_OPEN and the response was CHANNEL_OPEN_CONFIRMATION
      * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_SUCCESS
      * - if the channel status is CHANNEL_CLOSE and the response was CHANNEL_CLOSE
@@ -4005,7 +3983,10 @@ class SSH2
      *
      * - if the channel status is CHANNEL_REQUEST and the response was CHANNEL_FAILURE
      *
-     * @param int $client_channel
+     * @param int $client_channel Specifies the channel to return data for, and data received
+     *        on other channels is buffered. The respective negative value of a channel is
+     *        also supported for the case that the caller is awaiting adjustment of the data
+     *        window, and where data received on that respective channel is also buffered.
      * @param bool $skip_extended
      * @return mixed
      * @throws \RuntimeException on connection error
@@ -4030,21 +4011,18 @@ class SSH2
         }
 
         while (true) {
-            $response = $this->get_binary_packet();
-            if ($response === true && $this->is_timeout) {
+            try {
+                $response = $this->get_binary_packet();
+            } catch (TimeoutException $e) {
                 if ($client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
                     $this->close_channel($client_channel);
                 }
                 return true;
             }
-            if ($response === false) {
-                $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
+            list($type) = Strings::unpackSSH2('C', $response);
+            if (strlen($response) >= 4) {
+                list($channel) = Strings::unpackSSH2('N', $response);
             }
-            if ($client_channel == -1 && $response === true) {
-                return true;
-            }
-            list($type, $channel) = Strings::unpackSSH2('CN', $response);
 
             // will not be setup yet on incoming channel open request
             if (isset($channel) && isset($this->channel_status[$channel]) && isset($this->window_size_server_to_client[$channel])) {
@@ -4060,6 +4038,14 @@ class SSH2
                 }
 
                 switch ($type) {
+                    case NET_SSH2_MSG_CHANNEL_WINDOW_ADJUST:
+                        list($window_size) = Strings::unpackSSH2('N', $response);
+                        $this->window_size_client_to_server[$channel] += $window_size;
+                        if ($channel == -$client_channel) {
+                            return true;
+                        }
+
+                        continue 2;
                     case NET_SSH2_MSG_CHANNEL_EXTENDED_DATA:
                         /*
                         if ($client_channel == self::CHANNEL_EXEC) {
@@ -4234,7 +4220,7 @@ class SSH2
     protected function send_binary_packet($data, $logged = null)
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            $this->bitmap = 0;
+            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
             throw new ConnectionClosedException('Connection closed prematurely');
         }
 
@@ -4362,7 +4348,7 @@ class SSH2
         $this->last_packet = microtime(true);
 
         if (strlen($packet) != $sent) {
-            $this->bitmap = 0;
+            $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
             $message = $sent === false ?
                 'Unable to write ' . strlen($packet) . ' bytes' :
                 "Only $sent of " . strlen($packet) . " bytes were sent";
@@ -4504,12 +4490,23 @@ class SSH2
      */
     protected function send_channel_packet($client_channel, $data)
     {
+        if (isset($this->channel_buffers_write[$client_channel])
+            && strpos($data, $this->channel_buffers_write[$client_channel]) === 0
+        ) {
+            // if buffer holds identical initial data content, resume send from the unmatched data portion
+            $data = substr($data, strlen($this->channel_buffers_write[$client_channel]));
+        } else {
+            $this->channel_buffers_write[$client_channel] = '';
+        }
         while (strlen($data)) {
             if (!$this->window_size_client_to_server[$client_channel]) {
-                $this->bitmap ^= self::MASK_WINDOW_ADJUST;
                 // using an invalid channel will let the buffers be built up for the valid channels
-                $this->get_channel_packet(-1);
-                $this->bitmap ^= self::MASK_WINDOW_ADJUST;
+                $this->get_channel_packet(-$client_channel);
+                if ($this->isTimeout()) {
+                    throw new TimeoutException('Timed out waiting for server');
+                } elseif (!$this->window_size_client_to_server[$client_channel]) {
+                    throw new \RuntimeException('Data window was not adjusted');
+                }
             }
 
             /* The maximum amount of data allowed is determined by the maximum
@@ -4530,7 +4527,9 @@ class SSH2
             );
             $this->window_size_client_to_server[$client_channel] -= strlen($temp);
             $this->send_binary_packet($packet);
+            $this->channel_buffers_write[$client_channel] .= $temp;
         }
+        unset($this->channel_buffers_write[$client_channel]);
     }
 
     /**
