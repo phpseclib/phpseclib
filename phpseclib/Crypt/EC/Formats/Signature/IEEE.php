@@ -54,13 +54,15 @@ abstract class IEEE
      *
      * @param \phpseclib3\Math\BigInteger $r
      * @param \phpseclib3\Math\BigInteger $s
+     * @param string $curve
+     * @param int $length
      * @return string
      */
-    public static function save(BigInteger $r, BigInteger $s, $curve)
+    public static function save(BigInteger $r, BigInteger $s, $curve, $length)
     {
         $r = $r->toBytes();
         $s = $s->toBytes();
-        $len = $curve->getLength();
-        return str_pad($r, $len, "\0", STR_PAD_LEFT) . str_pad($s, $len, "\0", STR_PAD_LEFT);
+        $length >>= 3;
+        return str_pad($r, $length, "\0", STR_PAD_LEFT) . str_pad($s, $length, "\0", STR_PAD_LEFT);
     }
 }
