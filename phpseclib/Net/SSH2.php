@@ -4490,7 +4490,8 @@ class SSH2
      */
     protected function send_channel_packet($client_channel, $data)
     {
-        if (isset($this->channel_buffers_write[$client_channel])
+        if (
+            isset($this->channel_buffers_write[$client_channel])
             && strpos($data, $this->channel_buffers_write[$client_channel]) === 0
         ) {
             // if buffer holds identical initial data content, resume send from the unmatched data portion

@@ -266,11 +266,13 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $temp = new \ReflectionMethod($format, 'save');
         $paramCount = $temp->getNumberOfRequiredParameters();
 
+        // @codingStandardsIgnoreStart
         switch ($paramCount) {
             case 2: return $format::save($r, $s);
             case 3: return $format::save($r, $s, $this->getCurve());
             case 4: return $format::save($r, $s, $this->getCurve(), $this->getLength());
         }
+        // @codingStandardsIgnoreEnd
 
         // presumably the only way you could get to this is if you were using a custom plugin
         throw new UnsupportedOperationException("$format::save() has $paramCount parameters - the only valid parameter counts are 2 or 3");

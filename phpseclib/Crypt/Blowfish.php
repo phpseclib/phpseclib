@@ -433,7 +433,7 @@ class Blowfish extends BlockCipher
             $this->bctx['p'][$i    ] = $l;
             $this->bctx['p'][$i + 1] = $r;
         }
-        for ($i = 0; $i < 0x400; $i+= 0x100) {
+        for ($i = 0; $i < 0x400; $i += 0x100) {
             for ($j = 0; $j < 256; $j += 2) {
                 list($l, $r) = array_values(unpack('N*', $data = $this->encryptBlock($data)));
                 $this->bctx['sb'][$i | $j] = $l;
