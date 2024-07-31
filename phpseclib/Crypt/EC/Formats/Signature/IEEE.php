@@ -56,11 +56,11 @@ abstract class IEEE
      * @param \phpseclib3\Math\BigInteger $s
      * @return string
      */
-    public static function save(BigInteger $r, BigInteger $s)
+    public static function save(BigInteger $r, BigInteger $s, $curve)
     {
         $r = $r->toBytes();
         $s = $s->toBytes();
-        $len = max(strlen($r), strlen($s));
+        $len = $curve->getLength();
         return str_pad($r, $len, "\0", STR_PAD_LEFT) . str_pad($s, $len, "\0", STR_PAD_LEFT);
     }
 }
