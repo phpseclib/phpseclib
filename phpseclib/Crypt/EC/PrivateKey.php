@@ -252,8 +252,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
     /**
      * Returns a signature in the appropriate format
-     *
-     * @return string
      */
     private function formatSignature(BigInteger $r, BigInteger $s): string
     {
