@@ -54,11 +54,11 @@ abstract class IEEE
     /**
      * Returns a signature in the appropriate format
      */
-    public static function save(BigInteger $r, BigInteger $s): string
+    public static function save(BigInteger $r, BigInteger $s, string $curve, int $length): string
     {
         $r = $r->toBytes();
         $s = $s->toBytes();
-        $len = max(strlen($r), strlen($s));
-        return str_pad($r, $len, "\0", STR_PAD_LEFT) . str_pad($s, $len, "\0", STR_PAD_LEFT);
+        $length >>= 3;
+        return str_pad($r, $length, "\0", STR_PAD_LEFT) . str_pad($s, $length, "\0", STR_PAD_LEFT);
     }
 }

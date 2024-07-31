@@ -749,4 +749,18 @@ z9DYTLdGkQDqox3AtEs9nn6kE1O/vHE4bqMegjj4gbA=
         $key = EC::loadFormat('PKCS8', $key);
         $this->assertInstanceOf(PublicKey::class, $key);
     }
+
+    public function testIEEESignatureCreate(): void
+    {
+        $key = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg7+qVCtyt+tV2hTou
+kbZNIHu+PaE0osExnxdlkiC+VYqhRANCAAS8yEueJvIAnCk++0rsD8X9dk3hAmyb
+4lv6WkjCQU5iksxIG/E60L8IeDZX8+oNzHPjNN5/6MBk0ISrGKyFhlH1
+-----END PRIVATE KEY-----');
+
+        $priv = $key->withSignatureFormat('IEEE');
+        $sig = $priv->sign('ddd');
+
+        $this->assertTrue($key->getPublicKey()->withSignatureFormat('IEEE')->verify('ddd', $sig));
+    }
 }
