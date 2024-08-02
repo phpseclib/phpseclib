@@ -62,7 +62,7 @@ abstract class IEEE
     {
         $r = $r->toBytes();
         $s = $s->toBytes();
-        $length >>= 3;
+        $length = (int) ceil($length / 8);
         return str_pad($r, $length, "\0", STR_PAD_LEFT) . str_pad($s, $length, "\0", STR_PAD_LEFT);
     }
 }
