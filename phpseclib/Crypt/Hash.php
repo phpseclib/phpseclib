@@ -159,7 +159,7 @@ class Hash
      * umac cipher object
      *
      * @see self::hash()
-     * @var \phpseclib3\Crypt\AES
+     * @var AES
      */
     private $c;
 

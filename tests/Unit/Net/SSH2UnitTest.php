@@ -140,7 +140,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     public function testGetConnectionByResourceId()
     {
         $ssh = new SSH2('localhost');
-        $this->assertSame($ssh, \phpseclib3\Net\SSH2::getConnectionByResourceId($ssh->getResourceId()));
+        $this->assertSame($ssh, SSH2::getConnectionByResourceId($ssh->getResourceId()));
     }
 
     public function testGetResourceId()
@@ -384,7 +384,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
-     * @return \phpseclib3\Net\SSH2
+     * @return SSH2
      */
     protected function createSSHMock()
     {

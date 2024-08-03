@@ -113,7 +113,7 @@ class Identity implements PrivateKey
      *
      * Called by \phpseclib3\System\SSH\Agent::requestIdentities()
      *
-     * @param \phpseclib3\Crypt\Common\PublicKey $key
+     * @param PublicKey $key
      */
     public function withPublicKey(PublicKey $key)
     {
@@ -267,7 +267,7 @@ class Identity implements PrivateKey
      * @param string $message
      * @return string
      * @throws \RuntimeException on connection errors
-     * @throws \phpseclib3\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function sign($message)
     {
