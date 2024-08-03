@@ -33,6 +33,7 @@
 namespace phpseclib3\System\SSH;
 
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Exception\BadConfigurationException;
@@ -192,13 +193,32 @@ class Agent
             if (isset($key)) {
                 $identity = (new Identity($this->fsock))
                     ->withPublicKey($key)
-                    ->withPublicKeyBlob($key_blob);
+                    ->withPublicKeyBlob($key_blob)
+                    ->withComment($comment);
                 $identities[] = $identity;
                 unset($key);
             }
         }
 
         return $identities;
+    }
+
+    /**
+     * Returns the SSH Agent identity matching a given public key or null if no identity is found
+     *
+     * @return ?Identity
+     */
+    public function findIdentityByPublicKey(PublicKey $key)
+    {
+        $identities = $this->requestIdentities();
+        $key = (string) $key;
+        foreach ($identities as $identity) {
+            if (((string) $identity->getPublicKey()) == $key) {
+                return $identity;
+            }
+        }
+
+        return null;
     }
 
     /**

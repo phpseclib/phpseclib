@@ -80,6 +80,13 @@ class Identity implements PrivateKey
     private $flags = 0;
 
     /**
+     * Comment
+     *
+     * @var null|string
+     */
+    private $comment;
+
+    /**
      * Curve Aliases
      *
      * @var array
@@ -141,10 +148,9 @@ class Identity implements PrivateKey
      *
      * Wrapper for $this->key->getPublicKey()
      *
-     * @param string $type optional
      * @return mixed
      */
-    public function getPublicKey($type = 'PKCS8')
+    public function getPublicKey()
     {
         return $this->key;
     }
@@ -316,5 +322,25 @@ class Identity implements PrivateKey
     public function withPassword($password = false)
     {
         throw new \RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+    }
+
+    /**
+     * Sets the comment
+     */
+    public function withComment($comment = null)
+    {
+        $new = clone $this;
+        $new->comment = $comment;
+        return $new;
+    }
+
+    /**
+     * Returns the comment
+     *
+     * @return null|string
+     */
+    public function getComment()
+    {
+        return $this->comment;
     }
 }
