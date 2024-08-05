@@ -2456,7 +2456,7 @@ class SSH2
      * Set Timeout
      *
      * $ssh->exec('ping 127.0.0.1'); on a Linux host will never return and will run indefinitely.  setTimeout() makes it so it'll timeout.
-     * Setting $timeout to false or 0 will mean there is no timeout.
+     * Setting $timeout to false or 0 will revert to the default socket timeout.
      */
     public function setTimeout(int $timeout): void
     {
@@ -3130,11 +3130,11 @@ class SSH2
     }
 
     /**
-     * @return int[] second and microsecond stream timeout options based on user-requested timeout and keep-alive, 0 by default
+     * @return int[] second and microsecond stream timeout options based on user-requested timeout and keep-alive, or the default socket timeout by default, which mirrors PHP socket streams.
      */
     private function get_stream_timeout()
     {
-        $sec = 0;
+        $sec = ini_get('default_socket_timeout');
         $usec = 0;
         if ($this->curTimeout > 0) {
             $sec = (int) floor($this->curTimeout);

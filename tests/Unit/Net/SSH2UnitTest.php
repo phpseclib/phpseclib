@@ -225,9 +225,10 @@ class SSH2UnitTest extends PhpseclibTestCase
      */
     public function testGetStreamTimeout(): void
     {
+        $default = ini_get('default_socket_timeout');
         // no curTimeout, no keepAlive
         $ssh = $this->createSSHMock();
-        $this->assertEquals([0, 0], self::callFunc($ssh, 'get_stream_timeout'));
+        $this->assertEquals([$default, 0], self::callFunc($ssh, 'get_stream_timeout'));
 
         // curTimeout, no keepAlive
         $ssh = $this->createSSHMock();
