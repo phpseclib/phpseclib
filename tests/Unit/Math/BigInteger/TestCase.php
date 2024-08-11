@@ -221,6 +221,12 @@ abstract class TestCase extends PhpseclibTestCase
 
         $this->assertSame($z->toHex(), $x->bitwise_OR($y)->toHex());
 
+        $x = $this->getInstance('AFAFAFAFAFAFAFAFAFAFAFAF', 16);
+        $y = $this->getInstance('133713371337133713371337', 16);
+        $z = $this->getInstance('BFBFBFBFBFBFBFBFBFBFBFBF', 16);
+
+        $this->assertSame($z->toHex(), $x->bitwise_OR($y)->toHex());
+
         $x = -0xFFFF;
         $y = 2;
         $z = $x ^ $y;
