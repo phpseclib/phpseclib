@@ -4014,9 +4014,6 @@ class SSH2
             try {
                 $response = $this->get_binary_packet();
             } catch (TimeoutException $e) {
-                if ($client_channel == self::CHANNEL_EXEC && !$this->request_pty) {
-                    $this->close_channel($client_channel);
-                }
                 return true;
             }
             list($type) = Strings::unpackSSH2('C', $response);
