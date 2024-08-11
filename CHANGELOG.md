@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.40 - 2024-08-11
+
+- SSH2: fix for setTimeout(0) (#2023)
+- SSH2: fix possible infinite loop on packet timeout
+- SSH2/Agent: make it so identities include key comments (#2022)
+- SSH2/Agent: add findIdentityByPublicKey() (#2022)
+- EC: fix for IEEEE signatures (#2019)
+- BigInteger/BCMath: bitwise_or() was doing XOR (#2025)
+
 ## 3.0.39 - 2024-06-24
 
 - SSH2: fix when keep alive packets are sent (#2009)
