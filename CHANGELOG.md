@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.41 - 2024-08-11
+
+- SFTP: fix deprecation warning (#2027)
+
 ## 3.0.40 - 2024-08-11
 
 - SSH2: fix for setTimeout(0) (#2023)
