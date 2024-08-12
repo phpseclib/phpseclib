@@ -898,7 +898,7 @@ class SSH2
      * @see self::isTimeout()
      * @var bool
      */
-    private $is_timeout = false;
+    protected $is_timeout = false;
 
     /**
      * Log Boundary
