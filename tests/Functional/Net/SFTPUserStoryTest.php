@@ -810,13 +810,48 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
      * @depends testChownChgrp
      * @group github1934
      */
-    public function testCallableGetWithLength($sftp)
+    public function testCallableGetWithLength(SFTP $sftp): SFTP
     {
         $sftp->put('test.txt', 'zzzzz');
         $sftp->get('test.txt', function ($data): void {
+            $this->assertSame('z', $data);
         }, 0, 1);
-        $this->assertTrue(true);
-
         return $sftp;
+    }
+
+
+    /**
+     * @depends testPasswordLogin
+     */
+    public function testStatVfs(SFTP $sftp): void
+    {
+        $sftp->put('test.txt', 'aaaaa');
+        $stat = $sftp->statvfs('test.txt');
+
+        $this->assertArrayHasKey('bsize', $stat);
+        $this->assertArrayHasKey('frsize', $stat);
+        $this->assertArrayHasKey('blocks', $stat);
+        $this->assertArrayHasKey('bfree', $stat);
+        $this->assertArrayHasKey('bavail', $stat);
+        $this->assertArrayHasKey('files', $stat);
+        $this->assertArrayHasKey('ffree', $stat);
+        $this->assertArrayHasKey('favail', $stat);
+        $this->assertArrayHasKey('fsid', $stat);
+        $this->assertArrayHasKey('flag', $stat);
+        $this->assertArrayHasKey('namemax', $stat);
+
+        $this->assertSame(255, $stat['namemax']);
+    }
+
+    /**
+     * @depends testPasswordLogin
+     */
+    public function testPosixRename(SFTP $sftp): void
+    {
+        $sftp->put('test1.txt', 'aaaaa');
+        $sftp->put('test2.txt', 'bbbbb');
+
+        $sftp->posix_rename('test1.txt', 'test2.txt');
+        $this->assertSame('aaaaa', $sftp->get('test2.txt'));
     }
 }

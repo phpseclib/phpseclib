@@ -41,4 +41,5 @@ abstract class PacketType
     public const ATTRS = 105;
 
     public const EXTENDED = 200;
+    public const EXTENDED_REPLY = 201;
 }
