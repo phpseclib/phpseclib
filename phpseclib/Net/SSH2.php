@@ -1348,8 +1348,6 @@ class SSH2
 
         $this->curTimeout = $this->timeout;
 
-        $this->last_packet = microtime(true);
-
         if (!is_resource($this->fsock)) {
             $start = microtime(true);
             // with stream_select a timeout of 0 means that no timeout takes place;
@@ -1368,12 +1366,21 @@ class SSH2
                     throw new \RuntimeException('Connection timed out whilst attempting to open socket connection');
                 }
             }
+
+           if (defined('NET_SSH2_LOGGING')) {
+               $this->append_log('(fsockopen took ' . round($elapsed, 4) . 's)', '');
+           }
         }
 
         $this->identifier = $this->generate_identifier();
 
         if ($this->send_id_string_first) {
+            $start = microtime(true);
             fputs($this->fsock, $this->identifier . "\r\n");
+            $elapsed = round(microtime(true) - $start, 4);
+            if (defined('NET_SSH2_LOGGING')) {
+                $this->append_log("-> (network: $elapsed)", $this->identifier . "\r\n");
+            }
         }
 
         /* According to the SSH2 specs,
@@ -1384,6 +1391,7 @@ class SSH2
            in ISO-10646 UTF-8 [RFC3629] (language is not specified).  Clients
            MUST be able to process such lines." */
         $data = '';
+        $totalElapsed = 0;
         while (!feof($this->fsock) && !preg_match('#(.*)^(SSH-(\d\.\d+).*)#ms', $data, $matches)) {
             $line = '';
             while (true) {
@@ -1400,6 +1408,7 @@ class SSH2
                         throw new \RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $elapsed = microtime(true) - $start;
+                    $totalElapsed+= $elapsed;
                     $this->curTimeout -= $elapsed;
                 }
 
@@ -1429,17 +1438,16 @@ class SSH2
             $data .= $line;
         }
 
+        if (defined('NET_SSH2_LOGGING')) {
+            $this->append_log('<- (network: ' . round($totalElapsed, 4) . ')', $line);
+        }
+
         if (feof($this->fsock)) {
             $this->bitmap = 0;
             throw new ConnectionClosedException('Connection closed by server');
         }
 
         $extra = $matches[1];
-
-        if (defined('NET_SSH2_LOGGING')) {
-            $this->append_log('<-', $matches[0]);
-            $this->append_log('->', $this->identifier . "\r\n");
-        }
 
         $this->server_identifier = trim($temp, "\r\n");
         if (strlen($extra)) {
@@ -1464,8 +1472,15 @@ class SSH2
         $this->errorOnMultipleChannels = $match;
 
         if (!$this->send_id_string_first) {
+            $start = microtime(true);
             fputs($this->fsock, $this->identifier . "\r\n");
+            $elapsed = round(microtime(true) - $start, 4);
+            if (defined('NET_SSH2_LOGGING')) {
+                $this->append_log("-> (network: $elapsed)", $this->identifier . "\r\n");
+            }
         }
+
+        $this->last_packet = microtime(true);
 
         if (!$this->send_kex_first) {
             $response = $this->get_binary_packet_or_close(NET_SSH2_MSG_KEXINIT);
@@ -4664,9 +4679,12 @@ class SSH2
     {
         $output = '';
         for ($i = 0; $i < count($message_log); $i++) {
-            $output .= $message_number_log[$i] . "\r\n";
+            $output .= $message_number_log[$i];
             $current_log = $message_log[$i];
             $j = 0;
+            if (strlen($current_log)) {
+                $output .= "\r\n";
+            }
             do {
                 if (strlen($current_log)) {
                     $output .= str_pad(dechex($j), 7, '0', STR_PAD_LEFT) . '0  ';
