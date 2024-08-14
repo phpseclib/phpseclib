@@ -104,6 +104,7 @@ class SSH2
     const MASK_LOGIN_REQ     = 0x00000004;
     const MASK_LOGIN         = 0x00000008;
     const MASK_SHELL         = 0x00000010;
+    const MASK_DISCONNECT    = 0x00000020;
 
     /*
      * Channel constants
@@ -4593,7 +4594,12 @@ class SSH2
      */
     protected function disconnect_helper($reason)
     {
-        if ($this->bitmap & self::MASK_CONNECTED) {
+        if ($this->bitmap & self::MASK_DISCONNECT) {
+            // Disregard subsequent disconnect requests
+            return false;
+        }
+        $this->bitmap |= self::MASK_DISCONNECT;
+        if ($this->isConnected()) {
             $data = Strings::packSSH2('CNss', NET_SSH2_MSG_DISCONNECT, $reason, '', '');
             try {
                 $this->send_binary_packet($data);
