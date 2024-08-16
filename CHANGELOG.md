@@ -10,7 +10,7 @@
 - SSH2: fix possible infinite loop on packet timeout
 - SSH2/Agent: make it so identities include key comments (#2022)
 - SSH2/Agent: add findIdentityByPublicKey() (#2022)
-- EC: fix for IEEEE signatures (#2019)
+- EC: fix for IEEE signatures (#2019)
 - BigInteger/BCMath: bitwise_or() was doing XOR (#2025)
 
 ## 3.0.39 - 2024-06-24
