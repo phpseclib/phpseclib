@@ -747,8 +747,7 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new UnexpectedValueException(
-                    'Expected PacketType::HANDLE or PacketType::STATUS' .
+                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS' .
                     'Got packet type: ' . $this->packet_type
                 );
         }
@@ -3213,6 +3212,12 @@ class SFTP extends SSH2
         $this->preserveTime = false;
     }
 
+    /**
+     * Where rename() fails "if there already exists a file with the name specified by newpath"
+     * (draft-ietf-secsh-filexfer-02#section-6.5), posix_rename() overwrites the existing file in an atomic fashion.
+     * ie. "there is no observable instant in time where the name does not refer to either the old or the new file"
+     * (draft-ietf-secsh-filexfer-13#page-39).
+     */
     public function posix_rename(string $oldname, string $newname): bool
     {
         if (!$this->precheck()) {
@@ -3256,6 +3261,9 @@ class SFTP extends SSH2
     }
 
     /**
+     * The function statvfs() returns information about a mounted filesystem.
+     * @see https://man7.org/linux/man-pages/man3/statvfs.3.html
+     *
      * @return array{bsize: int, frsize: int, blocks: int, bfree: int, bavail: int, files: int, ffree: int, favail: int, fsid: int, flag: int, namemax: int}
      */
     public function statvfs(string $path): array|bool
