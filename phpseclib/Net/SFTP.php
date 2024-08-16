@@ -717,7 +717,7 @@ class SFTP extends SSH2
         // assume current dir if $dir is empty
         if ($dir === '') {
             $dir = './';
-            // suffix a slash if needed
+        // suffix a slash if needed
         } elseif ($dir[-1] != '/') {
             $dir .= '/';
         }
@@ -3024,9 +3024,7 @@ class SFTP extends SSH2
             throw new RuntimeException('Packet is too small');
         }
         extract(unpack('Nlength', Strings::shift($this->packet_buffer, 4)));
-        /**
- * @var integer $length
-*/
+        /** @var integer $length */
 
         $tempLength = $length;
         $tempLength -= strlen($this->packet_buffer);
