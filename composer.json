@@ -96,8 +96,7 @@
         "test": "vendor/bin/paratest --verbose --configuration=tests/phpunit.xml --runner=WrapperRunner",
         "all-quality-tools": [
             "@lint",
-            "@phpcs",
-            "@php-cs-fixer",
+            "@check-cs",
             "@psalm",
             "@test"
         ],
