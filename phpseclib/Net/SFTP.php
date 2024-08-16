@@ -3112,6 +3112,24 @@ class SFTP extends SSH2
     }
 
     /**
+     * Get supported SFTP extensions
+     *
+     * @return array
+     */
+    public function getSupportedExtensions()
+    {
+        if (!($this->bitmap & SSH2::MASK_LOGIN)) {
+            return false;
+        }
+
+        if (!$this->partial_init) {
+            $this->partial_init_sftp_connection();
+        }
+
+        return $this->extensions;
+    }
+
+    /**
      * Get supported SFTP versions
      *
      * @return int|false
