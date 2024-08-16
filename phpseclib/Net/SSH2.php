@@ -1104,9 +1104,9 @@ class SSH2
                 }
             }
 
-           if (defined('NET_SSH2_LOGGING')) {
-               $this->append_log('(fsockopen took ' . round($elapsed, 4) . 's)', '');
-           }
+            if (defined('NET_SSH2_LOGGING')) {
+                $this->append_log('(fsockopen took ' . round($elapsed, 4) . 's)', '');
+            }
         }
 
         $this->identifier = $this->generate_identifier();
@@ -1145,7 +1145,7 @@ class SSH2
                         throw new RuntimeException('Connection timed out whilst receiving server identification string');
                     }
                     $elapsed = microtime(true) - $start;
-                    $totalElapsed+= $elapsed;
+                    $totalElapsed += $elapsed;
                     $this->curTimeout -= $elapsed;
                 }
 
