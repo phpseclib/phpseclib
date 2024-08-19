@@ -36,6 +36,24 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
+     * @requires PHPUnit < 10
+     * Verify that MASK_* constants remain distinct
+     */
+    public function testBitmapMasks(): void
+    {
+        $reflection = new \ReflectionClass(SSH2::class);
+        $masks = array_filter($reflection->getConstants(), function ($k) {
+            return str_starts_with($k, 'MASK_');
+        }, ARRAY_FILTER_USE_KEY);
+        $bitmap = 0;
+        foreach ($masks as $mask => $bit) {
+            $this->assertEquals(0, $bitmap & $bit, "Got unexpected mask {$mask}");
+            $bitmap |= $bit;
+            $this->assertEquals($bit, $bitmap & $bit, "Absent expected mask {$mask}");
+        }
+    }
+
+    /**
      * @dataProvider formatLogDataProvider
      * @requires PHPUnit < 10
      */
@@ -379,6 +397,31 @@ class SSH2UnitTest extends PhpseclibTestCase
         self::setVar($ssh, 'window_size_server_to_client', [1 => 0x7FFFFFFF]);
 
         self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
+    }
+
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testDisconnectHelper(): void
+    {
+        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+            ->disableOriginalConstructor()
+            ->setMethods(['__destruct', 'isConnected', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())
+            ->method('isConnected')
+            ->willReturn(true);
+        $ssh->expects($this->once())
+            ->method('send_binary_packet')
+            ->with($this->isType('string'))
+            ->willReturnCallback(function () use ($ssh): void {
+                self::callFunc($ssh, 'disconnect_helper', [1]);
+                throw new \Exception('catch me');
+            });
+
+        $this->assertEquals(0, self::getVar($ssh, 'bitmap'));
+        self::callFunc($ssh, 'disconnect_helper', [1]);
+        $this->assertEquals(0, self::getVar($ssh, 'bitmap'));
     }
 
     protected function createSSHMock(): SSH2
