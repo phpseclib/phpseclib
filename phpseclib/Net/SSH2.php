@@ -4597,22 +4597,24 @@ class SSH2
         return [
             'hmac-sha2-256-etm@openssh.com',
             'hmac-sha2-512-etm@openssh.com',
-            'umac-64-etm@openssh.com',
-            'umac-128-etm@openssh.com',
             'hmac-sha1-etm@openssh.com',
 
             // from <http://www.ietf.org/rfc/rfc6668.txt>:
             'hmac-sha2-256',// RECOMMENDED     HMAC-SHA256 (digest length = key length = 32)
             'hmac-sha2-512',// OPTIONAL        HMAC-SHA512 (digest length = key length = 64)
 
-            // from <https://tools.ietf.org/html/draft-miller-secsh-umac-01>:
-            'umac-64@openssh.com',
-            'umac-128@openssh.com',
-
             'hmac-sha1-96', // RECOMMENDED     first 96 bits of HMAC-SHA1 (digest length = 12, key length = 20)
             'hmac-sha1',    // REQUIRED        HMAC-SHA1 (digest length = key length = 20)
             'hmac-md5-96',  // OPTIONAL        first 96 bits of HMAC-MD5 (digest length = 12, key length = 16)
             'hmac-md5',     // OPTIONAL        HMAC-MD5 (digest length = key length = 16)
+
+            'umac-64-etm@openssh.com',
+            'umac-128-etm@openssh.com',
+
+            // from <https://tools.ietf.org/html/draft-miller-secsh-umac-01>:
+            'umac-64@openssh.com',
+            'umac-128@openssh.com',
+
             //'none'          // OPTIONAL        no MAC; NOT RECOMMENDED
         ];
     }
