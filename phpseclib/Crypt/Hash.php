@@ -285,12 +285,16 @@ class Hash
      */
     public function setHash($hash)
     {
+        $oldHash = $this->hashParam;
         $this->hashParam = $hash = strtolower($hash);
         switch ($hash) {
             case 'umac-32':
             case 'umac-64':
             case 'umac-96':
             case 'umac-128':
+                if ($oldHash != $this->hashParam) {
+                    $this->recomputeAESKey = true;
+                }
                 $this->blockSize = 128;
                 $this->length = abs(substr($hash, -3)) >> 3;
                 $this->algo = 'umac';
