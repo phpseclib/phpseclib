@@ -653,12 +653,8 @@ class Hash
 
     /**
      * 64-bit Multiply with 2x 32-bit ints
-     *
-     * @param int $x
-     * @param int $y
-     * @return int $x * $y
      */
-    private static function mul64($x, $y)
+    private static function mul64(int $x, int $y): int
     {
         // since PHP doesn't implement unsigned integers we'll implement them with signed integers
         // to do this we'll use karatsuba multiplication
@@ -709,12 +705,8 @@ class Hash
 
     /**
      * 64-bit Addition with 2x 64-bit ints
-     *
-     * @param int $x
-     * @param int $y
-     * @return int $x + $y
      */
-    private static function add64($x, $y)
+    private static function add64(int $x, int $y): int
     {
         // doing $x + $y risks returning a result that's out of range for signed 64-bit ints
         // in that event PHP would convert the result to a float and precision would be lost
