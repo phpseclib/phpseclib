@@ -1417,21 +1417,13 @@ class SSH2
                 if ($temp === false) {
                     throw new \RuntimeException('Error reading from socket');
                 }
+
+                $line .= $temp;
                 if (strlen($temp) == 255) {
                     continue;
                 }
 
-                $line .= "$temp\n";
-
-                // quoting RFC4253, "Implementers who wish to maintain
-                // compatibility with older, undocumented versions of this protocol may
-                // want to process the identification string without expecting the
-                // presence of the carriage return character for reasons described in
-                // Section 5 of this document."
-
-                //if (substr($line, -2) == "\r\n") {
-                //    break;
-                //}
+                $line .= "\n";
 
                 break;
             }
@@ -1450,7 +1442,7 @@ class SSH2
 
         $extra = $matches[1];
 
-        $this->server_identifier = trim($temp, "\r\n");
+        $this->server_identifier = trim($data, "\r\n");
         if (strlen($extra)) {
             $this->errors[] = $data;
         }
