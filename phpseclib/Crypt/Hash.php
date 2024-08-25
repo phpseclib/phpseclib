@@ -775,7 +775,7 @@ class Hash
             $i += 8;
         }
 
-        return pack('J', self::add64($y, (int) $length));
+        return pack('J', self::add64($y, $length));
     }
 
     /**
