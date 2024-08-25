@@ -563,11 +563,14 @@ class Hash
         // For each chunk, except the last: endian-adjust, NH hash
         // and add bit-length.  Use results to build Y.
         //
-        $length = new BigInteger(1024 * 8);
+        $length = PHP_INT_SIZE == 8 ? 1024 * 8 : new BigInteger(1024 * 8);
         $y = '';
+
         for ($i = 0; $i < count($m) - 1; $i++) {
             $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
-            $y .= static::nh($k, $m[$i], $length);
+            $y .= PHP_INT_SIZE == 8 ?
+                static::nh64($k, $m[$i], $length) :
+                static::nh($k, $m[$i], $length);
         }
 
         //
@@ -580,7 +583,9 @@ class Hash
         $m[$i] = str_pad($m[$i] ?? '', $pad, "\0"); // zeropad
         $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
 
-        $y .= static::nh($k, $m[$i], new BigInteger($length * 8));
+        $y .= PHP_INT_SIZE == 8 ?
+            static::nh64($k, $m[$i], $length * 8) :
+            static::nh($k, $m[$i], new BigInteger($length * 8));
 
         return $y;
     }
@@ -644,6 +649,141 @@ class Hash
         }
 
         return $y->add($length)->toBytes();
+    }
+
+    /**
+     * 64-bit Multiply with 2x 32-bit ints
+     *
+     * @param int $x
+     * @param int $y
+     * @return int $x * $y
+     */
+    private static function mul64($x, $y)
+    {
+        // since PHP doesn't implement unsigned integers we'll implement them with signed integers
+        // to do this we'll use karatsuba multiplication
+
+        // this could be made to work on 32-bit systems with the following changes:
+        // $x & 0xFFFFFFFF => fmod($x, 0x100000000)
+        // $x >> 32 => (int) ($x / 0x100000000);
+        // you'd then need to casts the floats to ints after you got the carry
+
+        $x1 = ($x >> 16) & 0xFFFF;
+        $x0 = $x & 0xFFFF;
+
+        $y1 = ($y >> 16) & 0xFFFF;
+        $y0 = $y & 0xFFFF;
+
+        $z2 = $x1 * $y1; // up to 32 bits long
+        $z0 = $x0 * $y0; // up to 32 bits long
+        $z1 = $x1 * $y0 + $x0 * $y1; // up to 33 bit long
+        // normally karatsuba multiplication calculates $z1 thusly:
+        //$z1 = ($x1 + $x0) * ($y0 + $y1) - $z2 - $z0;
+        // the idea being to eliminate one extra multiplication. for arbitrary precision math that makes sense
+        // but not for this purpose
+
+        // at this point karatsuba would normally return this:
+        //return ($z2 << 64) + ($z1 << 32) + $z0;
+        // the problem is that the output could be out of range for signed 64-bit ints,
+        // which would cause PHP to switch to floats, which would risk losing the lower few bits
+        // as such we'll OR 4x 16-bit blocks together like so:
+        /*
+          ........  |  ........  |  ........  |  ........
+          upper $z2 |  lower $z2 |  lower $z1 |  lower $z0
+                    | +upper $z1 | +upper $z0 |
+         +   $carry | +   $carry |            |
+        */
+        // technically upper $z1 is 17 bit - not 16 - but the most significant digit of that will
+        // just get added to $carry
+
+        $a = $z0 & 0xFFFF;
+        $b = ($z0 >> 16) + ($z1 & 0xFFFF);
+        $c = ($z1 >> 16) + ($z2 & 0xFFFF) + ($b >> 16);
+        $b = ($b & 0xFFFF) << 16;
+        $d = ($z2 >> 16) + ($c >> 16);
+        $c = ($c & 0xFFFF) << 32;
+        $d = ($d & 0xFFFF) << 48;
+
+        return $a | $b | $c | $d;
+    }
+
+    /**
+     * 64-bit Addition with 2x 64-bit ints
+     *
+     * @param int $x
+     * @param int $y
+     * @return int $x + $y
+     */
+    private static function add64($x, $y)
+    {
+        // doing $x + $y risks returning a result that's out of range for signed 64-bit ints
+        // in that event PHP would convert the result to a float and precision would be lost
+        // so we'll just add 2x 32-bit ints together like so:
+        /*
+           ........ | ........
+           upper $x | lower $x
+          +upper $y |+lower $y
+          +  $carry |
+        */
+        // in theory we should be able to get this working on 32-bit PHP install
+        // but we'd need to return the result as a string vs an int and do fmod()
+        // vs "& 0xFFFFFFFF"
+        $x1 = $x & 0xFFFFFFFF;
+        $x2 = ($x >> 32) & 0xFFFFFFFF;
+        $y1 = $y & 0xFFFFFFFF;
+        $y2 = ($y >> 32) & 0xFFFFFFFF;
+        $a = $x1 + $y1;
+        $c = $a >> 32;
+        $b = ($x2 + $y2) & 0xFFFFFFFF;
+        $b = ($b + $c) << 32;
+        $a &= 0xFFFFFFFF;
+
+        return $a | $b;
+    }
+
+    /**
+     * NH Algorithm
+     *
+     * @param string $k string of length 1024 bytes.
+     * @param string $m string with length divisible by 32 bytes.
+     * @return string string of length 8 bytes.
+     */
+    private static function nh64($k, $m, $length)
+    {
+        //
+        // Break M and K into 4-byte chunks
+        //
+        $k = unpack('N*', $k);
+        $m = unpack('N*', $m);
+        $t = count($m);
+
+        //
+        // Perform NH hash on the chunks, pairing words for multiplication
+        // which are 4 apart to accommodate vector-parallelism.
+        //
+        $i = 1;
+        $y = 0;
+        while ($i <= $t) {
+            $temp  = ($m[$i] + $k[$i]) & 0xFFFFFFFF;
+            $temp2 = ($m[$i + 4] + $k[$i + 4]) & 0xFFFFFFFF;
+            $y = self::add64($y, self::mul64($temp, $temp2));
+
+            $temp  = ($m[$i + 1] + $k[$i + 1]) & 0xFFFFFFFF;
+            $temp2 = ($m[$i + 5] + $k[$i + 5]) & 0xFFFFFFFF;
+            $y = self::add64($y, self::mul64($temp, $temp2));
+
+            $temp  = ($m[$i + 2] + $k[$i + 2]) & 0xFFFFFFFF;
+            $temp2 = ($m[$i + 6] + $k[$i + 6]) & 0xFFFFFFFF;
+            $y = self::add64($y, self::mul64($temp, $temp2));
+
+            $temp  = ($m[$i + 3] + $k[$i + 3]) & 0xFFFFFFFF;
+            $temp2 = ($m[$i + 7] + $k[$i + 7]) & 0xFFFFFFFF;
+            $y = self::add64($y, self::mul64($temp, $temp2));
+
+            $i += 8;
+        }
+
+        return pack('J', self::add64($y, (int) $length));
     }
 
     /**
