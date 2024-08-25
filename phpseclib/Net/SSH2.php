@@ -1361,25 +1361,17 @@ class SSH2
                 }
 
                 $temp = stream_get_line($this->fsock, 255, "\n");
-                if (strlen($temp) == 255) {
-                    continue;
-                }
 
                 if ($temp === false) {
                     return false;
                 }
 
-                $line.= "$temp\n";
+                $line .= $temp;
+                if (strlen($temp) == 255) {
+                    continue;
+                }
 
-                // quoting RFC4253, "Implementers who wish to maintain
-                // compatibility with older, undocumented versions of this protocol may
-                // want to process the identification string without expecting the
-                // presence of the carriage return character for reasons described in
-                // Section 5 of this document."
-
-                //if (substr($line, -2) == "\r\n") {
-                //    break;
-                //}
+                $line .= "\n";
 
                 break;
             }
@@ -1400,7 +1392,8 @@ class SSH2
             $this->_append_log('->', $this->identifier . "\r\n");
         }
 
-        $this->server_identifier = trim($temp, "\r\n");
+        $this->server_identifier = trim($data, "\r\n");
+
         if (strlen($extra)) {
             $this->errors[] = $data;
         }
