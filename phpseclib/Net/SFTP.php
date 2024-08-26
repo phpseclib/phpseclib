@@ -3231,6 +3231,8 @@ class SFTP extends SSH2
     }
 
     /**
+     * POSIX Rename
+     *
      * Where rename() fails "if there already exists a file with the name specified by newpath"
      * (draft-ietf-secsh-filexfer-02#section-6.5), posix_rename() overwrites the existing file in an atomic fashion.
      * ie. "there is no observable instant in time where the name does not refer to either the old or the new file"
@@ -3241,8 +3243,12 @@ class SFTP extends SSH2
         if (!$this->precheck()) {
             return false;
         }
+
         if (!isset($this->extensions['posix-rename@openssh.com']) || $this->extensions['posix-rename@openssh.com'] !== '1') {
-            throw new \RuntimeException("Extension 'posix-rename@openssh.com' is not supported by the server");
+            throw new RuntimeException(
+                "Extension 'posix-rename@openssh.com' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
         }
 
         $oldname = $this->realpath($oldname);
@@ -3256,9 +3262,9 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != PacketType::STATUS) {
-            throw new \UnexpectedValueException(
-                'Expected NET_SFTP_STATUS. '
-                . 'Got packet type: ' . $this->packet_type
+            throw new UnexpectedValueException(
+                'Expected NET_SFTP_STATUS. ' .
+                'Got packet type: ' . $this->packet_type
             );
         }
 
@@ -3279,6 +3285,8 @@ class SFTP extends SSH2
     }
 
     /**
+     * Returns general information about a file system.
+     *
      * The function statvfs() returns information about a mounted filesystem.
      * @see https://man7.org/linux/man-pages/man3/statvfs.3.html
      *
@@ -3286,8 +3294,15 @@ class SFTP extends SSH2
      */
     public function statvfs(string $path): array|bool
     {
+        if (!$this->precheck()) {
+            return false;
+        }
+
         if (!isset($this->extensions['statvfs@openssh.com']) || $this->extensions['statvfs@openssh.com'] !== '2') {
-            throw new \RuntimeException("Extension 'statvfs@openssh.com' is not supported by the server");
+            throw new RuntimeException(
+                "Extension 'statvfs@openssh.com' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
         }
 
         $realpath = $this->realpath($path);
@@ -3300,9 +3315,9 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type !== PacketType::EXTENDED_REPLY) {
-            throw new \UnexpectedValueException(
-                'Expected SSH_FXP_EXTENDED_REPLY. '
-                . 'Got packet type: ' . $this->packet_type
+            throw new UnexpectedValueException(
+                'Expected SSH_FXP_EXTENDED_REPLY. ' .
+                'Got packet type: ' . $this->packet_type
             );
         }
 
