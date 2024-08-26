@@ -391,7 +391,8 @@ class SFTP extends SSH2
                 104 => 'NET_SFTP_NAME',
                 105 => 'NET_SFTP_ATTRS',
 
-                200 => 'NET_SFTP_EXTENDED'
+                200 => 'NET_SFTP_EXTENDED',
+                201 => 'NET_SFTP_EXTENDED_REPLY'
             ];
             self::$status_codes = [
                 0 => 'NET_SFTP_STATUS_OK',
@@ -3570,5 +3571,123 @@ class SFTP extends SSH2
     public function disableDatePreservation()
     {
         $this->preserveTime = false;
+    }
+
+    /**
+     * POSIX Rename
+     *
+     * Where rename() fails "if there already exists a file with the name specified by newpath"
+     * (draft-ietf-secsh-filexfer-02#section-6.5), posix_rename() overwrites the existing file in an atomic fashion.
+     * ie. "there is no observable instant in time where the name does not refer to either the old or the new file"
+     * (draft-ietf-secsh-filexfer-13#page-39).
+     *
+     * @param string $oldname
+     * @param string $newname
+     * @return bool
+     */
+    public function posix_rename($oldname, $newname)
+    {
+        if (!$this->precheck()) {
+            return false;
+        }
+        if (!isset($this->extensions['posix-rename@openssh.com']) || $this->extensions['posix-rename@openssh.com'] !== '1') {
+            throw new \RuntimeException(
+                "Extension 'posix-rename@openssh.com' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
+        }
+
+        $oldname = $this->realpath($oldname);
+        $newname = $this->realpath($newname);
+        if ($oldname === false || $newname === false) {
+            return false;
+        }
+
+        $packet = Strings::packSSH2('sss', 'posix-rename@openssh.com', $oldname, $newname);
+        $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
+
+        $response = $this->get_sftp_packet();
+        if ($this->packet_type != NET_SFTP_STATUS) {
+            throw new \UnexpectedValueException(
+                'Expected NET_SFTP_STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
+        }
+
+        // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+        list($status) = Strings::unpackSSH2('N', $response);
+        if ($status != NET_SFTP_STATUS_OK) {
+            $this->logError($response, $status);
+            return false;
+        }
+
+        // don't move the stat cache entry over since this operation could very well change the
+        // atime and mtime attributes
+        //$this->update_stat_cache($newname, $this->query_stat_cache($oldname));
+        $this->remove_from_stat_cache($oldname);
+        $this->remove_from_stat_cache($newname);
+
+        return true;
+    }
+
+    /**
+     * Returns general information about a file system.
+     *
+     * The function statvfs() returns information about a mounted filesystem.
+     * @see https://man7.org/linux/man-pages/man3/statvfs.3.html
+     *
+     * @param string $path
+     * @return false|array{bsize: int, frsize: int, blocks: int, bfree: int, bavail: int, files: int, ffree: int, favail: int, fsid: int, flag: int, namemax: int}
+     */
+    public function statvfs($path)
+    {
+        if (!$this->precheck()) {
+            return false;
+        }
+
+        if (!isset($this->extensions['statvfs@openssh.com']) || $this->extensions['statvfs@openssh.com'] !== '2') {
+            throw new \RuntimeException(
+                "Extension 'statvfs@openssh.com' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
+        }
+
+        $realpath = $this->realpath($path);
+        if ($realpath === false) {
+            return false;
+        }
+
+        $packet = Strings::packSSH2('ss', 'statvfs@openssh.com', $realpath);
+        $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
+
+        $response = $this->get_sftp_packet();
+        if ($this->packet_type !== NET_SFTP_EXTENDED_REPLY) {
+            throw new \UnexpectedValueException(
+                'Expected SSH_FXP_EXTENDED_REPLY. '
+                . 'Got packet type: ' . $this->packet_type
+            );
+        }
+
+        /**
+         * These requests return a SSH_FXP_STATUS reply on failure. On success they
+         * return the following SSH_FXP_EXTENDED_REPLY reply:
+         *
+         * uint32        id
+         * uint64        f_bsize     file system block size
+         * uint64        f_frsize     fundamental fs block size
+         * uint64        f_blocks     number of blocks (unit f_frsize)
+         * uint64        f_bfree      free blocks in file system
+         * uint64        f_bavail     free blocks for non-root
+         * uint64        f_files      total file inodes
+         * uint64        f_ffree      free file inodes
+         * uint64        f_favail     free file inodes for to non-root
+         * uint64        f_fsid       file system id
+         * uint64        f_flag       bit mask of f_flag values
+         * uint64        f_namemax    maximum filename length
+         */
+        return array_combine(
+            ['bsize', 'frsize', 'blocks', 'bfree', 'bavail', 'files', 'ffree', 'favail', 'fsid', 'flag', 'namemax'],
+            Strings::unpackSSH2('QQQQQQQQQQQ', $response)
+        );
     }
 }
