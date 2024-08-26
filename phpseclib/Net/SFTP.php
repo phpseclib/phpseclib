@@ -44,6 +44,7 @@ use phpseclib3\Net\SFTP\Attribute;
 use phpseclib3\Net\SFTP\FileType;
 use phpseclib3\Net\SFTP\OpenFlag;
 use phpseclib3\Net\SFTP\OpenFlag5;
+use phpseclib3\Net\SFTP\PacketType;
 use phpseclib3\Net\SFTP\PacketType as SFTPPacketType;
 use phpseclib3\Net\SFTP\StatusCode;
 use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
@@ -51,7 +52,7 @@ use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
 /**
  * Pure-PHP implementations of SFTP.
  *
- * @author  Jim Wigginton <terrafrost@php.net>
+ * @author Jim Wigginton <terrafrost@php.net>
  */
 class SFTP extends SSH2
 {
@@ -396,8 +397,10 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::VERSION) {
-            throw new UnexpectedValueException('Expected PacketType::VERSION. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::VERSION. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         $this->use_request_id = true;
@@ -463,14 +466,18 @@ class SFTP extends SSH2
                     $this->send_sftp_packet(SFTPPacketType::EXTENDED, $packet);
                     $response = $this->get_sftp_packet();
                     if ($this->packet_type != SFTPPacketType::STATUS) {
-                        throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                            . 'Got packet type: ' . $this->packet_type);
+                        throw new UnexpectedValueException(
+                            'Expected PacketType::STATUS. '
+                            . 'Got packet type: ' . $this->packet_type
+                        );
                     }
                     [$status] = Strings::unpackSSH2('N', $response);
                     if ($status != StatusCode::OK) {
                         $this->logError($response, $status);
-                        throw new UnexpectedValueException('Expected StatusCode::OK. '
-                            . ' Got ' . $status);
+                        throw new UnexpectedValueException(
+                            'Expected StatusCode::OK. '
+                            . ' Got ' . $status
+                        );
                     }
                     break;
                 }
@@ -611,8 +618,8 @@ class SFTP extends SSH2
      * If canonicalize_paths has been disabled using disablePathCanonicalization(), $path is returned as-is.
      *
      * @throws UnexpectedValueException on receipt of unexpected packets
-     * @see self::chdir()
-     * @see self::disablePathCanonicalization()
+     * @see    self::chdir()
+     * @see    self::disablePathCanonicalization()
      */
     public function realpath(string $path)
     {
@@ -665,8 +672,10 @@ class SFTP extends SSH2
                     $this->logError($response);
                     return false;
                 default:
-                    throw new UnexpectedValueException('Expected PacketType::NAME or PacketType::STATUS. '
-                                                      . 'Got packet type: ' . $this->packet_type);
+                    throw new UnexpectedValueException(
+                        'Expected PacketType::NAME or PacketType::STATUS. '
+                        . 'Got packet type: ' . $this->packet_type
+                    );
             }
         }
 
@@ -739,7 +748,8 @@ class SFTP extends SSH2
                 return false;
             default:
                 throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS' .
-                                                    'Got packet type: ' . $this->packet_type);
+                    'Got packet type: ' . $this->packet_type
+                );
         }
 
         if (!$this->close_handle($handle)) {
@@ -881,8 +891,10 @@ class SFTP extends SSH2
                 $this->logError($response, $status);
                 return $status;
             default:
-                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::HANDLE or PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
 
         $this->update_stat_cache($dir, []);
@@ -936,8 +948,10 @@ class SFTP extends SSH2
                     }
                     break 2;
                 default:
-                    throw new UnexpectedValueException('Expected PacketType::NAME or PacketType::STATUS. '
-                                                      . 'Got packet type: ' . $this->packet_type);
+                    throw new UnexpectedValueException(
+                        'Expected PacketType::NAME or PacketType::STATUS. '
+                        . 'Got packet type: ' . $this->packet_type
+                    );
             }
         }
 
@@ -1275,8 +1289,10 @@ class SFTP extends SSH2
                 return false;
         }
 
-        throw new UnexpectedValueException('Expected PacketType::ATTRS or PacketType::STATUS. '
-                                          . 'Got packet type: ' . $this->packet_type);
+        throw new UnexpectedValueException(
+            'Expected PacketType::ATTRS or PacketType::STATUS. '
+            . 'Got packet type: ' . $this->packet_type
+        );
     }
 
     /**
@@ -1334,8 +1350,10 @@ class SFTP extends SSH2
                 $this->logError($response);
                 break;
             default:
-                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::HANDLE or PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
 
         return $this->setstat($filename, $attr, false);
@@ -1370,7 +1388,7 @@ class SFTP extends SSH2
          phpseclib _could_ auto append the dns_domain to $uid BUT what if it shouldn't
          have one? phpseclib would have no way of knowing so rather than guess phpseclib
          will just use whatever value the user provided
-       */
+        */
 
         $attr = $this->version < 4 ?
             // quoting <http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html>,
@@ -1447,8 +1465,10 @@ class SFTP extends SSH2
                 return false;
         }
 
-        throw new UnexpectedValueException('Expected PacketType::ATTRS or PacketType::STATUS. '
-                                          . 'Got packet type: ' . $this->packet_type);
+        throw new UnexpectedValueException(
+            'Expected PacketType::ATTRS or PacketType::STATUS. '
+            . 'Got packet type: ' . $this->packet_type
+        );
     }
 
     /**
@@ -1491,8 +1511,10 @@ class SFTP extends SSH2
         */
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         [$status] = Strings::unpackSSH2('N', $response);
@@ -1597,8 +1619,10 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new UnexpectedValueException('Expected PacketType::NAME or PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::NAME or PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
 
         [$count] = Strings::unpackSSH2('N', $response);
@@ -1662,8 +1686,10 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         [$status] = Strings::unpackSSH2('N', $response);
@@ -1713,8 +1739,10 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         [$status] = Strings::unpackSSH2('N', $response);
@@ -1750,8 +1778,10 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         [$status] = Strings::unpackSSH2('N', $response);
@@ -1808,7 +1838,7 @@ class SFTP extends SSH2
      *
      * {@internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib3\Net\SFTP::setMode().}
      *
-     * @param resource|array|string $data
+     * @param  resource|array|string $data
      * @throws UnexpectedValueException on receipt of unexpected packets
      * @throws BadFunctionCallException if you're uploading via a callback and the callback function is invalid
      * @throws FileNotFoundException if you're uploading via a file and the file doesn't exist
@@ -1867,8 +1897,10 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::HANDLE or PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
 
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.2.3
@@ -2007,8 +2039,10 @@ class SFTP extends SSH2
         while ($i--) {
             $response = $this->get_sftp_packet();
             if ($this->packet_type != SFTPPacketType::STATUS) {
-                throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
             }
 
             [$status] = Strings::unpackSSH2('N', $response);
@@ -2034,8 +2068,10 @@ class SFTP extends SSH2
         //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.1.3
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         [$status] = Strings::unpackSSH2('N', $response);
@@ -2056,7 +2092,7 @@ class SFTP extends SSH2
      *
      * $offset and $length can be used to download files in chunks.
      *
-     * @param string|bool|resource|callable $local_file
+     * @param  string|bool|resource|callable $local_file
      * @return string|bool
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
@@ -2086,8 +2122,10 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::HANDLE or PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
 
         if (is_resource($local_file)) {
@@ -2179,8 +2217,10 @@ class SFTP extends SSH2
                             $this->init_sftp_connection();
                             return false;
                         } else {
-                            throw new UnexpectedValueException('Expected PacketType::DATA or PacketType::STATUS. '
-                                                              . 'Got packet type: ' . $this->packet_type);
+                            throw new UnexpectedValueException(
+                                'Expected PacketType::DATA or PacketType::STATUS. '
+                                                          . 'Got packet type: ' . $this->packet_type
+                            );
                         }
                 }
                 $response = null;
@@ -2238,8 +2278,10 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
@@ -2404,8 +2446,10 @@ class SFTP extends SSH2
             case SFTPPacketType::STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
                 return false;
             default:
-                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected PacketType::HANDLE or PacketType::STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
     }
 
@@ -2428,8 +2472,10 @@ class SFTP extends SSH2
             case SFTPPacketType::STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
                 return false;
             default:
-                throw new UnexpectedValueException('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                throw new UnexpectedValueException(
+                    'Expected SSH_FXP_HANDLE or SSH_FXP_STATUS. '
+                    . 'Got packet type: ' . $this->packet_type
+                );
         }
     }
 
@@ -2627,8 +2673,10 @@ class SFTP extends SSH2
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException('Expected PacketType::STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+            throw new UnexpectedValueException(
+                'Expected PacketType::STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
@@ -2937,7 +2985,7 @@ class SFTP extends SSH2
      * There can be one SSH_MSG_CHANNEL_DATA messages containing two SFTP packets or there can be two SSH_MSG_CHANNEL_DATA
      * messages containing one SFTP packet.
      *
-     * @see self::_send_sftp_packet()
+     * @see    self::_send_sftp_packet()
      * @return string
      */
     private function get_sftp_packet($request_id = null)
@@ -3180,5 +3228,105 @@ class SFTP extends SSH2
     public function disableDatePreservation(): void
     {
         $this->preserveTime = false;
+    }
+
+    /**
+     * Where rename() fails "if there already exists a file with the name specified by newpath"
+     * (draft-ietf-secsh-filexfer-02#section-6.5), posix_rename() overwrites the existing file in an atomic fashion.
+     * ie. "there is no observable instant in time where the name does not refer to either the old or the new file"
+     * (draft-ietf-secsh-filexfer-13#page-39).
+     */
+    public function posix_rename(string $oldname, string $newname): bool
+    {
+        if (!$this->precheck()) {
+            return false;
+        }
+        if (!isset($this->extensions['posix-rename@openssh.com']) || $this->extensions['posix-rename@openssh.com'] !== '1') {
+            throw new \RuntimeException("Extension 'posix-rename@openssh.com' is not supported by the server");
+        }
+
+        $oldname = $this->realpath($oldname);
+        $newname = $this->realpath($newname);
+        if ($oldname === false || $newname === false) {
+            return false;
+        }
+
+        $packet = Strings::packSSH2('sss', 'posix-rename@openssh.com', $oldname, $newname);
+        $this->send_sftp_packet(PacketType::EXTENDED, $packet);
+
+        $response = $this->get_sftp_packet();
+        if ($this->packet_type != PacketType::STATUS) {
+            throw new \UnexpectedValueException(
+                'Expected NET_SFTP_STATUS. '
+                . 'Got packet type: ' . $this->packet_type
+            );
+        }
+
+        // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+        list($status) = Strings::unpackSSH2('N', $response);
+        if ($status != StatusCode::OK) {
+            $this->logError($response, $status);
+            return false;
+        }
+
+        // don't move the stat cache entry over since this operation could very well change the
+        // atime and mtime attributes
+        //$this->update_stat_cache($newname, $this->query_stat_cache($oldname));
+        $this->remove_from_stat_cache($oldname);
+        $this->remove_from_stat_cache($newname);
+
+        return true;
+    }
+
+    /**
+     * The function statvfs() returns information about a mounted filesystem.
+     * @see https://man7.org/linux/man-pages/man3/statvfs.3.html
+     *
+     * @return array{bsize: int, frsize: int, blocks: int, bfree: int, bavail: int, files: int, ffree: int, favail: int, fsid: int, flag: int, namemax: int}
+     */
+    public function statvfs(string $path): array|bool
+    {
+        if (!isset($this->extensions['statvfs@openssh.com']) || $this->extensions['statvfs@openssh.com'] !== '2') {
+            throw new \RuntimeException("Extension 'statvfs@openssh.com' is not supported by the server");
+        }
+
+        $realpath = $this->realpath($path);
+        if ($realpath === false) {
+            return false;
+        }
+
+        $packet = Strings::packSSH2('ss', 'statvfs@openssh.com', $realpath);
+        $this->send_sftp_packet(PacketType::EXTENDED, $packet);
+
+        $response = $this->get_sftp_packet();
+        if ($this->packet_type !== PacketType::EXTENDED_REPLY) {
+            throw new \UnexpectedValueException(
+                'Expected SSH_FXP_EXTENDED_REPLY. '
+                . 'Got packet type: ' . $this->packet_type
+            );
+        }
+
+        /**
+         * These requests return a SSH_FXP_STATUS reply on failure. On success they
+         * return the following SSH_FXP_EXTENDED_REPLY reply:
+         *
+         * uint32        id
+         * uint64        f_bsize     file system block size
+         * uint64        f_frsize     fundamental fs block size
+         * uint64        f_blocks     number of blocks (unit f_frsize)
+         * uint64        f_bfree      free blocks in file system
+         * uint64        f_bavail     free blocks for non-root
+         * uint64        f_files      total file inodes
+         * uint64        f_ffree      free file inodes
+         * uint64        f_favail     free file inodes for to non-root
+         * uint64        f_fsid       file system id
+         * uint64        f_flag       bit mask of f_flag values
+         * uint64        f_namemax    maximum filename length
+         */
+
+        return array_combine(
+            ['bsize', 'frsize', 'blocks', 'bfree', 'bavail', 'files', 'ffree', 'favail', 'fsid', 'flag', 'namemax'],
+            Strings::unpackSSH2('QQQQQQQQQQQ', $response)
+        );
     }
 }
