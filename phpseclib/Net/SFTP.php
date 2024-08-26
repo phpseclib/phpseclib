@@ -747,7 +747,8 @@ class SFTP extends SSH2
                 $this->logError($response);
                 return false;
             default:
-                throw new UnexpectedValueException('Expected PacketType::HANDLE or PacketType::STATUS' .
+                throw new UnexpectedValueException(
+                    'Expected PacketType::HANDLE or PacketType::STATUS' .
                     'Got packet type: ' . $this->packet_type
                 );
         }
