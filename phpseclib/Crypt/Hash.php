@@ -563,14 +563,14 @@ class Hash
         // For each chunk, except the last: endian-adjust, NH hash
         // and add bit-length.  Use results to build Y.
         //
-        $length = PHP_INT_SIZE == 8 ? 1024 * 8 : new BigInteger(1024 * 8);
+        $length = 1024 * 8;
         $y = '';
 
         for ($i = 0; $i < count($m) - 1; $i++) {
             $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
             $y .= PHP_INT_SIZE == 8 ?
                 static::nh64($k, $m[$i], $length) :
-                static::nh($k, $m[$i], $length);
+                static::nh32($k, $m[$i], $length);
         }
 
         //
@@ -585,70 +585,128 @@ class Hash
 
         $y .= PHP_INT_SIZE == 8 ?
             static::nh64($k, $m[$i], $length * 8) :
-            static::nh($k, $m[$i], new BigInteger($length * 8));
+            static::nh32($k, $m[$i], $length * 8);
 
         return $y;
     }
 
     /**
-     * NH Algorithm
+     * 32-bit safe 64-bit Multiply with 2x 32-bit ints
+     *
+     * @param int $x
+     * @param int $y
+     * @return string $x * $y
+     */
+    private static function mul32_64($x, $y)
+    {
+        // see mul64() for a more detailed explanation of how this works
+
+        $x1 = ($x >> 16) & 0xFFFF;
+        $x0 = $x & 0xFFFF;
+
+        $y1 = ($y >> 16) & 0xFFFF;
+        $y0 = $y & 0xFFFF;
+
+        // the following 3x lines will possibly yield floats
+        $z2 = $x1 * $y1;
+        $z0 = $x0 * $y0;
+        $z1 = $x1 * $y0 + $x0 * $y1;
+
+        $a = intval(fmod($z0, 65536));
+        $b = intval($z0 / 65536) + intval(fmod($z1, 65536));
+        $c = intval($z1 / 65536) + intval(fmod($z2, 65536)) + intval($b / 65536);
+        $b = intval(fmod($b, 65536));
+        $d = intval($z2 / 65536) + intval($c / 65536);
+        $c = intval(fmod($c, 65536));
+        $d = intval(fmod($d, 65536));
+
+        return pack('n4', $d, $c, $b, $a);
+    }
+
+    /**
+     * 32-bit safe 64-bit Addition with 2x 64-bit strings
+     *
+     * @param int $x
+     * @param int $y
+     * @return int $x * $y
+     */
+    private static function add32_64($x, $y)
+    {
+        [, $x1, $x2, $x3, $x4] = unpack('n4', $x);
+        [, $y1, $y2, $y3, $y4] = unpack('n4', $y);
+        $a = $x4 + $y4;
+        $b = $x3 + $y3 + ($a >> 16);
+        $c = $x2 + $y2 + ($b >> 16);
+        $d = $x1 + $y1 + ($c >> 16);
+        return pack('n4', $d, $c, $b, $a);
+    }
+
+    /**
+     * 32-bit safe 32-bit Addition with 2x 32-bit strings
+     *
+     * @param int $x
+     * @param int $y
+     * @return int $x * $y
+     */
+    private static function add32($x, $y)
+    {
+        // see add64() for a more detailed explanation of how this works
+
+        $x1 = $x & 0xFFFF;
+        $x2 = ($x >> 16) & 0xFFFF;
+        $y1 = $y & 0xFFFF;
+        $y2 = ($y >> 16) & 0xFFFF;
+
+        $a = $x1 + $y1;
+        $b = ($x2 + $y2 + ($a >> 16)) << 16;
+        $a &= 0xFFFF;
+
+        return $a | $b;
+    }
+
+    /**
+     * NH Algorithm / 32-bit safe
      *
      * @param string $k string of length 1024 bytes.
      * @param string $m string with length divisible by 32 bytes.
      * @return string string of length 8 bytes.
      */
-    private static function nh(string $k, string $m, $length): string
+    private static function nh32(string $k, string $m, int $length): string
     {
-        $toUInt32 = function ($x) {
-            $x = new BigInteger($x, 256);
-            $x->setPrecision(32);
-            return $x;
-        };
-
         //
         // Break M and K into 4-byte chunks
         //
-        //$t = strlen($m) >> 2;
-        $m = str_split($m, 4);
+        $k = unpack('N*', $k);
+        $m = unpack('N*', $m);
         $t = count($m);
-        $k = str_split($k, 4);
-        $k = array_pad(array_slice($k, 0, $t), $t, 0);
-
-        $m = array_map($toUInt32, $m);
-        $k = array_map($toUInt32, $k);
 
         //
         // Perform NH hash on the chunks, pairing words for multiplication
         // which are 4 apart to accommodate vector-parallelism.
         //
-        $y = new BigInteger();
-        $y->setPrecision(64);
-        $i = 0;
-        while ($i < $t) {
-            $temp = $m[$i]->add($k[$i]);
-            $temp->setPrecision(64);
-            $temp = $temp->multiply($m[$i + 4]->add($k[$i + 4]));
-            $y = $y->add($temp);
+        $i = 1;
+        $y = "\0\0\0\0\0\0\0\0";
+        while ($i <= $t) {
+            $temp  = self::add32($m[$i], $k[$i]);
+            $temp2 = self::add32($m[$i + 4], $k[$i + 4]);
+            $y = self::add32_64($y, self::mul32_64($temp, $temp2));
 
-            $temp = $m[$i + 1]->add($k[$i + 1]);
-            $temp->setPrecision(64);
-            $temp = $temp->multiply($m[$i + 5]->add($k[$i + 5]));
-            $y = $y->add($temp);
+            $temp  = self::add32($m[$i + 1], $k[$i + 1]);
+            $temp2 = self::add32($m[$i + 5], $k[$i + 5]);
+            $y = self::add32_64($y, self::mul32_64($temp, $temp2));
 
-            $temp = $m[$i + 2]->add($k[$i + 2]);
-            $temp->setPrecision(64);
-            $temp = $temp->multiply($m[$i + 6]->add($k[$i + 6]));
-            $y = $y->add($temp);
+            $temp  = self::add32($m[$i + 2], $k[$i + 2]);
+            $temp2 = self::add32($m[$i + 6], $k[$i + 6]);
+            $y = self::add32_64($y, self::mul32_64($temp, $temp2));
 
-            $temp = $m[$i + 3]->add($k[$i + 3]);
-            $temp->setPrecision(64);
-            $temp = $temp->multiply($m[$i + 7]->add($k[$i + 7]));
-            $y = $y->add($temp);
+            $temp  = self::add32($m[$i + 3], $k[$i + 3]);
+            $temp2 = self::add32($m[$i + 7], $k[$i + 7]);
+            $y = self::add32_64($y, self::mul32_64($temp, $temp2));
 
             $i += 8;
         }
 
-        return $y->add($length)->toBytes();
+        return self::add32_64($y, pack('N2', 0, $length));
     }
 
     /**
@@ -659,15 +717,10 @@ class Hash
         // since PHP doesn't implement unsigned integers we'll implement them with signed integers
         // to do this we'll use karatsuba multiplication
 
-        // this could be made to work on 32-bit systems with the following changes:
-        // $x & 0xFFFFFFFF => fmod($x, 0x100000000)
-        // $x >> 32 => (int) ($x / 0x100000000);
-        // you'd then need to casts the floats to ints after you got the carry
-
-        $x1 = ($x >> 16) & 0xFFFF;
+        $x1 = $x >> 16;
         $x0 = $x & 0xFFFF;
 
-        $y1 = ($y >> 16) & 0xFFFF;
+        $y1 = $y >> 16;
         $y0 = $y & 0xFFFF;
 
         $z2 = $x1 * $y1; // up to 32 bits long
@@ -717,24 +770,20 @@ class Hash
           +upper $y |+lower $y
           +  $carry |
         */
-        // in theory we should be able to get this working on 32-bit PHP install
-        // but we'd need to return the result as a string vs an int and do fmod()
-        // vs "& 0xFFFFFFFF"
         $x1 = $x & 0xFFFFFFFF;
         $x2 = ($x >> 32) & 0xFFFFFFFF;
         $y1 = $y & 0xFFFFFFFF;
         $y2 = ($y >> 32) & 0xFFFFFFFF;
+
         $a = $x1 + $y1;
-        $c = $a >> 32;
-        $b = ($x2 + $y2) & 0xFFFFFFFF;
-        $b = ($b + $c) << 32;
+        $b = ($x2 + $y2 + ($a >> 32)) << 32;
         $a &= 0xFFFFFFFF;
 
         return $a | $b;
     }
 
     /**
-     * NH Algorithm
+     * NH Algorithm / 64-bit safe
      *
      * @param string $k string of length 1024 bytes.
      * @param string $m string with length divisible by 32 bytes.
