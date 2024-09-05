@@ -5137,14 +5137,14 @@ class Net_SSH2
 
         if (isset($preferred['kex'])) {
             $preferred['kex'] = array_intersect(
-                $preferred['kex'],
+                is_string($preferred['kex']) ? array($preferred['kex']) : $preferred['kex'],
                 $this->getSupportedKEXAlgorithms()
             );
         }
 
         if (isset($preferred['hostkey'])) {
             $preferred['hostkey'] = array_intersect(
-                $preferred['hostkey'],
+                is_string($preferred['hostkey']) ? array($preferred['hostkey']) : $preferred['hostkey'],
                 $this->getSupportedHostKeyAlgorithms()
             );
         }
@@ -5155,19 +5155,19 @@ class Net_SSH2
                 $a = &$preferred[$key];
                 if (isset($a['crypt'])) {
                     $a['crypt'] = array_intersect(
-                        $a['crypt'],
+                        is_string($a['crypt']) ? array($a['crypt']) : $a['crypt'],
                         $this->getSupportedEncryptionAlgorithms()
                     );
                 }
                 if (isset($a['comp'])) {
                     $a['comp'] = array_intersect(
-                        $a['comp'],
+                        is_string($a['comp']) ? array($a['comp']) : $a['comp'],
                         $this->getSupportedCompressionAlgorithms()
                     );
                 }
                 if (isset($a['mac'])) {
                     $a['mac'] = array_intersect(
-                        $a['mac'],
+                        is_string($a['mac']) ? array($a['mac']) : $a['mac'],
                         $this->getSupportedMACAlgorithms()
                     );
                 }
