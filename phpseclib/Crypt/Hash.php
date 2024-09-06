@@ -422,13 +422,17 @@ class Hash
                         '0F6D2B697BD44DA8', '77E36F7304C48942', '3F9D85A86A1D36C8', '1112E6AD91D692A1'
                     ];
                 for ($i = 0; $i < 8; $i++) {
-                    $initial[$i] = new BigInteger($initial[$i], 16);
-                    $initial[$i]->setPrecision(64);
+                    if (PHP_INT_SIZE == 8) {
+                        list(, $initial[$i]) = unpack('J', pack('H*', $initial[$i]));
+                    } else {
+                        $initial[$i] = new BigInteger($initial[$i], 16);
+                        $initial[$i]->setPrecision(64);
+                    }
                 }
 
                 $this->parameters = compact('initial');
 
-                $hash = ['phpseclib3\Crypt\Hash', 'sha512'];
+                $hash = ['phpseclib3\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha512_64' : 'sha512'];
             }
         }
 
@@ -1470,7 +1474,7 @@ class Hash
     }
 
     /**
-     * Rotate 64-bit int
+     * Left rotate 64-bit int
      *
      * @param int $x
      * @param int $shift
@@ -1478,6 +1482,18 @@ class Hash
     private static function rotateLeft64($x, $shift)
     {
         return ($x << $shift) | (($x >> (64 - $shift)) & ((1 << $shift) - 1));
+    }
+
+    /**
+     * Right rotate 64-bit int
+     *
+     * @param int $x
+     * @param int $shift
+     */
+    private static function rotateRight64($x, $shift)
+    {
+        $mask = -1 ^ (-1 << (64 - $shift));
+        return (($x >> $shift) & $mask) | ($x << (64 - $shift));
     }
 
     /**
@@ -1634,6 +1650,143 @@ class Hash
         // (\phpseclib3\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
         $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes() .
                 $hash[4]->toBytes() . $hash[5]->toBytes() . $hash[6]->toBytes() . $hash[7]->toBytes();
+
+        return $temp;
+    }
+
+    /**
+     * Pure-PHP implementation of SHA512
+     *
+     * @param string $m
+     * @param array $hash
+     * @return string
+     */
+    private static function sha512_64($m, $hash)
+    {
+        static $k;
+
+        if (!isset($k)) {
+            // Initialize table of round constants
+            // (first 64 bits of the fractional parts of the cube roots of the first 80 primes 2..409)
+            $k = [
+                '428a2f98d728ae22', '7137449123ef65cd', 'b5c0fbcfec4d3b2f', 'e9b5dba58189dbbc',
+                '3956c25bf348b538', '59f111f1b605d019', '923f82a4af194f9b', 'ab1c5ed5da6d8118',
+                'd807aa98a3030242', '12835b0145706fbe', '243185be4ee4b28c', '550c7dc3d5ffb4e2',
+                '72be5d74f27b896f', '80deb1fe3b1696b1', '9bdc06a725c71235', 'c19bf174cf692694',
+                'e49b69c19ef14ad2', 'efbe4786384f25e3', '0fc19dc68b8cd5b5', '240ca1cc77ac9c65',
+                '2de92c6f592b0275', '4a7484aa6ea6e483', '5cb0a9dcbd41fbd4', '76f988da831153b5',
+                '983e5152ee66dfab', 'a831c66d2db43210', 'b00327c898fb213f', 'bf597fc7beef0ee4',
+                'c6e00bf33da88fc2', 'd5a79147930aa725', '06ca6351e003826f', '142929670a0e6e70',
+                '27b70a8546d22ffc', '2e1b21385c26c926', '4d2c6dfc5ac42aed', '53380d139d95b3df',
+                '650a73548baf63de', '766a0abb3c77b2a8', '81c2c92e47edaee6', '92722c851482353b',
+                'a2bfe8a14cf10364', 'a81a664bbc423001', 'c24b8b70d0f89791', 'c76c51a30654be30',
+                'd192e819d6ef5218', 'd69906245565a910', 'f40e35855771202a', '106aa07032bbd1b8',
+                '19a4c116b8d2d0c8', '1e376c085141ab53', '2748774cdf8eeb99', '34b0bcb5e19b48a8',
+                '391c0cb3c5c95a63', '4ed8aa4ae3418acb', '5b9cca4f7763e373', '682e6ff3d6b2b8a3',
+                '748f82ee5defb2fc', '78a5636f43172f60', '84c87814a1f0ab72', '8cc702081a6439ec',
+                '90befffa23631e28', 'a4506cebde82bde9', 'bef9a3f7b2c67915', 'c67178f2e372532b',
+                'ca273eceea26619c', 'd186b8c721c0c207', 'eada7dd6cde0eb1e', 'f57d4f7fee6ed178',
+                '06f067aa72176fba', '0a637dc5a2c898a6', '113f9804bef90dae', '1b710b35131c471b',
+                '28db77f523047d84', '32caab7b40c72493', '3c9ebe0a15c9bebc', '431d67c49c100d4c',
+                '4cc5d4becb3e42b6', '597f299cfc657e2a', '5fcb6fab3ad6faec', '6c44198c4a475817'
+            ];
+
+            for ($i = 0; $i < 80; $i++) {
+                list(, $k[$i]) = unpack('J', pack('H*', $k[$i]));
+            }
+        }
+
+        // Pre-processing
+        $length = strlen($m);
+        // to round to nearest 112 mod 128, we'll add 128 - (length + (128 - 112)) % 128
+        $m .= str_repeat(chr(0), 128 - (($length + 16) & 0x7F));
+        $m[$length] = chr(0x80);
+        // we don't support hashing strings 512MB long
+        $m .= pack('N4', 0, 0, 0, $length << 3);
+
+        // Process the message in successive 1024-bit chunks
+        $chunks = str_split($m, 128);
+        foreach ($chunks as $chunk) {
+            $w = [];
+            for ($i = 0; $i < 16; $i++) {
+                list(, $w[]) = unpack('J', Strings::shift($chunk, 8));
+            }
+
+            // Extend the sixteen 32-bit words into eighty 32-bit words
+            for ($i = 16; $i < 80; $i++) {
+                $temp = [
+                    self::rotateRight64($w[$i - 15], 1),
+                    self::rotateRight64($w[$i - 15], 8),
+                    ($w[$i - 15] >> 7) & 0x01FFFFFFFFFFFFFF,
+                ];
+                $s0 = $temp[0] ^ $temp[1] ^ $temp[2];
+                $temp = [
+                    self::rotateRight64($w[$i - 2], 19),
+                    self::rotateRight64($w[$i - 2], 61),
+                    ($w[$i - 2] >> 6) & 0x03FFFFFFFFFFFFFF,
+                ];
+                $s1 = $temp[0] ^ $temp[1] ^ $temp[2];
+
+                $w[$i] = $w[$i - 16];
+                $w[$i] = self::add64($w[$i],  $s0);
+                $w[$i] = self::add64($w[$i], $w[$i - 7]);
+                $w[$i] = self::add64($w[$i], $s1);
+            }
+
+            // Initialize hash value for this chunk
+            list($a, $b, $c, $d, $e, $f, $g, $h) = $hash;
+
+            // Main loop
+            for ($i = 0; $i < 80; $i++) {
+                $temp = [
+                    self::rotateRight64($a, 28),
+                    self::rotateRight64($a, 34),
+                    self::rotateRight64($a, 39),
+                ];
+                $s0 = $temp[0] ^ $temp[1] ^ $temp[2];
+                $temp = [$a & $b, $a & $c, $b & $c];
+                $maj = $temp[0] ^ $temp[1] ^ $temp[2];
+                $t2 = self::add64($s0, $maj);
+
+                $temp = [
+                    self::rotateRight64($e, 14),
+                    self::rotateRight64($e, 18),
+                    self::rotateRight64($e, 41),
+                ];
+                $s1 = $temp[0] ^ $temp[1] ^ $temp[2];
+                $ch = ($e & $f) ^ ($g & ~$e);
+                $t1 = self::add64($h, $s1);
+                $t1 = self::add64($t1, $ch);
+                $t1 = self::add64($t1, $k[$i]);
+                $t1 = self::add64($t1, $w[$i]);
+
+                $h = $g;
+                $g = $f;
+                $f = $e;
+                $e = self::add64($d, $t1);
+                $d = $c;
+                $c = $b;
+                $b = $a;
+                $a = self::add64($t1, $t2);
+            }
+
+            // Add this chunk's hash to result so far
+            $hash = [
+                self::add64($hash[0], $a),
+                self::add64($hash[1], $b),
+                self::add64($hash[2], $c),
+                self::add64($hash[3], $d),
+                self::add64($hash[4], $e),
+                self::add64($hash[5], $f),
+                self::add64($hash[6], $g),
+                self::add64($hash[7], $h),
+            ];
+        }
+
+        // Produce the final hash value (big-endian)
+        // (\phpseclib3\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
+        $temp = pack('J', $hash[0]) . pack('J', $hash[1]) . pack('J', $hash[2]) . pack('J', $hash[3]) .
+                pack('J', $hash[4]) . pack('J', $hash[5]) . pack('J', $hash[6]) . pack('J', $hash[7]);
 
         return $temp;
     }
