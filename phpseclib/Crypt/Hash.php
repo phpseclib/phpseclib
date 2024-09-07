@@ -128,7 +128,7 @@ class Hash
     /**
      * Outer XOR (Internal HMAC)
      *
-     * Used only for sha512/*
+     * Used only for sha512
      *
      * @see self::hash()
      * @var string
@@ -138,7 +138,7 @@ class Hash
     /**
      * Inner XOR (Internal HMAC)
      *
-     * Used only for sha512/*
+     * Used only for sha512
      *
      * @see self::hash()
      * @var string
@@ -382,49 +382,20 @@ class Hash
                 $this->blockSize = 1024;
         }
 
-        if (in_array(substr($hash, 0, 5), ['sha3-', 'shake', 'kecca'])) {
-            // PHP 7.1.0 introduced support for "SHA3 fixed mode algorithms":
-            // http://php.net/ChangeLog-7.php#7.1.0
-            if (version_compare(PHP_VERSION, '7.1.0') < 0 || substr($hash, 0, 5) != 'sha3-') {
-                //preg_match('#(\d+)$#', $hash, $matches);
-                //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
-                //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
-                if (!$this->paddingType) {
-                    $this->paddingType = self::PADDING_SHA3;
-                }
-                $this->parameters = [
-                    'capacity' => 1600 - $this->blockSize,
-                    'rate' => $this->blockSize,
-                    'length' => $this->length,
-                    'padding' => $this->paddingType,
-                ];
-                $hash = ['phpseclib3\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
+        if (in_array(substr($hash, 0, 5), ['shake', 'kecca'])) {
+            //preg_match('#(\d+)$#', $hash, $matches);
+            //$this->parameters['capacity'] = 2 * $matches[1]; // 1600 - $this->blockSize
+            //$this->parameters['rate'] = 1600 - $this->parameters['capacity']; // == $this->blockSize
+            if (!$this->paddingType) {
+                $this->paddingType = self::PADDING_SHA3;
             }
-        }
-
-        if ($hash == 'sha512/224' || $hash == 'sha512/256') {
-            // PHP 7.1.0 introduced sha512/224 and sha512/256 support:
-            // http://php.net/ChangeLog-7.php#7.1.0
-            if (version_compare(PHP_VERSION, '7.1.0') < 0) {
-                // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
-                $initial = $hash == 'sha512/256' ?
-                    [
-                        '22312194FC2BF72C', '9F555FA3C84C64C2', '2393B86B6F53B151', '963877195940EABD',
-                        '96283EE2A88EFFE3', 'BE5E1E2553863992', '2B0199FC2C85B8AA', '0EB72DDC81C52CA2',
-                    ] :
-                    [
-                        '8C3D37C819544DA2', '73E1996689DCD4D6', '1DFAB7AE32FF9C82', '679DD514582F9FCF',
-                        '0F6D2B697BD44DA8', '77E36F7304C48942', '3F9D85A86A1D36C8', '1112E6AD91D692A1',
-                    ];
-                for ($i = 0; $i < 8; $i++) {
-                    $initial[$i] = new BigInteger($initial[$i], 16);
-                    $initial[$i]->setPrecision(64);
-                }
-
-                $this->parameters = compact('initial');
-
-                $hash = ['phpseclib3\Crypt\Hash', 'sha512'];
-            }
+            $this->parameters = [
+                'capacity' => 1600 - $this->blockSize,
+                'rate' => $this->blockSize,
+                'length' => $this->length,
+                'padding' => $this->paddingType,
+            ];
+            $hash = ['phpseclib3\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
         }
 
         if (is_array($hash)) {
@@ -1428,160 +1399,6 @@ class Hash
     private static function rotateLeft64(int $x, int $shift): int
     {
         return ($x << $shift) | (($x >> (64 - $shift)) & ((1 << $shift) - 1));
-    }
-
-    /**
-     * Pure-PHP implementation of SHA512
-     */
-    private static function sha512(string $m, array $hash): string
-    {
-        static $k;
-
-        if (!isset($k)) {
-            // Initialize table of round constants
-            // (first 64 bits of the fractional parts of the cube roots of the first 80 primes 2..409)
-            $k = [
-                '428a2f98d728ae22', '7137449123ef65cd', 'b5c0fbcfec4d3b2f', 'e9b5dba58189dbbc',
-                '3956c25bf348b538', '59f111f1b605d019', '923f82a4af194f9b', 'ab1c5ed5da6d8118',
-                'd807aa98a3030242', '12835b0145706fbe', '243185be4ee4b28c', '550c7dc3d5ffb4e2',
-                '72be5d74f27b896f', '80deb1fe3b1696b1', '9bdc06a725c71235', 'c19bf174cf692694',
-                'e49b69c19ef14ad2', 'efbe4786384f25e3', '0fc19dc68b8cd5b5', '240ca1cc77ac9c65',
-                '2de92c6f592b0275', '4a7484aa6ea6e483', '5cb0a9dcbd41fbd4', '76f988da831153b5',
-                '983e5152ee66dfab', 'a831c66d2db43210', 'b00327c898fb213f', 'bf597fc7beef0ee4',
-                'c6e00bf33da88fc2', 'd5a79147930aa725', '06ca6351e003826f', '142929670a0e6e70',
-                '27b70a8546d22ffc', '2e1b21385c26c926', '4d2c6dfc5ac42aed', '53380d139d95b3df',
-                '650a73548baf63de', '766a0abb3c77b2a8', '81c2c92e47edaee6', '92722c851482353b',
-                'a2bfe8a14cf10364', 'a81a664bbc423001', 'c24b8b70d0f89791', 'c76c51a30654be30',
-                'd192e819d6ef5218', 'd69906245565a910', 'f40e35855771202a', '106aa07032bbd1b8',
-                '19a4c116b8d2d0c8', '1e376c085141ab53', '2748774cdf8eeb99', '34b0bcb5e19b48a8',
-                '391c0cb3c5c95a63', '4ed8aa4ae3418acb', '5b9cca4f7763e373', '682e6ff3d6b2b8a3',
-                '748f82ee5defb2fc', '78a5636f43172f60', '84c87814a1f0ab72', '8cc702081a6439ec',
-                '90befffa23631e28', 'a4506cebde82bde9', 'bef9a3f7b2c67915', 'c67178f2e372532b',
-                'ca273eceea26619c', 'd186b8c721c0c207', 'eada7dd6cde0eb1e', 'f57d4f7fee6ed178',
-                '06f067aa72176fba', '0a637dc5a2c898a6', '113f9804bef90dae', '1b710b35131c471b',
-                '28db77f523047d84', '32caab7b40c72493', '3c9ebe0a15c9bebc', '431d67c49c100d4c',
-                '4cc5d4becb3e42b6', '597f299cfc657e2a', '5fcb6fab3ad6faec', '6c44198c4a475817',
-            ];
-
-            for ($i = 0; $i < 80; $i++) {
-                $k[$i] = new BigInteger($k[$i], 16);
-            }
-        }
-
-        // Pre-processing
-        $length = strlen($m);
-        // to round to nearest 112 mod 128, we'll add 128 - (length + (128 - 112)) % 128
-        $m .= str_repeat(chr(0), 128 - (($length + 16) & 0x7F));
-        $m[$length] = chr(0x80);
-        // we don't support hashing strings 512MB long
-        $m .= pack('N4', 0, 0, 0, $length << 3);
-
-        // Process the message in successive 1024-bit chunks
-        $chunks = str_split($m, 128);
-        foreach ($chunks as $chunk) {
-            $w = [];
-            for ($i = 0; $i < 16; $i++) {
-                $temp = new BigInteger(Strings::shift($chunk, 8), 256);
-                $temp->setPrecision(64);
-                $w[] = $temp;
-            }
-
-            // Extend the sixteen 32-bit words into eighty 32-bit words
-            for ($i = 16; $i < 80; $i++) {
-                $temp = [
-                          $w[$i - 15]->bitwise_rightRotate(1),
-                          $w[$i - 15]->bitwise_rightRotate(8),
-                          $w[$i - 15]->bitwise_rightShift(7),
-                ];
-                $s0 = $temp[0]->bitwise_xor($temp[1]);
-                $s0 = $s0->bitwise_xor($temp[2]);
-                $temp = [
-                          $w[$i - 2]->bitwise_rightRotate(19),
-                          $w[$i - 2]->bitwise_rightRotate(61),
-                          $w[$i - 2]->bitwise_rightShift(6),
-                ];
-                $s1 = $temp[0]->bitwise_xor($temp[1]);
-                $s1 = $s1->bitwise_xor($temp[2]);
-                $w[$i] = clone $w[$i - 16];
-                $w[$i] = $w[$i]->add($s0);
-                $w[$i] = $w[$i]->add($w[$i - 7]);
-                $w[$i] = $w[$i]->add($s1);
-            }
-
-            // Initialize hash value for this chunk
-            $a = clone $hash[0];
-            $b = clone $hash[1];
-            $c = clone $hash[2];
-            $d = clone $hash[3];
-            $e = clone $hash[4];
-            $f = clone $hash[5];
-            $g = clone $hash[6];
-            $h = clone $hash[7];
-
-            // Main loop
-            for ($i = 0; $i < 80; $i++) {
-                $temp = [
-                    $a->bitwise_rightRotate(28),
-                    $a->bitwise_rightRotate(34),
-                    $a->bitwise_rightRotate(39),
-                ];
-                $s0 = $temp[0]->bitwise_xor($temp[1]);
-                $s0 = $s0->bitwise_xor($temp[2]);
-                $temp = [
-                    $a->bitwise_and($b),
-                    $a->bitwise_and($c),
-                    $b->bitwise_and($c),
-                ];
-                $maj = $temp[0]->bitwise_xor($temp[1]);
-                $maj = $maj->bitwise_xor($temp[2]);
-                $t2 = $s0->add($maj);
-
-                $temp = [
-                    $e->bitwise_rightRotate(14),
-                    $e->bitwise_rightRotate(18),
-                    $e->bitwise_rightRotate(41),
-                ];
-                $s1 = $temp[0]->bitwise_xor($temp[1]);
-                $s1 = $s1->bitwise_xor($temp[2]);
-                $temp = [
-                    $e->bitwise_and($f),
-                    $g->bitwise_and($e->bitwise_not()),
-                ];
-                $ch = $temp[0]->bitwise_xor($temp[1]);
-                $t1 = $h->add($s1);
-                $t1 = $t1->add($ch);
-                $t1 = $t1->add($k[$i]);
-                $t1 = $t1->add($w[$i]);
-
-                $h = clone $g;
-                $g = clone $f;
-                $f = clone $e;
-                $e = $d->add($t1);
-                $d = clone $c;
-                $c = clone $b;
-                $b = clone $a;
-                $a = $t1->add($t2);
-            }
-
-            // Add this chunk's hash to result so far
-            $hash = [
-                $hash[0]->add($a),
-                $hash[1]->add($b),
-                $hash[2]->add($c),
-                $hash[3]->add($d),
-                $hash[4]->add($e),
-                $hash[5]->add($f),
-                $hash[6]->add($g),
-                $hash[7]->add($h),
-            ];
-        }
-
-        // Produce the final hash value (big-endian)
-        // (\phpseclib3\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
-        $temp = $hash[0]->toBytes() . $hash[1]->toBytes() . $hash[2]->toBytes() . $hash[3]->toBytes() .
-                $hash[4]->toBytes() . $hash[5]->toBytes() . $hash[6]->toBytes() . $hash[7]->toBytes();
-
-        return $temp;
     }
 
     /**
