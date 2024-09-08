@@ -128,7 +128,7 @@ class Hash
     /**
      * Outer XOR (Internal HMAC)
      *
-     * Used only for sha512/*
+     * Used only for sha512
      *
      * @see self::hash()
      * @var string
@@ -138,7 +138,7 @@ class Hash
     /**
      * Inner XOR (Internal HMAC)
      *
-     * Used only for sha512/*
+     * Used only for sha512
      *
      * @see self::hash()
      * @var string
