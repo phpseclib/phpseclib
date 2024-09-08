@@ -1250,9 +1250,10 @@ class Hash
             [$lo, $hi] = $x;
         }
 
+        $mask = -1 ^ (-1 << $shift);
         return [
-            ($hi << $shift) | (($lo >> (32 - $shift)) & (1 << $shift) - 1),
-            ($lo << $shift) | (($hi >> (32 - $shift)) & (1 << $shift) - 1),
+            ($hi << $shift) | (($lo >> (32 - $shift)) & $mask),
+            ($lo << $shift) | (($hi >> (32 - $shift)) & $mask),
         ];
     }
 
@@ -1398,7 +1399,8 @@ class Hash
      */
     private static function rotateLeft64(int $x, int $shift): int
     {
-        return ($x << $shift) | (($x >> (64 - $shift)) & ((1 << $shift) - 1));
+        $mask = -1 ^ (-1 << $shift);
+        return ($x << $shift) | (($x >> (64 - $shift)) & $mask);
     }
 
     /**
