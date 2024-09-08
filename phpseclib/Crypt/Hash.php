@@ -1787,10 +1787,7 @@ class Hash
 
         // Produce the final hash value (big-endian)
         // (\phpseclib3\Crypt\Hash::hash() trims the output for hashes but not for HMACs.  as such, we trim the output here)
-        $temp = pack('J', $hash[0]) . pack('J', $hash[1]) . pack('J', $hash[2]) . pack('J', $hash[3]) .
-                pack('J', $hash[4]) . pack('J', $hash[5]) . pack('J', $hash[6]) . pack('J', $hash[7]);
-
-        return $temp;
+        return pack('J*', ...$hash);
     }
 
     /**
