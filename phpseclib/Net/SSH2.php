@@ -1415,7 +1415,7 @@ class SSH2
 
                 $temp = stream_get_line($this->fsock, 255, "\n");
                 if ($temp === false) {
-                    throw new \RuntimeException('Error reading from socket');
+                    throw new \RuntimeException('Error reading SSH identification string; are you sure you\'re connecting to an SSH server?');
                 }
 
                 $line .= $temp;
@@ -1437,7 +1437,7 @@ class SSH2
 
         if (feof($this->fsock)) {
             $this->bitmap = 0;
-            throw new ConnectionClosedException('Connection closed by server');
+            throw new ConnectionClosedException('Connection closed by server; are you sure you\'re connected to an SSH server?');
         }
 
         $extra = $matches[1];
