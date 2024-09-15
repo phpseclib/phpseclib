@@ -3590,7 +3590,9 @@ class SFTP extends SSH2
         if (!$this->precheck()) {
             return false;
         }
-        if (!isset($this->extensions['posix-rename@openssh.com']) || $this->extensions['posix-rename@openssh.com'] !== '1') {
+        $testA = $this->version >= 5;
+        $testB = isset($this->extensions['posix-rename@openssh.com']) && $this->extensions['posix-rename@openssh.com'] === '1';
+        if (!$testA && !$testB) {
             throw new \RuntimeException(
                 "Extension 'posix-rename@openssh.com' is not supported by the server. " .
                 "Call getSupportedVersions() to see a list of supported extension"
@@ -3603,15 +3605,18 @@ class SFTP extends SSH2
             return false;
         }
 
-        $packet = Strings::packSSH2('sss', 'posix-rename@openssh.com', $oldname, $newname);
-        $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
+        if ($this->version >= 5) {
+            $packet = Strings::packSSH2('ssN', $oldname, $newname, 2); // 2 = SSH_FXP_RENAME_ATOMIC
+            $this->send_sftp_packet(NET_SFTP_RENAME, $packet);
+        } else {
+            $packet = Strings::packSSH2('sss', 'posix-rename@openssh.com', $oldname, $newname);
+            $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
+        }
 
         $response = $this->get_sftp_packet();
         if ($this->packet_type != NET_SFTP_STATUS) {
-            throw new \UnexpectedValueException(
-                'Expected NET_SFTP_STATUS. '
-                . 'Got packet type: ' . $this->packet_type
-            );
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
         }
 
         // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
