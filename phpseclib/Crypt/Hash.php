@@ -1730,7 +1730,7 @@ class Hash
                 $s1 = $temp[0] ^ $temp[1] ^ $temp[2];
 
                 $w[$i] = $w[$i - 16];
-                $w[$i] = self::add64($w[$i],  $s0);
+                $w[$i] = self::add64($w[$i], $s0);
                 $w[$i] = self::add64($w[$i], $w[$i - 7]);
                 $w[$i] = self::add64($w[$i], $s1);
             }
