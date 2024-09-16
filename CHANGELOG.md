@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.42 - 2024-09-15
+
+- X509: CRL version number wasn't correctly being saved (#2037)
+- Hash: significantly speed up umac algorithms
+- SSH2: fix possible infinite loop on packet timeout (#2031)
+- SSH2: logging enhancements
+- SSH2: identification strings > 255 bytes didnt get parsed correctly
+- SSH2: if string is passed to setPreferredAlgorithms() treat it as array
+- SSH2: update error message for people not connecting to SSH servers
+- SFTP: add getSupportedExtensions(), statvfs() and posix_rename() methods (#2024)
+
 ## 3.0.41 - 2024-08-11
 
 - SFTP: fix deprecation warning (#2027)
