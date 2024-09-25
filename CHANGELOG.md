@@ -725,7 +725,7 @@ Crypt/Base:
 
 ## 0.3.0 - 2012-07-08
 
-- add support for reuming Net_SFTP::put()
+- add support for resuming Net_SFTP::put()
 - add support for recursive deletes and recursive chmods to Net_SFTP
 - add setTimeout() to Net_SSH2
 - add support for PBKDF2 to the various Crypt_* classes via setPassword()
@@ -744,3 +744,28 @@ Crypt/Base:
 - add Net_SFTP::stat(), Net_SFTP::lstat() and Net_SFTP::rawlist()
 - logging was added to Net_SSH1
 - the license was changed to the less restrictive MIT license
+
+## 0.2.1 - 2010-05-03
+
+- across the board speedups
+- improved compatibility
+- implements RSA blinding
+- support for more public / private RSA keys added
+- implements CTR mode for block ciphers
+- adds Net_SFTP::rawlist() and Net_SFTP::size()
+- improves debugging capabilities
+- Crypt_Random should be more cryptographically secure
+
+## 0.2.0 - 2009-12-05
+
+- added Crypt_RSA
+- added support for RSA publickey authentication in Net_SSH2
+- compatibility improvements
+- speed improvements
+
+## 0.1.5 - 2009-06-11
+
+- SFTP support
+- misc bug fixes
+
+## 0.1.1 - 2009-02-17
