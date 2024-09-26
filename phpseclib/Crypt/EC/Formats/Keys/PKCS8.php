@@ -178,7 +178,8 @@ abstract class PKCS8 extends Progenitor
             return self::wrapPublicKey(
                 $curve->encodePoint($publicKey),
                 null,
-                $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448'
+                $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448',
+                $options
             );
         }
 
