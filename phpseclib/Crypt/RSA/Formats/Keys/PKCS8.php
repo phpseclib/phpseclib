@@ -117,6 +117,6 @@ abstract class PKCS8 extends Progenitor
     {
         $key = PKCS1::savePublicKey($n, $e);
         $key = ASN1::extractBER($key);
-        return self::wrapPublicKey($key, null);
+        return self::wrapPublicKey($key, null, null, $options);
     }
 }

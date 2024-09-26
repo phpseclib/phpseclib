@@ -186,7 +186,7 @@ abstract class PKCS8 extends Progenitor
 
         $key = "\4" . $publicKey[0]->toBytes() . $publicKey[1]->toBytes();
 
-        return self::wrapPublicKey($key, $params, 'id-ecPublicKey');
+        return self::wrapPublicKey($key, $params, 'id-ecPublicKey', $options);
     }
 
     /**
