@@ -128,6 +128,6 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($y, Maps\DSAPublicKey::MAP);
-        return self::wrapPublicKey($key, $params);
+        return self::wrapPublicKey($key, $params, null, $options);
     }
 }
