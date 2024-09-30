@@ -3847,7 +3847,8 @@ class X509
                     array(
                         'version' => 'v1',
                         'subject' => $this->dn,
-                        'subjectPKInfo' => $publicKey
+                        'subjectPKInfo' => $publicKey,
+                        'attributes' => array()
                     ),
                     'signatureAlgorithm' => array('algorithm' => $signatureAlgorithm),
                     'signature'          => false // this is going to be overwritten later
