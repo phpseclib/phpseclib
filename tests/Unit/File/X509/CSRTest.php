@@ -181,4 +181,39 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
         $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
         $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
+
+    public function testAttributes()
+    {
+        $private = RSA::createKey();
+        $private = $private->withHash('sha256');
+        $private = $private->withPadding(RSA::ENCRYPTION_PKCS1 | RSA::SIGNATURE_PKCS1);
+        $subject = new X509();
+        $subject->setDNProp('id-at-commonName', 'example.com');
+        $subject->setDNProp('id-at-organizationName', 'Example Organization');
+        $subject->setDNProp('id-at-organizationalUnitName', 'IT Department');
+        $subject->setDNProp('id-at-localityName', 'City');
+        $subject->setDNProp('id-at-stateOrProvinceName', 'State');
+        $subject->setDNProp('id-at-countryName', 'US');
+        $subject->setDNProp('id-at-emailAddress', 'admin@example.com');
+        $subject->setPublicKey($private->getPublicKey()->withPadding(RSA::SIGNATURE_PKCS1));
+        $subject->setPrivateKey($private);
+
+        $subject->setAttribute('pkcs-9-at-unstructuredName', 'Some unstructured name');
+        $subject->setAttribute('pkcs-9-at-challengePassword', 'MySecretPassword');
+        $extensions = [
+            ['extnId' => 'id-ce-basicConstraints', 'critical' => true, 'extnValue' => ['cA' => false]],
+            ['extnId' => 'id-ce-keyUsage', 'critical' => true, 'extnValue' => ['digitalSignature', 'keyEncipherment']],
+            ['extnId' => 'id-ce-extKeyUsage', 'extnValue' => ['id-kp-serverAuth', 'id-kp-clientAuth']]
+        ];
+        $subject->setAttribute('pkcs-9-at-extensionRequest', $extensions);
+
+        $csr = $subject->signCSR();
+        $csrPem = $subject->saveCSR($csr);
+
+        $x509 = new X509();
+        $r = $x509->loadCSR($csrPem);
+
+        $this->assertArrayHasKey('attributes', $r['certificationRequestInfo']);
+        $this->assertCount(0, $r['certificationRequestInfo']['attributes']);
+    }
 }
