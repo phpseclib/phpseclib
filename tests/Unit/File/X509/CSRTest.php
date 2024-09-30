@@ -126,7 +126,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $x509->setDN(['cn' => 'website.com']);
         $x509->saveCSR($x509->signCSR(), X509::FORMAT_DER);
         self::assertSame(
-            'MIIBUTCBvQIBADAWMRQwEgYDVQQDDAt3ZWJzaXRlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqhirpDtQ3u84WY+vh9KrY05FccEwqbynuHgmdBT6q4tHG9iWX1yfw4GEher1KcJiRvMFUGSo3hnIwzi+VJbLrrBZ3As1gUO0SjVEnrJkETEhpFW9f94/rJGelLVvubtPZRzbI+rUOdbNUj6wgZHnWzX9E6dBmzCQ8keHvU9OGWcCAwEAATALBgkqhkiG9w0BAQUDgYEAMsFgm5Y7/DY+a4NFK/2VHEyEf5C9+Oe+qaZQie0djZ5wPadabV4lOEYX4RcGMtrnfgYuUt8pMIubq4JQtpnw2rpaEZPQIr0ed/GvuiQD2oyaBd7tmPDoiJzN/+DjdniF/wq3POUz/UzZ+g1IgSYaGXtmtn7XgafiE+K+PQFRvrQ=',
+            'MIIBUzCBvwIBADAWMRQwEgYDVQQDDAt3ZWJzaXRlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqhirpDtQ3u84WY+vh9KrY05FccEwqbynuHgmdBT6q4tHG9iWX1yfw4GEher1KcJiRvMFUGSo3hnIwzi+VJbLrrBZ3As1gUO0SjVEnrJkETEhpFW9f94/rJGelLVvubtPZRzbI+rUOdbNUj6wgZHnWzX9E6dBmzCQ8keHvU9OGWcCAwEAAaAAMAsGCSqGSIb3DQEBBQOBgQAruS36X6T32X3kim5csJ/0iY+kS8MBt3D3geHLZx6ZAHI7olklEaGONJp+xajT3xMwKS3Anwe8Xpmqcn8+hAOJdZG0xHF2+S/T469UX32uiPtCiNvRC2RJo57wMj3X+2BCjC0WseYb6WHurnhu7u8zWcA3TEGyxyo+FDjMjFWsZA==',
             base64_encode($x509->saveCSR($x509->signCSR(), X509::FORMAT_DER))
         );
     }
@@ -182,5 +182,40 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
 -----END CERTIFICATE REQUEST-----');
         $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
         $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+    }
+
+    public function testAttributes()
+    {
+        $private = RSA::createKey();
+        $private = $private->withHash('sha256');
+        $private = $private->withPadding(RSA::ENCRYPTION_PKCS1 | RSA::SIGNATURE_PKCS1);
+        $subject = new X509();
+        $subject->setDNProp('id-at-commonName', 'example.com');
+        $subject->setDNProp('id-at-organizationName', 'Example Organization');
+        $subject->setDNProp('id-at-organizationalUnitName', 'IT Department');
+        $subject->setDNProp('id-at-localityName', 'City');
+        $subject->setDNProp('id-at-stateOrProvinceName', 'State');
+        $subject->setDNProp('id-at-countryName', 'US');
+        $subject->setDNProp('id-at-emailAddress', 'admin@example.com');
+        $subject->setPublicKey($private->getPublicKey()->withPadding(RSA::SIGNATURE_PKCS1));
+        $subject->setPrivateKey($private);
+
+        $subject->setAttribute('pkcs-9-at-unstructuredName', 'Some unstructured name');
+        $subject->setAttribute('pkcs-9-at-challengePassword', 'MySecretPassword');
+        $extensions = [
+            ['extnId' => 'id-ce-basicConstraints', 'critical' => true, 'extnValue' => ['cA' => false]],
+            ['extnId' => 'id-ce-keyUsage', 'critical' => true, 'extnValue' => ['digitalSignature', 'keyEncipherment']],
+            ['extnId' => 'id-ce-extKeyUsage', 'extnValue' => ['id-kp-serverAuth', 'id-kp-clientAuth']]
+        ];
+        $subject->setAttribute('pkcs-9-at-extensionRequest', $extensions);
+
+        $csr = $subject->signCSR();
+        $csrPem = $subject->saveCSR($csr);
+
+        $x509 = new X509();
+        $r = $x509->loadCSR($csrPem);
+
+        $this->assertArrayHasKey('attributes', $r['certificationRequestInfo']);
+        $this->assertCount(0, $r['certificationRequestInfo']['attributes']);
     }
 }
