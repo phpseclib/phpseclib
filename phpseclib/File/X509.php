@@ -3502,6 +3502,28 @@ class X509
     }
 
     /**
+     * Get all requested CSR extensions
+     *
+     * Returns the list of extensions if there are any and false if not
+     *
+     * @param array $csr optional
+     * @return mixed
+     */
+    public function getRequestedCertificateExtensions(array $csr = null)
+    {
+        if (empty($csr)) {
+            $csr = $this->currentCert;
+        }
+
+        $requestedExtensions = $this->getAttribute('pkcs-9-at-extensionRequest');
+        if ($requestedExtensions === false) {
+            return false;
+        }
+
+        return $this->getAttribute('pkcs-9-at-extensionRequest')[0];
+    }
+
+    /**
      * Returns a list of all CSR attributes in use
      *
      * @param array $csr optional
