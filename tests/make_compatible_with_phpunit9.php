@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @var iterable<SplFileInfo> $files */
 $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__));
 foreach ($files as $file) {
