@@ -124,7 +124,7 @@ class Stream
     protected function parse_path(string $path)
     {
         $orig = $path;
-        extract(parse_url($path) + ['port' => 22]);
+        extract(parse_url($path) + ['port' => 22], EXTR_SKIP);
         if (isset($query)) {
             $path .= '?' . $query;
         } elseif (preg_match('/(\?|\?#)$/', $orig)) {

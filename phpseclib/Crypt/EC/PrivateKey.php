@@ -156,7 +156,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
                     return $signature;
                 }
 
-                extract(ASN1Signature::load($signature));
+                extract(ASN1Signature::load($signature), EXTR_SKIP);
 
                 return $this->formatSignature($r, $s);
             }
