@@ -345,7 +345,7 @@ abstract class PKCS8 extends PKCS
                     if (!$temp) {
                         throw new RuntimeException('Unable to decode BER');
                     }
-                    extract(ASN1::asn1map($temp[0], Maps\PBEParameter::MAP));
+                    extract(ASN1::asn1map($temp[0], Maps\PBEParameter::MAP), EXTR_SKIP);
                     $iterationCount = (int) $iterationCount->toString();
                     $cipher->setPassword($password, $kdf, $hash, $salt, $iterationCount);
                     $key = $cipher->decrypt($decrypted['encryptedData']);
@@ -363,7 +363,7 @@ abstract class PKCS8 extends PKCS
                         throw new RuntimeException('Unable to decode BER');
                     }
                     $temp = ASN1::asn1map($temp[0], Maps\PBES2params::MAP);
-                    extract($temp);
+                    extract($temp, EXTR_SKIP);
 
                     $cipher = self::getPBES2EncryptionObject($encryptionScheme['algorithm']);
                     $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
@@ -373,7 +373,7 @@ abstract class PKCS8 extends PKCS
                         throw new RuntimeException('Unable to decode BER');
                     }
                     $temp = ASN1::asn1map($temp[0], Maps\PBES2params::MAP);
-                    extract($temp);
+                    extract($temp, EXTR_SKIP);
 
                     if (!$cipher instanceof RC2) {
                         $cipher->setIV($encryptionScheme['parameters']['octetString']);
@@ -382,7 +382,7 @@ abstract class PKCS8 extends PKCS
                         if (!$temp) {
                             throw new RuntimeException('Unable to decode BER');
                         }
-                        extract(ASN1::asn1map($temp[0], Maps\RC2CBCParameter::MAP));
+                        extract(ASN1::asn1map($temp[0], Maps\RC2CBCParameter::MAP), EXTR_SKIP);
                         $effectiveKeyLength = (int) $rc2ParametersVersion->toString();
                         switch ($effectiveKeyLength) {
                             case 160:
@@ -409,7 +409,7 @@ abstract class PKCS8 extends PKCS
                             }
                             $prf = ['algorithm' => 'id-hmacWithSHA1'];
                             $params = ASN1::asn1map($temp[0], Maps\PBKDF2params::MAP);
-                            extract($params);
+                            extract($params, EXTR_SKIP);
                             $meta['meta']['prf'] = $prf['algorithm'];
                             $hash = str_replace('-', '/', substr($prf['algorithm'], 11));
                             $params = [

@@ -88,7 +88,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
                     return $signature;
                 }
 
-                extract(ASN1Signature::load($signature));
+                extract(ASN1Signature::load($signature), EXTR_SKIP);
 
                 return $format::save($r, $s);
             }
