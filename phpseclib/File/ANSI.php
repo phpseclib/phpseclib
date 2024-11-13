@@ -18,6 +18,7 @@
 
 namespace phpseclib3\File;
 
+
 /**
  * Pure-PHP ANSI Decoder
  *
@@ -31,116 +32,116 @@ class ANSI
      * @var int
      */
     private $max_x;
-
+    
     /**
      * Max Height
      *
      * @var int
      */
     private $max_y;
-
+    
     /**
      * Max History
      *
      * @var int
      */
     private $max_history;
-
+    
     /**
      * History
      *
      * @var array
      */
     private $history;
-
+    
     /**
      * History Attributes
      *
      * @var array
      */
     private $history_attrs;
-
+    
     /**
      * Current Column
      *
      * @var int
      */
     private $x;
-
+    
     /**
      * Current Row
      *
      * @var int
      */
     private $y;
-
+    
     /**
      * Old Column
      *
      * @var int
      */
     private $old_x;
-
+    
     /**
      * Old Row
      *
      * @var int
      */
     private $old_y;
-
+    
     /**
      * An empty attribute cell
      *
      * @var object
      */
     private $base_attr_cell;
-
+    
     /**
      * The current attribute cell
      *
      * @var object
      */
     private $attr_cell;
-
+    
     /**
      * An empty attribute row
      *
      * @var array
      */
     private $attr_row;
-
+    
     /**
      * The current screen text
      *
      * @var list<string>
      */
     private $screen;
-
+    
     /**
      * The current screen attributes
      *
      * @var array
      */
     private $attrs;
-
+    
     /**
      * Current ANSI code
      *
      * @var string
      */
     private $ansi;
-
+    
     /**
      * Tokenization
      *
      * @var array
      */
     private $tokenization;
-
+    
     /**
      * Default Constructor.
      *
-     * @return ANSI
+     * @return \phpseclib3\File\ANSI
      */
     public function __construct()
     {
@@ -153,11 +154,11 @@ class ANSI
         $attr_cell->reverse = false;
         $this->base_attr_cell = clone $attr_cell;
         $this->attr_cell = clone $attr_cell;
-
+        
         $this->setHistory(200);
         $this->setDimensions(80, 24);
     }
-
+    
     /**
      * Set terminal width and height
      *
@@ -177,7 +178,7 @@ class ANSI
         $this->attrs = array_fill(0, $this->max_y + 1, $this->attr_row);
         $this->ansi = '';
     }
-
+    
     /**
      * Set the number of lines that should be logged past the terminal height
      *
@@ -187,7 +188,7 @@ class ANSI
     {
         $this->max_history = $history;
     }
-
+    
     /**
      * Load a string
      *
@@ -198,7 +199,7 @@ class ANSI
         $this->setDimensions($this->max_x + 1, $this->max_y + 1);
         $this->appendString($source);
     }
-
+    
     /**
      * Appdend a string
      *
@@ -207,10 +208,15 @@ class ANSI
     public function appendString($source)
     {
         $this->tokenization = [''];
+        if (!mb_check_encoding($source, 'UTF-8')) {
+            $source = mb_convert_encoding($source, 'UTF-8', 'auto');
+        }
+        $length = mb_strlen($source, 'UTF-8');
         for ($i = 0; $i < strlen($source); $i++) {
+            $char = mb_substr($source, $i, 1, 'UTF-8');
             if (strlen($this->ansi)) {
-                $this->ansi .= $source[$i];
-                $chr = ord($source[$i]);
+                $this->ansi .= $char;
+                $chr = ord($char);
                 // http://en.wikipedia.org/wiki/ANSI_escape_code#Sequence_elements
                 // single character CSI's not currently supported
                 switch (true) {
@@ -235,18 +241,18 @@ class ANSI
                     case "\x1B[J": // Clear screen from cursor down
                         $this->history = array_merge($this->history, array_slice(array_splice($this->screen, $this->y + 1), 0, $this->old_y));
                         $this->screen = array_merge($this->screen, array_fill($this->y, $this->max_y, ''));
-
+                        
                         $this->history_attrs = array_merge($this->history_attrs, array_slice(array_splice($this->attrs, $this->y + 1), 0, $this->old_y));
                         $this->attrs = array_merge($this->attrs, array_fill($this->y, $this->max_y, $this->attr_row));
-
+                        
                         if (count($this->history) == $this->max_history) {
                             array_shift($this->history);
                             array_shift($this->history_attrs);
                         }
-                        // fall-through
+                    // fall-through
                     case "\x1B[K": // Clear screen from cursor right
                         $this->screen[$this->y] = substr($this->screen[$this->y], 0, $this->x);
-
+                        
                         array_splice($this->attrs[$this->y], $this->x + 1, $this->max_x - $this->x, array_fill($this->x, $this->max_x - ($this->x - 1), $this->base_attr_cell));
                         break;
                     case "\x1B[2K": // Clear entire line
@@ -325,7 +331,7 @@ class ANSI
                                                 case '35': $front = 'magenta'; break;
                                                 case '36': $front = 'cyan'; break;
                                                 case '37': $front = 'white'; break;
-
+                                                
                                                 case '40': $back = 'black'; break;
                                                 case '41': $back = 'red'; break;
                                                 case '42': $back = 'green'; break;
@@ -335,7 +341,7 @@ class ANSI
                                                 case '46': $back = 'cyan'; break;
                                                 case '47': $back = 'white'; break;
                                                 // @codingStandardsIgnoreEnd
-
+                                                
                                                 default:
                                                     //user_error('Unsupported attribute: ' . $mod);
                                                     $this->ansi = '';
@@ -351,9 +357,9 @@ class ANSI
                 $this->ansi = '';
                 continue;
             }
-
-            $this->tokenization[count($this->tokenization) - 1] .= $source[$i];
-            switch ($source[$i]) {
+            
+            $this->tokenization[count($this->tokenization) - 1] .= $char;
+            switch ($char) {
                 case "\r":
                     $this->x = 0;
                     break;
@@ -364,18 +370,13 @@ class ANSI
                     if ($this->x) {
                         $this->x--;
                         $this->attrs[$this->y][$this->x] = clone $this->base_attr_cell;
-                        $this->screen[$this->y] = substr_replace(
-                            $this->screen[$this->y],
-                            $source[$i],
-                            $this->x,
-                            1
-                        );
+                        $this->screen[$this->y] = mb_substr($this->screen[$this->y], 0, $this->x, 'UTF-8') . $char;
                     }
                     break;
                 case "\x0F": // shift
                     break;
                 case "\x1B": // start ANSI escape code
-                    $this->tokenization[count($this->tokenization) - 1] = substr($this->tokenization[count($this->tokenization) - 1], 0, -1);
+                    $this->tokenization[count($this->tokenization) - 1] = mb_substr($this->tokenization[count($this->tokenization) - 1], 0, -1, 'UTF-8');
                     //if (!strlen($this->tokenization[count($this->tokenization) - 1])) {
                     //    array_pop($this->tokenization);
                     //}
@@ -383,16 +384,11 @@ class ANSI
                     break;
                 default:
                     $this->attrs[$this->y][$this->x] = clone $this->attr_cell;
-                    if ($this->x > strlen($this->screen[$this->y])) {
-                        $this->screen[$this->y] = str_repeat(' ', $this->x);
+                    if (mb_strlen($this->screen[$this->y], 'UTF-8') < $this->x) {
+                        $this->screen[$this->y] .= str_repeat(' ', $this->x - mb_strlen($this->screen[$this->y], 'UTF-8'));
                     }
-                    $this->screen[$this->y] = substr_replace(
-                        $this->screen[$this->y],
-                        $source[$i],
-                        $this->x,
-                        1
-                    );
-
+                    $this->screen[$this->y] = mb_substr($this->screen[$this->y], 0, $this->x, 'UTF-8') . $char;
+                    
                     if ($this->x > $this->max_x) {
                         $this->x = 0;
                         $this->newLine();
@@ -402,7 +398,7 @@ class ANSI
             }
         }
     }
-
+    
     /**
      * Add a new line
      *
@@ -414,24 +410,24 @@ class ANSI
         //if ($this->y < $this->max_y) {
         //    $this->y++;
         //}
-
+        
         while ($this->y >= $this->max_y) {
             $this->history = array_merge($this->history, [array_shift($this->screen)]);
             $this->screen[] = '';
-
+            
             $this->history_attrs = array_merge($this->history_attrs, [array_shift($this->attrs)]);
             $this->attrs[] = $this->attr_row;
-
+            
             if (count($this->history) >= $this->max_history) {
                 array_shift($this->history);
                 array_shift($this->history_attrs);
             }
-
+            
             $this->y--;
         }
         $this->y++;
     }
-
+    
     /**
      * Returns the current coordinate without preformating
      *
@@ -443,7 +439,7 @@ class ANSI
     private function processCoordinate(\stdClass $last_attr, \stdClass $cur_attr, $char)
     {
         $output = '';
-
+        
         if ($last_attr != $cur_attr) {
             $close = $open = '';
             if ($last_attr->foreground != $cur_attr->foreground) {
@@ -485,12 +481,12 @@ class ANSI
             }
             $output .= $close . $open;
         }
-
+        
         $output .= htmlspecialchars($char);
-
+        
         return $output;
     }
-
+    
     /**
      * Returns the current screen without preformating
      *
@@ -501,19 +497,21 @@ class ANSI
         $output = '';
         $last_attr = $this->base_attr_cell;
         for ($i = 0; $i <= $this->max_y; $i++) {
-            for ($j = 0; $j <= $this->max_x; $j++) {
+            $lineLength = mb_strlen($this->screen[$i]);
+            for ($j = 0; $j <= $lineLength; $j++) {
+                $char = mb_substr($this->screen[$i], $j, 1);
                 $cur_attr = $this->attrs[$i][$j];
-                $output .= $this->processCoordinate($last_attr, $cur_attr, isset($this->screen[$i][$j]) ? $this->screen[$i][$j] : '');
+                $output .= $this->processCoordinate($last_attr, $cur_attr, $char);
                 $last_attr = $this->attrs[$i][$j];
             }
             $output .= "\r\n";
         }
-        $output = substr($output, 0, -2);
+        $output = mb_substr($output, 0, mb_strlen($output, 'UTF-8') - 2);
         // close any remaining open tags
         $output .= $this->processCoordinate($last_attr, $this->base_attr_cell, '');
         return rtrim($output);
     }
-
+    
     /**
      * Returns the current screen
      *
@@ -523,7 +521,7 @@ class ANSI
     {
         return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $this->getScreenHelper() . '</pre>';
     }
-
+    
     /**
      * Returns the current screen and the x previous lines
      *
@@ -545,7 +543,7 @@ class ANSI
         $this->base_attr_cell = $last_attr;
         $scrollback .= $this->getScreen();
         $this->base_attr_cell = $base_attr_cell;
-
+        
         return '<pre width="' . ($this->max_x + 1) . '" style="color: white; background: black">' . $scrollback . '</span></pre>';
     }
 }
