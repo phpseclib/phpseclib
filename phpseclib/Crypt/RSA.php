@@ -352,7 +352,7 @@ abstract class RSA extends AsymmetricKey
                 if ($i != $num_primes) {
                     $primes[$i] = BigInteger::randomPrime($regSize);
                 } else {
-                    extract(BigInteger::minMaxBits($bits));
+                    extract(BigInteger::minMaxBits($bits), EXTR_SKIP);
                     /** @var BigInteger $min
                      *  @var BigInteger $max
                      */
