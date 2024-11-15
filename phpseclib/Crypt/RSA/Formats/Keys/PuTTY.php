@@ -60,7 +60,7 @@ abstract class PuTTY extends Progenitor
         if (!isset($components['private'])) {
             return $components;
         }
-        extract($components, EXTR_SKIP);
+        extract($components);
         unset($components['public'], $components['private']);
 
         $isPublicKey = false;

@@ -311,7 +311,7 @@ abstract class Engine implements \JsonSerializable
             return $this->normalize($n->subtract($temp));
         }
 
-        extract($this->extendedGCD($n), EXTR_SKIP);
+        extract($this->extendedGCD($n));
         /**
          * @var Engine $gcd
          * @var Engine $x
@@ -706,7 +706,7 @@ abstract class Engine implements \JsonSerializable
      */
     public static function random(int $size): Engine
     {
-        extract(static::minMaxBits($size), EXTR_SKIP);
+        extract(static::minMaxBits($size));
         /**
          * @var BigInteger $min
          * @var BigInteger $max
@@ -721,7 +721,7 @@ abstract class Engine implements \JsonSerializable
      */
     public static function randomPrime(int $size): Engine
     {
-        extract(static::minMaxBits($size), EXTR_SKIP);
+        extract(static::minMaxBits($size));
         /**
          * @var static $min
          * @var static $max

@@ -618,7 +618,7 @@ class X509
         $extensions = &$this->subArray($root, $path, !empty($this->extensionValues));
 
         foreach ($this->extensionValues as $id => $data) {
-            extract($data, EXTR_SKIP);
+            extract($data);
             $newext = [
                 'extnId' => $id,
                 'extnValue' => $value,
@@ -1792,7 +1792,7 @@ class X509
                 $dn = $this->getDN(self::DN_CANON, $dn);
                 $hash = new Hash('sha1');
                 $hash = $hash->hash($dn);
-                extract(unpack('Vhash', $hash), EXTR_SKIP);
+                extract(unpack('Vhash', $hash));
                 return strtolower(Strings::bin2hex(pack('N', $hash)));
         }
 

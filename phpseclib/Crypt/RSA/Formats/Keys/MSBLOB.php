@@ -83,7 +83,7 @@ abstract class MSBLOB
 
         // PUBLICKEYSTRUC  publickeystruc
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387453(v=vs.85).aspx
-        extract(unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8)), EXTR_SKIP);
+        extract(unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8)));
         /**
          * @var string $type
          * @var string $version
@@ -116,7 +116,7 @@ abstract class MSBLOB
         // RSAPUBKEY rsapubkey
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387685(v=vs.85).aspx
         // could do V for pubexp but that's unsigned 32-bit whereas some PHP installs only do signed 32-bit
-        extract(unpack('Vmagic/Vbitlen/a4pubexp', Strings::shift($key, 12)), EXTR_SKIP);
+        extract(unpack('Vmagic/Vbitlen/a4pubexp', Strings::shift($key, 12)));
         /**
          * @var integer $magic
          * @var integer $bitlen
