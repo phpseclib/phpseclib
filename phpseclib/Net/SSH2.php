@@ -5133,42 +5133,66 @@ class Net_SSH2
      */
     function setPreferredAlgorithms($methods)
     {
+        $keys = array('client_to_server', 'server_to_client');
+
+        if (isset($methods['kex']) && is_string($methods['kex'])) {
+            $methods['kex'] = explode(',', $methods['kex']);
+        }
+
+        if (isset($methods['hostkey']) && is_string($methods['hostkey'])) {
+            $methods['hostkey'] = explode(',', $methods['hostkey']);
+        }
+
+        foreach ($keys as $key) {
+            if (isset($methods[$key])) {
+                $a = &$methods[$key];
+                if (isset($a['crypt']) && is_string($a['crypt'])) {
+                    $a['crypt'] = explode(',', $a['crypt']);
+                }
+                if (isset($a['comp']) && is_string($a['comp'])) {
+                    $a['comp'] = explode(',', $a['comp']);
+                }
+                if (isset($a['mac']) && is_string($a['mac'])) {
+                    $a['mac'] = explode(',', $a['mac']);
+                }
+            }
+        }
+
         $preferred = $methods;
 
         if (isset($preferred['kex'])) {
             $preferred['kex'] = array_intersect(
-                is_string($preferred['kex']) ? array($preferred['kex']) : $preferred['kex'],
-                $this->getSupportedKEXAlgorithms()
+                $preferred['kex'],
+                static::getSupportedKEXAlgorithms()
             );
         }
 
         if (isset($preferred['hostkey'])) {
             $preferred['hostkey'] = array_intersect(
-                is_string($preferred['hostkey']) ? array($preferred['hostkey']) : $preferred['hostkey'],
-                $this->getSupportedHostKeyAlgorithms()
+                $preferred['hostkey'],
+                static::getSupportedHostKeyAlgorithms()
             );
         }
 
-        $keys = array('client_to_server', 'server_to_client');
         foreach ($keys as $key) {
             if (isset($preferred[$key])) {
                 $a = &$preferred[$key];
                 if (isset($a['crypt'])) {
                     $a['crypt'] = array_intersect(
-                        is_string($a['crypt']) ? array($a['crypt']) : $a['crypt'],
-                        $this->getSupportedEncryptionAlgorithms()
+                        $a['crypt'],
+                        static::getSupportedEncryptionAlgorithms()
                     );
                 }
                 if (isset($a['comp'])) {
                     $a['comp'] = array_intersect(
-                        is_string($a['comp']) ? array($a['comp']) : $a['comp'],
-                        $this->getSupportedCompressionAlgorithms()
+                        $a['comp'],
+                        static::getSupportedCompressionAlgorithms()
                     );
                 }
                 if (isset($a['mac'])) {
                     $a['mac'] = array_intersect(
-                        is_string($a['mac']) ? array($a['mac']) : $a['mac'],
-                        $this->getSupportedMACAlgorithms()
+                        $a['mac'],
+                        static::getSupportedMACAlgorithms()
                     );
                 }
             }
