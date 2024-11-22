@@ -3869,11 +3869,9 @@ class SSH2
             case NET_SSH2_MSG_DISCONNECT:
                 return $this->handleDisconnect($payload);
             case NET_SSH2_MSG_IGNORE:
-                $this->extra_packets++;
                 $payload = $this->get_binary_packet();
                 break;
             case NET_SSH2_MSG_DEBUG:
-                $this->extra_packets++;
                 Strings::shift($payload, 2); // second byte is "always_display"
                 list($message) = Strings::unpackSSH2('s', $payload);
                 $this->errors[] = "SSH_MSG_DEBUG: $message";
