@@ -1120,16 +1120,6 @@ class SSH2
     private $errorOnMultipleChannels;
 
     /**
-     * Terrapin Countermeasure
-     *
-     * "During initial KEX, terminate the connection if any unexpected or out-of-sequence packet is received"
-     * -- https://github.com/openssh/openssh-portable/commit/1edb00c58f8a6875fad6a497aa2bacf37f9e6cd5
-     *
-     * @var int
-     */
-    private $extra_packets;
-
-    /**
      * Bytes Transferred Since Last Key Exchange
      *
      * Includes outbound and inbound totals
