@@ -965,7 +965,7 @@ class SSH2
 
     /**
      * Bytes Transferred Since Last Key Exchange
-     * 
+     *
      * Includes outbound and inbound totals
      *
      * @var int
@@ -974,14 +974,14 @@ class SSH2
 
     /**
      * After how many transferred byte should phpseclib initiate a key re-exchange?
-     * 
+     *
      * @var int
      */
     private $doKeyReexchangeAfterXBytes = 256 * 1024;
 
     /**
      * Has a key re-exchange been initialized?
-     * 
+     *
      * @var bool
      * @access private
      */
