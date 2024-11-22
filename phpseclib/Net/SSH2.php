@@ -3749,7 +3749,9 @@ class Net_SSH2
 
         $remaining_length = $packet_length + 4 - $this->decrypt_block_size;
 
-        $this->bytesTransferredSinceLastKEX+= $packet_length + $padding_length + 5;
+        if (!$this->keyExchangeInProgress) {
+            $this->bytesTransferredSinceLastKEX+= $packet_length + $padding_length + 5;
+        }
 
         // quoting <http://tools.ietf.org/html/rfc4253#section-6.1>,
         // "implementations SHOULD check that the packet length is reasonable"
@@ -4468,7 +4470,9 @@ class Net_SSH2
 
         $packet.= $hmac;
 
-        $this->bytesTransferredSinceLastKEX+= strlen($packet);
+        if (!$this->keyExchangeInProgress) {
+            $this->bytesTransferredSinceLastKEX+= strlen($packet);
+        }
 
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $result = strlen($packet) == @fputs($this->fsock, $packet);
