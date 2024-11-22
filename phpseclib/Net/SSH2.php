@@ -1127,7 +1127,7 @@ class Net_SSH2
      * @var int
      * @access private
      */
-    var $doKeyReexchangeAfterXBytes = 1024 * 1024 * 1024;
+    var $doKeyReexchangeAfterXBytes = 1073741824;
 
     /**
      * Has a key re-exchange been initialized?
