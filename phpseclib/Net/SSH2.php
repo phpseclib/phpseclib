@@ -1133,7 +1133,7 @@ class SSH2
      *
      * @var int
      */
-    private $doKeyReexchangeAfterXBytes = 256 * 1024;
+    private $doKeyReexchangeAfterXBytes = 1024 * 1024 * 1024;
 
     /**
      * Has a key re-exchange been initialized?
