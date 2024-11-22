@@ -1104,14 +1104,6 @@ class Net_SSH2
     var $smartMFA = true;
 
     /**
-     * Extra packets counter
-     *
-     * @var bool
-     * @access private
-     */
-    var $extra_packets;
-
-    /**
      * Bytes Transferred Since Last Key Exchange
      * 
      * Includes outbound and inbound totals
