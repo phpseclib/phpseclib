@@ -162,6 +162,10 @@ class SSH2
      * Outputs the message numbers real-time
      */
     public const LOG_SIMPLE_REALTIME = 5;
+    /*
+     * Dumps the message numbers real-time
+     */
+    public const LOG_REALTIME_SIMPLE = 5;
     /**
      * Make sure that the log never gets larger than this
      *
@@ -960,6 +964,44 @@ class SSH2
     private $extra_packets;
 
     /**
+     * Bytes Transferred Since Last Key Exchange
+     * 
+     * Includes outbound and inbound totals
+     *
+     * @var int
+     */
+    private $bytesTransferredSinceLastKEX = 0;
+
+    /**
+     * After how many transferred byte should phpseclib initiate a key re-exchange?
+     * 
+     * @var int
+     */
+    private $doKeyReexchangeAfterXBytes = 256 * 1024;
+
+    /**
+     * Has a key re-exchange been initialized?
+     * 
+     * @var bool
+     * @access private
+     */
+    private $keyExchangeInProgress = false;
+
+    /**
+     * KEX Buffer
+     *
+     * If we're in the middle of a key exchange we want to buffer any additional packets we get until
+     * the key exchange is over
+     *
+     * @see self::_get_binary_packet()
+     * @see self::_key_exchange()
+     * @see self::exec()
+     * @var array
+     * @access private
+     */
+    private $kex_buffer = [];
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1267,8 +1309,13 @@ class SSH2
      */
     private function key_exchange($kexinit_payload_server = false): bool
     {
+        $this->bytesTransferredSinceLastKEX = 0;
+
         $preferred = $this->preferred;
-        $send_kex = true;
+        // for the initial key exchange $send_kex is true (no key re-exchange has been started)
+        // for phpseclib initiated key exchanges $send_kex is false
+        $send_kex = !$this->keyExchangeInProgress;
+        $this->keyExchangeInProgress = true;
 
         $kex_algorithms = $preferred['kex'] ??
             SSH2::getSupportedKEXAlgorithms();
@@ -1340,11 +1387,21 @@ class SSH2
             0 // reserved for future extension
         );
 
-        if ($kexinit_payload_server === false) {
+        if ($kexinit_payload_server === false && $send_kex) {
             $this->send_binary_packet($kexinit_payload_client);
 
-            $this->extra_packets = 0;
-            $kexinit_payload_server = $this->get_binary_packet_or_close(MessageType::KEXINIT);
+            while (true) {
+                $kexinit_payload_server = $this->get_binary_packet();
+                switch (ord($kexinit_payload_server[0])) {
+                    case MessageType::KEXINIT:
+                        break 2;
+                    case MessageType::DISCONNECT:
+                        return $this->handleDisconnect($kexinit_payload_server);
+                }
+
+                $this->kex_buffer[] = $kexinit_payload_server;
+            }
+
             $send_kex = false;
         }
 
@@ -1366,7 +1423,7 @@ class SSH2
             $first_kex_packet_follows
         ] = Strings::unpackSSH2('L10C', $response);
         if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
-            if ($this->session_id === false && $this->extra_packets) {
+            if ($this->session_id === false && count($this->kex_buffer)) {
                 throw new \UnexpectedValueException('Possible Terrapin Attack detected');
             }
         }
@@ -1606,6 +1663,8 @@ class SSH2
         $this->send_binary_packet($packet);
 
         $response = $this->get_binary_packet_or_close(MessageType::NEWKEYS);
+
+        $this->keyExchangeInProgress = false;
 
         if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
             $this->get_seq_no = $this->send_seq_no = 0;
@@ -3196,6 +3255,9 @@ class SSH2
         if (!is_resource($this->fsock)) {
             throw new InvalidArgumentException('fsock is not a resource.');
         }
+        if (!$this->keyExchangeInProgress && count($this->kex_buffer)) {
+            return $this->filter(array_shift($this->kex_buffer));
+        }
         if ($this->binary_packet_buffer == null) {
             // buffer the packet to permit continued reads across timeouts
             $this->binary_packet_buffer = (object) [
@@ -3322,6 +3384,11 @@ class SSH2
         if ($padding_length > 0) {
             Strings::pop($payload, $padding_length);
         }
+
+        if (!$this->keyExchangeInProgress) {
+            $this->bytesTransferredSinceLastKEX += $packet->packet_length + $padding_length + 5;
+        }
+
         if (empty($payload)) {
             $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
             throw new ConnectionClosedException('Plaintext is too short');
@@ -3380,7 +3447,12 @@ class SSH2
         }
         $this->last_packet = microtime(true);
 
-        return $this->filter($payload);
+        if ($this->bytesTransferredSinceLastKEX > $this->doKeyReexchangeAfterXBytes) {
+            $this->key_exchange();
+        }
+
+        // don't filter if we're in the middle of a key exchange (since _filter might send out packets)
+        return $this->keyExchangeInProgress ? $payload : $this->filter($payload);
     }
 
     /**
@@ -3446,6 +3518,25 @@ class SSH2
     }
 
     /**
+     * Handle Disconnect
+     *
+     * Because some binary packets need to be ignored...
+     *
+     * @see self::filter()
+     * @see self::key_exchange()
+     * @return boolean
+     * @access private
+     */
+    private function handleDisconnect($payload)
+    {
+        Strings::shift($payload, 1);
+        list($reason_code, $message) = Strings::unpackSSH2('Ns', $payload);
+        $this->errors[] = 'SSH_MSG_DISCONNECT: ' . self::$disconnect_reasons[$reason_code] . "\r\n$message";
+        $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+        throw new ConnectionClosedException('Connection closed by server');
+    }
+
+    /**
      * Filter Binary Packets
      *
      * Because some binary packets need to be ignored...
@@ -3456,11 +3547,7 @@ class SSH2
     {
         switch (ord($payload[0])) {
             case MessageType::DISCONNECT:
-                Strings::shift($payload, 1);
-                [$reason_code, $message] = Strings::unpackSSH2('Ns', $payload);
-                $this->errors[] = 'SSH_MSG_DISCONNECT: SSH_DISCONNECT_' . DisconnectReason::getConstantNameByValue($reason_code) . "\r\n$message";
-                $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
-                throw new ConnectionClosedException('Connection closed by server');
+                return $this->handleDisconnect($payload);
             case MessageType::IGNORE:
                 $this->extra_packets++;
                 $payload = $this->get_binary_packet();
@@ -3475,7 +3562,7 @@ class SSH2
             case MessageType::UNIMPLEMENTED:
                 break;
             case MessageType::KEXINIT:
-                // this is here for key re-exchanges after the initial key exchange
+                // this is here for server key re-exchanges after the initial key exchange
                 if ($this->session_id !== false) {
                     if (!$this->key_exchange($payload)) {
                         $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
@@ -3998,6 +4085,10 @@ class SSH2
 
         $packet .= $this->encrypt && $this->encrypt->usesNonce() ? $this->encrypt->getTag() : $hmac;
 
+        if (!$this->keyExchangeInProgress) {
+            $this->bytesTransferredSinceLastKEX += strlen($packet);
+        }
+
         $start = microtime(true);
         $sent = @fwrite($this->fsock, $packet);
         $stop = microtime(true);
@@ -4022,6 +4113,10 @@ class SSH2
                 'Unable to write ' . strlen($packet) . ' bytes' :
                 "Only $sent of " . strlen($packet) . " bytes were sent";
             throw new RuntimeException($message);
+        }
+
+        if ($this->bytesTransferredSinceLastKEX > $this->doKeyReexchangeAfterXBytes) {
+            $this->key_exchange();
         }
     }
 
@@ -4134,6 +4229,10 @@ class SSH2
                     $realtime_log_wrap = true;
                 }
                 fwrite($realtime_log_file, $entry);
+                break;
+            case self::LOG_REALTIME_SIMPLE:
+                echo $message_number;
+                echo PHP_SAPI == 'cli' ? "\r\n" : '<br>';
         }
     }
 
