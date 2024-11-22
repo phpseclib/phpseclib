@@ -184,7 +184,7 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
         $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
 
-    public function testAttributes()
+    public function testAttributes(): void
     {
         $private = RSA::createKey();
         $private = $private->withHash('sha256');
@@ -205,7 +205,7 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
         $extensions = [
             ['extnId' => 'id-ce-basicConstraints', 'critical' => true, 'extnValue' => ['cA' => false]],
             ['extnId' => 'id-ce-keyUsage', 'critical' => true, 'extnValue' => ['digitalSignature', 'keyEncipherment']],
-            ['extnId' => 'id-ce-extKeyUsage', 'extnValue' => ['id-kp-serverAuth', 'id-kp-clientAuth']]
+            ['extnId' => 'id-ce-extKeyUsage', 'extnValue' => ['id-kp-serverAuth', 'id-kp-clientAuth']],
         ];
         $subject->setAttribute('pkcs-9-at-extensionRequest', $extensions);
 

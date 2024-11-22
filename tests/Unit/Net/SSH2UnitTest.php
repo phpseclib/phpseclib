@@ -42,9 +42,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     public function testBitmapMasks(): void
     {
         $reflection = new \ReflectionClass(SSH2::class);
-        $masks = array_filter($reflection->getConstants(), function ($k) {
-            return str_starts_with($k, 'MASK_');
-        }, ARRAY_FILTER_USE_KEY);
+        $masks = array_filter($reflection->getConstants(), fn ($k) => str_starts_with($k, 'MASK_'), ARRAY_FILTER_USE_KEY);
         $bitmap = 0;
         foreach ($masks as $mask => $bit) {
             $this->assertEquals(0, $bitmap & $bit, "Got unexpected mask {$mask}");

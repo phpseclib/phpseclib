@@ -3520,7 +3520,7 @@ class SSH2
     private function handleDisconnect($payload)
     {
         Strings::shift($payload, 1);
-        list($reason_code, $message) = Strings::unpackSSH2('Ns', $payload);
+        [$reason_code, $message] = Strings::unpackSSH2('Ns', $payload);
         $this->errors[] = 'SSH_MSG_DISCONNECT: ' . self::$disconnect_reasons[$reason_code] . "\r\n$message";
         $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
         throw new ConnectionClosedException('Connection closed by server');

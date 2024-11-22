@@ -31,7 +31,7 @@ abstract class TBSCertList
                 'type' => ASN1::TYPE_INTEGER,
                 'mapping' => ['v1', 'v2'],
                 'optional' => true,
-                'default' => 'v1'
+                'default' => 'v1',
             ],
             'signature' => AlgorithmIdentifier::MAP,
             'issuer' => Name::MAP,

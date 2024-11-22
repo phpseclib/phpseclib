@@ -129,10 +129,8 @@ abstract class PKCS8 extends PKCS
 
     /**
      * Returns a SymmetricKey object based on a PBES1 $algo
-     *
-     * @return SymmetricKey
      */
-    private static function getPBES1EncryptionObject(string $algo)
+    private static function getPBES1EncryptionObject(string $algo): SymmetricKey
     {
         $algo = preg_match('#^pbeWith(?:MD2|MD5|SHA1|SHA)And(.*?)-CBC$#', $algo, $matches) ?
             $matches[1] :
@@ -511,7 +509,7 @@ abstract class PKCS8 extends PKCS
      *
      * @param bool $enabled
      */
-    public static function setBinaryOutput($enabled)
+    public static function setBinaryOutput($enabled): void
     {
         self::$binary = $enabled;
     }
@@ -616,7 +614,7 @@ abstract class PKCS8 extends PKCS
 
             $key = ASN1::encodeDER($key, Maps\EncryptedPrivateKeyInfo::MAP);
 
-            if (isset($options['binary']) ? $options['binary'] : self::$binary) {
+            if ($options['binary'] ?? self::$binary) {
                 return $key;
             }
 
@@ -625,7 +623,7 @@ abstract class PKCS8 extends PKCS
                    "-----END ENCRYPTED PRIVATE KEY-----";
         }
 
-        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
+        if ($options['binary'] ?? self::$binary) {
             return $key;
         }
 
@@ -654,7 +652,7 @@ abstract class PKCS8 extends PKCS
 
         $key = ASN1::encodeDER($key, Maps\PublicKeyInfo::MAP);
 
-        if (isset($options['binary']) ? $options['binary'] : self::$binary) {
+        if ($options['binary'] ?? self::$binary) {
             return $key;
         }
 
