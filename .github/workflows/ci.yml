@@ -22,7 +22,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
     tests:
         name: Tests
         timeout-minutes: 10
@@ -67,7 +67,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
                 exclude:
                     # PHP 5.3 / 5.4 on windows don't have openssl or curl installed, which prevents composer from running
                     - os: windows-latest
