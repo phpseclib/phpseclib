@@ -3730,7 +3730,7 @@ class SSH2
                     $cmf = ord($payload[0]);
                     $cm = $cmf & 0x0F;
                     if ($cm != 8) { // deflate
-                        throw new \RuntimeException("Only CM = 8 ('deflate') is supported ($cm)");
+                        throw new UnsupportedAlgorithmException("Only CM = 8 ('deflate') is supported ($cm)");
                     }
                     $cinfo = ($cmf & 0xF0) >> 4;
                     if ($cinfo > 7) {
