@@ -5545,4 +5545,12 @@ class SSH2
     {
         $this->smartMFA = false;
     }
+
+    /**
+     * How many bytes until the next key re-exchange?
+     */
+    function bytesUntilKeyReexchange($bytes)
+    {
+        $this->doKeyReexchangeAfterXBytes = $bytes;
+    }
 }
