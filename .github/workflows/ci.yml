@@ -37,7 +37,7 @@ jobs:
             -   name: Composer Install
                 run: composer install --no-interaction --no-cache
             -   name: Make Tests Compatiable With PHPUnit 9+
-                if: contains(fromJSON('["7.3", "7.4", "8.0", "8.1", "8.2"]'), matrix.php-version)
+                if: contains(fromJSON('["7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4"]'), matrix.php-version)
                 run: php tests/make_compatible_with_phpunit9.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
