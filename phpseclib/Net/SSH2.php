@@ -5115,10 +5115,8 @@ class SSH2
 
     /**
      * How many bytes until the next key re-exchange?
-     *
-     * @param int $bytes
      */
-    public function bytesUntilKeyReexchange($bytes)
+    public function bytesUntilKeyReexchange(int $bytes)
     {
         $this->doKeyReexchangeAfterXBytes = $bytes;
     }
