@@ -246,7 +246,8 @@ class Math_BigInteger
     {
         if (!defined('MATH_BIGINTEGER_MODE')) {
             switch (true) {
-                case extension_loaded('gmp'):
+                // PHP 8.4.0 and 8.4.1 don't work with GMP per https://github.com/php/php-src/issues/16870
+                case extension_loaded('gmp') && !(version_compare(PHP_VERSION, '8.4.0', '>=') && version_compare(PHP_VERSION, '8.4.1', '<=')):
                     define('MATH_BIGINTEGER_MODE', MATH_BIGINTEGER_MODE_GMP);
                     break;
                 case extension_loaded('bcmath'):
