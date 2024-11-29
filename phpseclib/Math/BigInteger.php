@@ -251,9 +251,17 @@ class BigInteger
     function __construct($x = 0, $base = 10)
     {
         if (!defined('MATH_BIGINTEGER_MODE')) {
+
+            // https://github.com/php/php-src/commit/e0a0e216a909dc4ee4ea7c113a5f41d49525f02e broke GMP
+            // https://github.com/php/php-src/commit/424ba0f2ff9677d16b4e339e90885bd4bc49fcf1 fixed it
+            // see https://github.com/php/php-src/issues/16870 for more info
+            if (version_compare(PHP_VERSION, '8.2.26', '<')) {
+                $gmpOK = true;
+            } else {
+                $gmpOK = !in_array(PHP_VERSION_ID, array(80226, 80314, 80400, 80401));
+            }
             switch (true) {
-                // PHP 8.4.0 and 8.4.1 don't work with GMP per https://github.com/php/php-src/issues/16870
-                case extension_loaded('gmp') && !(version_compare(PHP_VERSION, '8.4.0', '>=') && version_compare(PHP_VERSION, '8.4.1', '<=')):
+                case extension_loaded('gmp') && $gmpOK:
                     define('MATH_BIGINTEGER_MODE', self::MODE_GMP);
                     break;
                 case extension_loaded('bcmath'):
