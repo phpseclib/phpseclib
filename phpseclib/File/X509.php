@@ -1710,7 +1710,7 @@ class X509
      * @param bool $withType optional
      * @return mixed
      */
-    public function getDNProp($propName, array $dn = null, $withType = false)
+    public function getDNProp($propName, $dn = null, $withType = false)
     {
         if (!isset($dn)) {
             $dn = $this->dn;

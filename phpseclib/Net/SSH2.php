@@ -2841,11 +2841,12 @@ class SSH2
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
      * @param string $command
+     * @param callable $callback
      * @return string|bool
      * @psalm-return ($callback is callable ? bool : string|bool)
      * @throws \RuntimeException on connection error
      */
-    public function exec($command, callable $callback = null)
+    public function exec($command, $callback = null)
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;

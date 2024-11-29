@@ -62,8 +62,9 @@ class Integer extends Base
      * Default constructor
      *
      * @param int $instanceID
+     * @param BigInteger $num
      */
-    public function __construct($instanceID, BigInteger $num = null)
+    public function __construct($instanceID, $num = null)
     {
         $this->instanceID = $instanceID;
         if (!isset($num)) {
