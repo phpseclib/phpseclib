@@ -3164,7 +3164,7 @@ class X509
      * @param bool $create optional
      * @return array|false
      */
-    private function &subArray(array &$root = null, $path, $create = false)
+    private function &subArray(&$root, $path, $create = false)
     {
         $false = false;
 
@@ -3199,7 +3199,7 @@ class X509
      * @param bool $create optional
      * @return array|false
      */
-    private function &extensions(array &$root = null, $path = null, $create = false)
+    private function &extensions(&$root, $path = null, $create = false)
     {
         if (!isset($root)) {
             $root = $this->currentCert;
@@ -3286,7 +3286,7 @@ class X509
      * @param string $path optional
      * @return mixed
      */
-    private function getExtensionHelper($id, array $cert = null, $path = null)
+    private function getExtensionHelper($id, $cert = null, $path = null)
     {
         $extensions = $this->extensions($cert, $path);
 
@@ -3310,7 +3310,7 @@ class X509
      * @param string $path optional
      * @return array
      */
-    private function getExtensionsHelper(array $cert = null, $path = null)
+    private function getExtensionsHelper($cert = null, $path = null)
     {
         $exts = $this->extensions($cert, $path);
         $extensions = [];
@@ -3380,7 +3380,7 @@ class X509
      * @param string $path
      * @return mixed
      */
-    public function getExtension($id, array $cert = null, $path = null)
+    public function getExtension($id, $cert = null, $path = null)
     {
         return $this->getExtensionHelper($id, $cert, $path);
     }
@@ -3392,7 +3392,7 @@ class X509
      * @param string $path optional
      * @return array
      */
-    public function getExtensions(array $cert = null, $path = null)
+    public function getExtensions($cert = null, $path = null)
     {
         return $this->getExtensionsHelper($cert, $path);
     }
@@ -3468,7 +3468,7 @@ class X509
      * @param array $csr optional
      * @return mixed
      */
-    public function getAttribute($id, $disposition = self::ATTR_ALL, array $csr = null)
+    public function getAttribute($id, $disposition = self::ATTR_ALL, $csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3509,7 +3509,7 @@ class X509
      * @param array $csr optional
      * @return mixed
      */
-    public function getRequestedCertificateExtensions(array $csr = null)
+    public function getRequestedCertificateExtensions($csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3529,7 +3529,7 @@ class X509
      * @param array $csr optional
      * @return array
      */
-    public function getAttributes(array $csr = null)
+    public function getAttributes($csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
@@ -3876,7 +3876,7 @@ class X509
      * @param array $crl optional
      * @return array|bool
      */
-    public function listRevoked(array $crl = null)
+    public function listRevoked($crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -3925,7 +3925,7 @@ class X509
      * @param array $crl optional
      * @return mixed
      */
-    public function getRevokedCertificateExtension($serial, $id, array $crl = null)
+    public function getRevokedCertificateExtension($serial, $id, $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
@@ -3947,7 +3947,7 @@ class X509
      * @param array $crl optional
      * @return array|bool
      */
-    public function getRevokedCertificateExtensions($serial, array $crl = null)
+    public function getRevokedCertificateExtensions($serial, $crl = null)
     {
         if (!isset($crl)) {
             $crl = $this->currentCert;
