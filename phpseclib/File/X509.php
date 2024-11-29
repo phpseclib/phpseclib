@@ -519,11 +519,6 @@ class X509
                 );
         }
 
-        if ($algorithm == 'rsaEncryption') {
-            $cert['signatureAlgorithm']['parameters'] = null;
-            $cert['tbsCertificate']['signature']['parameters'] = null;
-        }
-
         $filters = [];
         $type_utf8_string = ['type' => ASN1::TYPE_UTF8_STRING];
         $filters['tbsCertificate']['signature']['parameters'] = $type_utf8_string;
@@ -2994,7 +2989,10 @@ class X509
                 case 'sha256':
                 case 'sha384':
                 case 'sha512':
-                    return ['algorithm' => $key->getHash() . 'WithRSAEncryption'];
+                    return [
+                        'algorithm' => $key->getHash() . 'WithRSAEncryption',
+                        'parameters' => null
+                    ];
             }
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for RSA are: md2, md5, sha1, sha224, sha256, sha384, sha512');
         }
