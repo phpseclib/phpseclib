@@ -3191,7 +3191,7 @@ class SSH2
      */
     private function get_stream_timeout()
     {
-        $sec = ini_get('default_socket_timeout');
+        $sec = (int) ini_get('default_socket_timeout');
         $usec = 0;
         if ($this->curTimeout > 0) {
             $sec = (int) floor($this->curTimeout);
