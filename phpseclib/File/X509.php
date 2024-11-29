@@ -3362,7 +3362,7 @@ class X509
      *
      * @param array $csr optional
      */
-    public function getRequestedCertificateExtensions(array $csr = null)
+    public function getRequestedCertificateExtensions(?array $csr = null)
     {
         if (empty($csr)) {
             $csr = $this->currentCert;
