@@ -1815,7 +1815,7 @@ class X509
      * @param array $dn optional
      * @return array|bool|string
      */
-    public function getDN($format = self::DN_ARRAY, array $dn = null)
+    public function getDN($format = self::DN_ARRAY, $dn = null)
     {
         if (!isset($dn)) {
             $dn = isset($this->currentCert['tbsCertList']) ? $this->currentCert['tbsCertList']['issuer'] : $this->dn;
