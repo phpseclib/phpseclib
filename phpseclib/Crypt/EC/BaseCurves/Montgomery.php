@@ -221,9 +221,9 @@ class Montgomery extends Base
     public function multiplyPoint(array $p, BigInteger $d): array
     {
         $p1 = [$this->one, $this->zero];
-        $alreadyInternal = isset($x[1]);
         $p2 = $this->convertToInternal($p);
         $x = $p[0];
+        $alreadyInternal = isset($x[1]);
 
         $b = $d->toBits();
         $b = str_pad($b, 256, '0', STR_PAD_LEFT);
