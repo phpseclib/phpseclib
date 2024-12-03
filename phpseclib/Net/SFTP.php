@@ -2721,6 +2721,7 @@ class SFTP extends SSH2
      */
     protected function parseAttributes(string &$response): array
     {
+        (!isset($attr) ? $attr= array() : null);
         if ($this->version >= 4) {
             [$flags, $attr['type']] = Strings::unpackSSH2('NC', $response);
         } else {
