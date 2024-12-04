@@ -1404,4 +1404,78 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $this->expectException(\RuntimeException::class);
         $x509->getPublicKey();
     }
+
+    /**
+     * @group github2051
+     */
+    public function testRSACertWithECSDASig()
+    {
+        // a secp256r1 key
+        $CAPrivKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgYZs/Y9XurjuN8SQ5
+7Fyy1mTgHjFsdt0/3mOH7pfUbh6hRANCAASnmS1cmSu9dHOYrBg9aJRBs3PLPK62
+u0s8T1gmnGIpKMyrHC3Sh6V2UczDODqpMXYiAsP6iPhiaq/3MmuhA0UA
+-----END PRIVATE KEY-----');
+        $CAPubKey = $CAPrivKey->getPublicKey();
+
+        $CASubject = new X509;
+        $CASubject->setDNProp('id-at-organizationName', 'phpseclib CA cert');
+        $CASubject->setPublicKey($CAPubKey);
+
+        $CAIssuer = new X509;
+        $CAIssuer->setPrivateKey($CAPrivKey);
+        $CAIssuer->setDN($CASubject->getDN());
+
+        $x509 = new X509;
+        $x509->setEndDate('lifetime');
+        $x509->makeCA();
+        $result = $x509->sign($CAIssuer, $CASubject);
+
+        // a 2048-bit private key
+        $privKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDCgThSXWv0segP
+h6PkuQOp8Hl7vB/M6KBrpY+igKOG5IbXO6Fkhw/1nmgswa4tUu9b8Co9/HPDX/0X
+owHoZuriLQluPdFAl9TJsiL4Etjui/vCzmvtAHlC6N8MjhpXJj/1gdX3sEwhTfnw
+zAqQrR7SxIcoX4zHxHfQxsbR9my6x4HYSKVOEmJtDcTenaDXVqrHfzsc7FIAouSd
+UL2TxrgalyrKZce50iF/1SoXLvD0XxXgJZhVkMzcsycNMf4a5+xDQOaAl31DeSYT
+/x2CamRVBE3F+Tg1cegXBm6Dxhl5+TXgAhduFlBqlp8BMGlpE2lDdNpBYbDKGJs7
+LMdV+pN7AgMBAAECggEADHgvTax6ks3jBDfcbHnl/7uQdjvJyB+zxSLwkejwUuIM
+uPi0MJcuET+OCyyBh5tVCA5eDupD26coOR80rJsIfOaJP72L0DnLpQCcGE5RBP4J
+zmRAbAnHPGBkiFAF5Udo+0rPFlmBj/MJToQuOzc2DioWRiLWCiqQydwse+Jx9wld
+rJQ5WJfDGWV1T4nm88uzCDoMST6/7drwXNtyAEUHglcxnTj76t5AJ9YfI6FTiK64
+8tTjBr2f7D0uTsCw7ueDynNTTwGIvyH1UaLTfrdTq/Cfki8ztyCvPgBItgVlgAD5
+s85XXE4hqWKRgxJTG0OExyxeSLMpvbsVU/60Y/PcuQKBgQDlr2x77yuz3tIkXO+j
+50exlhCH5/iuAQ9vw8QUQlde63B86U9/Y8SYS0kd1CdmHPNaeve4frmleY1iWAfC
+AUAUaccKONlNbcVgcBzv7HXK+QmhRCb7EGGKFeb1O3oc1t8F1FRCa3hCtPchAVbu
+PGIL6E3VwO36XYDXfS+jAZVIQwKBgQDYyfd+WYCM6YixDKZAGgfLSU/1sdt4lDGe
+elObx0XeO+8kylqbk41WI92a4pQRnpZgHiyx48dsfa0vEO0zkGmfANxO/g6RxUTZ
+zW3qGj8njhtsY6ymmHj+Ncu9/lnY6EpfCVSelxsVz+5XufjZfWNHj8mdEWDzFkuZ
+BmcjQPlQaQKBgQDHfv3wC4Xe/ktx8BLpPuojkh8bnF1/7UXWIqh9nD29ISwcIp29
+HQ/V45ZHRU1PQRgR37qoUdG3q4MlByb92A4rbNDHzSbZPN3x7I8FyVFqkbJOkx50
+dP7zbCClohpnUC54Jrtk0WmsLvhzf3FdDa9vfj+UyLUq/+n3wTEOGULrdwKBgAGT
+FfUY+VIMsC15BgwZJE1Zrvb937Y0fVfFU64h+GPw03/U6GuQ2snxYL6rPqASIs13
+6qMwIFatYwCggtiJB/tbqj34omp0oFdkopO8tRC4e4KCBtL+8IIIKf6rRkPJDCE8
+lBzCxDOYWwbQFvqdaocuiCxX3/hkBRCLd1xOMIFhAoGAanaZkg7wogxseU0CDQWr
+ek+8xhvMsVmSs20JhR0WWUxNxZblKCJOMTzDnNxTajl8OeGfHLJER20aubB08/Fh
+3XTCUzLk69tfwhvGTVorZ+bQTAM1X18nzD89J03g/IaHxxR/nyB39Yq8yqNvuP0D
+Zf+6b317dHQhk60gz+CIt8s=
+-----END PRIVATE KEY-----');
+        $privKey = $privKey->withPadding(RSA::SIGNATURE_PKCS1);
+        $pubKey = $privKey->getPublicKey();
+
+        $subject = new X509;
+        $subject->setDomain('whatever.com');
+        $subject->setPublicKey($pubKey);
+
+        $x509 = new X509;
+        $x509->setEndDate('lifetime');
+        $result = $x509->sign($CAIssuer, $subject);
+        $cert = $x509->saveX509($result);
+
+        $x509 = new X509;
+        $cert = $x509->loadX509($cert);
+
+        $this->assertFalse(isset($cert['signatureAlgorithm']['parameters']));
+        $this->assertFalse(isset($cert['tbsCertificate']['signature']['parameters']));
+    }
 }
