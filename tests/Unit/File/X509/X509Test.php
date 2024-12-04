@@ -1418,15 +1418,15 @@ u0s8T1gmnGIpKMyrHC3Sh6V2UczDODqpMXYiAsP6iPhiaq/3MmuhA0UA
 -----END PRIVATE KEY-----');
         $CAPubKey = $CAPrivKey->getPublicKey();
 
-        $CASubject = new X509;
+        $CASubject = new X509();
         $CASubject->setDNProp('id-at-organizationName', 'phpseclib CA cert');
         $CASubject->setPublicKey($CAPubKey);
 
-        $CAIssuer = new X509;
+        $CAIssuer = new X509();
         $CAIssuer->setPrivateKey($CAPrivKey);
         $CAIssuer->setDN($CASubject->getDN());
 
-        $x509 = new X509;
+        $x509 = new X509();
         $x509->setEndDate('lifetime');
         $x509->makeCA();
         $result = $x509->sign($CAIssuer, $CASubject);
@@ -1463,16 +1463,16 @@ Zf+6b317dHQhk60gz+CIt8s=
         $privKey = $privKey->withPadding(RSA::SIGNATURE_PKCS1);
         $pubKey = $privKey->getPublicKey();
 
-        $subject = new X509;
+        $subject = new X509();
         $subject->setDomain('whatever.com');
         $subject->setPublicKey($pubKey);
 
-        $x509 = new X509;
+        $x509 = new X509();
         $x509->setEndDate('lifetime');
         $result = $x509->sign($CAIssuer, $subject);
         $cert = $x509->saveX509($result);
 
-        $x509 = new X509;
+        $x509 = new X509();
         $cert = $x509->loadX509($cert);
 
         $this->assertFalse(isset($cert['signatureAlgorithm']['parameters']));
