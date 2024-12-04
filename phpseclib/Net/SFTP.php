@@ -3043,6 +3043,8 @@ class SFTP extends SSH2
      */
     protected function parseAttributes(&$response)
     {
+        $attr = [];
+
         if ($this->version >= 4) {
             list($flags, $attr['type']) = Strings::unpackSSH2('NC', $response);
         } else {
