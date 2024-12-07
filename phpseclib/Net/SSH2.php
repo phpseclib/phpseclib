@@ -1144,6 +1144,19 @@ class Net_SSH2
     var $kex_buffer = array();
 
     /**
+     * Strict KEX Flag
+     *
+     * If kex-strict-s-v00@openssh.com is present in the first KEX packet it need not
+     * be present in subsequent packet
+     *
+     * @see self::_key_exchange()
+     * @see self::exec()
+     * @var array
+     * @access private
+     */
+    var $strict_kex_flag = false;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1658,9 +1671,14 @@ class Net_SSH2
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
         $this->kex_algorithms = explode(',', $this->_string_shift($response, $temp['length']));
         if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
-            if ($this->session_id === false && count($this->kex_buffer)) {
-                user_error('Possible Terrapin Attack detected');
-                return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+            if ($this->session_id === false) {
+                // [kex-strict-s-v00@openssh.com is] only valid in the initial SSH2_MSG_KEXINIT and MUST be ignored
+                // if [it is] present in subsequent SSH2_MSG_KEXINIT packets
+                $this->strict_kex_flag = true;
+                if (count($this->kex_buffer)) {
+                    user_error('Possible Terrapin Attack detected');
+                    return $this->_disconnect(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                }
             }
         }
 
@@ -2051,7 +2069,7 @@ class Net_SSH2
 
         $this->keyExchangeInProgress = false;
 
-        if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
+        if ($this->strict_kex_flag) {
             $this->get_seq_no = $this->send_seq_no = 0;
         }
 
