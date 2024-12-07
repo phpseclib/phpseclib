@@ -992,6 +992,19 @@ class SSH2
     private $kex_buffer = [];
 
     /**
+     * Strict KEX Flag
+     *
+     * If kex-strict-s-v00@openssh.com is present in the first KEX packet it need not
+     * be present in subsequent packet
+     *
+     * @see self::_key_exchange()
+     * @see self::exec()
+     * @var array
+     * @access private
+     */
+    private $strict_kex_flag = false;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1413,8 +1426,13 @@ class SSH2
             $first_kex_packet_follows
         ] = Strings::unpackSSH2('L10C', $response);
         if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
-            if ($this->session_id === false && count($this->kex_buffer)) {
-                throw new \UnexpectedValueException('Possible Terrapin Attack detected');
+            if ($this->session_id === false) {
+                // [kex-strict-s-v00@openssh.com is] only valid in the initial SSH2_MSG_KEXINIT and MUST be ignored
+                // if [it is] present in subsequent SSH2_MSG_KEXINIT packets
+                $this->strict_kex_flag = true;
+                if (count($this->kex_buffer)) {
+                    throw new \UnexpectedValueException('Possible Terrapin Attack detected');
+                }
             }
         }
 
@@ -1651,12 +1669,11 @@ class SSH2
 
         $packet = pack('C', MessageType::NEWKEYS);
         $this->send_binary_packet($packet);
-
-        $response = $this->get_binary_packet_or_close(MessageType::NEWKEYS);
+        $this->get_binary_packet_or_close(MessageType::NEWKEYS);
 
         $this->keyExchangeInProgress = false;
 
-        if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
+        if ($this->strict_kex_flag) {
             $this->get_seq_no = $this->send_seq_no = 0;
         }
 
