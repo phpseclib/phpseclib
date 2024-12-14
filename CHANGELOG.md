@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.43 - 2024-12-14
+
+- fix PHP 8.4 deprecations
+- BigInteger: introduce regression in GMP that PHP introduced
+- BigInteger: speed up Barrett reductions
+- X509: make the attributes section of new CSRs be blank (#1522)
+- X509: add getRequestedCertificateExtensions()
+- X509: algorithmidentifier parameters could get incorrectly set (#2051)
+- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2005)
+- SSH2: make it so phpseclib initiates key re-exchange after 1GB (#2050)
+- SSH2: if string is passed to setPreferredAlgorithms treat as array
+- SSH2: update setPreferredAlgorithms() to accept csv's
+
 ## 3.0.42 - 2024-09-15
 
 - X509: CRL version number wasn't correctly being saved (#2037)
@@ -286,6 +299,19 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.48 - 2024-12-14
+
+- BigInteger: introduce regression in GMP that PHP introduced
+- X509: make the attributes section of new CSRs be blank (#1522)
+- X509: CRL version number wasn't correctly being saved (#2037)
+- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2005)
+- SSH2: make it so phpseclib initiates key re-exchange after 1GB (#2050)
+- SSH2: if string is passed to setPreferredAlgorithms treat as array
+- SSH2: identification strings > 255 bytes didn't get parsed correctly
+- SSH2: fix possible infinite loop on packet timeout
+- SSH2: handle SSH2_MSG_EXT_INFO out of login (#2001, #2002)
+- SSH2/Agent: reset supported_private_key_algorithms for every key (#1995)
 
 ## 2.0.47 - 2024-02-25
 
