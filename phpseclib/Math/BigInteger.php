@@ -309,7 +309,7 @@ class BigInteger implements \JsonSerializable
      */
     public function extendedGCD(BigInteger $n): array
     {
-        extract($this->value->extendedGCD($n->value));
+        ['gcd' => $gcd, 'x' => $x, 'y' => $y] = $this->value->extendedGCD($n->value);
         /**
          * @var BigInteger $gcd
          * @var BigInteger $x
@@ -550,7 +550,7 @@ class BigInteger implements \JsonSerializable
         self::initialize_static_variables();
 
         $class = self::$mainEngine;
-        extract($class::minMaxBits($bits));
+        ['min' => $min, 'max' => $max] = $class::minMaxBits($bits);
         /** @var BigInteger $min
          * @var BigInteger $max
          */
