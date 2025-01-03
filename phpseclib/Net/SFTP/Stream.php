@@ -124,7 +124,33 @@ class Stream
     protected function parse_path(string $path)
     {
         $orig = $path;
-        extract(parse_url($path) + ['port' => 22]);
+        $url = parse_url($path) + ['port' => 22];
+
+        if (isset($url['scheme'])) {
+            $scheme = $url['scheme'];
+        }
+        if (isset($url['host'])) {
+            $host = $url['host'];
+        }
+        if (isset($url['port'])) {
+            $port = $url['port'];
+        }
+        if (isset($url['user'])) {
+            $user = $url['user'];
+        }
+        if (isset($url['pass'])) {
+            $pass = $url['pass'];
+        }
+        if (isset($url['path'])) {
+            $path = $url['path'];
+        }
+        if (isset($url['query'])) {
+            $query = $url['query'];
+        }
+        if (isset($url['fragment'])) {
+            $fragment = $url['fragment'];
+        }
+
         if (isset($query)) {
             $path .= '?' . $query;
         } elseif (preg_match('/(\?|\?#)$/', $orig)) {
