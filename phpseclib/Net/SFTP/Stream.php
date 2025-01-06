@@ -126,29 +126,11 @@ class Stream
         $orig = $path;
         $url = parse_url($path) + ['port' => 22];
 
-        if (isset($url['scheme'])) {
-            $scheme = $url['scheme'];
-        }
-        if (isset($url['host'])) {
-            $host = $url['host'];
-        }
-        if (isset($url['port'])) {
-            $port = $url['port'];
-        }
-        if (isset($url['user'])) {
-            $user = $url['user'];
-        }
-        if (isset($url['pass'])) {
-            $pass = $url['pass'];
-        }
-        if (isset($url['path'])) {
-            $path = $url['path'];
-        }
-        if (isset($url['query'])) {
-            $query = $url['query'];
-        }
-        if (isset($url['fragment'])) {
-            $fragment = $url['fragment'];
+        $keys = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'];
+        foreach ($keys as $key) {
+            if (isset($url[$key])) {
+                $$key = $url[$key];
+            }
         }
 
         if (isset($query)) {
