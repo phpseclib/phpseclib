@@ -3026,7 +3026,6 @@ class SFTP extends SSH2
             throw new RuntimeException('Packet is too small');
         }
         ['length' => $length] = unpack('Nlength', Strings::shift($this->packet_buffer, 4));
-        /** @var integer $length */
 
         $tempLength = $length;
         $tempLength -= strlen($this->packet_buffer);

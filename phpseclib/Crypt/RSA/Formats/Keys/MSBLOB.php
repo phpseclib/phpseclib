@@ -89,12 +89,6 @@ abstract class MSBLOB
             'reserved' => $reserved,
             'algo' => $algo
         ] = unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8));
-        /**
-         * @var string $type
-         * @var string $version
-         * @var integer $reserved
-         * @var integer $algo
-         */
         switch (ord($type)) {
             case self::PUBLICKEYBLOB:
             case self::PUBLICKEYBLOBEX:
@@ -126,11 +120,6 @@ abstract class MSBLOB
             'bitlen' => $bitlen,
             'pubexp' => $pubexp
         ] = unpack('Vmagic/Vbitlen/a4pubexp', Strings::shift($key, 12));
-        /**
-         * @var integer $magic
-         * @var integer $bitlen
-         * @var string $pubexp
-         */
         switch ($magic) {
             case self::RSA2:
                 $components['isPublicKey'] = false;

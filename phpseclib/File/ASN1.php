@@ -273,7 +273,6 @@ abstract class ASN1
             $current += ['headerlength' => $length + 2];
             $start += $length;
             ['length' => $length] = unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
-            /** @var integer $length */
         } else {
             $current += ['headerlength' => 2];
         }
