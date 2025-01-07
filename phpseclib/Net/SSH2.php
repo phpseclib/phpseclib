@@ -3351,10 +3351,11 @@ class SSH2
      * Sends an EOF to the stream; this is typically used to close standard
      * input, while keeping output and error alive.
      *
-     * @param int|null $channel Channel id returned by
-     * self::getInteractiveChannelId() @return void
+     * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
+     * @return void
      */
-    public function send_eof($channel = null) {
+    public function send_eof($channel = null)
+    {
         if ($channel === null) {
             $channel = $this->get_interactive_channel();
         }
