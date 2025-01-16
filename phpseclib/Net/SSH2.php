@@ -3354,7 +3354,7 @@ class SSH2
      * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
      * @return void
      */
-    public function send_eof($channel = null)
+    public function sendEOF($channel = null)
     {
         if ($channel === null) {
             $channel = $this->get_interactive_channel();
