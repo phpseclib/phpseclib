@@ -3346,7 +3346,8 @@ class SSH2
         }
     }
 
-    /** Send EOF on a channel
+    /**
+     * Send EOF on a channel
      *
      * Sends an EOF to the stream; this is typically used to close standard
      * input, while keeping output and error alive.
@@ -3360,7 +3361,10 @@ class SSH2
             $channel = $this->get_interactive_channel();
         }
 
-        $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$channel]));
+        $excludeStatuses = [NET_SSH2_MSG_CHANNEL_EOF, NET_SSH2_MSG_CHANNEL_CLOSE];
+        if (isset($this->channel_status[$channel]) && !in_array($this->channel_status[$channel], $excludeStatuses)) {
+            $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$channel]));
+        }
     }
 
     /**
@@ -4201,7 +4205,9 @@ class SSH2
                                 }
 
                                 if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != NET_SSH2_MSG_CHANNEL_CLOSE) {
-                                    $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$channel]));
+                                    if ($this->channel_status[$channel] != NET_SSH2_MSG_CHANNEL_EOF) {
+                                        $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$channel]));
+                                    }
                                     $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$channel]));
 
                                     $this->channel_status[$channel] = NET_SSH2_MSG_CHANNEL_CLOSE;
@@ -4679,7 +4685,9 @@ class SSH2
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 
-        $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
+        if ($this->channel_status[$client_channel] != NET_SSH2_MSG_CHANNEL_EOF) {
+            $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$client_channel]));
+        }
         $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_CLOSE, $this->server_channels[$client_channel]));
 
         $this->channel_status[$client_channel] = NET_SSH2_MSG_CHANNEL_CLOSE;

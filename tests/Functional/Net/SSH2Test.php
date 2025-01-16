@@ -618,6 +618,19 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
+     * @group github2062
+     */
+    public function testSendEOF()
+    {
+        $ssh = $this->getSSH2Login();
+
+        $ssh->write("ls -latr; exit\n");
+        $ssh->read();
+        $ssh->sendEOF();
+        $ssh->exec('ls -latr');
+    }
+
+    /**
      * @dataProvider getCryptoAlgorithms
      * @param string $type
      * @param string $algorithm
