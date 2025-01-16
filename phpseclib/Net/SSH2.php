@@ -2674,8 +2674,8 @@ class SSH2
      */
     protected function open_channel(int $channel, bool $skip_extended = false): bool
     {
-        if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != MessageType::CHANNEL_CLOSE) {
-            throw new RuntimeException('Please close the channel (' . $channel . ') before trying to open it again');
+        if (isset($this->channel_status[$channel])) {
+            throw new \RuntimeException('Please close the channel (' . $channel . ') before trying to open it again');
         }
 
         $this->channelCount++;
@@ -3026,6 +3026,27 @@ class SSH2
         }
         if ($this->isInteractiveChannelOpen($channel)) {
             $this->close_channel($channel);
+        }
+    }
+
+    /**
+     * Send EOF on a channel
+     *
+     * Sends an EOF to the stream; this is typically used to close standard
+     * input, while keeping output and error alive.
+     *
+     * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
+     * @return void
+     */
+    public function sendEOF(?int $channel = null): void
+    {
+        if ($channel === null) {
+            $channel = $this->get_interactive_channel();
+        }
+
+        $excludeStatuses = [MessageType::CHANNEL_EOF, MessageType::CHANNEL_CLOSE];
+        if (isset($this->channel_status[$channel]) && !in_array($this->channel_status[$channel], $excludeStatuses)) {
+            $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$channel]));
         }
     }
 
@@ -3539,7 +3560,7 @@ class SSH2
         Strings::shift($payload, 1);
         [$reason_code, $message] = Strings::unpackSSH2('Ns', $payload);
         $this->errors[] = 'SSH_MSG_DISCONNECT: ' . self::$disconnect_reasons[$reason_code] . "\r\n$message";
-        $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+        $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
         throw new ConnectionClosedException('Connection closed by server');
     }
 
@@ -3570,7 +3591,7 @@ class SSH2
                 // this is here for server key re-exchanges after the initial key exchange
                 if ($this->session_id !== false) {
                     if (!$this->key_exchange($payload)) {
-                        $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
+                        $this->disconnect_helper(DisconnectReason::KEY_EXCHANGE_FAILED);
                         throw new ConnectionClosedException('Key exchange failed');
                     }
                     $payload = $this->get_binary_packet();
@@ -3756,7 +3777,8 @@ class SSH2
     protected function get_channel_packet(int $client_channel, bool $skip_extended = false)
     {
         if (!empty($this->channel_buffers[$client_channel])) {
-            switch ($this->channel_status[$client_channel]) {
+            // in phpseclib 4.0 this should be changed to $this->channel_status[$client_channel] ?? null
+            switch (isset($this->channel_status[$client_channel]) ?? null) {
                 case MessageType::CHANNEL_REQUEST:
                     foreach ($this->channel_buffers[$client_channel] as $i => $packet) {
                         switch (ord($packet[0])) {
@@ -3824,7 +3846,7 @@ class SSH2
 
                         continue 2;
                     case MessageType::CHANNEL_REQUEST:
-                        if ($this->channel_status[$channel] == MessageType::CHANNEL_CLOSE) {
+                        if (!isset($this->channel_status[$channel])) {
                             continue 2;
                         }
                         [$value] = Strings::unpackSSH2('s', $response);
@@ -3842,10 +3864,14 @@ class SSH2
                                     $this->errors[count($this->errors) - 1] .= "\r\n$error_message";
                                 }
 
-                                $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$client_channel]));
-                                $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$channel]));
+                                if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != MessageType::CHANNEL_CLOSE) {
+                                    if ($this->channel_status[$channel] != MessageType::CHANNEL_EOF) {
+                                        $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$channel]));
+                                    }
+                                    $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$channel]));
 
-                                $this->channel_status[$channel] = MessageType::CHANNEL_EOF;
+                                    $this->channel_status[$channel] = MessageType::CHANNEL_CLOSE;
+                                }
 
                                 continue 3;
                             case 'exit-status':
@@ -3946,11 +3972,11 @@ class SSH2
 
                     $this->close_channel_bitmap($channel);
 
-                    if ($this->channel_status[$channel] != MessageType::CHANNEL_EOF) {
+                    if ($this->channel_status[$channel] != MessageType::CHANNEL_CLOSE) {
                         $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$channel]));
                     }
 
-                    $this->channel_status[$channel] = MessageType::CHANNEL_CLOSE;
+                    unset($this->channel_status[$channel]);
                     $this->channelCount--;
 
                     if ($client_channel == $channel) {
@@ -3976,7 +4002,7 @@ class SSH2
     protected function send_binary_packet(string $data, ?string $logged = null): void
     {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+            $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
             throw new ConnectionClosedException('Connection closed prematurely');
         }
 
@@ -4113,7 +4139,7 @@ class SSH2
         $this->last_packet = microtime(true);
 
         if (strlen($packet) != $sent) {
-            $this->disconnect_helper(NET_SSH2_DISCONNECT_BY_APPLICATION);
+            $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
             $message = $sent === false ?
                 'Unable to write ' . strlen($packet) . ' bytes' :
                 "Only $sent of " . strlen($packet) . " bytes were sent";
@@ -4298,27 +4324,24 @@ class SSH2
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      */
-    private function close_channel(int $client_channel, bool $want_reply = false): void
+    private function close_channel(int $client_channel): void
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 
-        $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$client_channel]));
-
-        if (!$want_reply) {
-            $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$client_channel]));
+        if ($this->channel_status[$client_channel] != MessageType::CHANNEL_EOF) {
+            $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$client_channel]));
         }
+        $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$client_channel]));
 
         $this->channel_status[$client_channel] = MessageType::CHANNEL_CLOSE;
+
         $this->channelCount--;
 
         $this->curTimeout = 5;
-
         while (!is_bool($this->get_channel_packet($client_channel))) {
         }
 
-        if ($want_reply) {
-            $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$client_channel]));
-        }
+        unset($this->channel_status[$client_channel]);
 
         $this->close_channel_bitmap($client_channel);
     }
