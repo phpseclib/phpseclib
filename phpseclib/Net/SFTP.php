@@ -970,6 +970,8 @@ class Net_SFTP extends Net_SSH2
      */
     function _realpath($path)
     {
+        $path = (string) $path;
+
         if (!$this->canonicalize_paths) {
             if ($this->pwd === true) {
                 return '.';
