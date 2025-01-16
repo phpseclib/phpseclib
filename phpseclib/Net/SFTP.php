@@ -3016,7 +3016,7 @@ class SFTP extends SSH2
                 if ($this->channel_status[self::CHANNEL] === SSH2MessageType::CHANNEL_CLOSE) {
                     $this->channel_close = true;
                 }
-                $this->packet_type = false;
+                $this->packet_type = -1;
                 $this->packet_buffer = '';
                 return false;
             }
@@ -3043,7 +3043,7 @@ class SFTP extends SSH2
                 if ($this->channel_status[self::CHANNEL] === SSH2MessageType::CHANNEL_CLOSE) {
                     $this->channel_close = true;
                 }
-                $this->packet_type = false;
+                $this->packet_type = -1;
                 $this->packet_buffer = '';
                 return false;
             }
