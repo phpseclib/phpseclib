@@ -3346,6 +3346,23 @@ class SSH2
         }
     }
 
+    /** Send EOF on a channel
+     *
+     * Sends an EOF to the stream; this is typically used to close standard
+     * input, while keeping output and error alive.
+     *
+     * @param int|null $channel Channel id returned by self::getInteractiveChannelId()
+     * @return void
+     */
+    public function sendEOF($channel = null)
+    {
+        if ($channel === null) {
+            $channel = $this->get_interactive_channel();
+        }
+
+        $this->send_binary_packet(pack('CN', NET_SSH2_MSG_CHANNEL_EOF, $this->server_channels[$channel]));
+    }
+
     /**
      * Is timeout?
      *
