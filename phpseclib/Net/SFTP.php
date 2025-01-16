@@ -915,6 +915,8 @@ class SFTP extends SSH2
      */
     function _realpath($path)
     {
+        $path = (string) $path;
+
         if (!$this->canonicalize_paths) {
             if ($this->pwd === true) {
                 return '.';
