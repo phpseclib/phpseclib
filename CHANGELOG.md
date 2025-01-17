@@ -302,10 +302,10 @@
 
 ## 2.0.48 - 2024-12-14
 
-- BigInteger: introduce regression in GMP that PHP introduced
+- BigInteger: workaround for regression in GMP that PHP introduced
 - X509: make the attributes section of new CSRs be blank (#1522)
 - X509: CRL version number wasn't correctly being saved (#2037)
-- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2005)
+- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2050)
 - SSH2: make it so phpseclib initiates key re-exchange after 1GB (#2050)
 - SSH2: if string is passed to setPreferredAlgorithms treat as array
 - SSH2: identification strings > 255 bytes didn't get parsed correctly
