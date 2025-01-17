@@ -3,12 +3,12 @@
 ## 3.0.43 - 2024-12-14
 
 - fix PHP 8.4 deprecations
-- BigInteger: introduce regression in GMP that PHP introduced
+- BigInteger: workaround for regression in GMP that PHP introduced
 - BigInteger: speed up Barrett reductions
 - X509: make the attributes section of new CSRs be blank (#1522)
 - X509: add getRequestedCertificateExtensions()
 - X509: algorithmidentifier parameters could get incorrectly set (#2051)
-- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2005)
+- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2050)
 - SSH2: make it so phpseclib initiates key re-exchange after 1GB (#2050)
 - SSH2: if string is passed to setPreferredAlgorithms treat as array
 - SSH2: update setPreferredAlgorithms() to accept csv's
