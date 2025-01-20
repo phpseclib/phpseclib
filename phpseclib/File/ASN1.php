@@ -931,7 +931,7 @@ abstract class ASN1
                                     $subtagvalue = $constant->bitwise_and($mask);
                                     $subtagvalue->setPrecision(8);
                                     $subtag = (chr(0x80) | $subtagvalue->toBytes()) . $subtag;
-                                    $constant = $constant->bitwise_rightShift(shift: 7);
+                                    $constant = $constant->bitwise_rightShift(7);
                                 }
                                 $subtag[strlen($subtag) - 1] = $subtag[strlen($subtag) - 1] & chr(0x7F);
                                 $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | 0x1f) . $subtag;
