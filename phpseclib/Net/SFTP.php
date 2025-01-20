@@ -3027,8 +3027,7 @@ class SFTP extends SSH2
         if (strlen($this->packet_buffer) < 4) {
             throw new RuntimeException('Packet is too small');
         }
-        extract(unpack('Nlength', Strings::shift($this->packet_buffer, 4)));
-        /** @var integer $length */
+        ['length' => $length] = unpack('Nlength', Strings::shift($this->packet_buffer, 4));
 
         $tempLength = $length;
         $tempLength -= strlen($this->packet_buffer);
@@ -3058,7 +3057,7 @@ class SFTP extends SSH2
         $this->packet_type = ord(Strings::shift($this->packet_buffer));
 
         if ($this->use_request_id) {
-            extract(unpack('Npacket_id', Strings::shift($this->packet_buffer, 4))); // remove the request id
+            ['packet_id' => $packet_id] = unpack('Npacket_id', Strings::shift($this->packet_buffer, 4)); // remove the request id
             $length -= 5; // account for the request id and the packet type
         } else {
             $length -= 1; // account for the packet type

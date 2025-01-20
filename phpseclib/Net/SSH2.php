@@ -3408,7 +3408,7 @@ class SSH2
         }
         $padding_length = 0;
         $payload = $packet->plain;
-        extract(unpack('Cpadding_length', Strings::shift($payload, 1)));
+        ['padding_length' => $padding_length] = unpack('Cpadding_length', Strings::shift($payload, 1));
         if ($padding_length > 0) {
             Strings::pop($payload, $padding_length);
         }
@@ -3500,13 +3500,13 @@ class SSH2
             switch ($this->decryptName) {
                 case 'aes128-gcm@openssh.com':
                 case 'aes256-gcm@openssh.com':
-                    extract(unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size)));
+                    ['packet_length' => $packet_length] = unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size));
                     $packet->size = $packet_length_header_size + $packet_length + $this->decrypt_block_size; // expect tag
                     break;
                 case 'chacha20-poly1305@openssh.com':
                     $this->lengthDecrypt->setNonce(pack('N2', 0, $this->get_seq_no));
                     $packet_length_header = $this->lengthDecrypt->decrypt(substr($packet->raw, 0, $packet_length_header_size));
-                    extract(unpack('Npacket_length', $packet_length_header));
+                    ['packet_length' => $packet_length] = unpack('Npacket_length', $packet_length_header);
                     $packet->size = $packet_length_header_size + $packet_length + 16; // expect tag
                     break;
                 default:
@@ -3515,17 +3515,17 @@ class SSH2
                             return;
                         }
                         $packet->plain = $this->decrypt->decrypt(substr($packet->raw, 0, $this->decrypt_block_size));
-                        extract(unpack('Npacket_length', Strings::shift($packet->plain, $packet_length_header_size)));
+                        ['packet_length' => $packet_length] = unpack('Npacket_length', Strings::shift($packet->plain, $packet_length_header_size));
                         $packet->size = $packet_length_header_size + $packet_length;
                         $added_validation_length = $packet_length_header_size;
                     } else {
-                        extract(unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size)));
+                        ['packet_length' => $packet_length] = unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size));
                         $packet->size = $packet_length_header_size + $packet_length;
                     }
                     break;
             }
         } else {
-            extract(unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size)));
+            ['packet_length' => $packet_length] = unpack('Npacket_length', substr($packet->raw, 0, $packet_length_header_size));
             $packet->size = $packet_length_header_size + $packet_length;
             $added_validation_length = $packet_length_header_size;
         }
@@ -3621,7 +3621,11 @@ class SSH2
             switch (ord($payload[0])) {
                 case MessageType::CHANNEL_REQUEST:
                     if (strlen($payload) == 31) {
-                        extract(unpack('cpacket_type/Nchannel/Nlength', $payload));
+                        [
+                            'packet_type' => $packet_type,
+                            'channel' => $channel,
+                            'length' => $length
+                        ] = unpack('cpacket_type/Nchannel/Nlength', $payload);
                         if (substr($payload, 9, $length) == 'keepalive@openssh.com' && isset($this->server_channels[$channel])) {
                             if (ord(substr($payload, 9 + $length))) { // want reply
                                 $this->send_binary_packet(pack('CN', MessageType::CHANNEL_SUCCESS, $this->server_channels[$channel]));

@@ -272,8 +272,7 @@ abstract class ASN1
             // tags of indefinte length don't really have a header length; this length includes the tag
             $current += ['headerlength' => $length + 2];
             $start += $length;
-            extract(unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4)));
-            /** @var integer $length */
+            ['length' => $length] = unpack('Nlength', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         } else {
             $current += ['headerlength' => 2];
         }
