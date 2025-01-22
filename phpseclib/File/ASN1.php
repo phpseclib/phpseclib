@@ -923,15 +923,12 @@ abstract class ASN1
                             if ($child['constant'] <= 30) {
                                 $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
                             } else {
-                                $zero = new BigInteger();
-                                $mask = new BigInteger(0x7F);
-                                $constant = new BigInteger($child['constant']);
+                                $constant = $child['constant'];
                                 $subtag = '';
-                                while (!$constant->equals($zero)) {
-                                    $subtagvalue = $constant->bitwise_and($mask);
-                                    $subtagvalue->setPrecision(8);
-                                    $subtag = (chr(0x80) | $subtagvalue->toBytes()) . $subtag;
-                                    $constant = $constant->bitwise_rightShift(7);
+                                while ($constant > 0) {
+                                    $subtagvalue = $constant & 0x7F;
+                                    $subtag = (chr(0x80 | $subtagvalue )) . $subtag;
+                                    $constant = $constant >> 7;
                                 }
                                 $subtag[strlen($subtag) - 1] = $subtag[strlen($subtag) - 1] & chr(0x7F);
                                 $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | 0x1f) . $subtag;
