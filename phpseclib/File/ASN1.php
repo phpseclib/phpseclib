@@ -927,7 +927,7 @@ abstract class ASN1
                                 $subtag = '';
                                 while ($constant > 0) {
                                     $subtagvalue = $constant & 0x7F;
-                                    $subtag = (chr(0x80 | $subtagvalue )) . $subtag;
+                                    $subtag = (chr(0x80 | $subtagvalue)) . $subtag;
                                     $constant = $constant >> 7;
                                 }
                                 $subtag[strlen($subtag) - 1] = $subtag[strlen($subtag) - 1] & chr(0x7F);
