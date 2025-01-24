@@ -129,7 +129,7 @@ class Blowfish extends BlockCipher
     /**
      * Block Length of the cipher
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
+     * @see Common\SymmetricKey::block_size
      * @var int
      */
     protected $block_size = 8;
@@ -137,7 +137,7 @@ class Blowfish extends BlockCipher
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
+     * @see Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      */
     protected $cipher_name_mcrypt = 'blowfish';
@@ -145,7 +145,7 @@ class Blowfish extends BlockCipher
     /**
      * Optimizing value while CFB-encrypting
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cfb_init_len
+     * @see Common\SymmetricKey::cfb_init_len
      * @var int
      */
     protected $cfb_init_len = 500;
@@ -325,7 +325,7 @@ class Blowfish extends BlockCipher
      *    derive this from $key_length or vice versa, but that'd mean we'd have to do multiple shift operations, so in lieu
      *    of that, we'll just precompute it once.}
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setKeyLength()
+     * @see Common\SymmetricKey::setKeyLength()
      * @var int
      */
     protected $key_length = 16;
@@ -368,7 +368,7 @@ class Blowfish extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * @see Common\SymmetricKey::isValidEngine()
      * @param int $engine
      * @return bool
      */
@@ -394,7 +394,7 @@ class Blowfish extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
+     * @see Common\SymmetricKey::_setupKey()
      */
     protected function setupKey()
     {
@@ -755,7 +755,7 @@ class Blowfish extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
+     * @see Common\SymmetricKey::_setupInlineCrypt()
      */
     protected function setupInlineCrypt()
     {

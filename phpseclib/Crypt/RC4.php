@@ -72,7 +72,7 @@ class RC4 extends StreamCipher
     /**
      * The mcrypt specific name of the cipher
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
+     * @see Common\SymmetricKey::cipher_name_mcrypt
      * @var string
      */
     protected $cipher_name_mcrypt = 'arcfour';
@@ -98,7 +98,7 @@ class RC4 extends StreamCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see Common\SymmetricKey::__construct()
      * @param int $engine
      * @return bool
      */
@@ -159,7 +159,7 @@ class RC4 extends StreamCipher
     /**
      * Encrypts a message.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see Common\SymmetricKey::decrypt()
      * @see self::crypt()
      * @param string $plaintext
      * @return string $ciphertext
@@ -178,7 +178,7 @@ class RC4 extends StreamCipher
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see Common\SymmetricKey::encrypt()
      * @see self::crypt()
      * @param string $ciphertext
      * @return string $plaintext
@@ -214,7 +214,7 @@ class RC4 extends StreamCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
+     * @see Common\SymmetricKey::_setupKey()
      */
     protected function setupKey()
     {

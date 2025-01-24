@@ -74,8 +74,8 @@ class Rijndael extends BlockCipher
      * or not for the current $block_size/$key_length.
      * In case of, $cipher_name_mcrypt will be set dynamically at run time accordingly.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::cipher_name_mcrypt
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::engine
+     * @see Common\SymmetricKey::cipher_name_mcrypt
+     * @see Common\SymmetricKey::engine
      * @see self::isValidEngine()
      * @var string
      */

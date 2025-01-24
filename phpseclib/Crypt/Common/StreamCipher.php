@@ -26,7 +26,7 @@ abstract class StreamCipher extends SymmetricKey
      *
      * Stream ciphers do not have a block size
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::block_size
+     * @see SymmetricKey::block_size
      * @var int
      */
     protected $block_size = 0;
