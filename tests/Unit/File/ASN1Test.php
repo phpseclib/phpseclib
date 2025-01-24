@@ -343,7 +343,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertSame($data, $arr);
     }
 
-    public function testBigApplicationTag(): void
+    public function testBigApplicationTag()
     {
         $map = [
             'type'     => ASN1::TYPE_SEQUENCE,
