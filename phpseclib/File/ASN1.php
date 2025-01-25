@@ -920,7 +920,19 @@ abstract class ASN1
                             an untagged "DummyReference" (see ITU-T Rec. X.683 | ISO/IEC 8824-4, 8.3)."
                          */
                         if (isset($child['explicit']) || $child['type'] == self::TYPE_CHOICE) {
-                            $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
+                            if ($child['constant'] <= 30) {
+                                $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | $child['constant']);
+                            } else {
+                                $constant = $child['constant'];
+                                $subtag = '';
+                                while ($constant > 0) {
+                                    $subtagvalue = $constant & 0x7F;
+                                    $subtag = (chr(0x80 | $subtagvalue)) . $subtag;
+                                    $constant = $constant >> 7;
+                                }
+                                $subtag[strlen($subtag) - 1] = $subtag[strlen($subtag) - 1] & chr(0x7F);
+                                $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | 0x1f) . $subtag;
+                            }
                             $temp = $subtag . self::encodeLength(strlen($temp)) . $temp;
                         } else {
                             $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | (ord($temp[0]) & 0x20) | $child['constant']);

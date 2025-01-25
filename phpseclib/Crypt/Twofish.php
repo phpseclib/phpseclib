@@ -414,7 +414,7 @@ class Twofish extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupKey()
+     * @see Common\SymmetricKey::_setupKey()
      */
     protected function setupKey(): void
     {
@@ -679,7 +679,7 @@ class Twofish extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::_setupInlineCrypt()
+     * @see Common\SymmetricKey::_setupInlineCrypt()
      */
     protected function setupInlineCrypt(): void
     {
