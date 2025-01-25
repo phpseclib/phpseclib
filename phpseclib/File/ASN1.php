@@ -1140,6 +1140,8 @@ abstract class ASN1
      */
     public static function decodeOID(string $content)
     {
+        // BigInteger's are used because of OIDs like 2.25.329800735698586629295641978511506172918
+        // https://healthcaresecprivacy.blogspot.com/2011/02/creating-and-using-unique-id-uuid-oid.html elaborates.
         static $eighty;
         if (!$eighty) {
             $eighty = new BigInteger(80);
