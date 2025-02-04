@@ -199,7 +199,7 @@ abstract class PuTTY
 
         $source = Strings::packSSH2('ssss', $type, $encryption, $components['comment'], $public);
 
-        extract(unpack('Nlength', Strings::shift($public, 4)));
+        $length = unpack('Nlength', Strings::shift($public, 4))['length'];
         $newtype = Strings::shift($public, $length);
         if ($newtype != $type) {
             throw new \RuntimeException('The binary type does not match the human readable type field');
@@ -227,7 +227,10 @@ abstract class PuTTY
                         $parallelism = trim(preg_replace('#Argon2-Parallelism: (\d+)#', '$1', $key[$offset++]));
                         $salt = Strings::hex2bin(trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
 
-                        extract(self::generateV3Key($password, $flavour, $memory, $passes, $salt));
+                        $v3key = self::generateV3Key($password, $flavour, $memory, $passes, $salt);
+                        $symkey = $v3key['symkey'];
+                        $symiv = $v3key['symiv'];
+                        $hashkey = $v3key['hashkey'];
 
                         break;
                     case 2:
@@ -323,7 +326,10 @@ abstract class PuTTY
                     $key .= "Argon2-Passes: 13\r\n";
                     $key .= "Argon2-Parallelism: 1\r\n";
                     $key .= "Argon2-Salt: " . Strings::bin2hex($salt) . "\r\n";
-                    extract(self::generateV3Key($password, 'Argon2id', 8192, 13, $salt));
+                    $v3key = self::generateV3Key($password, 'Argon2id', 8192, 13, $salt);
+                    $symkey = $v3key['symkey'];
+                    $symiv = $v3key['symiv'];
+                    $hashkey = $v3key['hashkey'];
 
                     $hash = new Hash('sha256');
                     $hash->setKey($hashkey);
