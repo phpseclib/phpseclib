@@ -88,13 +88,11 @@ abstract class MSBLOB
 
         // PUBLICKEYSTRUC  publickeystruc
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387453(v=vs.85).aspx
-        extract(unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8)));
-        /**
-         * @var string $type
-         * @var string $version
-         * @var integer $reserved
-         * @var integer $algo
-         */
+        $unpacked = unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8));
+        $type = $unpacked['type'];
+        $version = $unpacked['version'];
+        $reserved = $unpacked['reserved'];
+        $algo = $unpacked['algo'];
         switch (ord($type)) {
             case self::PUBLICKEYBLOB:
             case self::PUBLICKEYBLOBEX:
@@ -121,12 +119,10 @@ abstract class MSBLOB
         // RSAPUBKEY rsapubkey
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387685(v=vs.85).aspx
         // could do V for pubexp but that's unsigned 32-bit whereas some PHP installs only do signed 32-bit
-        extract(unpack('Vmagic/Vbitlen/a4pubexp', Strings::shift($key, 12)));
-        /**
-         * @var integer $magic
-         * @var integer $bitlen
-         * @var string $pubexp
-         */
+        $unpacked = unpack('Vmagic/Vbitlen/a4pubexp', Strings::shift($key, 12));
+        $magic = $unpacked['magic'];
+        $bitlen = $unpacked['bitlen'];
+        $pubexp = $unpacked['pubexp'];
         switch ($magic) {
             case self::RSA2:
                 $components['isPublicKey'] = false;
