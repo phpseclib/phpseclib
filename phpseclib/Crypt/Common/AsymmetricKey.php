@@ -143,7 +143,7 @@ abstract class AsymmetricKey
             }
             try {
                 $components = $format::load($key, $password);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $components = false;
             }
             if ($components !== false) {
