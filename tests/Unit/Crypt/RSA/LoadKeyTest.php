@@ -22,6 +22,8 @@ use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Tests\PhpseclibTestCase;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 class LoadKeyTest extends PhpseclibTestCase
 {
     public static function setUpBeforeClass()
@@ -30,11 +32,41 @@ class LoadKeyTest extends PhpseclibTestCase
         OpenSSH::setComment('phpseclib-generated-key');
     }
 
-    public function testBadKey()
+    public static function getGarbageStrings()
+    {
+        return [
+            // [''], TODO this throws error, add check for empty string?
+            ['a'],
+            ['Hello, World!'],
+            ['  Some text  '],
+            ['   '],
+            ['12345'],
+            ['abc123'],
+            ['Hello@World!'],
+            [str_repeat('a', 8190)], // https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize
+            ['<p>This is a paragraph</p>'],
+            ["'; DROP TABLE users; --"],
+            ["<script>alert('XSS');</script>"],
+            ['こんにちは世界'],
+            ["Hello 👋 World 🌍"],
+            ["Line 1\nLine 2"],
+            ["Column1\tColumn2"],
+            ['MiXeD cAsE'],
+            ['https://www.example.com'],
+            ['user@example.com'],
+            ['{"key": "value"}'],
+            ['SGVsbG8sIFdvcmxkIQ=='],
+            ["Hello\x00World"],
+            [mb_convert_encoding("Hello, World!", "UTF-16")]
+        ];
+    }
+
+    /**
+     * @dataProvider getGarbageStrings
+     */
+    public function testBadKey($key)
     {
         $this->expectException(NoKeyLoadedException::class);
-
-        $key = 'zzzzzzzzzzzzzz';
         PublicKeyLoader::load($key);
     }
 
