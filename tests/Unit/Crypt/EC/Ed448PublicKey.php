@@ -16,6 +16,10 @@ class Ed448PublicKey
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
+        if (strlen($key) != 57) {
+            throw new \LengthException('Key length should be 57 bytes');
+        }
+
         $components = ['curve' => new Ed448()];
         $components['QA'] = self::extractPoint($key, $components['curve']);
 

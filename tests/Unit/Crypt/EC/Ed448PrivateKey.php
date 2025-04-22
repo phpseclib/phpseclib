@@ -13,6 +13,10 @@ class Ed448PrivateKey
             throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
+        if (strlen($key) != 57) {
+            throw new \LengthException('Key length should be 57 bytes');
+        }
+
         $components = ['curve' => new Ed448()];
         $arr = $components['curve']->extractSecret($key);
         $components['dA'] = $arr['dA'];
