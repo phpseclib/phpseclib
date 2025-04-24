@@ -38,9 +38,7 @@ class CreateKeyTest extends PhpseclibTestCase
         return $dsa;
     }
 
-    /**
-     * @depends testCreateParameters
-     */
+    /** @depends testCreateParameters */
     public function testCreateKey($params)
     {
         $privatekey = DSA::createKey();

@@ -70,9 +70,7 @@ abstract class TestCase extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider continuousBufferCombos
-     */
+    /** @dataProvider continuousBufferCombos */
     public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key)
     {
         $aes = new AES($mode);
@@ -183,9 +181,7 @@ abstract class TestCase extends PhpseclibTestCase
         });
     }
 
-    /**
-     * @dataProvider continuousBufferBatteryCombos
-     */
+    /** @dataProvider continuousBufferBatteryCombos */
     public function testContinuousBufferBattery($op, $mode, $test)
     {
         $iv = str_repeat('x', 16);
@@ -228,9 +224,8 @@ abstract class TestCase extends PhpseclibTestCase
 
     /**
      * Pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled.
-     *
-     * @dataProvider continuousBufferBatteryCombosWithoutSingleCombos
      */
+    /** @dataProvider continuousBufferBatteryCombosWithoutSingleCombos */
     public function testNonContinuousBufferBattery($op, $mode, $test)
     {
         $iv = str_repeat('x', 16);

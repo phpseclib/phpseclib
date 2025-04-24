@@ -61,9 +61,7 @@ class LoadKeyTest extends PhpseclibTestCase
         ];
     }
 
-    /**
-     * @dataProvider getGarbageStrings
-     */
+    /** @dataProvider getGarbageStrings */
     public function testBadKey($key)
     {
         $this->expectException(NoKeyLoadedException::class);

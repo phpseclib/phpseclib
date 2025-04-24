@@ -73,9 +73,7 @@ class BlowfishTest extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider engineVectors
-     */
+    /** @dataProvider engineVectors */
     public function testVectors($engine, $key, $plaintext, $expected)
     {
         $bf = new Blowfish('cbc');

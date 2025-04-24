@@ -104,9 +104,7 @@ class GCMTest extends PhpseclibTestCase
         return $vectors;
     }
 
-    /**
-     * @dataProvider engine128Vectors
-     */
+    /** @dataProvider engine128Vectors */
     public function test128Vectors($engine, $key, $plaintext, $nonce, $aad, $ciphertext, $tag)
     {
         $aes = new AES('gcm');
@@ -217,9 +215,7 @@ class GCMTest extends PhpseclibTestCase
         return $vectors;
     }
 
-    /**
-     * @dataProvider engine256Vectors
-     */
+    /** @dataProvider engine256Vectors */
     public function test256Vectors($engine, $key, $plaintext, $nonce, $aad, $ciphertext, $tag)
     {
         $aes = new AES('gcm');

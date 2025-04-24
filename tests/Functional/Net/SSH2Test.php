@@ -52,10 +52,10 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testConstructor
      * @group github408
      * @group github412
      */
+    /** @depends testConstructor */
     public function testPreLogin(SSH2 $ssh)
     {
         $this->assertFalse(
@@ -97,9 +97,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testPreLogin
-     */
+    /** @depends testPreLogin */
     public function testBadPassword(SSH2 $ssh)
     {
         $username = $this->getEnv('SSH_USERNAME');
@@ -127,9 +125,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testBadPassword
-     */
+    /** @depends testBadPassword */
     public function testPasswordLogin(SSH2 $ssh)
     {
         $username = $this->getEnv('SSH_USERNAME');
@@ -153,10 +149,10 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testPasswordLogin
      * @group github280
      * @requires PHPUnit < 10
      */
+    /** @depends testPasswordLogin */
     public function testExecWithMethodCallback(SSH2 $ssh)
     {
         $callbackObject = $this->getMockBuilder('stdClass')
@@ -208,9 +204,9 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testExecWithMethodCallback
      * @group github1009
      */
+    /** @depends testExecWithMethodCallback */
     public function testDisablePTY(SSH2 $ssh)
     {
         $ssh->enablePTY();
@@ -278,9 +274,9 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testDisablePTY
      * @group github1167
      */
+    /** @depends testDisablePTY */
     public function testChannelDataAfterOpen(SSH2 $ssh)
     {
         // Ubuntu's OpenSSH from 5.8 to 6.9 didn't work with multiple channels. see
@@ -395,9 +391,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testOpenShell
-     */
+    /** @depends testOpenShell */
     public function testResetOpenShell(SSH2 $ssh)
     {
         $ssh->reset();
@@ -631,10 +625,10 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @dataProvider getCryptoAlgorithms
      * @param string $type
      * @param string $algorithm
      */
+    /** @dataProvider getCryptoAlgorithms */
     public function testCryptoAlgorithms($type, $algorithm)
     {
         $ssh = $this->getSSH2();

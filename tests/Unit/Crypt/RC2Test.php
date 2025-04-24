@@ -109,9 +109,7 @@ class RC2Test extends PhpseclibTestCase
         }
     }
 
-    /**
-     * @dataProvider engineVectors
-     */
+    /** @dataProvider engineVectors */
     public function testVectors($engine, $key, $keyLen, $plaintext, $ciphertext)
     {
         $rc2 = new RC2('cbc');

@@ -77,9 +77,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify that the base points are correct and verify the finite field math
-     *
-     * @dataProvider curves
      */
+    /** @dataProvider curves */
     public function testBasePoint($name)
     {
         $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
@@ -90,9 +89,9 @@ class CurveTest extends PhpseclibTestCase
     /**
      * Verify the correctness of the point addition / doubling / multiplication algorithms
      *
-     * @dataProvider curves
      * @requires PHP 7.0
      */
+     /** @dataProvider curves */
     public function testKeyGeneration($name)
     {
         $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
@@ -104,9 +103,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify that OIDs have corresponding curve class
-     *
-     * @dataProvider curvesWithOIDs
      */
+    /** @dataProvider curvesWithOIDs */
     public function testCurveExistance($name)
     {
         $this->assertFileExists(__DIR__ . "/../../../../phpseclib/Crypt/EC/Curves/$name.php");
@@ -114,9 +112,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify that all named curves have a corresponding OID
-     *
-     * @dataProvider allCurves
      */
+    /** @dataProvider allCurves */
     public function testOIDExistance($name)
     {
         switch ($name) {
@@ -130,9 +127,9 @@ class CurveTest extends PhpseclibTestCase
     /**
      * Sign with internal engine, verify with best engine
      *
-     * @dataProvider curves
      * @requires PHP 7.0
      */
+    /** @dataProvider curves */
     public function testInternalSign($name)
     {
         // tests utilizing dataProvider only seem to output when all the dataProvider input
@@ -175,9 +172,9 @@ class CurveTest extends PhpseclibTestCase
     /**
      * Sign with best engine, verify with internal engine
      *
-     * @dataProvider curves
      * @requires PHP 7.0
      */
+    /** @dataProvider curves */
     public function testInternalVerify($name)
     {
         if (substr($name, 0, 4) == 'sect') {

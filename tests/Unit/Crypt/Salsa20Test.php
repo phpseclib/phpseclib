@@ -144,9 +144,7 @@ class Salsa20Test extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider engineVectors
-     */
+    /** @dataProvider engineVectors */
     public function testVectors($engine, $key, $iv, $expected)
     {
         $cipher = new Salsa20();

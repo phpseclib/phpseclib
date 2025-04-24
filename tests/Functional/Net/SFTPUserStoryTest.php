@@ -40,9 +40,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testConstructor
-     */
+    /** @depends testConstructor */
     public function testPasswordLogin($sftp)
     {
         $username = $this->getEnv('SSH_USERNAME');
@@ -55,9 +53,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testPasswordLogin
-     */
+    /** @depends testPasswordLogin */
     public function testPwdHome($sftp)
     {
         $this->assertEquals(
@@ -69,9 +65,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testPwdHome
-     */
+    /** @depends testPwdHome */
     public function testMkDirScratch($sftp)
     {
         $dirname = self::$scratchDir;
@@ -91,9 +85,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testMkDirScratch
-     */
+    /** @depends testMkDirScratch */
     public function testChDirScratch($sftp)
     {
         $this->assertTrue(
@@ -124,9 +116,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testChDirScratch
-     */
+    /** @depends testChDirScratch */
     public function testStatOnDir($sftp)
     {
         $this->assertNotSame(
@@ -148,9 +138,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return null;
     }
 
-    /**
-     * @depends testStatOnDir
-     */
+    /** @depends testStatOnDir */
     public function testPutSizeGetFile($sftp)
     {
         $this->assertTrue(
@@ -190,9 +178,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testStatOnDir
-     */
+    /** @depends testStatOnDir */
     public function testPutSizeGetFileCallback($sftp)
     {
         self::$buffer = self::$exampleData;
@@ -216,9 +202,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testPutSizeGetFile
-     */
+    /** @depends testPutSizeGetFile */
     public function testTouch($sftp)
     {
         $this->assertTrue(
@@ -234,9 +218,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testTouch
-     */
+    /** @depends testTouch */
     public function testTruncate($sftp)
     {
         $this->assertTrue(
@@ -259,9 +241,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testTruncate
      * @group github850
      */
+    /** @depends testTruncate */
     public function testChModOnFile($sftp)
     {
         $this->assertNotFalse(
@@ -272,9 +254,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testChModOnFile
-     */
+    /** @depends testChModOnFile */
     public function testChDirOnFile($sftp)
     {
         $this->assertFalse(
@@ -285,9 +265,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testChDirOnFile
-     */
+    /** @depends testChDirOnFile */
     public function testFileExistsIsFileIsDirFile($sftp)
     {
         $this->assertTrue(
@@ -308,9 +286,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testFileExistsIsFileIsDirFile
-     */
+    /** @depends testFileExistsIsFileIsDirFile */
     public function testFileExistsIsFileIsDirFileNonexistent($sftp)
     {
         $this->assertFalse(
@@ -331,9 +307,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testFileExistsIsFileIsDirFileNonexistent
-     */
+    /** @depends testFileExistsIsFileIsDirFileNonexistent */
     public function testSortOrder($sftp)
     {
         $this->assertTrue(
@@ -384,9 +358,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testSortOrder
-     */
+    /** @depends testSortOrder */
     public function testResourceXfer($sftp)
     {
         $fp = fopen('res.txt', 'w+');
@@ -404,9 +376,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testResourceXfer
-     */
+    /** @depends testResourceXfer */
     public function testSymlink($sftp)
     {
         $this->assertTrue(
@@ -417,9 +387,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testSymlink
-     */
+    /** @depends testSymlink */
     public function testStatLstatCache($sftp)
     {
         $stat = $sftp->stat('symlink');
@@ -433,9 +401,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testStatLstatCache
-     */
+    /** @depends testStatLstatCache */
     public function testLinkFile($sftp)
     {
         $this->assertTrue(
@@ -454,9 +420,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testLinkFile
-     */
+    /** @depends testLinkFile */
     public function testReadlink($sftp)
     {
         $this->assertIsString(
@@ -468,9 +432,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testReadlink
      * @group github716
      */
+    /** @depends testReadlink */
     public function testStatOnCWD($sftp)
     {
         $stat = $sftp->stat('.');
@@ -490,9 +454,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
      * on older versions this would result in a fatal error
      *
-     * @depends testStatOnCWD
      * @group github402
      */
+    /** @depends testStatOnCWD */
     public function testStatcacheFix($sftp)
     {
         // Name used for both directory and file.
@@ -513,9 +477,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testStatcacheFix
-     */
+    /** @depends testStatcacheFix */
     public function testChDirUpHome($sftp)
     {
         $this->assertTrue(
@@ -532,9 +494,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testChDirUpHome
-     */
+    /** @depends testChDirUpHome */
     public function testFileExistsIsFileIsDirDir($sftp)
     {
         $this->assertTrue(
@@ -555,9 +515,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testFileExistsIsFileIsDirDir
-     */
+    /** @depends testFileExistsIsFileIsDirDir */
     public function testTruncateLargeFile($sftp)
     {
         $filesize = (4 * 1024 + 16) * 1024 * 1024;
@@ -569,9 +527,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testTruncateLargeFile
-     */
+    /** @depends testTruncateLargeFile */
     public function testRmDirScratch($sftp)
     {
         $this->assertFalse(
@@ -583,9 +539,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testRmDirScratch
-     */
+    /** @depends testRmDirScratch */
     public function testDeleteRecursiveScratch($sftp)
     {
         $this->assertTrue(
@@ -597,9 +551,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testDeleteRecursiveScratch
-     */
+    /** @depends testDeleteRecursiveScratch */
     public function testRmDirScratchNonexistent($sftp)
     {
         $this->assertFalse(
@@ -612,9 +564,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testRmDirScratchNonexistent
      * @group github706
      */
+    /** @depends testRmDirScratchNonexistent */
     public function testDeleteEmptyDir($sftp)
     {
         $this->assertTrue(
@@ -646,9 +598,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testDeleteEmptyDir
      * @group github735
      */
+    /** @depends testDeleteEmptyDir */
     public function testStatVsLstat($sftp)
     {
         $this->assertTrue($sftp->mkdir(self::$scratchDir));
@@ -693,9 +645,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testStatVsLstat
      * @group github830
      */
+    /** @depends testStatVsLstat */
     public function testUploadOffsets($sftp)
     {
         $sftp->put('offset.txt', 'res.txt', SFTP::SOURCE_LOCAL_FILE, 0, 10);
@@ -715,9 +667,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testUploadOffsets
-     */
+    /** @depends testUploadOffsets */
     public function testReadableWritable($sftp)
     {
         $sftp->chmod(0000, 'offset.txt');
@@ -738,9 +688,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testReadableWritable
      * @group github999
      */
+    /** @depends testReadableWritable */
     public function testExecNlist($sftp)
     {
         $sftp->enablePTY();
@@ -753,9 +703,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testExecNlist
-     */
+    /** @depends testExecNlist */
     public function testRawlistDisabledStatCache($sftp)
     {
         $this->assertTrue($sftp->mkdir(self::$scratchDir));
@@ -783,9 +731,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testRawlistDisabledStatCache
-     */
+    /** @depends testRawlistDisabledStatCache */
     public function testChownChgrp($sftp)
     {
         $stat = $sftp->stat(self::$scratchDir);
@@ -801,9 +747,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @depends testChownChgrp
      * @group github1934
      */
+    /** @depends testChownChgrp */
     public function testCallableGetWithLength($sftp)
     {
         $sftp->put('test.txt', 'zzzzz');
@@ -814,9 +760,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
-    /**
-     * @depends testPasswordLogin
-     */
+    /** @depends testPasswordLogin */
     public function testStatVfs($sftp)
     {
         $sftp->put('test.txt', 'aaaaa');
@@ -837,9 +781,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertSame(255, $stat['namemax']);
     }
 
-    /**
-     * @depends testPasswordLogin
-     */
+    /** @depends testPasswordLogin */
     public function testPosixRename($sftp)
     {
         $sftp->put('test1.txt', 'aaaaa');

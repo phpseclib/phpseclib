@@ -52,9 +52,9 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
-     * @dataProvider formatLogDataProvider
      * @requires PHPUnit < 10
      */
+    /** @dataProvider formatLogDataProvider */
     public function testFormatLog(array $message_log, array $message_number_log, $expected)
     {
         $ssh = $this->createSSHMock();
