@@ -65,7 +65,7 @@ jobs:
                 if: matrix.php-version != '5.6' && matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2'
                 run: php tests/make_compatible_with_phpunit9.php
             -   name: Make Tests Compatiable With PHPUnit 12+
-                if: matrix.php-version != '5.6' && matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2' && matrix.php-version != '7.3' && matrix.php-version != '7.4' && matrix.php-version != '8.0' && matrix.php-version != '8.1' && matrix.php-version != '8.2'
+                if: matrix.php-version != '5.6' && matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2' && matrix.php-version != '7.3' && matrix.php-version != '7.4' && matrix.php-version != '8.0'
                 run: php tests/make_compatible_with_phpunit12.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
