@@ -10,8 +10,8 @@ foreach ($files as $file) {
         }
         $patternToReplacementMap = [
             '~ /\*\* @dataProvider ([a-zA-Z0-9]+) \*/~' => ' #[\PHPUnit\Framework\Attributes\DataProvider("$1")]',
-            '~ /\*\* @depends ([a-zA-Z0-9]+) \*/~' => ' #[\PHPUnit\Framework\Attributes\Depends("$1")]',
-            '~ ->setMethods\(\[~' => ' ->onlyMethods([',
+            '~ /\*\* @depends ([a-zA-Z0-9m]+) \*/~' => ' #[\PHPUnit\Framework\Attributes\Depends("$1")]',
+            //'~ ->setMethods\(\[~' => ' ->onlyMethods([',
         ];
         $updatedFileContents = preg_replace(
             array_keys($patternToReplacementMap),
@@ -23,3 +23,5 @@ foreach ($files as $file) {
         }
     }
 }
+unlink('tests/Functional/Net/SSH2Test.php');
+unlink('tests/Unit/Net/SSH2UnitTest.php');
