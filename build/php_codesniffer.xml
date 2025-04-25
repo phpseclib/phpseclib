@@ -2,7 +2,6 @@
 <ruleset name="phpseclib">
     <file>../build/php-cs-fixer.php</file>
     <file>../phpseclib/</file>
-    <file>../tests/</file>
 
     <arg name="extensions" value="php"/>
     <arg name="basepath" value=".."/>
