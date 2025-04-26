@@ -37,7 +37,7 @@ class LoadKeyTest extends PhpseclibTestCase
     public static function getGarbageStrings()
     {
         return [
-            // [''], TODO this throws error, add check for empty string?
+            [''],
             ['a'],
             ['Hello, World!'],
             ['  Some text  '],
