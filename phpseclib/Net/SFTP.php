@@ -925,6 +925,8 @@ class SFTP extends SSH2
             return false;
         }
 
+        $dir = (string) $dir;
+
         // assume current dir if $dir is empty
         if ($dir === '') {
             $dir = './';
