@@ -6,6 +6,7 @@ namespace phpseclib3\Tests\Unit\Crypt\EC;
 
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\EC\Curves\Ed448;
+use phpseclib3\Exception\LengthException;
 use phpseclib3\Exception\UnexpectedValueException;
 
 class Ed448PrivateKey
@@ -14,6 +15,10 @@ class Ed448PrivateKey
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
+
+        if (strlen($key) != 57) {
+            throw new LengthException('Key length should be 57 bytes');
         }
 
         $components = ['curve' => new Ed448()];
