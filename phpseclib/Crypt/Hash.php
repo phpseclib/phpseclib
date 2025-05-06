@@ -1484,6 +1484,17 @@ class Hash
     }
 
     /**
+     *  OMAC Padding
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc4493.html#section-2.4
+     */
+    private static function OMAC_padding($m, $length)
+    {
+        $count = $length - strlen($m) - 1;
+        return "$m\x80" . str_repeat("\0", $count);
+    }
+
+    /**
      *  __toString() magic method
      */
     public function __toString()
