@@ -1487,7 +1487,7 @@ class SSH2
 
         $extra = $matches[1];
 
-        $this->server_identifier = trim($data, "\r\n");
+        $this->server_identifier = trim($temp, "\r\n");
         if (strlen($extra)) {
             $this->errors[] = $data;
         }
