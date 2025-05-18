@@ -1477,7 +1477,7 @@ class SSH2
         }
 
         if (defined('NET_SSH2_LOGGING')) {
-            $this->append_log('<- (network: ' . round($totalElapsed, 4) . ')', $line);
+            $this->append_log('<- (network: ' . round($totalElapsed, 4) . ')', $data);
         }
 
         if (feof($this->fsock)) {
@@ -1487,7 +1487,13 @@ class SSH2
 
         $extra = $matches[1];
 
-        $this->server_identifier = trim($data, "\r\n");
+        // earlier the SSH specs were quoted.
+        // "The server MAY send other lines of data before sending the version string." they said.
+        // the implication of this is that the lines of data before the server string are *not* a part of it
+        // getting this right is important because the correct server identifier needs to be fed into the
+        // exchange hash for the shared keys to be calculated correctly
+        $data = explode("\r\n", trim($data, "\r\n"));
+        $this->server_identifier = $data[count($data) - 1];
         if (strlen($extra)) {
             $this->errors[] = $data;
         }
@@ -4544,7 +4550,7 @@ class SSH2
     protected function append_log_helper($constant, $message_number, $message, array &$message_number_log, array &$message_log, &$log_size, &$realtime_log_file, &$realtime_log_wrap, &$realtime_log_size)
     {
         // remove the byte identifying the message type from all but the first two messages (ie. the identification strings)
-        if (strlen($message_number) > 2) {
+        if (!in_array(substr($message_number, 0, 4), ['<- (', '-> (']) && strlen($message_number) > 2) {
             Strings::shift($message);
         }
 
