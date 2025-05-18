@@ -1441,7 +1441,8 @@ class SSH2
             $this->_append_log('->', $this->identifier . "\r\n");
         }
 
-        $this->server_identifier = trim($data, "\r\n");
+        $data = explode("\r\n", trim($data, "\r\n"));
+        $this->server_identifier = $data[count($data) - 1];
 
         if (strlen($extra)) {
             $this->errors[] = $data;
