@@ -1936,16 +1936,21 @@ class Net_SSH2
             $this->_updateLogHistory('UNKNOWN (32)', 'NET_SSH2_MSG_KEXDH_GEX_INIT');
         }
 
-        $response = $this->_get_binary_packet();
-        if ($response === false) {
-            $this->bitmap = 0;
-            user_error('Connection closed by server');
-            return false;
+        while (true) {
+            $response = $this->_get_binary_packet();
+            if ($response === false) {
+                $this->bitmap = 0;
+                user_error('Connection closed by server');
+                return false;
+            }
+            if (!strlen($response)) {
+                return false;
+            }
+            extract(unpack('Ctype', $this->_string_shift($response, 1)));
+            if ($type != NET_SSH2_MSG_IGNORE) {
+                break;
+            }
         }
-        if (!strlen($response)) {
-            return false;
-        }
-        extract(unpack('Ctype', $this->_string_shift($response, 1)));
 
         if ($type != $serverKexReplyMessage) {
             $expected = $serverKexReplyMessage == NET_SSH2_MSG_KEXDH_GEX_REPLY ?
