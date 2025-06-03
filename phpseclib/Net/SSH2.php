@@ -3909,9 +3909,15 @@ class SSH2
      */
     private function filter($payload)
     {
+        if (ord($payload[0]) == NET_SSH2_MSG_DISCONNECT) {
+            return $this->handleDisconnect($payload);
+        }
+
+        if ($this->session_id === false && $this->keyExchangeInProgress) {
+            return $payload;
+        }
+
         switch (ord($payload[0])) {
-            case NET_SSH2_MSG_DISCONNECT:
-                return $this->handleDisconnect($payload);
             case NET_SSH2_MSG_IGNORE:
                 $payload = $this->get_binary_packet();
                 break;
