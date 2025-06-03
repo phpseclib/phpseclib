@@ -1683,7 +1683,6 @@ class SSH2
                     case NET_SSH2_MSG_DISCONNECT:
                         return $this->handleDisconnect($kexinit_payload_server);
                 }
-
                 $this->kex_buffer[] = $kexinit_payload_server;
             }
 
@@ -3815,8 +3814,7 @@ class SSH2
             $this->key_exchange();
         }
 
-        // don't filter if we're in the middle of a key exchange (since _filter might send out packets)
-        return $this->keyExchangeInProgress ? $payload : $this->filter($payload);
+        return $this->filter($payload);
     }
 
     /**
@@ -3927,7 +3925,7 @@ class SSH2
                 break; // return payload
             case NET_SSH2_MSG_KEXINIT:
                 // this is here for server initiated key re-exchanges after the initial key exchange
-                if ($this->session_id !== false) {
+                if (!$this->keyExchangeInProgress && $this->session_id !== false) {
                     if (!$this->key_exchange($payload)) {
                         $this->disconnect_helper(NET_SSH2_DISCONNECT_KEY_EXCHANGE_FAILED);
                         throw new ConnectionClosedException('Key exchange failed');
@@ -3945,6 +3943,26 @@ class SSH2
                     }
                 }
                 $payload = $this->get_binary_packet();
+        }
+
+        /*
+           Once a party has sent a SSH_MSG_KEXINIT message for key exchange or
+           re-exchange, until it has sent a SSH_MSG_NEWKEYS message (Section
+           7.3), it MUST NOT send any messages other than:
+
+           o  Transport layer generic messages (1 to 19) (but
+              SSH_MSG_SERVICE_REQUEST and SSH_MSG_SERVICE_ACCEPT MUST NOT be
+              sent);
+
+           o  Algorithm negotiation messages (20 to 29) (but further
+              SSH_MSG_KEXINIT messages MUST NOT be sent);
+
+           o  Specific key exchange method messages (30 to 49).
+
+           -- https://www.rfc-editor.org/rfc/rfc4253#section-7.1
+        */
+        if ($this->keyExchangeInProgress) {
+            return $payload;
         }
 
         // see http://tools.ietf.org/html/rfc4252#section-5.4; only called when the encryption has been activated and when we haven't already logged in
