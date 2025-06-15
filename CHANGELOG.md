@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.44 - 2025-06-15
+
+- SSH2: add send_eof() method (#2062)
+- SSH2: server identification string handling enhancements (#2082, #2083)
+- SSH2: shore up terrapin counter measures
+- SSH2: fix for packets sent between KEXINIT packets (#2084)
+- SFTP: convert filenames to strings (#2065)
+- Hash: add cmac_aes algorithm (#1967)
+- ASN1: support tags with values >= 30 (#2066)
+- PublicKeyLoader: improve handling of bad keys (#2077, #2079)
+- RSA: fix for keys with negative modulos (#2085)
+- BigInteger: adjust priority with which BCMath is used for PHP 8.4+
+
 ## 3.0.43 - 2024-12-14
 
 - fix PHP 8.4 deprecations
