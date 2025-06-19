@@ -524,4 +524,22 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
         $y = $this->getInstance('0xE932AC92252F585B3A80A4DD76A897C8B7652952FE788F6EC8DD640587A1EE5647670A8AD', 16);
         $this->assertSame("$x", "$y");
     }
+
+    /**
+     * @group github2086
+     */
+    public function testModPowNegativeBase(): void
+    {
+        $a = $this->getInstance('-9');
+        $b = $this->getInstance('1024');
+        $c = $this->getInstance('123');
+        $d = $a->modPow($b, $c);
+
+        $this->assertSame('42', (string) $d);
+
+        $b = $this->getInstance('1023');
+        $d = $a->modPow($b, $c);
+
+        $this->assertSame('9', (string) $d);
+    }
 }
