@@ -612,7 +612,7 @@ abstract class Engine implements \JsonSerializable
             return $this->normalize($temp->powModInner($e, $n));
         }
 
-        if ($this->compare($n) > 0) {
+        if ($this->compare($n) > 0 || $this->isNegative()) {
             [, $temp] = $this->divide($n);
             return $temp->powModInner($e, $n);
         }
