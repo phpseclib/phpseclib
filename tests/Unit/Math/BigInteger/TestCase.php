@@ -528,7 +528,7 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
     /**
      * @group github2086
      */
-    public function testModPowNegativeBase(): void
+    public function testModPowNegativeBase()
     {
         $a = $this->getInstance('-9');
         $b = $this->getInstance('1024');
