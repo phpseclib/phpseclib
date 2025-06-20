@@ -54,9 +54,23 @@ class Integer extends Base
     /**
      * Zero
      *
-     * @var BigInteger
+     * @var BigInteger[]
      */
     protected static $zero;
+
+    /**
+     * One
+     *
+     * @var BigInteger[]
+     */
+    protected static $one;
+
+    /**
+     * Two
+     *
+     * @var BigInteger[]
+     */
+    protected static $two;
 
     /**
      * Default constructor
@@ -68,7 +82,7 @@ class Integer extends Base
     {
         $this->instanceID = $instanceID;
         if (!isset($num)) {
-            $this->value = clone static::$zero[static::class];
+            $this->value = clone static::$zero[$instanceID];
         } else {
             $reduce = static::$reduce[$instanceID];
             $this->value = $reduce($num);
@@ -95,8 +109,8 @@ class Integer extends Base
     public static function setRecurringModuloFunction($instanceID, callable $function)
     {
         static::$reduce[$instanceID] = $function;
-        if (!isset(static::$zero[static::class])) {
-            static::$zero[static::class] = new BigInteger();
+        if (!isset(static::$zero[$instanceID])) {
+            static::$zero[$instanceID] = new BigInteger();
         }
     }
 
@@ -107,6 +121,9 @@ class Integer extends Base
     {
         unset(static::$modulo[$instanceID]);
         unset(static::$reduce[$instanceID]);
+        unset(static::$zero[$instanceID]);
+        unset(static::$one[$instanceID]);
+        unset(static::$two[$instanceID]);
     }
 
     /**
@@ -240,32 +257,35 @@ class Integer extends Base
      */
     public function squareRoot()
     {
-        static $one, $two;
-        if (!isset($one)) {
-            $one = new BigInteger(1);
-            $two = new BigInteger(2);
+        if (!isset(static::$one[$this->instanceID])) {
+            static::$one[$this->instanceID] = new BigInteger(1);
+            static::$two[$this->instanceID] = new BigInteger(2);
         }
-        $reduce = static::$reduce[$this->instanceID];
-        $p_1 = static::$modulo[$this->instanceID]->subtract($one);
+        $one = &static::$one[$this->instanceID];
+        $two = &static::$two[$this->instanceID];
+        $modulo = &static::$modulo[$this->instanceID];
+        $reduce = &static::$reduce[$this->instanceID];
+
+        $p_1 = $modulo->subtract($one);
         $q = clone $p_1;
         $s = BigInteger::scan1divide($q);
         list($pow) = $p_1->divide($two);
-        for ($z = $one; !$z->equals(static::$modulo[$this->instanceID]); $z = $z->add($one)) {
-            $temp = $z->powMod($pow, static::$modulo[$this->instanceID]);
+        for ($z = $one; !$z->equals($modulo); $z = $z->add($one)) {
+            $temp = $z->powMod($pow, $modulo);
             if ($temp->equals($p_1)) {
                 break;
             }
         }
 
         $m = new BigInteger($s);
-        $c = $z->powMod($q, static::$modulo[$this->instanceID]);
-        $t = $this->value->powMod($q, static::$modulo[$this->instanceID]);
+        $c = $z->powMod($q, $modulo);
+        $t = $this->value->powMod($q, $modulo);
         list($temp) = $q->add($one)->divide($two);
-        $r = $this->value->powMod($temp, static::$modulo[$this->instanceID]);
+        $r = $this->value->powMod($temp, $modulo);
 
         while (!$t->equals($one)) {
             for ($i = clone $one; $i->compare($m) < 0; $i = $i->add($one)) {
-                if ($t->powMod($two->pow($i), static::$modulo[$this->instanceID])->equals($one)) {
+                if ($t->powMod($two->pow($i), $modulo)->equals($one)) {
                     break;
                 }
             }
@@ -273,7 +293,7 @@ class Integer extends Base
             if ($i->compare($m) == 0) {
                 return false;
             }
-            $b = $c->powMod($two->pow($m->subtract($i)->subtract($one)), static::$modulo[$this->instanceID]);
+            $b = $c->powMod($two->pow($m->subtract($i)->subtract($one)), $modulo);
             $m = $i;
             $c = $reduce($b->multiply($b));
             $t = $reduce($t->multiply($c));
@@ -356,6 +376,8 @@ class Integer extends Base
     {
         $w++;
 
+        $zero = &static::$zero[$this->instanceID];
+
         $mask = new BigInteger((1 << $w) - 1);
         $sub = new BigInteger(1 << $w);
         //$sub = new BigInteger(1 << ($w - 1));
@@ -363,7 +385,7 @@ class Integer extends Base
         $d_i = [];
 
         $i = 0;
-        while ($d->compare(static::$zero[static::class]) > 0) {
+        while ($d->compare($zero) > 0) {
             if ($d->isOdd()) {
                 // start mods
 
@@ -377,7 +399,7 @@ class Integer extends Base
             } else {
                 $d_i[$i] = 0;
             }
-            $shift = !$d->equals(static::$zero[static::class]) && $d->bitwise_and($mask)->equals(static::$zero[static::class]) ? $w : 1; // $w or $w + 1?
+            $shift = !$d->equals($zero) && $d->bitwise_and($mask)->equals($zero) ? $w : 1; // $w or $w + 1?
             $d = $d->bitwise_rightShift($shift);
             while (--$shift > 0) {
                 $d_i[++$i] = 0;
