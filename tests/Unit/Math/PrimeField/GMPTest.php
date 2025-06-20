@@ -15,7 +15,7 @@ class GMPTest extends TestCase
 {
     private static $defaultEngine;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (!GMP::isValidEngine()) {
             self::markTestSkipped('GMP extension is not available.');
@@ -24,7 +24,7 @@ class GMPTest extends TestCase
         BigInteger::setEngine('GMP');
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         BigInteger::setEngine(self::$defaultEngine);
     }

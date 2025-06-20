@@ -15,7 +15,7 @@ class PHP32Test extends TestCase
 {
     private static $defaultEngine;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (!PHP32::isValidEngine()) {
             self::markTestSkipped('PHP32 extension is not available.');
@@ -24,7 +24,7 @@ class PHP32Test extends TestCase
         BigInteger::setEngine('PHP32');
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         BigInteger::setEngine(self::$defaultEngine);
     }

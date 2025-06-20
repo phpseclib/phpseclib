@@ -15,7 +15,7 @@ class PHP64Test extends TestCase
 {
     private static $defaultEngine;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (!PHP64::isValidEngine()) {
             self::markTestSkipped('PHP64 engine is not available.');
@@ -24,7 +24,7 @@ class PHP64Test extends TestCase
         BigInteger::setEngine('PHP64');
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         BigInteger::setEngine(self::$defaultEngine);
     }

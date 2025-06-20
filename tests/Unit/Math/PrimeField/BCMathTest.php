@@ -15,7 +15,7 @@ class BCMathTest extends TestCase
 {
     private static $defaultEngine;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         if (!BCMath::isValidEngine()) {
             self::markTestSkipped('BCMath extension is not available.');
@@ -24,7 +24,7 @@ class BCMathTest extends TestCase
         BigInteger::setEngine('BCMath');
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         BigInteger::setEngine(self::$defaultEngine);
     }
