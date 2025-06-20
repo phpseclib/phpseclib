@@ -140,7 +140,7 @@ abstract class Barrett extends Base
             $result = bcsub($result, $m);
         }
 
-        return $correctionNeeded ? substr($result, 0, -1) : $result;
+        return $correctionNeeded && $result != '0' ? substr($result, 0, -1) : $result;
     }
 
     /**
