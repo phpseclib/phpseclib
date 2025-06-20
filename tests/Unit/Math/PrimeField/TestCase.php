@@ -1,12 +1,12 @@
 <?php
 
-namespace phpseclib3\Tests\Unit\Math;
+namespace phpseclib3\Tests\Unit\Math\PrimeField;
 
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\PrimeField;
 use phpseclib3\Tests\PhpseclibTestCase;
 
-class PrimeFieldTest extends PhpseclibTestCase
+abstract class TestCase extends PhpseclibTestCase
 {
     public function testPrimeFieldWithCompositeNumbers()
     {
@@ -47,5 +47,15 @@ class PrimeFieldTest extends PhpseclibTestCase
         );
 
         $this->assertIsString($point[0]->toBytes());
+    }
+
+    /**
+     * @group github2087
+     */
+    public function testZero()
+    {
+        $factory = new PrimeField(new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED', 16));
+        $zero = $factory->newInteger(new BigInteger(0));
+        $this->assertSame('0', "$zero");
     }
 }

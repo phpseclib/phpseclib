@@ -10,6 +10,7 @@ foreach ($files as $file) {
         }
         $patternToReplacementMap = [
             '~ function setUpBeforeClass\(\)~' => ' function setUpBeforeClass(): void',
+            '~ function tearDownAfterClass\(\)~' => ' function tearDownAfterClass(): void',
             '~ function setUp\(\)~' => ' function setUp(): void',
             '~ function tearDown\(\)~' => ' function tearDown(): void',
             '~ function assertIsArray\(\$actual, \$message = \'\'\)~' => ' function _assertIsArray($actual, string $message = \'\')',
