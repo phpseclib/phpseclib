@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.45 - 2025-06-22
+
+- BigInteger: modPow() calls with negative base gave incorrect result
+- BigInteger: barrett reduction returned '' vs '0' for bcmath engine
+
 ## 3.0.44 - 2025-06-15
 
 - SSH2: add send_eof() method (#2062)
