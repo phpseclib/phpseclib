@@ -2,8 +2,8 @@
 
 ## 3.0.45 - 2025-06-22
 
-- BigInteger: modPow() calls with negative base gave incorrect result
-- BigInteger: barrett reduction returned '' vs '0' for bcmath engine
+- BigInteger: modPow() calls with negative base gave incorrect result (#2086)
+- BigInteger: barrett reduction returned '' vs '0' for bcmath engine (#2087)
 
 ## 3.0.44 - 2025-06-15
 
