@@ -569,10 +569,10 @@ class BCMath extends Engine
      */
     public function testBit($x): bool
     {
-        $divisor = bcpow('2', $x + 1, 0);
+        $divisor = bcpow('2', (string) ($x + 1), 0);
         return bccomp(
             bcmod($this->value, $divisor, 0),
-            bcpow('2', $x, 0),
+            bcpow('2', "$x", 0),
             0
         ) >= 0;
     }
