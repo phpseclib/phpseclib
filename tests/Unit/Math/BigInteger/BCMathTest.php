@@ -25,6 +25,17 @@ class BCMathTest extends TestCase
         return new BCMath($x, $base);
     }
 
+    /**
+     * @group github2089
+     */
+    public function testBCSscale()
+    {
+        bcscale(1);
+        $number = new BCMath('115792089210356248762697446949407573530086143415290314195533631308867097853951', 10);
+        $this->assertTrue($number->isPrime());
+        bcscale(0);
+    }
+
     public static function getStaticClass()
     {
         return 'phpseclib3\Math\BigInteger\Engines\BCMath';

@@ -33,7 +33,7 @@ abstract class BuiltIn extends BCMath
     protected static function powModHelper(BCMath $x, BCMath $e, BCMath $n)
     {
         $temp = new BCMath();
-        $temp->value = bcpowmod($x->value, $e->value, $n->value);
+        $temp->value = bcpowmod($x->value, $e->value, $n->value, 0);
 
         return $x->normalize($temp);
     }

@@ -67,7 +67,7 @@ abstract class Barrett extends Base
         $m_length = strlen($m);
 
         if (strlen($n) > 2 * $m_length) {
-            return bcmod($n, $m);
+            return self::BCMOD_THREE_PARAMS ? bcmod($n, $m, 0) : bcmod($n, $m);
         }
 
         // if (m.length >> 1) + 2 <= m.length then m is too small and n can't be reduced
@@ -89,7 +89,7 @@ abstract class Barrett extends Base
 
             $lhs = '1' . str_repeat('0', $m_length + ($m_length >> 1));
             $u = bcdiv($lhs, $m, 0);
-            $m1 = bcsub($lhs, bcmul($u, $m));
+            $m1 = bcsub($lhs, bcmul($u, $m, 0), 0);
 
             $cache[self::DATA][] = [
                 'u' => $u, // m.length >> 1 (technically (m.length >> 1) + 1)
@@ -106,8 +106,8 @@ abstract class Barrett extends Base
         $lsd = substr($n, -$cutoff);
         $msd = substr($n, 0, -$cutoff);
 
-        $temp = bcmul($msd, $m1); // m.length + (m.length >> 1)
-        $n = bcadd($lsd, $temp); // m.length + (m.length >> 1) + 1 (so basically we're adding two same length numbers)
+        $temp = bcmul($msd, $m1, 0); // m.length + (m.length >> 1)
+        $n = bcadd($lsd, $temp, 0); // m.length + (m.length >> 1) + 1 (so basically we're adding two same length numbers)
         //if ($m_length & 1) {
         //    return self::regularBarrett($n, $m);
         //}
@@ -116,28 +116,28 @@ abstract class Barrett extends Base
         $temp = substr($n, 0, -$m_length + 1);
         // if even: ((m.length >> 1) + 2) + (m.length >> 1) == m.length + 2
         // if odd:  ((m.length >> 1) + 2) + (m.length >> 1) == (m.length - 1) + 2 == m.length + 1
-        $temp = bcmul($temp, $u);
+        $temp = bcmul($temp, $u, 0);
         // if even: (m.length + 2) - ((m.length >> 1) + 1) = m.length - (m.length >> 1) + 1
         // if odd:  (m.length + 1) - ((m.length >> 1) + 1) = m.length - (m.length >> 1)
         $temp = substr($temp, 0, -($m_length >> 1) - 1);
         // if even: (m.length - (m.length >> 1) + 1) + m.length = 2 * m.length - (m.length >> 1) + 1
         // if odd:  (m.length - (m.length >> 1)) + m.length     = 2 * m.length - (m.length >> 1)
-        $temp = bcmul($temp, $m);
+        $temp = bcmul($temp, $m, 0);
 
         // at this point, if m had an odd number of digits, we'd be subtracting a 2 * m.length - (m.length >> 1) digit
         // number from a m.length + (m.length >> 1) + 1 digit number.  ie. there'd be an extra digit and the while loop
         // following this comment would loop a lot (hence our calling _regularBarrett() in that situation).
 
-        $result = bcsub($n, $temp);
+        $result = bcsub($n, $temp, 0);
 
         //if (bccomp($result, '0') < 0) {
         if ($result[0] == '-') {
             $temp = '1' . str_repeat('0', $m_length + 1);
-            $result = bcadd($result, $temp);
+            $result = bcadd($result, $temp, 0);
         }
 
-        while (bccomp($result, $m) >= 0) {
-            $result = bcsub($result, $m);
+        while (bccomp($result, $m, 0) >= 0) {
+            $result = bcsub($result, $m, 0);
         }
 
         return $correctionNeeded && $result != '0' ? substr($result, 0, -1) : $result;
@@ -163,7 +163,7 @@ abstract class Barrett extends Base
         $n_length = strlen($n);
 
         if (strlen($x) > 2 * $n_length) {
-            return bcmod($x, $n);
+            return self::BCMOD_THREE_PARAMS ? bcmod($x, $n, 0) : bcmod($x, $n);
         }
 
         if (($key = array_search($n, $cache[self::VARIABLE])) === false) {
@@ -174,21 +174,21 @@ abstract class Barrett extends Base
         }
 
         $temp = substr($x, 0, -$n_length + 1);
-        $temp = bcmul($temp, $cache[self::DATA][$key]);
+        $temp = bcmul($temp, $cache[self::DATA][$key], 0);
         $temp = substr($temp, 0, -$n_length - 1);
 
         $r1 = substr($x, -$n_length - 1);
-        $r2 = substr(bcmul($temp, $n), -$n_length - 1);
+        $r2 = substr(bcmul($temp, $n, 0), -$n_length - 1);
         $result = bcsub($r1, $r2);
 
         //if (bccomp($result, '0') < 0) {
         if ($result[0] == '-') {
             $q = '1' . str_repeat('0', $n_length + 1);
-            $result = bcadd($result, $q);
+            $result = bcadd($result, $q, 0);
         }
 
-        while (bccomp($result, $n) >= 0) {
-            $result = bcsub($result, $n);
+        while (bccomp($result, $n, 0) >= 0) {
+            $result = bcsub($result, $n, 0);
         }
 
         return $result;
