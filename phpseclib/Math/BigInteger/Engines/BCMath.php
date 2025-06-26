@@ -140,7 +140,7 @@ class BCMath extends Engine
         }
 
         while (bccomp($current, '0', 0) > 0) {
-            $temp = bcmod($current, '16777216');
+            $temp = bcmod($current, '16777216', 0);
             $value = chr($temp >> 16) . chr($temp >> 8) . chr((int) $temp) . $value;
             $current = bcdiv($current, '16777216', 0);
         }
@@ -156,7 +156,7 @@ class BCMath extends Engine
     public function add(BCMath $y): BCMath
     {
         $temp = new self();
-        $temp->value = bcadd($this->value, $y->value);
+        $temp->value = bcadd($this->value, $y->value, 0);
 
         return $this->normalize($temp);
     }
@@ -167,7 +167,7 @@ class BCMath extends Engine
     public function subtract(BCMath $y): BCMath
     {
         $temp = new self();
-        $temp->value = bcsub($this->value, $y->value);
+        $temp->value = bcsub($this->value, $y->value, 0);
 
         return $this->normalize($temp);
     }
@@ -178,7 +178,7 @@ class BCMath extends Engine
     public function multiply(BCMath $x): BCMath
     {
         $temp = new self();
-        $temp->value = bcmul($this->value, $x->value);
+        $temp->value = bcmul($this->value, $x->value, 0);
 
         return $this->normalize($temp);
     }
@@ -199,7 +199,7 @@ class BCMath extends Engine
         $remainder = new self();
 
         $quotient->value = bcdiv($this->value, $y->value, 0);
-        $remainder->value = bcmod($this->value, $y->value);
+        $remainder->value = bcmod($this->value, $y->value, 0);
 
         if ($remainder->value[0] == '-') {
             $remainder->value = bcadd($remainder->value, $y->value[0] == '-' ? substr($y->value, 1) : $y->value, 0);
@@ -415,7 +415,7 @@ class BCMath extends Engine
         $result->bitmask = $this->bitmask;
 
         if ($result->bitmask !== false) {
-            $result->value = bcmod($result->value, $result->bitmask->value);
+            $result->value = bcmod($result->value, $result->bitmask->value, 0);
         }
 
         return $result;
@@ -457,7 +457,7 @@ class BCMath extends Engine
     protected function make_odd(): void
     {
         if (!$this->isOdd()) {
-            $this->value = bcadd($this->value, '1');
+            $this->value = bcadd($this->value, '1', 0);
         }
     }
 
@@ -481,7 +481,7 @@ class BCMath extends Engine
         $value = $this->value;
 
         foreach (self::PRIMES as $prime) {
-            $r = bcmod($this->value, (string)$prime);
+            $r = bcmod($this->value, (string)$prime, 0);
             if ($r == '0') {
                 return $this->value == $prime;
             }
@@ -516,7 +516,7 @@ class BCMath extends Engine
     public function pow(BCMath $n): BCMath
     {
         $temp = new self();
-        $temp->value = bcpow($this->value, $n->value);
+        $temp->value = bcpow($this->value, $n->value, 0);
 
         return $this->normalize($temp);
     }
@@ -569,8 +569,9 @@ class BCMath extends Engine
      */
     public function testBit($x): bool
     {
+        $divisor = bcpow('2', $x + 1, 0);
         return bccomp(
-            bcmod($this->value, bcpow('2', $x + 1, 0)),
+            bcmod($this->value, $divisor, 0),
             bcpow('2', $x, 0),
             0
         ) >= 0;

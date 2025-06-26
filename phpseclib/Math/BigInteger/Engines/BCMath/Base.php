@@ -74,7 +74,7 @@ abstract class Base extends BCMath
      */
     protected static function multiplyReduce(string $x, string $y, string $n, string $class): string
     {
-        return static::reduce(bcmul($x, $y), $n);
+        return static::reduce(bcmul($x, $y, 0), $n);
     }
 
     /**
@@ -84,6 +84,6 @@ abstract class Base extends BCMath
      */
     protected static function squareReduce(string $x, string $n, string $class): string
     {
-        return static::reduce(bcmul($x, $x), $n);
+        return static::reduce(bcmul($x, $x, 0), $n);
     }
 }
