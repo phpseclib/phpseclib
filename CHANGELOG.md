@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.46 - 2025-06-29
+
+- BigInteger/BCMath: strict_types fix (#2089)
+
 ## 3.0.45 - 2025-06-22
 
 - BigInteger: modPow() calls with negative base gave incorrect result (#2086)
