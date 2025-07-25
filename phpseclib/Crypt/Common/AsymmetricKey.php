@@ -116,7 +116,7 @@ abstract class AsymmetricKey
         }
 
         self::loadPlugins('Keys');
-        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH') {
+        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH' && static::ALGORITHM != 'DILITHIUM') {
             self::loadPlugins('Signature');
         }
     }
@@ -214,7 +214,7 @@ abstract class AsymmetricKey
      *
      * @return static
      */
-    public static function loadFormat(string $type, string $key, ?string $password = null): AsymmetricKey
+    public static function loadFormat(string $type, string|array $key, ?string $password = null): AsymmetricKey
     {
         self::initialize_static_variables();
 

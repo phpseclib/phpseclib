@@ -29,13 +29,16 @@ namespace phpseclib3\File;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\Common\PublicKey;
+use phpseclib3\Crypt\DILITHIUM;
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\EC;
+use phpseclib3\Crypt\FALCON;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib3\Crypt\SPHINCS;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1\Element;
@@ -1405,6 +1408,9 @@ class X509
                         throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
                 }
                 break;
+            case 'dilithium5':
+                $key = DILITHIUM::loadFormat('PEM', ['key_pem' => $publicKey, 'method_name' => $publicKeyAlgorithm]);
+                break;
             default:
                 throw new UnsupportedAlgorithmException('Public key algorithm unsupported');
         }
@@ -2077,6 +2083,53 @@ class X509
                 return EC::loadFormat('PKCS8', $key);
             case 'id-dsa':
                 return DSA::loadFormat('PKCS8', $key);
+            case 'dilithium2':
+            case 'dilithium3':
+            case 'dilithium5':
+                return DILITHIUM::loadFormat(
+                    'PEM',
+                    ['key_pem' => $key, 'method_name' => $keyinfo['algorithm']['algorithm']]
+                );
+            case 'falcon512':
+            case 'falcon1024':
+                return FALCON::loadFormat('PEM', $key);
+            case 'sphincsharaka128frobust':
+            case 'sphincsharaka128fsimple':
+            case 'sphincsharaka128srobust':
+            case 'sphincsharaka128ssimple':
+            case 'sphincsharaka192frobust':
+            case 'sphincsharaka192fsimple':
+            case 'sphincsharaka192srobust':
+            case 'sphincsharaka192ssimple':
+            case 'sphincsharaka256frobust':
+            case 'sphincsharaka256fsimple':
+            case 'sphincsharaka256srobust':
+            case 'sphincsharaka256ssimple':
+            case 'sphincssha256128frobust':
+            case 'sphincssha256128fsimple':
+            case 'sphincssha256128srobust':
+            case 'sphincssha256128ssimple':
+            case 'sphincssha256192frobust':
+            case 'sphincssha256192fsimple':
+            case 'sphincssha256192srobust':
+            case 'sphincssha256192ssimple':
+            case 'sphincssha256256frobust':
+            case 'sphincssha256256fsimple':
+            case 'sphincssha256256srobust':
+            case 'sphincssha256256ssimple':
+            case 'sphincsshake256128frobust':
+            case 'sphincsshake256128fsimple':
+            case 'sphincsshake256128srobust':
+            case 'sphincsshake256128ssimple':
+            case 'sphincsshake256196frobust':
+            case 'sphincsshake256196fsimple':
+            case 'sphincsshake256196srobust':
+            case 'sphincsshake256196ssimple':
+            case 'sphincsshake256256frobust':
+            case 'sphincsshake256256fsimple':
+            case 'sphincsshake256256srobust':
+            case 'sphincsshake256256ssimple':
+                return SPHINCS::loadFormat('PEM', $key);
         }
 
         return false;
