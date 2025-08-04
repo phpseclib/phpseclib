@@ -4018,6 +4018,7 @@ class SSH2
                     }
                     // fall-through
                 case MessageType::CHANNEL_EOF:
+                case MessageType::CHANNEL_SUCCESS:
                     break;
                 default:
                     $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
