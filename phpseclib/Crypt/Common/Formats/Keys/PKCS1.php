@@ -91,7 +91,7 @@ abstract class PKCS1 extends PKCS
     /**
      * Generate a symmetric key for PKCS#1 keys
      */
-    private static function generateSymmetricKey(string $password, string $iv, int $length): string
+    private static function generateSymmetricKey(#[SensitiveParameter] string $password, string $iv, int $length): string
     {
         $symkey = '';
         $iv = substr($iv, 0, 8);
@@ -107,7 +107,7 @@ abstract class PKCS1 extends PKCS
      * @param string|array $key
      * @return array|string
      */
-    protected static function load($key, ?string $password = null)
+    protected static function load($key, #[SensitiveParameter] ?string $password = null)
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -160,7 +160,7 @@ abstract class PKCS1 extends PKCS
      * @param string|false $password
      * @param array $options optional
      */
-    protected static function wrapPrivateKey(string $key, string $type, $password, array $options = []): string
+    protected static function wrapPrivateKey(string $key, string $type, #[SensitiveParameter] $password, array $options = []): string
     {
         if (empty($password) || !is_string($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .

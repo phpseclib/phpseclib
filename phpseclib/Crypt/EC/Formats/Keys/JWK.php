@@ -41,7 +41,7 @@ abstract class JWK extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::loadHelper($key);
 
@@ -172,6 +172,7 @@ abstract class JWK extends Progenitor
         BaseCurve $curve,
         array $publicKey,
         ?string $secret = null,
+        #[SensitiveParameter]
         ?string $password = null,
         array $options = []
     ): string {

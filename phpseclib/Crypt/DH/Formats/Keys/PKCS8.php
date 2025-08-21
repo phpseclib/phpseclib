@@ -60,7 +60,7 @@ abstract class PKCS8 extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::load($key, $password);
 
@@ -90,7 +90,7 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         $params = [
             'prime' => $prime,

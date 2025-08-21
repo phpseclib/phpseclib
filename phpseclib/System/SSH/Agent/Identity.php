@@ -306,7 +306,7 @@ class Identity implements PrivateKey
      *
      * @return never
      */
-    public function withPassword(?string $password = null): PrivateKey
+    public function withPassword(#[SensitiveParameter] ?string $password = null): PrivateKey
     {
         throw new RuntimeException('ssh-agent does not provide a mechanism to get the private key');
     }

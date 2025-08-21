@@ -52,7 +52,7 @@ abstract class OpenSSH extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $parsed = parent::load($key, $password);
 

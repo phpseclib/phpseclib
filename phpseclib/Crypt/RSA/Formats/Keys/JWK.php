@@ -31,7 +31,7 @@ abstract class JWK extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::loadHelper($key);
 
@@ -93,7 +93,7 @@ abstract class JWK extends Progenitor
      * @param string $password optional
      * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         if (count($primes) != 2) {
             throw new \InvalidArgumentException('JWK does not support multi-prime RSA keys');

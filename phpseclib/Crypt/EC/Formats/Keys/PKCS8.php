@@ -66,7 +66,7 @@ abstract class PKCS8 extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         // initialize_static_variables() is defined in both the trait and the parent class
         // when it's defined in two places it's the traits one that's called
@@ -193,7 +193,7 @@ abstract class PKCS8 extends Progenitor
      *
      * @param Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $secret = null, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $secret = null, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         self::initialize_static_variables();
 

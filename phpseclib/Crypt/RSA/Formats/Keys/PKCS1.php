@@ -45,7 +45,7 @@ abstract class PKCS1 extends Progenitor
      * @param string|array $key
      * @param string|false $password
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -122,7 +122,7 @@ abstract class PKCS1 extends Progenitor
      * @param string|false $password
      * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         $num_primes = count($primes);
         $key = [
