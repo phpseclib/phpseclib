@@ -325,7 +325,7 @@ abstract class DH extends AsymmetricKey
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): AsymmetricKey
+    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
         try {
             return EC::load($key, $password);

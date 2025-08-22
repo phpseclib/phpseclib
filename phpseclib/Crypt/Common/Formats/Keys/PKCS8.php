@@ -303,7 +303,7 @@ abstract class PKCS8 extends PKCS
      *
      * @param string|array $key
      */
-    protected static function load($key, ?string $password = null): array
+    protected static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -541,7 +541,7 @@ abstract class PKCS8 extends PKCS
      * @param string $publicKey optional
      * @param array $options optional
      */
-    protected static function wrapPrivateKey(string $key, $attr, $params, $password, ?string $oid = null, string $publicKey = '', array $options = []): string
+    protected static function wrapPrivateKey(string $key, $attr, $params, #[SensitiveParameter] $password, ?string $oid = null, string $publicKey = '', array $options = []): string
     {
         self::initialize_static_variables();
 

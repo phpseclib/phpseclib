@@ -66,7 +66,7 @@ abstract class MSBLOB
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -167,7 +167,7 @@ abstract class MSBLOB
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null): string
     {
         if (count($primes) != 2) {
             throw new InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');

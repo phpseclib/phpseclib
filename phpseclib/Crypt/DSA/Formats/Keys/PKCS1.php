@@ -48,7 +48,7 @@ abstract class PKCS1 extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::load($key, $password);
 
@@ -99,7 +99,7 @@ abstract class PKCS1 extends Progenitor
      * @param string $password optional
      * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, string $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, #[SensitiveParameter] string $password = '', array $options = []): string
     {
         $key = [
             'version' => 0,

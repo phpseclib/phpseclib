@@ -60,7 +60,7 @@ abstract class XML
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         self::initialize_static_variables();
 

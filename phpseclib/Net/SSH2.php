@@ -1989,7 +1989,7 @@ class SSH2
      * @param string|PrivateKey|array[]|Agent|null ...$args
      * @see self::_login()
      */
-    public function login(string $username, ...$args): bool
+    public function login(string $username, #[SensitiveParameter] ...$args): bool
     {
         if (!$this->login_credentials_finalized) {
             $this->auth[] = func_get_args();
@@ -2017,7 +2017,7 @@ class SSH2
      * @param string|PrivateKey|array[]|Agent|null ...$args
      * @see self::_login_helper()
      */
-    protected function sublogin(string $username, ...$args): bool
+    protected function sublogin(string $username, #[SensitiveParameter] ...$args): bool
     {
         if (!($this->bitmap & self::MASK_CONSTRUCTOR)) {
             $this->connect();
@@ -2259,7 +2259,7 @@ class SSH2
      *
      * @param string|array $password
      */
-    private function keyboard_interactive_login(string $username, $password): bool
+    private function keyboard_interactive_login(string $username, #[SensitiveParameter] $password): bool
     {
         $packet = Strings::packSSH2(
             'Cs5',

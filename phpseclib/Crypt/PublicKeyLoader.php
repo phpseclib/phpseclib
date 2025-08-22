@@ -34,7 +34,7 @@ abstract class PublicKeyLoader
      * @param string|array $key
      * @throws NoKeyLoadedException if key is not valid
      */
-    public static function load($key, ?string $password = null): AsymmetricKey
+    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
         try {
             return EC::load($key, $password);
@@ -69,7 +69,7 @@ abstract class PublicKeyLoader
      *
      * @param string|array $key
      */
-    public static function loadPrivateKey($key, ?string $password = null): PrivateKey
+    public static function loadPrivateKey($key, #[SensitiveParameter] ?string $password = null): PrivateKey
     {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {

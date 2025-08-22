@@ -32,7 +32,7 @@ abstract class Raw
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!is_array($key)) {
             throw new UnexpectedValueException('Key should be a array - not a ' . gettype($key));
