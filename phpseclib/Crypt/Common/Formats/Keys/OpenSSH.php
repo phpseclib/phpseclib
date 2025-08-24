@@ -60,7 +60,7 @@ abstract class OpenSSH
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -174,7 +174,7 @@ abstract class OpenSSH
      *
      * @param string|false $password
      */
-    protected static function wrapPrivateKey(string $publicKey, string $privateKey, $password, array $options): string
+    protected static function wrapPrivateKey(string $publicKey, string $privateKey, #[SensitiveParameter] $password, array $options): string
     {
         [, $checkint] = unpack('N', Random::string(4));
 

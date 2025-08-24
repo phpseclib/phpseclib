@@ -37,7 +37,7 @@ abstract class MontgomeryPublic
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
         switch (strlen($key)) {
             case 32:

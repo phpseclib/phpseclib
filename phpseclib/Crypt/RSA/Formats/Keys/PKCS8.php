@@ -64,7 +64,7 @@ abstract class PKCS8 extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::load($key, $password);
 
@@ -88,7 +88,7 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);
         $key = ASN1::extractBER($key);

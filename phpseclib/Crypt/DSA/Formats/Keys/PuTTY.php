@@ -76,7 +76,7 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         if ($q->getLength() != 160) {
             throw new InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');

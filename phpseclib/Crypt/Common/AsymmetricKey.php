@@ -127,7 +127,7 @@ abstract class AsymmetricKey
      * @param string|array $key
      * @return PublicKey|PrivateKey
      */
-    public static function load($key, ?string $password = null): AsymmetricKey
+    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
         self::initialize_static_variables();
 
@@ -172,7 +172,7 @@ abstract class AsymmetricKey
      * @param string|array $key
      * @param string $password optional
      */
-    public static function loadPrivateKey($key, string $password = ''): PrivateKey
+    public static function loadPrivateKey($key, #[SensitiveParameter] string $password = ''): PrivateKey
     {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
@@ -214,7 +214,7 @@ abstract class AsymmetricKey
      *
      * @return static
      */
-    public static function loadFormat(string $type, string $key, ?string $password = null): AsymmetricKey
+    public static function loadFormat(string $type, string $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
         self::initialize_static_variables();
 
@@ -242,7 +242,7 @@ abstract class AsymmetricKey
     /**
      * Loads a private key
      */
-    public static function loadPrivateKeyFormat(string $type, string $key, ?string $password = null): PrivateKey
+    public static function loadPrivateKeyFormat(string $type, string $key, #[SensitiveParameter] ?string $password = null): PrivateKey
     {
         $key = self::loadFormat($type, $key, $password);
         if (!$key instanceof PrivateKey) {

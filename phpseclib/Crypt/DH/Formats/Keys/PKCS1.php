@@ -41,7 +41,7 @@ abstract class PKCS1 extends Progenitor
      *
      * @param string|array $key
      */
-    public static function load($key, ?string $password = null): array
+    public static function load($key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::load($key, $password);
 
