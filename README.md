@@ -63,14 +63,14 @@ Need Support?
 
 * [Checkout Questions and Answers on Stack Overflow](http://stackoverflow.com/questions/tagged/phpseclib)
 * [Create a Support Ticket on GitHub](https://github.com/phpseclib/phpseclib/issues/new)
-* [Browse the Support Forum](http://www.frostjedi.com/phpbb/viewforum.php?f=46) (no longer in use)
 
 ## Special Thanks
 
-Special Thanks to our $50+ sponsors!:
+Special Thanks to our $50+/month sponsors!:
 
 - Allan Simon
 - [ChargeOver](https://chargeover.com/)
+- <a href="https://jb.gg/OpenSource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" height="20px"></a>
 
 ## Contributing
 
