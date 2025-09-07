@@ -1021,6 +1021,9 @@ class SFTP extends SSH2
         }
 
         $dir = $this->_realpath($dir);
+        if ($dir === false) {
+            return false;
+        }
 
         // confirm that $dir is, in fact, a valid directory
         if ($this->use_stat_cache && is_array($this->_query_stat_cache($dir))) {
