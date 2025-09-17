@@ -19,6 +19,7 @@ use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\File\ASN1;
 use phpseclib3\File\X509;
 
 /**
@@ -31,35 +32,43 @@ abstract class PublicKeyLoader
     /**
      * Loads a public or private key
      *
-     * @param string|array $key
      * @throws NoKeyLoadedException if key is not valid
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
+        // use ASN1::EXCEPTIONS_EVERY_TIME here because without it a valid RSAPublicKey
+        // will be recognized as an invalid RSAPrivateKey
+        $old = ASN1::getErrorHandlingMode();
+        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
         try {
-            return EC::load($key, $password);
+            $key = EC::load($key, $password);
+            ASN1::setErrorHandlingMode($old);
+            return $key;
         } catch (NoKeyLoadedException $e) {
         }
 
         try {
-            return RSA::load($key, $password);
+            $key = RSA::load($key, $password);
+            ASN1::setErrorHandlingMode($old);
+            return $key;
         } catch (NoKeyLoadedException $e) {
         }
 
         try {
-            return DSA::load($key, $password);
+            $key = DSA::load($key, $password);
+            ASN1::setErrorHandlingMode($old);
+            return $key;
         } catch (NoKeyLoadedException $e) {
         }
 
         try {
-            $x509 = new X509();
-            $x509->loadX509($key);
-            $key = $x509->getPublicKey();
-            if ($key) {
-                return $key;
-            }
+            $key = X509::load($key)->getPublicKey();
+            ASN1::setErrorHandlingMode($old);
+            return $key;
         } catch (\Exception $e) {
         }
+
+        ASN1::setErrorHandlingMode($old);
 
         throw new NoKeyLoadedException('Unable to read key');
     }

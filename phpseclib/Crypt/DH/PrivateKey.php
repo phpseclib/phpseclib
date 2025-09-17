@@ -28,17 +28,13 @@ final class PrivateKey extends DH
 
     /**
      * Private Key
-     *
-     * @var BigInteger
      */
-    protected $privateKey;
+    protected BigInteger $privateKey;
 
     /**
      * Public Key
-     *
-     * @var BigInteger
      */
-    protected $publicKey;
+    protected BigInteger $publicKey;
 
     /**
      * Returns the public key
@@ -58,8 +54,6 @@ final class PrivateKey extends DH
 
     /**
      * Returns the private key
-     *
-     * @param array $options optional
      */
     public function toString(string $type, array $options = []): string
     {

@@ -12,8 +12,12 @@ namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\DSA;
+use phpseclib3\Crypt\EC;
+use phpseclib3\Exception\RuntimeException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Element;
+use phpseclib3\File\ASN1\MalformedData;
 use phpseclib3\File\X509;
 use phpseclib3\Tests\PhpseclibTestCase;
 
@@ -61,11 +65,32 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
 833K6qyjgHJT+fUzSEYpiwF5rSBJIGClOCY=
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
+        $cert = X509::load($test);
 
-        $cert = $x509->loadX509($test);
+        $this->assertIsArray($cert->toArray()['tbsCertificate']['extensions'][3]['extnValue']);
+        $this->assertIsArray($cert->getExtension('id-pe-authorityInfoAccess')['extnValue']->toArray());
 
-        $this->assertIsArray($cert['tbsCertificate']['extensions'][3]['extnValue']);
+        $this->assertEquals(1, $cert['tbsCertificate']->depth);
+        $this->assertEquals(2, $cert['tbsCertificate']['extensions']->depth);
+        $this->assertEquals(3, $cert['tbsCertificate']['extensions'][3]->depth);
+        $this->assertEquals(4, $cert['tbsCertificate']['extensions'][3]['extnValue']->depth);
+
+        $this->assertEquals(
+            $cert->getEncoded(),
+            $cert['tbsCertificate']->parent->getEncoded()
+        );
+        $this->assertEquals(
+            $cert['tbsCertificate']->getEncoded(),
+            $cert['tbsCertificate']['extensions']->parent->getEncoded()
+        );
+        $this->assertEquals(
+            $cert['tbsCertificate']['extensions']->getEncoded(),
+            $cert['tbsCertificate']['extensions'][3]->parent->getEncoded()
+        );
+        $this->assertEquals(
+            $cert['tbsCertificate']['extensions'][3]->getEncoded(),
+            $cert['tbsCertificate']['extensions'][3]['extnValue']->parent->getEncoded()
+        );
     }
 
     public function testLoadUnsupportedExtension(): void
@@ -110,17 +135,17 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
 833K6qyjgHJT+fUzSEYpiwF5rSBJIGClOCY=
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
+        $cert = X509::load($test);
 
-        $cert = $x509->loadX509($test);
-
-        $this->assertEquals(base64_decode('MDUwDgYIKoZIhvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBw=='), $cert['tbsCertificate']['extensions'][8]['extnValue']);
+        $expected = base64_decode('MDUwDgYIKoZIhvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBw==');
+        $this->assertEquals($expected, $cert->toArray()['tbsCertificate']['extensions'][8]['extnValue']->value);
+        $this->assertEquals($expected, $cert['tbsCertificate']['extensions'][8]['extnValue']->value);
+        $this->assertEquals($expected, $cert->getExtension('pkcs-9-at-smimeCapabilities')['extnValue']->value);
     }
 
     public function testSaveUnsupportedExtension(): void
     {
-        $x509 = new X509();
-        $cert = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIDITCCAoqgAwIBAgIQT52W2WawmStUwpV8tBV9TTANBgkqhkiG9w0BAQUFADBM
 MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
 THRkLjEWMBQGA1UEAxMNVGhhd3RlIFNHQyBDQTAeFw0xMTEwMjYwMDAwMDBaFw0x
@@ -140,17 +165,40 @@ ulvKGQSy068Bsn5fFNum21K5mvMSf3yinDtvmX3qUA12IxL/92ZzKbeVCq3Yi7Le
 IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 -----END CERTIFICATE-----');
 
-        $value = ASN1::encodeOID('1.2.3.4');
+        $oid = '1.2.3.4';
+        $value = ASN1::encodeOID($oid);
         $ext = chr(ASN1::TYPE_OBJECT_IDENTIFIER) . ASN1::encodeLength(strlen($value)) . $value;
         $value = 'zzzzzzzzz';
         $ext .= chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength(strlen($value)) . $value;
         $ext = chr(ASN1::TYPE_SEQUENCE | 0x20) . ASN1::encodeLength(strlen($ext)) . $ext;
 
-        $cert['tbsCertificate']['extensions'][4] = new Element($ext);
+        $this->assertCount(4, $x509['tbsCertificate']['extensions']);
 
-        $result = $x509->loadX509($x509->saveX509($cert));
+        $x509['tbsCertificate']['extensions'][4] = new Element($ext);
 
-        $this->assertCount(5, $result['tbsCertificate']['extensions']);
+        $this->assertCount(5, $x509['tbsCertificate']['extensions']);
+        $x509 = X509::load("$x509");
+        $this->assertCount(5, $x509['tbsCertificate']['extensions']);
+
+        // the order for this matters. if you do unset($x509['tbsCertificate']['extensions'][0]) first
+        // then what had been $x509['tbsCertificate']['extensions'][4] will all of a sudden be
+        // $x509['tbsCertificate']['extensions'][3]
+        unset($x509['tbsCertificate']['extensions'][4]);
+        unset($x509['tbsCertificate']['extensions'][0]);
+
+        $this->assertCount(3, $x509['tbsCertificate']['extensions']);
+        $x509 = X509::load("$x509");
+        $this->assertCount(3, $x509['tbsCertificate']['extensions']);
+
+        // the following won't work because phpseclib doesn't save unknown / unsupported extensions
+        // the chief reason for this is that it doesn't know how to encode extensions it doesn't know
+        // about. like if you pass a string is that supposed to be a UTF8String or an OctetString?
+        // phpseclib don't know! i suppose an exception could be made if $value is an ASN1\Element
+        // but no such exception currently exists
+        //$x509->setExtension($oid, $value, true);
+        //$this->assertCount(4, $x509['tbsCertificate']['extensions']);
+        //$x509 = X509::load("$x509");
+        //$this->assertCount(4, $x509['tbsCertificate']['extensions']);
     }
 
     /**
@@ -179,33 +227,21 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
 
         $pubKey = $privKey->getPublicKey();
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
-        $subject->setPublicKey($pubKey);
+        $cert = new X509();
+        $cert->addDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $cert->setPublicKey($pubKey);
+        $cert->setEndDate('lifetime');
+        $privKey->sign($cert);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($privKey);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-        $x509->setEndDate('lifetime');
-
-        $result = $x509->sign($issuer, $subject);
-        $cert = $x509->saveX509($result);
-        $cert = $x509->loadX509($cert);
-
-        $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['subjectPublicKeyInfo']['algorithm']);
-        $this->assertArrayHasKey('parameters', $cert['signatureAlgorithm']);
-        $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']);
+        $this->assertArrayHasKey('parameters', $cert['signatureAlgorithm']->toArray());
+        $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']->toArray());
     }
 
     public function testGetOID(): void
     {
-        // load the OIDs
-        new X509();
-        $this->assertEquals(ASN1::getOID('1.2.840.113549.1.1.5'), '1.2.840.113549.1.1.5');
-        $this->assertEquals(ASN1::getOID('sha1WithRSAEncryption'), '1.2.840.113549.1.1.5');
-        $this->assertEquals(ASN1::getOID('zzz'), 'zzz');
+        $this->assertEquals(ASN1::getOIDFromName('1.2.840.113549.1.1.5'), '1.2.840.113549.1.1.5');
+        $this->assertEquals(ASN1::getOIDFromName('sha1WithRSAEncryption'), '1.2.840.113549.1.1.5');
+        $this->assertEquals(ASN1::getOIDFromName('zzz'), 'zzz');
     }
 
     public function testIPAddressSubjectAltNamesDecoding(): void
@@ -237,16 +273,17 @@ sE3f2TNnmKFRJx67bEMoaaWLIR94Yuq/TWB6dTiWwk9meZkGG3OjQg/YbO6vl/Am
 NDEuGt30Vl2de7G1glnhaceB6Q9KfH7p2gAwNP9JMTtx3PtEcA==
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
-        $cert = $x509->loadX509($test);
-        $this->assertEquals($cert['tbsCertificate']['extensions'][3]['extnValue'][0]['iPAddress'], '204.152.200.250');
-        $this->assertEquals($cert['tbsCertificate']['extensions'][3]['extnValue'][1]['iPAddress'], '2001:470:f309:9::3');
+        $cert = X509::load($test);
+        $this->assertEquals('204.152.200.250', $cert['tbsCertificate']['extensions'][3]['extnValue'][0]['iPAddress']);
+        $this->assertEquals('2001:470:f309:9::3', $cert['tbsCertificate']['extensions'][3]['extnValue'][1]['iPAddress']);
+
+        $this->assertEquals('204.152.200.250', (string) $cert->getExtension('id-ce-subjectAltName')['extnValue'][0]);
+        $this->assertEquals('2001:470:f309:9::3', (string) $cert->getExtension('id-ce-subjectAltName')['extnValue'][1]);
     }
 
     public function testPostalAddress(): void
     {
-        $x509 = new X509();
-        $decoded = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIFzzCCBLegAwIBAgIDAfdlMA0GCSqGSIb3DQEBBQUAMHMxCzAJBgNVBAYTAlBM
 MSgwJgYDVQQKDB9LcmFqb3dhIEl6YmEgUm96bGljemVuaW93YSBTLkEuMSQwIgYD
 VQQDDBtDT1BFIFNaQUZJUiAtIEt3YWxpZmlrb3dhbnkxFDASBgNVBAUTC05yIHdw
@@ -280,25 +317,25 @@ f3kHVzgM6j3VAM7oFmMUb5y5s96Bzl10DodWitjOEH0vvnIcsppSxH1C1dCAi0o9
 f/1y2XuLNhBNHMAyTqpYPX8Yvav1c+Z50OMaSXHAnTa20zv8UtiHbaAhwlifCelU
 Mj93
 -----END CERTIFICATE-----');
-        $x509->loadX509($x509->saveX509($decoded));
         $expected = [
-            [
-                ['utf8String' => "Al. Marsza\xC5\x82ka Pi\xC5\x82sudskiego 52/54"],
-                ['utf8String' => '81-382 Gdynia'],
-                ['utf8String' => 'Polska'],
-                ['utf8String' => 'pomorskie'],
-            ],
+            "Al. Marsza\xC5\x82ka Pi\xC5\x82sudskiego 52/54",
+            '81-382 Gdynia',
+            'Polska',
+            'pomorskie',
         ];
-        $this->assertEquals($x509->getDNProp('id-at-postalAddress'), $expected);
+        $actual = $x509->getSubjectDNProps('id-at-postalAddress')[0];
+        $this->assertEquals($expected[0], "$actual[0]");
+        $this->assertEquals($expected[1], "$actual[1]");
+        $this->assertEquals($expected[2], "$actual[2]");
+        $this->assertEquals($expected[3], "$actual[3]");
 
-        $expected = "C=PL, O=Urz\xC4\x85d Miasta Gdyni/serialNumber=PESEL: 61060603118, CN=Jerzy Przeworski/postalAddress=" . '0F\X0C"AL. MARSZA\XC5\X82KA PI\XC5\X82SUDSKIEGO 52/54\X0C\X0D81-382 GDYNIA\X0C\X06POLSKA\X0C\X09POMORSKIE/givenName=Jerzy, SN=Przeworski';
-        $this->assertEquals($x509->getDN(X509::DN_STRING), $expected);
+        $expected = 'C = PL, O = Urz\C4\85d Miasta Gdyni, serialNumber = PESEL: 61060603118, CN = Jerzy Przeworski, postalAddress = #30460C22416C2E204D6172737A61C5826B61205069C582737564736B6965676F2035322F35340C0D38312D333832204764796E69610C06506F6C736B610C09706F6D6F72736B6965, GN = Jerzy, SN = Przeworski';
+        $this->assertEquals($expected, $x509->getSubjectDN(X509::DN_STRING));
     }
 
     public function testStrictComparison(): void
     {
-        $x509 = new X509();
-        $x509->loadCA('-----BEGIN CERTIFICATE-----
+        X509::addCA('-----BEGIN CERTIFICATE-----
 MIIEbDCCA1SgAwIBAgIUJguKOMpJm/yRMDlMOW04NV0YPXowDQYJKoZIhvcNAQEF
 BQAwYTELMAkGA1UEBhMCUEwxNzA1BgNVBAoTLkNaaUMgQ2VudHJhc3QgU0EgdyBp
 bWllbml1IE1pbmlzdHJhIEdvc3BvZGFya2kxGTAXBgNVBAMTEENaaUMgQ2VudHJh
@@ -325,7 +362,7 @@ HZDmxaIoJdmCxfn9XeIS5PcZR+mHHkUOIhYLnfdUp/T3Yxxo+XrrTckC6AjtsL5/
 OA0vBLngVqqeuzVf0tUhcrCwPKQo5rKoakbApeXrows=
 -----END CERTIFICATE-----');
 
-        $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIFzzCCBLegAwIBAgIDAfdlMA0GCSqGSIb3DQEBBQUAMHMxCzAJBgNVBAYTAlBM
 MSgwJgYDVQQKDB9LcmFqb3dhIEl6YmEgUm96bGljemVuaW93YSBTLkEuMSQwIgYD
 VQQDDBtDT1BFIFNaQUZJUiAtIEt3YWxpZmlrb3dhbnkxFDASBgNVBAUTC05yIHdw
@@ -370,17 +407,10 @@ Mj93
             ->withHash('sha1');
         $publickey = $privatekey->getPublicKey();
 
-        $subject = new X509();
-        $subject->setDomain('example.com', 'example.net');
+        $x509 = new X509($publickey);
+        $x509->addDomains('example.com', 'example.net');
+        $privatekey->sign($x509);
 
-        $subject->setPublicKey($publickey);
-
-        $issuer = new X509();
-        $issuer->setPrivateKey($privatekey);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-        $x509->sign($issuer, $subject);
         self::assertTrue(true);
     }
 
@@ -418,12 +448,10 @@ F7xAUxmPUnNb2teatMf2Rmj0fs+d
 -----END CERTIFICATE-----
 ';
 
-        $x509 = new X509();
+        $cert = X509::load($test);
 
-        $cert = $x509->loadX509($test);
-
-        $this->assertEquals($cert['tbsCertificate']['validity']['notBefore']['utcTime'], 'Tue, 07 Jan 2014 00:00:00 +0000');
-        $this->assertEquals($cert['tbsCertificate']['validity']['notAfter']['utcTime'], 'Fri, 01 Apr 2016 07:00:00 +0000');
+        $this->assertEquals('2014-01-07 00:00:00', (string) $cert['tbsCertificate']['validity']['notBefore']['utcTime']);
+        $this->assertEquals('2016-04-01 07:00:00', (string) $cert['tbsCertificate']['validity']['notAfter']['utcTime']);
     }
 
     public function testValidateURL(): void
@@ -456,17 +484,17 @@ Oe2K7+R2Cf6p8bYmm3OABuYkvO8D+u8gIdIO5cP+ic+SDOGVNJaT949YPes/S99R
 C47x9g==
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
-
-        $cert = $x509->loadX509($test);
+        $x509 = X509::load($test);
 
         $this->assertTrue($x509->validateURL('https://www.google.com'));
     }
 
+    /**
+     * @group github1213
+     */
     public function testValidateSignatureWithoutKeyIdentifier(): void
     {
-        $x509 = new X509();
-        $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIDATCCAmqgAwIBAgICApowDQYJKoZIhvcNAQEFBQAwdzELMAkGA1UEBhMCVUsx
 DzANBgNVBAgMBkxvbmRvbjEPMA0GA1UEBwwGTG9uZG9uMQwwCgYDVQQKDANNUFMx
 DDAKBgNVBAsMA0RldjENMAsGA1UEAwwEdGVzdDEbMBkGCSqGSIb3DQEJARYMZGVr
@@ -488,9 +516,9 @@ nnA8of4=
 
         $authorityKeyIdentifier = $x509->getExtension('id-ce-authorityKeyIdentifier');
         $this->assertNotNull($authorityKeyIdentifier);
-        $this->assertFalse(isset($authorityKeyIdentifier['keyIdentifier']));
+        $this->assertFalse(isset($authorityKeyIdentifier['extnValue']['keyIdentifier']));
 
-        $x509->loadCA('-----BEGIN CERTIFICATE-----
+        X509::addCA('-----BEGIN CERTIFICATE-----
 MIIDITCCAoqgAwIBAgIJAPhY+J+6RrkTMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV
 BAYTAlVLMQ8wDQYDVQQIDAZMb25kb24xDzANBgNVBAcMBkxvbmRvbjEMMAoGA1UE
 CgwDTVBTMQwwCgYDVQQLDANEZXYxDTALBgNVBAMMBHRlc3QxGzAZBgkqhkiG9w0B
@@ -510,13 +538,16 @@ X5ZBGsa3olRvoKrhg8ian7NyfRviAk0iO8EAAFCeeYHPN6bbloGfUcuf72P8576w
 HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
 -----END CERTIFICATE-----');
 
+        X509::setTargetValidationDate(null);
         $this->assertTrue($x509->validateSignature());
     }
 
+    /**
+     * @group github1213
+     */
     public function testValidateSignatureSelfSignedWithoutKeyIdentifier(): void
     {
-        $x509 = new X509();
-        $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIDITCCAoqgAwIBAgIJAPhY+J+6RrkTMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNV
 BAYTAlVLMQ8wDQYDVQQIDAZMb25kb24xDzANBgNVBAcMBkxvbmRvbjEMMAoGA1UE
 CgwDTVBTMQwwCgYDVQQLDANEZXYxDTALBgNVBAMMBHRlc3QxGzAZBgkqhkiG9w0B
@@ -538,7 +569,7 @@ HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
 
         $authorityKeyIdentifier = $x509->getExtension('id-ce-authorityKeyIdentifier');
         $this->assertNotNull($authorityKeyIdentifier);
-        $this->assertFalse(isset($authorityKeyIdentifier['keyIdentifier']));
+        $this->assertFalse(isset($authorityKeyIdentifier['extnValue']['keyIdentifier']));
 
         $this->assertTrue($x509->validateSignature(false));
     }
@@ -580,14 +611,11 @@ A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
 +ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
 cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
 -----END CERTIFICATE-----';
-        $ca = new X509();
-        $ca->loadX509($pemca);
-        $ca->setPrivateKey($cakey);
+        $ca = X509::load($pemca);
 
         // Read the old certificate.
-        $oldcert = new X509();
-        $oldcert->loadCA($pemca);
-        $oldcert->loadX509('-----BEGIN CERTIFICATE-----
+        X509::addCA($pemca);
+        $cert = X509::load('-----BEGIN CERTIFICATE-----
 MIIB+TCCAWKgAwIBAgIUW+D7X27oKXHaD6WqFjelccV+D4YwDQYJKoZIhvcNAQEF
 BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
 WhcNMTkwMTIxMTc0NzM0WjA3MRwwGgYDVQQKDBNwaHBzZWNsaWIgZGVtbyBjZXJ0
@@ -600,27 +628,19 @@ G9eY1SJiwIHMcd5Eo41w+bN69EqOJhTY28LQc/m9i+Fuc1J6nkwDMKCtEeEUyhjl
 bEbVUszdgPQWON7Y2nS5OCb2BevxW8Xdf6gnf/PRRYmlZJgygwf0KpgSm5CxxsZW
 Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
 -----END CERTIFICATE-----');
-        $this->assertTrue($oldcert->validateSignature());
+        $this->assertTrue($cert->validateSignature());
+        $cert->setStartDate('-1 day');
+        $cert->setEndDate('+2 years');
+        $cert->removeExtension('id-ce-subjectAltName');
+        $cert->addDomains('www.google.com');
+        $cakey->sign($cert);
 
-        // Set new dates and serial number.
-        $newcert = new X509();
-        $newcert->setStartDate('-1 day');
-        $newcert->setEndDate('+2 years');
-        //$newcert->setSerialNumber('1234', 10);
-
-        $oldcert->setDomain('www.google.com');
-
-        // Produce the new certificate by signing the old one.
-        $crt = $newcert->loadX509($newcert->saveX509($newcert->sign($ca, $oldcert)));
-
-        // Output new certificate.
-        $newcert->saveX509($crt);
+        $this->assertIsString("$cakey");
     }
 
     public function testAuthorityInfoAccess(): void
     {
-        $x509 = new X509();
-        $x509->loadCA('-----BEGIN CERTIFICATE-----
+        X509::addCA('-----BEGIN CERTIFICATE-----
 MIIDrzCCApegAwIBAgIQCDvgVpBCRrGhdWrJWZHHSjANBgkqhkiG9w0BAQUFADBh
 MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3
 d3cuZGlnaWNlcnQuY29tMSAwHgYDVQQDExdEaWdpQ2VydCBHbG9iYWwgUm9vdCBD
@@ -642,7 +662,7 @@ PnlUkiaY4IBIqDfv8NZ5YBberOgOzW6sRBc4L0na4UU+Krk2U886UAb3LujEV0ls
 YSEY1QSteDwsOoBrp+uvFRTp2InBuThs4pFsiv9kuXclVzDAGySj4dzp30d8tbQk
 CAUw7C29C79Fv1C5qfPrmAESrciIxpg0X40KPMbp1ZWVbd4=
 -----END CERTIFICATE-----');
-        $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIG3TCCBcWgAwIBAgIQAtB7LVsRCmgbyWiiw7Sf5jANBgkqhkiG9w0BAQsFADBN
 MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMScwJQYDVQQDEx5E
 aWdpQ2VydCBTSEEyIFNlY3VyZSBTZXJ2ZXIgQ0EwHhcNMTcwOTEzMDAwMDAwWhcN
@@ -691,8 +711,7 @@ M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
 
     public function testValidateDate(): void
     {
-        $x509 = new X509();
-        $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIDITCCAoqgAwIBAgIQT52W2WawmStUwpV8tBV9TTANBgkqhkiG9w0BAQUFADBM
 MQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkg
 THRkLjEWMBQGA1UEAxMNVGhhd3RlIFNHQyBDQTAeFw0xMTEwMjYwMDAwMDBaFw0x
@@ -718,13 +737,15 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 
     public function testDSALoad(): void
     {
+        X509::clearCAStore();
+        X509::setTargetValidationDate(null);
+
         // openssl dsaparam -out params.pem 3072
         // openssl gendsa -out key.pem params.pem
         // openssl req -new -key key.pem -out req.pem
         // openssl x509 -req -in req.pem -signkey key.pem -out certificate.cer
 
-        $x509 = new X509();
-        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIF6jCCBZACCQDH427nRymbrDALBglghkgBZQMEAwIwRTELMAkGA1UEBhMCQVUx
 EzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMg
 UHR5IEx0ZDAeFw0xOTA1MjEwMjE2NTVaFw0xOTA2MjAwMjE2NTVaMEUxCzAJBgNV
@@ -759,19 +780,21 @@ ZQMEAwIDRwAwRAIgJPiEjjf2EMdvVuu5dkxR6OpVdbHST9pWTAUVa0ZMeuYCIBLX
 pMAUPdvLhVjjTvw4ypYrNMc4Z3z5n3bfCVzIQL5Z
 -----END CERTIFICATE-----');
 
-        $this->assertSame('id-dsa-with-sha256', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertSame('id-dsa', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertSame('id-dsa-with-sha256', $r['signatureAlgorithm']['algorithm']);
+        $this->assertEquals('id-dsa-with-sha256', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertInstanceOf(DSA::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('id-dsa-with-sha256', $x509['signatureAlgorithm']['algorithm']);
 
         $this->assertTrue($x509->validateSignature(false));
     }
 
     public function testECLoad(): void
     {
+        X509::clearCAStore();
+        X509::setTargetValidationDate(null);
+
         // openssl req -x509 -nodes -days 3650 -newkey ec:<(openssl ecparam -name prime256v1) -keyout ecdsakey.pem -out ecdsacert.pem
 
-        $x509 = new X509();
-        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIB0zCCAXqgAwIBAgIJAIUvi6ecHYnoMAoGCCqGSM49BAMCMEUxCzAJBgNVBAYT
 AkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRn
 aXRzIFB0eSBMdGQwHhcNMTkwNTIxMDIxOTMyWhcNMjkwNTE4MDIxOTMyWjBFMQsw
@@ -784,20 +807,22 @@ Af8wCgYIKoZIzj0EAwIDRwAwRAIgIBo2fgqfVsbKczXodiXamRIv1vmqgo3pIGzV
 f11dQP8CIDoB2AbvB3Yk/iGduWpw+3FwNAZ1y/rTqQK6+XgZCt6K
 -----END CERTIFICATE-----');
 
-        $this->assertSame('ecdsa-with-SHA256', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertSame('id-ecPublicKey', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertSame('ecdsa-with-SHA256', $r['signatureAlgorithm']['algorithm']);
+        $this->assertEquals('ecdsa-with-SHA256', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertInstanceOf(EC::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('ecdsa-with-SHA256', $x509['signatureAlgorithm']['algorithm']);
 
         $this->assertTrue($x509->validateSignature(false));
     }
 
     public function testPSSLoad(): void
     {
+        X509::clearCAStore();
+        X509::setTargetValidationDate(null);
+
         // openssl genpkey -algorithm rsa-pss -pkeyopt rsa_keygen_bits:2048 -pkeyopt rsa_keygen_pubexp:65537 -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_mgf1_md:sha512 -pkeyopt rsa_pss_keygen_saltlen:5 -out CA.priKey
         // openssl req -x509 -new -key CA.priKey -subj "/CN=CA" -sha256 -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_mgf1_md:sha512 -pkeyopt rsa_pss_keygen_saltlen:5 -out CA.cer
 
-        $x509 = new X509();
-        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIDizCCAkOgAwIBAgIUZe4gqXJqqyKvQDBxcbAuPdttxTQwPQYJKoZIhvcNAQEK
 MDCgDTALBglghkgBZQMEAgGhGjAYBgkqhkiG9w0BAQgwCwYJYIZIAWUDBAIDogMC
 AQUwDTELMAkGA1UEAwwCQ0EwHhcNMTkwNTA5MDI0MTI0WhcNMTkwNjA4MDI0MTI0
@@ -819,9 +844,9 @@ OKmHrFklewl1sfwIQzK+hHeimaUSrb6SIYYenbvH5XI9vjbA/jojlvIc1mz7Pzmr
 edu9tyNNr2vvZjshoY5y58+hVIjee/Pzxa7GX0LDEmK8FdFBxWeNx0g/TsZj6GE=
 -----END CERTIFICATE-----');
 
-        $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertSame('id-RSASSA-PSS', $r['signatureAlgorithm']['algorithm']);
+        $this->assertEquals('id-RSASSA-PSS', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertInstanceOf(RSA::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('id-RSASSA-PSS', $x509['signatureAlgorithm']['algorithm']);
 
         $this->assertTrue($x509->validateSignature(false));
     }
@@ -857,27 +882,17 @@ fjs3u44AnBdGdZzlKVXXobtpt4Nwq9elof+9iwdjKqki6A9h0NWS1w9zjZ21n3Yq
 uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
 -----END DSA PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
-        $public = $private->getPublicKey();
+        $x509 = new X509($private->getPublicKey());
+        $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $private->sign($x509);
+        $x509 = "$x509";
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
-        $subject->setPublicKey($public);
+        $this->assertIsString($x509);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($private);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-
-        $result = $x509->sign($issuer, $subject);
-        $result = $x509->saveX509($result);
-
-        $this->assertIsString($result);
-
-        $r = $x509->loadX509($result);
-        $this->assertSame('id-dsa-with-sha256', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertSame('id-dsa', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertSame('id-dsa-with-sha256', $r['signatureAlgorithm']['algorithm']);
+        $x509 = X509::load($x509);
+        $this->assertEquals('id-dsa-with-sha256', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertInstanceOf(DSA::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('id-dsa-with-sha256', $x509['signatureAlgorithm']['algorithm']);
     }
 
     public function testECSave(): void
@@ -888,27 +903,17 @@ MENv2e0W3cE6gRmETxEvTBAxRTShRANCAARdg5FlgVy16RLosh7Ly9rkIuRAJZnD
 wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
 -----END PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
-        $public = $private->getPublicKey();
+        $x509 = new X509($private->getPublicKey());
+        $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $private->sign($x509);
+        $x509 = "$x509";
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
-        $subject->setPublicKey($public);
+        $this->assertIsString($x509);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($private);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-
-        $result = $x509->sign($issuer, $subject);
-        $result = $x509->saveX509($result);
-
-        $this->assertIsString($result);
-
-        $r = $x509->loadX509($result);
-        $this->assertSame('ecdsa-with-SHA256', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertSame('id-ecPublicKey', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertSame('ecdsa-with-SHA256', $r['signatureAlgorithm']['algorithm']);
+        $x509 = X509::load($x509);
+        $this->assertEquals('ecdsa-with-SHA256', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertInstanceOf(EC::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('ecdsa-with-SHA256', $x509['signatureAlgorithm']['algorithm']);
     }
 
     public function testPSSSave(): void
@@ -927,30 +932,19 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
 -----END RSA PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
-        $public = $private->getPublicKey();
+        $x509 = new X509($private->getPublicKey());
+        $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $private->sign($x509);
+        $x509 = "$x509";
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
-        $subject->setPublicKey($public);
+        $this->assertIsString($x509);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($private);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-
-        $result = $x509->sign($issuer, $subject);
-        $result = $x509->saveX509($result);
-
-        $this->assertIsString($result);
-
-        $r = $x509->loadX509($result);
-        $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertArrayHasKey('parameters', $r['tbsCertificate']['signature']);
-        $this->assertSame('id-RSASSA-PSS', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertArrayHasKey('parameters', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']);
-        $this->assertSame('id-RSASSA-PSS', $r['signatureAlgorithm']['algorithm']);
-        $this->assertArrayHasKey('parameters', $r['signatureAlgorithm']);
+        $x509 = X509::load($x509)->toArray();
+        $this->assertEquals('id-RSASSA-PSS', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertArrayHasKey('parameters', $x509['tbsCertificate']['signature']);
+        $this->assertInstanceOf(RSA::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('id-RSASSA-PSS', $x509['signatureAlgorithm']['algorithm']);
+        $this->assertArrayHasKey('parameters', $x509['signatureAlgorithm']);
     }
 
     public function testPKCS1Save(): void
@@ -971,34 +965,23 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $private = PublicKeyLoader::load($private)
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('sha256');
-        $public = $private->getPublicKey();
+        $x509 = new X509($private->getPublicKey());
+        $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $private->sign($x509);
+        $x509 = "$x509";
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
-        $subject->setPublicKey($public);
+        $this->assertIsString($x509);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($private);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-
-        $result = $x509->sign($issuer, $subject);
-        $result = $x509->saveX509($result);
-
-        $this->assertIsString($result);
-
-        $r = $x509->loadX509($result);
-        $this->assertSame('sha256WithRSAEncryption', $r['tbsCertificate']['signature']['algorithm']);
-        $this->assertSame('rsaEncryption', $r['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['algorithm']);
-        $this->assertSame('sha256WithRSAEncryption', $r['signatureAlgorithm']['algorithm']);
+        $x509 = X509::load($x509)->toArray();
+        $this->assertEquals('sha256WithRSAEncryption', $x509['tbsCertificate']['signature']['algorithm']);
+        $this->assertInstanceOf(RSA::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
+        $this->assertEquals('sha256WithRSAEncryption', $x509['signatureAlgorithm']['algorithm']);
     }
 
     public function testLongTagOnBadCert(): void
     {
         // the problem with this cert is that it'd cause an infinite loop
-        $x509 = new X509();
-        $r = @$x509->loadX509('-----BEGIN CERTIFICATE-----
+        $cert = '-----BEGIN CERTIFICATE-----
 MIIBjDCCATGgAwIBAgIJAJSiNCIEEiyyMAoGCCqGSM49BAMCMA0xCzAJBgNVBAMM
 AkNBMB4XDTE5MDUwOTAzMTUzMFoXDTE5MDYwODAzMTUzMFowDTELMAkGA1UEAwwC
 Q0FNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUU4K0R0TDM0Syt0
@@ -1008,9 +991,55 @@ RDZOQUxsRVVSVFZCcmlvNjB4L0xZN1ZoTmx0UT09o1kwVzAgBgNVHQ4BAf8EFgQU
 B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
 +KlUM1ZXFrxtDxLWqp51myWDulWjnK6cl7b5AVgCIQCRdthTn8JlN5bRSnJ6qiCk
 A9bhRA0cVk7bAEU2c44CYg==
------END CERTIFICATE-----');
+-----END CERTIFICATE-----';
+        $this->expectException(RuntimeException::class);
+        $x509 = X509::load($cert)->toArray();
+    }
 
-        $this->assertFalse($r);
+    public function testLongTagOnBadCert2(): void
+    {
+        // the problem with this cert is that it'd cause an infinite loop
+        $cert = '-----BEGIN CERTIFICATE-----
+MIIBjDCCATGgAwIBAgIJAJSiNCIEEiyyMAoGCCqGSM49BAMCMA0xCzAJBgNVBAMM
+AkNBMB4XDTE5MDUwOTAzMTUzMFoXDTE5MDYwODAzMTUzMFowDTELMAkGA1UEAwwC
+Q0FNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUU4K0R0TDM0Syt0
+RzZGR3o2QXJ2QzlySnlmN1Y5N09wY3ZWeG1IbjRXQStXc0E2L0dxLzZ1cUFBdG5Y
+RDZOQUxsRVVSVFZCcmlvNjB4L0xZN1ZoTmx0UT09o1kwVzAgBgNVHQ4BAf8EFgQU
+25GbjmtucxjEGkWrB2R6AB6/yrkwIgYDVR0jAQH/BBgwFoAU25GbjmtucxjEGkWr
+B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
++KlUM1ZXFrxtDxLWqp51myWDulWjnK6cl7b5AVgCIQCRdthTn8JlN5bRSnJ6qiCk
+A9bhRA0cVk7bAEU2c44CYg==
+-----END CERTIFICATE-----';
+
+        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_BAD_ELEMENT);
+
+        $x509 = X509::load($cert);
+        $this->assertInstanceOf(MalformedData::class, $x509['tbsCertificate']);
+
+        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
+    }
+
+    // from CVE-2024-27355
+    public function testLongOID(): void
+    {
+        $cert = file_get_contents(__DIR__ . '/mal-cert-02.der');
+
+        $x509 = X509::load($cert);
+        $this->expectException(RuntimeException::class);
+        $x509->toArray();
+    }
+
+    // from CVE-2024-27355
+    public function testLongOID2(): void
+    {
+        $cert = file_get_contents(dirname(__FILE__) . '/mal-cert-02.der');
+
+        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_BAD_ELEMENT);
+
+        $x509 = X509::load($cert);
+        $this->assertInstanceOf(MalformedData::class, $x509['signatureAlgorithm']['algorithm']);
+
+        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
     }
 
     /**
@@ -1018,8 +1047,7 @@ A9bhRA0cVk7bAEU2c44CYg==
      */
     public function testNameConstraintIP(): void
     {
-        $x509 = new X509();
-        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIGcDCCBVigAwIBAgIQRUgJC4ec7yFWcqzT3mwbWzANBgkqhkiG9w0BAQwFADB1MQswCQYDVQQG
 EwJFRTEiMCAGA1UECgwZQVMgU2VydGlmaXRzZWVyaW1pc2tlc2t1czEoMCYGA1UEAwwfRUUgQ2Vy
 dGlmaWNhdGlvbiBDZW50cmUgUm9vdCBDQTEYMBYGCSqGSIb3DQEJARYJcGtpQHNrLmVlMCAXDTE1
@@ -1050,9 +1078,9 @@ uL6uSHF+U/ZTss6qG7mxCHG9YvebkN5Yj/rYRvZ9/uJ9rieByxw4wo7b19p22PXkAkXP5y3+qK/O
 et98lqwI97kJhiS2zxFYRk+dXbazmoVHnozYKmsZaSUvoYNNH19tpS7BLdsgi9KpbvQLb5ywIMq9
 ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
 -----END CERTIFICATE-----');
-        $r = $x509->saveX509($r);
-        $r = $x509->loadX509($r);
-        $this->assertSame($r['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], ['0.0.0.0', '0.0.0.0']);
+        $x509 = X509::load("$x509");
+        $this->assertSame($x509['tbsCertificate']['extensions'][5]['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], ['0.0.0.0', '0.0.0.0']);
+        $this->assertSame($x509->getExtension('id-ce-nameConstraints')['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], ['0.0.0.0', '0.0.0.0']);
     }
 
     /**
@@ -1063,10 +1091,8 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $a = 'da7e705569d4196cd49cf3b3d92cd435ca34ccbe';
         $a = pack('H*', $a);
 
-        $x509 = new X509();
-        $r = $x509->loadX509($a);
-
-        $this->assertFalse($r);
+        $this->expectException(RuntimeException::class);
+        $x509 = X509::load($a)->toArray();
     }
 
     /**
@@ -1178,10 +1204,9 @@ oD5EoULMFSVUHX8gtyd463GgOQtBDwf3aZ4Xe6eDrhdfI/4IW098kVcg+qFO841L
 qzFkAKWjJj4KjfrbZX4C0Spfxw==
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
-        $r = $x509->loadX509($a);
+        $x509 = X509::load($a)->toArray();
 
-        $this->assertIsArray($r);
+        $this->assertIsArray($x509);
     }
 
     /**
@@ -1190,12 +1215,11 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
     public function testComputeKeyIdentifier(): void
     {
         $key = RSA::createKey(512);
-        $key = ASN1::extractBER("$key");
-        $key = ASN1::encodeDER($key, ['type' => ASN1::TYPE_BIT_STRING]);
-        $key = new Element($key);
+        $x509 = new X509($key->getPublicKey());
+        $id = $x509->createSubjectKeyIdentifier();
 
-        $x509 = new X509();
-        $this->assertIsString($x509->computeKeyIdentifier($key));
+        $this->assertIsString($id);
+        $this->assertIsString((string) $x509->getExtension('id-ce-subjectKeyIdentifier')['extnValue']);
     }
 
     /**
@@ -1203,8 +1227,7 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
      */
     public function testImplicitV1(): void
     {
-        $x509 = new X509();
-        $r = $x509->loadX509('-----BEGIN CERTIFICATE-----
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIIDZDCCAkwCCQDIda+OHQTFSTANBgkqhkiG9w0BAQsFADB0MQswCQYDVQQGEwJE
 RTEMMAoGA1UECAwDc2RmMQ4wDAYDVQQHDAVzZ3J3ZTEOMAwGA1UECgwFZXJncmUx
 DDAKBgNVBAsMA2VyZzEMMAoGA1UEAwwDd3JnMRswGQYJKoZIhvcNAQkBFgxqYWRm
@@ -1225,7 +1248,7 @@ OObFmWs68kxLV3V0TDYNjz+nU4wVqFDKlehdoDm4Q/uq2FIRbU/qWS61sxI/s+Pg
 bMgrc775Q3t4hkitEymosEiqHsj7YM6EpgHZwke+CNdybIUw+u9L3xxOl4mEeY6l
 itRo91vT68U=
 -----END CERTIFICATE-----');
-        $this->assertSame($r['tbsCertificate']['version'], 'v1');
+        $this->assertEquals($x509['tbsCertificate']['version'], 'v1');
     }
 
     /**
@@ -1246,16 +1269,11 @@ QwinX0cR9Hx84rSMrFndxZi52o9EOLJ7cithncoW1KOAf7lIJIUzP0oIKkskAndQ
 o2UiZsxgoMYuq02T07DOknc=
 -----END ENCRYPTED PRIVATE KEY-----', 'demo');
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib demo cert');
-        $subject->setPublicKey($private->getPublicKey());
+        $subject = new X509($private->getPublicKey());
+        $subject->addDNProp('id-at-organizationName', 'phpseclib demo cert');
+        $private->sign($subject);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($private);
-        $issuer->setDNProp('id-at-organizationName', 'phpseclib CA cert');
-
-        $x509 = new X509();
-        $x509->sign($issuer, $subject);
+        $this->assertIsString("$subject");
     }
 
     /**
@@ -1286,10 +1304,9 @@ EbQ5UK6Zu74q0lQLp7t14zSQ2B5tclVnM7jY0RiRzpLgDCq3kpbaw6KvFzH9lfPP
 BbNA6tFZAwLoX18R6yEmzHAQ+R2Eliiaz7mgQ+M2d0ec6qQJFoO7aJsX
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
-        $r = $x509->loadX509($a);
+        $x509 = X509::load($a)->toArray();
 
-        $this->assertIsArray($r);
+        $this->assertIsArray($x509);
     }
 
     public function testWildcardCert(): void
@@ -1354,8 +1371,7 @@ XSRklj10ZrVHcd0XLuAME/9+54Bm7TvRfI46hfCfu6FbQPIX3gg+5j+MZJSdIuQJ
 dzXhMVAQYlpu27381/Ts2SuDx6v/cZ8lV8D5o/xTtCpWAnLxM2bxSyVnYbk=
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
-        $cert = $x509->loadX509($cert);
+        $x509 = X509::load($cert);
 
         $this->assertTrue($x509->validateURL('https://asdf.cnn.com/'));
         $this->assertFalse($x509->validateURL('https://asdf.cnn2.com/'));
@@ -1389,22 +1405,34 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
 1ntA2AzsC0OGg/ekAnAlxia3mzcJv0PgxRpSG7xjWSL+FVFTTs2I/wk=
 -----END CERTIFICATE-----';
 
-        $x509 = new X509();
-        $cert = $x509->loadX509($cert);
+        $x509 = X509::load($cert);
 
         $this->assertFalse($x509->validateURL('https://aa'));
     }
 
+    // from CVE-2024-27354
     public function testLargeInteger(): void
     {
         // cert has an elliptic curve public key with a specified curve (vs a named curve) with
         // an excessively large integer value
         $cert = file_get_contents(__DIR__ . '/mal-cert-01.der');
 
-        $x509 = new X509();
-        $x509->loadX509($cert);
-        $this->expectException(\RuntimeException::class);
+        $x509 = X509::load($cert);
+        $this->expectException(RuntimeException::class);
         $x509->getPublicKey();
+    }
+
+    // from CVE-2024-27354
+    public function testLargeInteger2(): void
+    {
+        // cert has an elliptic curve public key with a specified curve (vs a named curve) with
+        // an excessively large integer value
+        $cert = file_get_contents(__DIR__ . '/mal-cert-01.der');
+
+        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_BAD_ELEMENT);
+        $x509 = X509::load($cert)->toArray();
+        $this->assertInstanceOf(Element::class, $x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters']);
+        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
     }
 
     /**
@@ -1420,18 +1448,11 @@ u0s8T1gmnGIpKMyrHC3Sh6V2UczDODqpMXYiAsP6iPhiaq/3MmuhA0UA
 -----END PRIVATE KEY-----');
         $CAPubKey = $CAPrivKey->getPublicKey();
 
-        $CASubject = new X509();
-        $CASubject->setDNProp('id-at-organizationName', 'phpseclib CA cert');
-        $CASubject->setPublicKey($CAPubKey);
-
-        $CAIssuer = new X509();
-        $CAIssuer->setPrivateKey($CAPrivKey);
-        $CAIssuer->setDN($CASubject->getDN());
-
-        $x509 = new X509();
-        $x509->setEndDate('lifetime');
-        $x509->makeCA();
-        $result = $x509->sign($CAIssuer, $CASubject);
+        $ca = new X509($CAPubKey);
+        $ca->addDNProp('id-at-organizationName', 'phpseclib CA cert');
+        $ca->setEndDate('lifetime');
+        $ca->makeCA();
+        $CAPrivKey->sign($ca);
 
         // a 2048-bit private key
         $privKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
@@ -1465,19 +1486,64 @@ Zf+6b317dHQhk60gz+CIt8s=
         $privKey = $privKey->withPadding(RSA::SIGNATURE_PKCS1);
         $pubKey = $privKey->getPublicKey();
 
-        $subject = new X509();
-        $subject->setDomain('whatever.com');
-        $subject->setPublicKey($pubKey);
+        $cert = new X509($pubKey);
+        $cert->addDomains('whatever.com');
+        $cert->setEndDate('lifetime');
+        $CAPrivKey->sign($cert);
 
-        $x509 = new X509();
-        $x509->setEndDate('lifetime');
-        $result = $x509->sign($CAIssuer, $subject);
-        $cert = $x509->saveX509($result);
-
-        $x509 = new X509();
-        $cert = $x509->loadX509($cert);
+        $cert = $cert->toArray();
 
         $this->assertFalse(isset($cert['signatureAlgorithm']['parameters']));
         $this->assertFalse(isset($cert['tbsCertificate']['signature']['parameters']));
+    }
+
+    /**
+     * @group github1027
+     */
+    public function testInfiniteLoop(): void
+    {
+        $cert = '-----BEGIN CERTIFICATE-----
+MIIGzTCCBbegAwIBAgIIIBEEIJIEBAEwCwYJKoZIhvcNAQELMHUxCzAJBgNVBAYT
+AlJPMR0wGwYDVQQKDBRDZW50cnVsIGRlIENhbGN1bCBTQTEUMBIGA1UECwwLQ2Vy
+dERpZ2l0YWwxMTAvBgNVBAMMKENlcnREaWdpdGFsIE5vblJlcHVkaWF0aW9uIENB
+IENsYXNzIDQgRzIwHhcNMTYwNjA5MjEwMzA5WhcNMTcwNjA5MjEwMzA5WjBwMQsw
+CQYDVQQGEwJSTzEdMBsGA1UECgwUQ2VudHJ1bCBkZSBDYWxjdWwgU0ExFDASBgNV
+BAsMC0NlcnREaWdpdGFsMSwwKgYDVQQDDCNDZXJ0RGlnaXRhbCBWYWxpZGF0aW9u
+IEF1dGhvcml0eSBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALx1
+4gvGI0v0i01Fqtp9ZlNhh+jSInff9Pjh2G9gJ9/M2gRO3FXSv4g9swuw4I/0rphX
+CdeQBdKYAintKBSsP6pUHS0TokSVhhj8zFiYPrusPTmMq5FprY8iWn0Fr2daLGxB
+QS8Q6vCu30rczLFL2XqZBmHvMJTAe+o95Y+M3NVY7V5KQ+Jhy/1u5lTiOlDnV72a
+GK05Mre2EWdAS/a1P6mnsTPV1oTPJb4yH/GUD/Qi9Zzz3ZUUcDbXwHH0GEqsWJyu
+A8RpieqfpkZl2Z3kt8KTYoTLwqVg+pGPzmKHxWbBbtCNVPpctvwheLBfNeGR85gn
+/u9NsCmOBOk2OZf1Fq8CAwCxY6OCA2gwggNkMIGIBggrBgEFBQcBAQR8MHowOgYI
+KwYBBQUHMAGGLmh0dHA6Ly9ub25yZXB1ZGlhdGlvbmcyLmNlcnRkaWdpdGFsLnJv
+L2NhL29jc3AwPAYIKwYBBQUHMAKGMGh0dHA6Ly9jZXJ0cy5jZXJ0ZGlnaXRhbC5y
+by9ub25yZXB1ZGlhdGlvbmcyLmNydDCBswYDVR0jBIGrMIGogCD2bp4Ayiw1n6YC
+yyc9vduqYmeMvt/20TXxx8DNzt/FJaF8pHoweDELMAkGA1UEBhMCUk8xHTAbBgNV
+BAoMFENlbnRydWwgZGUgQ2FsY3VsIFNBMRQwEgYDVQQLDAtDZXJ0RGlnaXRhbDE0
+MDIGA1UEAwwrQ2VydERpZ2l0YWwgUm9vdCBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0
+eSBHMoIGIBEEIJICMCkGA1UdDgQiBCAsUTcCCeWYU5wAXqO974X+iESFznjE5bvY
+3/B8dozrvjCBjAYDVR0gBIGEMIGBMEEGCysGAQQBgvYaAQEEMDIwMAYIKwYBBQUH
+AgEWJGh0dHA6Ly93d3cuY2VydGRpZ2l0YWwucm8vcmVwb3NpdG9yeTA8BgZngQwB
+AgIwMjAwBggrBgEFBQcCARYkaHR0cDovL3d3dy5jZXJ0ZGlnaXRhbC5yby9yZXBv
+c2l0b3J5MIHZBgNVHR8EgdEwgc4wgcuggciggcWGLmh0dHA6Ly9jcmwuY2VydGRp
+Z2l0YWwucm8vbm9ucmVwdWRpYXRpb25nMi5jcmyGgZJsZGFwOi8vbGRhcC5jZXJ0
+ZGlnaXRhbC5yby9jbj1DZXJ0RGlnaXRhbCBOb25SZXB1ZGlhdGlvbiBDQSBDbGFz
+cyAzIEcyLG91PUNlcnREaWdpdGFsLG89Q2VudHJ1bCBkZSBDYWxjdWwgU0EsYz1S
+Tz9jZXJ0aWZpY2F0ZVJldm9jYXRpb25MaXN0O2JpbmFyeTBHBgNVHREEQDA+oCUG
+CisGAQQBgjcUAgOgFwwVb2ZmaWNlQGNlcnRkaWdpdGFsLnJvgRVvZmZpY2VAY2Vy
+dGRpZ2l0YWwucm8wEwYDVR0lBAwwCgYIKwYBBQUHAwkwDwYJKwYBBQUHMAEFBAIF
+ADAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIGwDALBgkqhkiG9w0BAQsDggEB
+AGISZKF5Ml1xDAF576/efEv5FvZdDHDzJUw/bWlYMzhAwmTl7KDH8fJj82hMJxX1
+Sjqq90pg6I1uZc839im1Ldgfc9CmKW8sAX0qX+ib62cipslnBl7gWPPS5FY6Tr7w
+8nxdo8Q5Y9LYMTP7IknFKLVShkeLLMEv0TdlsQuCGb7utE51BJY9zhPFDAJxiFBu
+lzm2/YPTGBgHcNVgYbiklDpsv1ROsNJK8IYXwUAlLZQCTyXTp06OBuN6Nst//LwY
+WtMVvkUEMfjfJl3Vj2xHudqZZRE0qFopXAvrysgEzztpQ8nQMbCAoaHzrlhtCC1G
+XPKVItoiHkqP9zckhd6b4ho=
+-----END CERTIFICATE-----';
+
+        $x509 = X509::load($cert)->toArray();
+
+        $this->assertIsArray($x509);
     }
 }

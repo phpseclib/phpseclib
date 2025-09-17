@@ -51,26 +51,20 @@ abstract class DH extends AsymmetricKey
 
     /**
      * DH prime
-     *
-     * @var BigInteger
      */
-    protected $prime;
+    protected BigInteger $prime;
 
     /**
      * DH Base
      *
      * Prime divisor of p-1
-     *
-     * @var BigInteger
      */
-    protected $base;
+    protected BigInteger $base;
 
     /**
      * Public Key
-     *
-     * @var BigInteger
      */
-    protected $publicKey;
+    protected BigInteger $publicKey;
 
     /**
      * Create DH parameters
@@ -80,7 +74,7 @@ abstract class DH extends AsymmetricKey
      *  - an integer representing the size of the prime in bits (the base is assumed to be 2)
      *  - a string (eg. diffie-hellman-group14-sha1)
      */
-    public static function createParameters(...$args): Parameters
+    public static function createParameters(BigInteger|int|string ...$args): Parameters
     {
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
@@ -96,7 +90,7 @@ abstract class DH extends AsymmetricKey
             $params->base = $args[1];
             return $params;
         } elseif (count($args) == 1 && is_numeric($args[0])) {
-            $params->prime = BigInteger::randomPrime($args[0]);
+            $params->prime = BigInteger::randomPrime((int) $args[0]);
             $params->base = new BigInteger(2);
             return $params;
         } elseif (count($args) != 1 || !is_string($args[0])) {
@@ -269,11 +263,8 @@ abstract class DH extends AsymmetricKey
 
     /**
      * Compute Shared Secret
-     *
-     * @param PrivateKey|EC $private
-     * @param PublicKey|BigInteger|string $public
      */
-    public static function computeSecret($private, $public)
+    public static function computeSecret(PrivateKey|EC\PrivateKey|string $private, PublicKey|EC\PublicKey|BigInteger|string $public): BigInteger|string
     {
         if ($private instanceof PrivateKey) { // DH\PrivateKey
             switch (true) {
@@ -322,10 +313,8 @@ abstract class DH extends AsymmetricKey
 
     /**
      * Load the key
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
         try {
             return EC::load($key, $password);
@@ -337,10 +326,8 @@ abstract class DH extends AsymmetricKey
 
     /**
      * OnLoad Handler
-     *
-     * @return Parameters|PrivateKey|PublicKey
      */
-    protected static function onLoad(array $components)
+    protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {
         if (!isset($components['privateKey']) && !isset($components['publicKey'])) {
             $new = new Parameters();

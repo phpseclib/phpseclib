@@ -25,20 +25,34 @@ namespace phpseclib3\File\ASN1;
  */
 class Element
 {
-    /**
-     * Raw element value
-     *
-     * @var string
-     */
-    public $element;
+    public array $metadata = [];
 
     /**
      * Constructor
      *
      * @return Element
      */
-    public function __construct(string $encoded)
+    public function __construct(public string $value)
     {
-        $this->element = $encoded;
+    }
+
+    public function __debugInfo(): array
+    {
+        return ['value' => bin2hex($this->value)];
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
+    public function getEncoded(): string
+    {
+        return $this->value;
+    }
+
+    public function addMetadata(array $metadata): void
+    {
+        $this->metadata = $metadata;
     }
 }

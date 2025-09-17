@@ -16,6 +16,8 @@ namespace phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\Common;
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib3\File\Common\Signable;
+use phpseclib3\File\CSR;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -29,10 +31,8 @@ final class PrivateKey extends DSA implements Common\PrivateKey
 
     /**
      * DSA secret exponent x
-     *
-     * @var BigInteger
      */
-    protected $x;
+    protected BigInteger $x;
 
     /**
      * Returns the public key
@@ -54,7 +54,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
      *
      * @see self::getPrivateKey()
      */
-    public function getPublicKey()
+    public function getPublicKey(): PublicKey
     {
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
 
@@ -73,11 +73,20 @@ final class PrivateKey extends DSA implements Common\PrivateKey
      * Create a signature
      *
      * @see self::verify()
-     * @param string $message
      */
-    public function sign($message): string
+    public function sign(string|Signable $source): string
     {
         $format = $this->sigFormat;
+
+        if ($source instanceof Signable) {
+            if ($source instanceof CSR && !$source->hasPublicKey()) {
+                $source->setPublicKey($this->getPublicKey());
+            }
+            $source->setSignatureAlgorithm($source::identifySignatureAlgorithm($this));
+            $message = $source->getSignableSection();
+        } else {
+            $message = $source;
+        }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
             $signature = '';
@@ -85,12 +94,21 @@ final class PrivateKey extends DSA implements Common\PrivateKey
 
             if ($result) {
                 if ($this->shortFormat == 'ASN1') {
+                    if ($source instanceof Signable) {
+                        $source->setSignature($signature);
+                    }
                     return $signature;
                 }
 
                 ['r' => $r, 's' => $s] = ASN1Signature::load($signature);
 
-                return $format::save($r, $s);
+                $signature = $format::save($r, $s);
+
+                if ($source instanceof Signable) {
+                    $source->setSignature($signature);
+                }
+
+                return $signature;
             }
         }
 
@@ -129,7 +147,11 @@ final class PrivateKey extends DSA implements Common\PrivateKey
         list(, $s) = $temp->divide($this->q);
         */
 
-        return $format::save($r, $s);
+        $signature = $format::save($r, $s);
+        if ($source instanceof Signable) {
+            $source->setSignature($signature);
+        }
+        return $signature;
     }
 
     /**

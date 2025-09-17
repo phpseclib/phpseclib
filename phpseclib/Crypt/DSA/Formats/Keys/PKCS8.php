@@ -27,6 +27,7 @@ namespace phpseclib3\Crypt\DSA\Formats\Keys;
 
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
 use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
@@ -61,31 +62,42 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
+        if (!is_string($key)) {
+            throw new UnexpectedValueException('Key should be a string - not an array');
+        }
+
+        if (str_contains($key, 'PUBLIC')) {
+            $isPublic = true;
+        } elseif (str_contains($key, 'PRIVATE')) {
+            $isPublic = false;
+        }
+
         $key = parent::load($key, $password);
 
         $type = isset($key['privateKey']) ? 'privateKey' : 'publicKey';
 
-        $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
-        if (!$decoded) {
-            throw new RuntimeException('Unable to decode BER of parameters');
-        }
-        $components = ASN1::asn1map($decoded[0], Maps\DSAParams::MAP);
-        if (!is_array($components)) {
-            throw new RuntimeException('Unable to perform ASN1 mapping on parameters');
+        if (isset($isPublic)) {
+            switch (true) {
+                case !$isPublic && $type == 'publicKey':
+                    throw new UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
+                case $isPublic && $type == 'privateKey':
+                    throw new UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+            }
         }
 
-        $decoded = ASN1::decodeBER($key[$type]);
-        if (empty($decoded)) {
-            throw new RuntimeException('Unable to decode BER');
+        try {
+            $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
+            $components = ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
+            $decoded = ASN1::decodeBER((string) $key[$type]);
+        } catch (\Exception $e) {
+            throw new RuntimeException('Unable to decode DSA key', 0, $e);
         }
 
         $var = $type == 'privateKey' ? 'x' : 'y';
-        $components[$var] = ASN1::asn1map($decoded[0], Maps\DSAPublicKey::MAP);
+        $components[$var] = ASN1::map($decoded, Maps\DSAPublicKey::MAP);
         if (!$components[$var] instanceof BigInteger) {
             throw new RuntimeException('Unable to perform ASN1 mapping');
         }
@@ -110,13 +122,16 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($x, Maps\DSAPublicKey::MAP);
-        return self::wrapPrivateKey($key, [], $params, $password, null, '', $options);
+        return self::wrapPrivateKey(
+            key: $key,
+            params: $params,
+            password: $password,
+            options: $options
+        );
     }
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param array $options optional
      */
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = []): string
     {
@@ -128,6 +143,10 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DSAParams::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($y, Maps\DSAPublicKey::MAP);
-        return self::wrapPublicKey($key, $params, null, $options);
+        return self::wrapPublicKey(
+            key: $key,
+            params: $params,
+            options: $options
+        );
     }
 }

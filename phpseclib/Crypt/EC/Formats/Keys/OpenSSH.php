@@ -23,6 +23,7 @@ use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedCurveException;
+use phpseclib3\File\ASN1\OIDs\Curves;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\Common\FiniteField\Integer;
 
@@ -111,8 +112,8 @@ abstract class OpenSSH extends Progenitor
         $reflect = new \ReflectionClass($curve);
         $name = $reflect->getShortName();
 
-        $oid = self::$curveOIDs[$name];
-        $aliases = array_filter(self::$curveOIDs, fn ($v) => $v == $oid);
+        $oid = Curves::OIDs[$name];
+        $aliases = array_filter(Curves::OIDs, fn ($v) => $v == $oid);
         $aliases = array_keys($aliases);
 
         for ($i = 0; $i < count($aliases); $i++) {

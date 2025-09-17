@@ -20,6 +20,7 @@ use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\TripleDES;
+use phpseclib3\Exception\BadDecryptionException;
 use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\File\ASN1;
@@ -52,7 +53,7 @@ abstract class PKCS1 extends PKCS
      * @return int
      * @throws UnexpectedValueException if the block cipher mode is unsupported
      */
-    private static function getEncryptionMode(string $mode)
+    private static function getEncryptionMode(string $mode): string
     {
         switch ($mode) {
             case 'CBC':
@@ -103,14 +104,11 @@ abstract class PKCS1 extends PKCS
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
-     * @return array|string
      */
-    protected static function load($key, #[SensitiveParameter] ?string $password = null)
+    protected static function loadHelper(string|array $key, #[SensitiveParameter] ?string $password = null): string
     {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
@@ -129,11 +127,15 @@ abstract class PKCS1 extends PKCS
 
            * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
         if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
+            if (!isset($password)) {
+                throw new BadDecryptionException('Unable to perform decryption without some sort of password');
+            }
             $iv = Strings::hex2bin(trim($matches[2]));
             // remove the Proc-Type / DEK-Info sections as they're no longer needed
             $key = preg_replace('#^(?:Proc-Type|DEK-Info): .*#m', '', $key);
-            $ciphertext = ASN1::extractBER($key);
-            if ($ciphertext === false) {
+            try {
+                $ciphertext = ASN1::extractBER($key);
+            } catch (\Exception $e) {
                 $ciphertext = $key;
             }
             $crypto = self::getEncryptionObject($matches[1]);
@@ -156,13 +158,10 @@ abstract class PKCS1 extends PKCS
 
     /**
      * Wrap a private key appropriately
-     *
-     * @param string|false $password
-     * @param array $options optional
      */
-    protected static function wrapPrivateKey(string $key, string $type, #[SensitiveParameter] $password, array $options = []): string
+    protected static function wrapPrivateKey(string $key, string $type, #[SensitiveParameter] ?string $password, array $options = []): string
     {
-        if (empty($password) || !is_string($password)) {
+        if (!isset($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
                    chunk_split(Strings::base64_encode($key), 64) .
                    "-----END $type PRIVATE KEY-----";

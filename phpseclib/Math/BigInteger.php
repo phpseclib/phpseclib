@@ -70,7 +70,7 @@ class BigInteger implements \JsonSerializable
      * @see self::__wakeup()
      * @var string
      */
-    private $hex;
+    protected $hex;
 
     /**
      * Precision (used only for serialization)
@@ -168,10 +168,8 @@ class BigInteger implements \JsonSerializable
      *
      * If the second parameter - $base - is negative, then it will be assumed that the number's are encoded using
      * two's compliment.  The sole exception to this is -10, which is treated the same as 10 is.
-     *
-     * @param string|int|Engine $x Base-10 number or base-$base number if $base set.
      */
-    public function __construct($x = 0, int $base = 10)
+    public function __construct(string|int|Engine $x = 0, int $base = 10)
     {
         self::initialize_static_variables();
 

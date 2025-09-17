@@ -619,22 +619,22 @@ AAIBAAIBAAIBAAIBAA==
     {
         $rsa = PublicKeyLoader::load($key, $pass);
         $r = PKCS8::load($key, $pass);
-        PKCS8::setEncryptionAlgorithm($r['meta']['algorithm']);
+        PKCS8::setEncryptionAlgorithm((string) $r['meta']['algorithm']);
         if (isset($r['meta']['cipher'])) {
-            PKCS8::setEncryptionScheme($r['meta']['cipher']);
+            PKCS8::setEncryptionScheme((string) $r['meta']['cipher']);
         }
         if (isset($r['meta']['prf'])) {
-            PKCS8::setPRF($r['meta']['prf']);
+            PKCS8::setPRF((string) $r['meta']['prf']);
         }
         $newkey = "$rsa";
 
         $r2 = PKCS8::load($newkey, $pass);
-        $this->assertSame($r['meta']['algorithm'], $r2['meta']['algorithm']);
+        $this->assertSame((string) $r['meta']['algorithm'], (string) $r2['meta']['algorithm']);
         if (isset($r['meta']['cipher']) || isset($r2['meta']['cipher'])) {
-            $this->assertSame($r['meta']['cipher'], $r2['meta']['cipher']);
+            $this->assertSame((string) $r['meta']['cipher'], (string) $r2['meta']['cipher']);
         }
         if (isset($r['meta']['prf']) || isset($r2['meta']['prf'])) {
-            $this->assertSame($r['meta']['prf'], $r2['meta']['prf']);
+            $this->assertSame((string) $r['meta']['prf'], (string) $r2['meta']['prf']);
         }
 
         $rsa2 = PublicKeyLoader::load($newkey, $pass);

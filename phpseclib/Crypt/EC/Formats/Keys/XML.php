@@ -29,6 +29,7 @@ use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\Exception\UnsupportedCurveException;
+use phpseclib3\File\ASN1\OIDs\Curves;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Math\Common\FiniteField\Integer;
 
@@ -201,7 +202,7 @@ abstract class XML
         if ($namedCurve->length == 1) {
             $oid = $namedCurve->item(0)->getAttribute('URN');
             $oid = preg_replace('#[^\d.]#', '', $oid);
-            $name = array_search($oid, self::$curveOIDs);
+            $name = array_search($oid, Curves::OIDs);
             if ($name === false) {
                 throw new UnsupportedCurveException('Curve with OID of ' . $oid . ' is not supported');
             }
@@ -404,7 +405,7 @@ abstract class XML
         $result = self::encodeParameters($curve, true, $options);
 
         if (isset($result['namedCurve'])) {
-            $namedCurve = '<' . $pre . 'NamedCurve URI="urn:oid:' . self::$curveOIDs[$result['namedCurve']] . '" />';
+            $namedCurve = '<' . $pre . 'NamedCurve URI="urn:oid:' . Curves::OIDs[$result['namedCurve']] . '" />';
             return self::$rfc4050 ?
                 '<DomainParameters>' . str_replace('URI', 'URN', $namedCurve) . '</DomainParameters>' :
                 $namedCurve;

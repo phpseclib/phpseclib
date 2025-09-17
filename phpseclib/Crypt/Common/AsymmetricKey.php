@@ -123,11 +123,8 @@ abstract class AsymmetricKey
 
     /**
      * Load the key
-     *
-     * @param string|array $key
-     * @return PublicKey|PrivateKey
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
         self::initialize_static_variables();
 
@@ -421,6 +418,14 @@ abstract class AsymmetricKey
     public function __toString()
     {
         return $this->toString('PKCS8');
+    }
+
+    /**
+     * __debugInfo() magic method
+     */
+    public function __debugInfo(): array
+    {
+        return ['value' => "$this"];
     }
 
     /**

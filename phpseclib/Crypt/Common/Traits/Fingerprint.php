@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace phpseclib3\Crypt\Common\Traits;
 
 use phpseclib3\Crypt\Hash;
+use phpseclib3\Exception\UnsupportedAlgorithmException;
 
 /**
  * Fingerprint Trait for Private Keys
@@ -34,16 +35,10 @@ trait Fingerprint
      * @param string $algorithm The hashing algorithm to be used. Valid options are 'md5' and 'sha256'. False is returned
      * for invalid values.
      */
-    public function getFingerprint($algorithm = 'md5')
+    public function getFingerprint(string $algorithm = 'md5'): string
     {
         $type = self::validatePlugin('Keys', 'OpenSSH', 'savePublicKey');
-        if ($type === false) {
-            return false;
-        }
         $key = $this->toString('OpenSSH', ['binary' => true]);
-        if ($key === false) {
-            return false;
-        }
         switch ($algorithm) {
             case 'sha256':
                 $hash = new Hash('sha256');
@@ -52,7 +47,7 @@ trait Fingerprint
             case 'md5':
                 return substr(chunk_split(md5($key), 2, ':'), 0, -1);
             default:
-                return false;
+                throw new UnsupportedAlgorithmException('The only two supported fingerprinting algorithms are sha256 and md5');
         }
     }
 }

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\Common;
 
+use phpseclib3\File\Common\Signable;
+
 /**
  * PrivateKey interface
  *
@@ -20,9 +22,9 @@ namespace phpseclib3\Crypt\Common;
  */
 interface PrivateKey
 {
-    public function sign($message);
+    public function sign(string|Signable $message): string;
     //public function decrypt($ciphertext);
-    public function getPublicKey();
+    public function getPublicKey(): PublicKey;
     public function toString(string $type, array $options = []): string;
 
     /**

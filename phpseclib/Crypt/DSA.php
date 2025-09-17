@@ -55,54 +55,42 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * DSA Prime P
-     *
-     * @var BigInteger
      */
-    protected $p;
+    protected BigInteger $p;
 
     /**
      * DSA Group Order q
      *
      * Prime divisor of p-1
-     *
-     * @var BigInteger
      */
-    protected $q;
+    protected BigInteger $q;
 
     /**
      * DSA Group Generator G
-     *
-     * @var BigInteger
      */
-    protected $g;
+    protected BigInteger $g;
 
     /**
      * DSA public key value y
-     *
-     * @var BigInteger
      */
-    protected $y;
+    protected BigInteger $y;
 
     /**
      * Signature Format
-     *
-     * @var string
      */
-    protected $sigFormat;
+    protected string $sigFormat;
 
     /**
      * Signature Format (Short)
-     *
-     * @var string
      */
-    protected $shortFormat;
+    protected string $shortFormat;
 
     /**
      * Create DSA parameters
      *
      * @return DSA|bool
      */
-    public static function createParameters(int $L = 2048, int $N = 224)
+    public static function createParameters(int $L = 2048, int $N = 224): Parameters
     {
         self::initialize_static_variables();
 
@@ -178,10 +166,8 @@ abstract class DSA extends AsymmetricKey
      * no parameters (at which point L and N will be generated with this method)
      *
      * Returns the private key, from which the publickey can be extracted
-     *
-     * @param int[] ...$args
      */
-    public static function createKey(...$args): PrivateKey
+    public static function createKey(int|Parameters ...$args): PrivateKey
     {
         self::initialize_static_variables();
 
@@ -222,10 +208,8 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * OnLoad Handler
-     *
-     * @return Parameters|PrivateKey|PublicKey
      */
-    protected static function onLoad(array $components)
+    protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {
         if (!isset(self::$engines['PHP'])) {
             self::useBestEngine();

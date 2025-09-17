@@ -23,6 +23,7 @@ namespace phpseclib3\Crypt\DH\Formats\Keys;
 
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
 use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnexpectedValueException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
@@ -57,32 +58,40 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
+        if (!is_string($key)) {
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        }
+
+        $isPublic = str_contains($key, 'PUBLIC');
+
         $key = parent::load($key, $password);
 
         $type = isset($key['privateKey']) ? 'privateKey' : 'publicKey';
 
-        $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->element);
+        switch (true) {
+            case !$isPublic && $type == 'publicKey':
+                throw new UnexpectedValueException('Human readable string claims non-public key but DER encoded string claims public key');
+            case $isPublic && $type == 'privateKey':
+                throw new UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+        }
+
+        $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->value);
         if (empty($decoded)) {
             throw new RuntimeException('Unable to decode BER of parameters');
         }
-        $components = ASN1::asn1map($decoded[0], Maps\DHParameter::MAP);
-        if (!is_array($components)) {
-            throw new RuntimeException('Unable to perform ASN1 mapping on parameters');
-        }
+        $components = ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
 
-        $decoded = ASN1::decodeBER($key[$type]);
+        $decoded = ASN1::decodeBER((string) $key[$type]);
         switch (true) {
             case !isset($decoded):
-            case !isset($decoded[0]['content']):
-            case !$decoded[0]['content'] instanceof BigInteger:
+            case !isset($decoded['content']):
+            case !$decoded['content'] instanceof BigInteger:
                 throw new RuntimeException('Unable to decode BER of parameters');
         }
-        $components[$type] = $decoded[0]['content'];
+        $components[$type] = $decoded['content'];
 
         return $components;
     }
@@ -90,7 +99,7 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, #[SensitiveParameter] ?string $password = null, array $options = []): string
+    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, ?string $password = null, array $options = []): string
     {
         $params = [
             'prime' => $prime,
@@ -99,13 +108,16 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($privateKey, ['type' => ASN1::TYPE_INTEGER]);
-        return self::wrapPrivateKey($key, [], $params, $password, null, '', $options);
+        return self::wrapPrivateKey(
+            key: $key,
+            params: $params,
+            password: $password,
+            options: $options
+        );
     }
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param array $options optional
      */
     public static function savePublicKey(BigInteger $prime, BigInteger $base, BigInteger $publicKey, array $options = []): string
     {
@@ -116,6 +128,10 @@ abstract class PKCS8 extends Progenitor
         $params = ASN1::encodeDER($params, Maps\DHParameter::MAP);
         $params = new ASN1\Element($params);
         $key = ASN1::encodeDER($publicKey, ['type' => ASN1::TYPE_INTEGER]);
-        return self::wrapPublicKey($key, $params, null, $options);
+        return self::wrapPublicKey(
+            key: $key,
+            params: $params,
+            options: $options
+        );
     }
 }

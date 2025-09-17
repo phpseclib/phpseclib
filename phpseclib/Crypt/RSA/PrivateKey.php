@@ -21,6 +21,8 @@ use phpseclib3\Exception\LengthException;
 use phpseclib3\Exception\OutOfRangeException;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedFormatException;
+use phpseclib3\File\Common\Signable;
+use phpseclib3\File\CSR;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -35,39 +37,35 @@ final class PrivateKey extends RSA implements Common\PrivateKey
     /**
      * Primes for Chinese Remainder Theorem (ie. p and q)
      *
-     * @var array
+     * @var BigInteger[]
      */
-    protected $primes;
+    protected array $primes;
 
     /**
      * Exponents for Chinese Remainder Theorem (ie. dP and dQ)
      *
-     * @var array
+     * @var BigInteger[]
      */
-    protected $exponents;
+    protected array $exponents;
 
     /**
      * Coefficients for Chinese Remainder Theorem (ie. qInv)
      *
-     * @var array
+     * @var BigInteger[]
      */
-    protected $coefficients;
+    protected array $coefficients;
 
     /**
      * Private Exponent
-     *
-     * @var BigInteger
      */
-    protected $privateExponent;
+    protected BigInteger $privateExponent;
 
     /**
      * RSADP
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.2 RFC3447#section-5.1.2}.
-     *
-     * @return bool|BigInteger
      */
-    private function rsadp(BigInteger $c)
+    private function rsadp(BigInteger $c): BigInteger
     {
         if ($c->compare(self::$zero) < 0 || $c->compare($this->modulus) > 0) {
             throw new OutOfRangeException('Ciphertext representative out of range');
@@ -79,10 +77,8 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      * RSASP1
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.2.1 RFC3447#section-5.2.1}.
-     *
-     * @return bool|BigInteger
      */
-    private function rsasp1(BigInteger $m)
+    private function rsasp1(BigInteger $m): BigInteger
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new OutOfRangeException('Signature representative out of range');
@@ -245,10 +241,9 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.1 RFC3447#section-8.2.1}.
      *
-     * @return bool|string
      * @throws LengthException if the RSA modulus is too short
      */
-    private function rsassa_pkcs1_v1_5_sign(string $m)
+    private function rsassa_pkcs1_v1_5_sign(string $m): string
     {
         // EMSA-PKCS1-v1_5 encoding
 
@@ -278,26 +273,38 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      * @param string $message
      * @return string
      */
-    public function sign($message)
+    public function sign(string|Signable $source): string
     {
+        if ($source instanceof Signable) {
+            if ($source instanceof CSR && !$source->hasPublicKey()) {
+                $source->setPublicKey($this->getPublicKey());
+            }
+            $source->setSignatureAlgorithm($source::identifySignatureAlgorithm($this));
+            $message = $source->getSignableSection();
+        } else {
+            $message = $source;
+        }
         switch ($this->signaturePadding) {
             case self::SIGNATURE_PKCS1:
             case self::SIGNATURE_RELAXED_PKCS1:
-                return $this->rsassa_pkcs1_v1_5_sign($message);
+                $signature = $this->rsassa_pkcs1_v1_5_sign($message);
+                break;
             //case self::SIGNATURE_PSS:
             default:
-                return $this->rsassa_pss_sign($message);
+                $signature = $this->rsassa_pss_sign($message);
         }
+        if ($source instanceof Signable) {
+            $source->setSignature($signature);
+        }
+        return $signature;
     }
 
     /**
      * RSAES-PKCS1-V1_5-DECRYPT
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.2 RFC3447#section-7.2.2}.
-     *
-     * @return bool|string
      */
-    private function rsaes_pkcs1_v1_5_decrypt(string $c)
+    private function rsaes_pkcs1_v1_5_decrypt(string $c): string
     {
         // Length checking
 
@@ -342,10 +349,8 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      *    be able to obtain useful information about the decryption of the
      *    ciphertext C, leading to a chosen-ciphertext attack such as the one
      *    observed by Manger [36].
-     *
-     * @return bool|string
      */
-    private function rsaes_oaep_decrypt(string $c)
+    private function rsaes_oaep_decrypt(string $c): string
     {
         // Length checking
 
@@ -400,10 +405,9 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      *
      * Doesn't use padding and is not recommended.
      *
-     * @return bool|string
      * @throws LengthException if strlen($m) > $this->k
      */
-    private function raw_encrypt(string $m)
+    private function raw_encrypt(string $m): string
     {
         if (strlen($m) > $this->k) {
             throw new LengthException('Ciphertext representative too long');
@@ -417,10 +421,9 @@ final class PrivateKey extends RSA implements Common\PrivateKey
     /**
      * Decryption
      *
-     * @return bool|string
      * @see self::encrypt()
      */
-    public function decrypt(string $ciphertext)
+    public function decrypt(string $ciphertext): string
     {
         switch ($this->encryptionPadding) {
             case self::ENCRYPTION_NONE:
@@ -436,7 +439,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
     /**
      * Returns the public key
      */
-    public function getPublicKey(): RSA
+    public function getPublicKey(): PublicKey
     {
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
         if (empty($this->modulus) || empty($this->publicExponent)) {

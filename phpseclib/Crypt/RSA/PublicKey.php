@@ -25,6 +25,8 @@ use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps\DigestInfo;
+use phpseclib3\File\ASN1\OIDs\Hashes;
+use phpseclib3\File\ASN1\Types\ExplicitNull;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -35,6 +37,8 @@ use phpseclib3\Math\BigInteger;
 final class PublicKey extends RSA implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
+
+    private static bool $oidsLoaded = false;
 
     /**
      * Exponentiate
@@ -159,42 +163,26 @@ final class PublicKey extends RSA implements Common\PublicKey
         }
 
         $decoded = ASN1::decodeBER($em);
-        if (!is_array($decoded) || empty($decoded[0]) || strlen($em) > $decoded[0]['length']) {
+        if (strlen($em) > $decoded['length'] + $decoded['headerlength']) {
             return false;
         }
 
-        static $oids;
-        if (!isset($oids)) {
-            $oids = [
-                'md2' => '1.2.840.113549.2.2',
-                'md4' => '1.2.840.113549.2.4', // from PKCS1 v1.5
-                'md5' => '1.2.840.113549.2.5',
-                'id-sha1' => '1.3.14.3.2.26',
-                'id-sha256' => '2.16.840.1.101.3.4.2.1',
-                'id-sha384' => '2.16.840.1.101.3.4.2.2',
-                'id-sha512' => '2.16.840.1.101.3.4.2.3',
-                // from PKCS1 v2.2
-                'id-sha224' => '2.16.840.1.101.3.4.2.4',
-                'id-sha512/224' => '2.16.840.1.101.3.4.2.5',
-                'id-sha512/256' => '2.16.840.1.101.3.4.2.6',
-            ];
-            ASN1::loadOIDs($oids);
+        if (!self::$oidsLoaded) {
+            ASN1::loadOIDs('Hashes');
+            self::$oidsLoaded = true;
         }
 
-        $decoded = ASN1::asn1map($decoded[0], DigestInfo::MAP);
-        if (!isset($decoded) || $decoded === false) {
+        $decoded = ASN1::map($decoded, DigestInfo::MAP)->toArray();
+
+        $hash = (string) $decoded['digestAlgorithm']['algorithm'];
+        if (!isset(Hashes::OIDs[$hash])) {
             return false;
         }
 
-        if (!isset($oids[$decoded['digestAlgorithm']['algorithm']])) {
+        if (isset($decoded['digestAlgorithm']['parameters']) && !$decoded['digestAlgorithm']['parameters'] instanceof ExplicitNull) {
             return false;
         }
 
-        if (isset($decoded['digestAlgorithm']['parameters']) && $decoded['digestAlgorithm']['parameters'] !== ['null' => '']) {
-            return false;
-        }
-
-        $hash = $decoded['digestAlgorithm']['algorithm'];
         $hash = substr($hash, 0, 3) == 'id-' ?
             substr($hash, 3) :
             $hash;
@@ -202,7 +190,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         $em = $hash->hash($m);
         $em2 = $decoded['digest'];
 
-        return hash_equals($em, $em2);
+        return hash_equals($em, "$em2");
     }
 
     /**
@@ -255,7 +243,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @return bool|string
      */
-    private function rsassa_pss_verify(string $m, string $s)
+    private function rsassa_pss_verify(string $m, string $s): bool
     {
         // Length checking
 
@@ -283,11 +271,8 @@ final class PublicKey extends RSA implements Common\PublicKey
      * Verifies a signature
      *
      * @see self::sign()
-     * @param string $message
-     * @param string $signature
-     * @return bool
      */
-    public function verify($message, $signature)
+    public function verify(string $message, string $signature): bool
     {
         switch ($this->signaturePadding) {
             case self::SIGNATURE_RELAXED_PKCS1:
@@ -309,7 +294,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      * @return bool|string
      * @throws LengthException if strlen($m) > $this->k - 11
      */
-    private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false)
+    private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false): string
     {
         $mLen = strlen($m);
 
@@ -392,7 +377,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @return bool|BigInteger
      */
-    private function rsaep(BigInteger $m)
+    private function rsaep(BigInteger $m): BigInteger
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
             throw new OutOfRangeException('Message representative out of range');

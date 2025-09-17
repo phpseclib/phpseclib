@@ -147,12 +147,12 @@ abstract class Raw
         }
 
         return serialize([
-            'e' => clone $e,
-            'n' => clone $n,
-            'd' => clone $d,
-            'primes' => array_map(fn ($var) => clone $var, $primes),
-            'exponents' => array_map(fn ($var) => clone $var, $exponents),
-            'coefficients' => array_map(fn ($var) => clone $var, $coefficients),
+            'e' => $e,
+            'n' => $n,
+            'd' => $d,
+            'primes' => $primes,
+            'exponents' => $exponents,
+            'coefficients' => $coefficients,
         ]);
     }
 

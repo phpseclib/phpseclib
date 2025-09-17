@@ -79,6 +79,6 @@ class CreateKeyTest extends PhpseclibTestCase
             ->withPassword('demo')
             ->toString('PKCS8', ['encryptionAlgorithm' => 'pbeWithSHAAnd3-KeyTripleDES-CBC']);
         $actual = PKCS8::extractEncryptionAlgorithm($key)['algorithm'];
-        $this->assertSame($actual, 'pbeWithSHAAnd3-KeyTripleDES-CBC');
+        $this->assertEquals($actual, 'pbeWithSHAAnd3-KeyTripleDES-CBC');
     }
 }
