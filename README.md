@@ -66,7 +66,13 @@ Need Support?
 
 ## Special Thanks
 
-Special Thanks to our $50+/month sponsors!:
+<p align="left">
+    <a target="_blank" href="https://www.sovereign.tech/tech/phpseclib">
+        <img src="https://phpseclib.com/img/sponsors/sovereign-tech-agency.webp" alt="Sovereign Tech Agency" style="width: 200px">
+    </a>
+</p>
+
+## Additional Thanks
 
 - Allan Simon
 - [ChargeOver](https://chargeover.com/)
