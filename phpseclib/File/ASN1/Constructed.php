@@ -112,9 +112,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
     {
         $origOffset = $offset;
         while (true) {
-            $r = ASN1::decodeTag($this->encoded, $offset);
+            ['tag' => $tag] = ASN1::decodeTag($this->encoded, $offset);
             $length = ASN1::decodeLength($this->encoded, $offset);
-            if ($r['tag'] === 0 && $length === 0) {
+            if ($tag === 0 && $length === 0) {
                 break;
             }
             if (!isset($length)) {

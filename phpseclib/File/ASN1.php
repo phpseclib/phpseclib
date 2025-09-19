@@ -295,10 +295,11 @@ abstract class ASN1
         $current = ['start' => $start];
 
         $old_encoded_pos = $encoded_pos;
-        $r = self::decodeTag($encoded, $encoded_pos);
-        $constructed = $r['constructed'];
-        $tag = $r['tag'];
-        $class = $r['class'];
+        [
+            'constructed' => $constructed,
+            'tag' => $tag,
+            'class' => $class
+        ] = self::decodeTag($encoded, $encoded_pos);
         $length = self::decodeLength($encoded, $encoded_pos);
         $current['headerlength'] = $encoded_pos - $old_encoded_pos;
         if (isset($length)) {
