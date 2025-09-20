@@ -34,7 +34,7 @@ use phpseclib3\File\ASN1\Types\OctetString;
  */
 trait Extension
 {
-    private static function getMapping(string $extnId): bool|array
+    private static function getMapping(string $extnId): array|true|null
     {
         if (isset(self::$extensions[$extnId])) {
             return self::$extensions[$extnId];
@@ -94,7 +94,7 @@ trait Extension
             'id-ce-certificateIssuer' => Maps\CertificateIssuer::MAP,
             'id-ce-holdInstructionCode' => Maps\HoldInstructionCode::MAP,
 
-            default => false,
+            default => null,
         };
     }
 
@@ -171,7 +171,7 @@ trait Extension
         }
 
         try {
-            if ($map !== false) {
+            if (isset($map)) {
                 $ext['extnValue'] = ASN1::map(ASN1::decodeBER((string) $ext['extnValue']), $map, $rules);
                 if ($ext['extnValue'] instanceof Constructed) {
                     $ext['extnValue']->parent = $ext;
@@ -280,7 +280,7 @@ trait Extension
             if ($map === true) {
                 $map = ['type' => ASN1::TYPE_ANY];
             }
-            if ($map === false) {
+            if (!isset($map)) {
                 //user_error($id . ' is not a currently supported extension');
                 unset($extensions[$i]);
                 continue;

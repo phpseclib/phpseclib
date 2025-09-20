@@ -884,7 +884,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
      */
     public static function registerExtension(string $id, array $mapping): void
     {
-        if (!is_bool(self::getMapping($id))) {
+        if (is_array(self::getMapping($id))) {
             throw new RuntimeException(
                 "Extension $id has already been defined with a different mapping."
             );
