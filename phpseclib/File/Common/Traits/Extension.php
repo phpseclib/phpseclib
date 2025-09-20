@@ -317,7 +317,7 @@ trait Extension
 
     private static function getExtensionCriticalValue(string $name): bool
     {
-        $critical = match ($name) {
+        return match ($name) {
             'id-ce-keyUsage' => true,
             'id-ce-nameConstraints' => true,
             'id-ce-policyConstraints' => true,
@@ -333,11 +333,7 @@ trait Extension
             'id-pe-authorityInfoAccess' => false,
             'id-pe-subjectInfoAccess' => false,
 
-            default => null
+            default => false
         };
-        if (!isset($critical)) {
-            throw new InvalidArgumentException("$name needs to explicitly specify the critical parameter");
-        }
-        return $critical;
     }
 }
