@@ -638,6 +638,7 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
         $this->assertIsString("$cakey");
     }
 
+    // this test will fail without an active internet connection
     public function testAuthorityInfoAccess(): void
     {
         X509::addCA('-----BEGIN CERTIFICATE-----
