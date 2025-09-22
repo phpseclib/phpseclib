@@ -38,37 +38,47 @@ abstract class PublicKeyLoader
     {
         // use ASN1::EXCEPTIONS_EVERY_TIME here because without it a valid RSAPublicKey
         // will be recognized as an invalid RSAPrivateKey
-        $old = ASN1::getErrorHandlingMode();
-        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
+        $reenable = ASN1::isBlobsOnBadDecodesEnabled();
+        ASN1::disableBlobsOnBadDecodes();
         try {
             $key = EC::load($key, $password);
-            ASN1::setErrorHandlingMode($old);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
             return $key;
         } catch (NoKeyLoadedException $e) {
         }
 
         try {
             $key = RSA::load($key, $password);
-            ASN1::setErrorHandlingMode($old);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
             return $key;
         } catch (NoKeyLoadedException $e) {
         }
 
         try {
             $key = DSA::load($key, $password);
-            ASN1::setErrorHandlingMode($old);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
             return $key;
         } catch (NoKeyLoadedException $e) {
         }
 
         try {
             $key = X509::load($key)->getPublicKey();
-            ASN1::setErrorHandlingMode($old);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
             return $key;
         } catch (\Exception $e) {
         }
 
-        ASN1::setErrorHandlingMode($old);
+        if ($reenable) {
+            ASN1::enableBlobsOnBadDecodes();
+        }
 
         throw new NoKeyLoadedException('Unable to read key');
     }

@@ -145,7 +145,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             try {
                 $this->decoded[$offset]->decodeCurrent();
             } catch (\Exception $e) {
-                if (ASN1::getErrorHandlingMode() != ASN1::EXCEPTIONS_EVERY_TIME) {
+                if (ASN1::isBlobsOnBadDecodesEnabled()) {
                     $temp = new MalformedData($this->decoded[$offset]->encoded);
                     return $temp;
                 }
@@ -232,7 +232,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             self::incrementDepth($temp['data']->depth);
                             $temp['data']->decodeCurrent($temp['data']->depth);
                         } catch (ExcessivelyDeepDataException $e) {
-                            if (ASN1::getErrorHandlingMode() == ASN1::EXCEPTIONS_EVERY_TIME || isset($depth)) {
+                            if (!ASN1::isBlobsOnBadDecodesEnabled() || isset($depth)) {
                                 throw $e;
                             }
                             $excessivelyDeepData = true;
@@ -308,8 +308,8 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                                 $map[$key]->rules = $rules[$key];
                             }
                         } elseif (!isset($child['optional'])) {
-                            if (ASN1::getErrorHandlingMode() == ASN1::BLOB_ON_INCOMPLETE_ELEMENT) {
-                                $map[$key] = new MalformedData($temp['content']->getEncoded());
+                            if (ASN1::isBlobsOnBadDecodesEnabled()) {
+                                $map[$key] = new MalformedData($temp['content']);
                                 break;
                             }
                             throw new RuntimeException("Unable to find a matching element for $key in the SEQUENCE");
@@ -328,7 +328,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             $map[$key]->rules = $rules[$key];
                         }
                     } elseif (!isset($child['optional'])) {
-                        if (ASN1::getErrorHandlingMode() == ASN1::BLOB_ON_INCOMPLETE_ELEMENT) {
+                        if (ASN1::isBlobsOnBadDecodesEnabled()) {
                             break;
                         }
                         throw new RuntimeException("Unable to find a matching element for $key in the SEQUENCE");
@@ -387,7 +387,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                                 $map[$key]->rules = $rules[$key];
                             }
                         } elseif (!isset($child['optional'])) {
-                            if (ASN1::getErrorHandlingMode() == ASN1::BLOB_ON_INCOMPLETE_ELEMENT) {
+                            if (ASN1::isBlobsOnBadDecodesEnabled()) {
                                 $map[$key] = new MalformedData($temp['content']);
                                 break;
                             }
@@ -597,7 +597,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 try {
                     $value->__debugInfo();
                 } catch (\Exception $e) {
-                    if (ASN1::getErrorHandlingMode() != ASN1::EXCEPTIONS_EVERY_TIME) {
+                    if (ASN1::isBlobsOnBadDecodesEnabled()) {
                         $this->decoded[$key] = new MalformedData($value->encoded);
                     } else {
                         throw $e;
@@ -763,7 +763,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 }
                 $result[$key] = $value;
             } catch (\Exception $e) {
-                if (ASN1::getErrorHandlingMode() != ASN1::EXCEPTIONS_EVERY_TIME) {
+                if (ASN1::isBlobsOnBadDecodesEnabled()) {
                     $result[$key] = new MalformedData($value->encoded);
                     continue;
                 }

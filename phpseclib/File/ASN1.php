@@ -182,7 +182,7 @@ abstract class ASN1
      */
     private static bool $invalidateCache = true;
 
-    private static int $errorHandlingMode = self::EXCEPTIONS_EVERY_TIME;
+    private static bool $blobsOnBadDecodes = false;
 
     /*
      * Recursion Depth Limit
@@ -363,7 +363,7 @@ abstract class ASN1
                 case ASN1::TYPE_SET:
                     break;
                 default:
-                    if (self::$errorHandlingMode == self::EXCEPTIONS_EVERY_TIME) {
+                    if (!self::$blobsOnBadDecodes) {
                         throw new RuntimeException("$tag should not have the constructed bit set");
                     }
                     return $current + ['content' => new MalformedData($headercontent . $content)];
@@ -384,7 +384,7 @@ abstract class ASN1
             case self::TYPE_BOOLEAN:
                 if (strlen($content) != 1) {
                     // paragraph 8.2.1
-                    if (self::$errorHandlingMode == self::EXCEPTIONS_EVERY_TIME) {
+                    if (!self::$blobsOnBadDecodes) {
                         // paragraph 8.8.2
                         throw new RuntimeException('The contents octets shall consist of a single octet for bit strings');
                     }
@@ -412,7 +412,7 @@ abstract class ASN1
                 break;
             case self::TYPE_NULL:
                 if (strlen($content)) {
-                    if (self::$errorHandlingMode == self::EXCEPTIONS_EVERY_TIME) {
+                    if (!self::$blobsOnBadDecodes) {
                         // paragraph 8.8.2
                         throw new RuntimeException('The contents octets shall not contain any octets for nulls');
                     }
@@ -423,7 +423,7 @@ abstract class ASN1
                 break;
             case self::TYPE_SEQUENCE:
             case self::TYPE_SET:
-                if (self::$errorHandlingMode == self::EXCEPTIONS_EVERY_TIME) {
+                if (!self::$blobsOnBadDecodes) {
                     throw new RuntimeException('All SEQUENCE and SET tags should be constructed');
                 }
                 $current['content'] = new MalformedData($headercontent . $content);
@@ -432,7 +432,7 @@ abstract class ASN1
                 try {
                     $current['content'] = self::decodeOID($content);
                 } catch (\Exception $e) {
-                    if (self::$errorHandlingMode == self::EXCEPTIONS_EVERY_TIME) {
+                    if (!self::$blobsOnBadDecodes) {
                         throw $e;
                     }
                     $current['content'] = new MalformedData($headercontent . $content);
@@ -668,24 +668,19 @@ abstract class ASN1
         self::$invalidateCache = true;
     }
 
-    /**
-     * How does phpseclib handle malformed segments?
-     */
-    public static function setErrorHandlingMode(int $mode): void
+    public static function enableBlobsOnBadDecodes(): void
     {
-        switch ($mode) {
-            case self::EXCEPTIONS_EVERY_TIME:
-            case self::BLOB_ON_BAD_ELEMENT:
-            case self::BLOB_ON_INCOMPLETE_ELEMENT:
-                self::$errorHandlingMode = $mode;
-                return;
-        }
-        throw new InvalidArgumentException('mode parameter should be one of: ASN1::EXCEPTIONS_EVERY_TIME, ASN1::BLOB_ON_BAD_ELEMENT, ASN1::BLOB_ON_INCOMPLETE_ELEMENT');
+        self::$blobsOnBadDecodes = true;
     }
 
-    public static function getErrorHandlingMode(): int
+    public static function disableBlobsOnBadDecodes(): void
     {
-        return self::$errorHandlingMode;
+        self::$blobsOnBadDecodes = false;
+    }
+
+    public static function isBlobsOnBadDecodesEnabled(): bool
+    {
+        return self::$blobsOnBadDecodes;
     }
 
     /**

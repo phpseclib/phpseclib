@@ -446,7 +446,7 @@ class ASN1Test extends PhpseclibTestCase
      */
     public function testBlobsOnBadDecodes(string $data, array $map, ?string $path, ?string $key): void
     {
-        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_INCOMPLETE_ELEMENT);
+        ASN1::enableBlobsOnBadDecodes();
         $decoded = ASN1::decodeBER(pack('H*', $data));
         $result = ASN1::map($decoded, $map);
         if ($result instanceof Constructed) {
@@ -456,7 +456,7 @@ class ASN1Test extends PhpseclibTestCase
             }
             $result = $result[$key];
         }
-        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
+        ASN1::disableBlobsOnBadDecodes();
         $this->assertInstanceOf(MalformedData::class, $result);
     }
 }

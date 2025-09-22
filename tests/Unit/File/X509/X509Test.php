@@ -1012,12 +1012,12 @@ B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
 A9bhRA0cVk7bAEU2c44CYg==
 -----END CERTIFICATE-----';
 
-        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_BAD_ELEMENT);
+        ASN1::enableBlobsOnBadDecodes();
 
         $x509 = X509::load($cert);
-        $this->assertInstanceOf(MalformedData::class, $x509['tbsCertificate']);
+        $this->assertInstanceOf(MalformedData::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
 
-        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
+        ASN1::disableBlobsOnBadDecodes();
     }
 
     // from CVE-2024-27355
@@ -1035,12 +1035,12 @@ A9bhRA0cVk7bAEU2c44CYg==
     {
         $cert = file_get_contents(dirname(__FILE__) . '/mal-cert-02.der');
 
-        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_BAD_ELEMENT);
+        ASN1::enableBlobsOnBadDecodes();
 
         $x509 = X509::load($cert);
         $this->assertInstanceOf(MalformedData::class, $x509['signatureAlgorithm']['algorithm']);
 
-        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
+        ASN1::disableBlobsOnBadDecodes();
     }
 
     /**
@@ -1430,10 +1430,10 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         // an excessively large integer value
         $cert = file_get_contents(__DIR__ . '/mal-cert-01.der');
 
-        ASN1::setErrorHandlingMode(ASN1::BLOB_ON_BAD_ELEMENT);
+        ASN1::enableBlobsOnBadDecodes();
         $x509 = X509::load($cert)->toArray();
         $this->assertInstanceOf(Element::class, $x509['tbsCertificate']['subjectPublicKeyInfo']['algorithm']['parameters']);
-        ASN1::setErrorHandlingMode(ASN1::EXCEPTIONS_EVERY_TIME);
+        ASN1::disableBlobsOnBadDecodes();
     }
 
     /**
