@@ -182,7 +182,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $decoded = [];
 
         if ($this->tag != $mapping['type']) {
-            throw new RuntimeException("Found {$this->tag} - expecting $mapping[type]");
+            throw new RuntimeException('Found ' . ASN1::convertTypeConstantToString($this->tag) . ' - expecting ' . ASN1::convertTypeConstantToString($mapping['type']));
         }
 
         $content_len = strlen($this->encoded);
@@ -241,7 +241,8 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     }
                     if ($content['type'] != $this->tag) {
                         $error = 'All subtags of a constructed string should be the same type as the constructed string itself';
-                        throw new RuntimeException("$error (found $content[type]; expected {$this->tag})");
+                        $error = "$error (found " . ASN1::convertTypeConstantToString($content['type']) . '; expected '. ASN1::convertTypeConstantToString($this->tag) . ')';
+                        throw new RuntimeException($error);
                     }
                     $result.= $content['content'];
                 }

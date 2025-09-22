@@ -1546,6 +1546,36 @@ if (is_string($decoded['content'])) {
         return ['utcTime' => $date];
     }
 
+    public static function convertTypeConstantToString(int $type): string
+    {
+        $result = match ($type) {
+            1 => 'BOOLEAN',
+            2 => 'INTEGER',
+            3 => 'BIT STRING',
+            4 => 'OCTET STRING',
+            5 => 'NULL',
+            6 => 'OBJECT IDENTIFIER',
+            9 => 'REAL',
+            10 => 'ENUMERATED',
+            12 => 'UTF8 STRING',
+            16 => 'SEQUENCE',
+            17 => 'SET',
+            18 => 'NUMERIC STRING',
+            19 => 'TELETEX STRING',
+            21 => 'VIDEOTEX STRING',
+            22 => 'IA5 STRING',
+            23 => 'UTC TIME',
+            24 => 'GENERALIZED TIME',
+            25 => 'GRAPHIC STRING',
+            26 => 'VISIBLE STRING',
+            27 => 'GENERAL STRING',
+            28 => 'UNIVERSAL STRING',
+            30 => 'BMP STRING',
+            default => 'UNKNOWN'
+        };
+        return "$result ($type)";
+    }
+
     public static function setRecursionDepth(int $depth): void
     {
         self::$recursionDepth = $depth;
