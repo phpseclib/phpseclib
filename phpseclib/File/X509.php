@@ -1097,7 +1097,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         switch (true) {
-            case self::$strictDNComparison && $subject->getIssuerDN(self::DN_STRING) === $this->getSubjectDN(self::DN_STRING):
+            case self::$strictDNComparison && $subject->getIssuerDN(self::DN_ASN1) === $this->getSubjectDN(self::DN_ASN1):
             case !self::$strictDNComparison && $subject->getIssuerDN(self::DN_CANON) === $this->getSubjectDN(self::DN_CANON):
                 $authorityKey = $subject->getExtension('id-ce-authorityKeyIdentifier');
                 $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier');

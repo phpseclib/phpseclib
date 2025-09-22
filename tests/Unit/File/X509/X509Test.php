@@ -18,6 +18,8 @@ use phpseclib3\Exception\RuntimeException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\MalformedData;
+use phpseclib3\File\ASN1\Types\PrintableString;
+use phpseclib3\File\ASN1\Types\UTF8String;
 use phpseclib3\File\X509;
 use phpseclib3\Tests\PhpseclibTestCase;
 
@@ -1546,5 +1548,29 @@ XPKVItoiHkqP9zckhd6b4ho=
         $x509 = X509::load($cert)->toArray();
 
         $this->assertIsArray($x509);
+    }
+
+    public function testLooseDNComparison(): void
+    {
+        X509::looseDNComparison();
+        X509::ignoreKeyUsage();
+        X509::ignoreBasicConstraints();
+        $x509 = new X509();
+        $x509->addDNProp('O', 'phpseclib test');
+        // by default DN's are added as UTF8Strings, if the type is not explicitly specified
+        $this->assertInstanceOf(UTF8String::class, $x509->getSubjectDNProps('O')[0]);
+        $this->assertInstanceOf(UTF8String::class, $x509->getIssuerDNProps('O')[0]);
+        $this->assertTrue($x509->isIssuerOf($x509));
+        $x509->removeSubjectDNProps('O');
+        $this->assertFalse($x509->isIssuerOf($x509));
+        $x509->addSubjectDNProp('O', new PrintableString('phpseclib test'));
+        $this->assertInstanceOf(PrintableString::class, $x509->getSubjectDNProps('O')[0]);
+        $this->assertInstanceOf(UTF8String::class, $x509->getIssuerDNProps('O')[0]);
+        $this->assertTrue($x509->isIssuerOf($x509));
+        X509::strictDNComparison();
+        $this->assertFalse($x509->isIssuerOf($x509));
+        // restore orig validation behavior
+        X509::checkKeyUsage();
+        X509::checkBasicConstraints();
     }
 }
