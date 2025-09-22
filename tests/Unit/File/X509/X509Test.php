@@ -635,7 +635,7 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
         $cert->addDomains('www.google.com');
         $cakey->sign($cert);
 
-        $this->assertIsString("$cakey");
+        $this->assertIsString("$cert");
     }
 
     // this test will fail without an active internet connection
