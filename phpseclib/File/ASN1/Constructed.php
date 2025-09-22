@@ -25,6 +25,7 @@ namespace phpseclib3\File\ASN1;
 use phpseclib3\Exception\EncodedDataUnavailableException;
 use phpseclib3\Exception\EOCException;
 use phpseclib3\Exception\ExcessivelyDeepDataException;
+use phpseclib3\Exception\InsufficientSetupException;
 use phpseclib3\Exception\NoValidTagFoundException;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\File\ASN1;
@@ -747,90 +748,10 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         return $output;
     }
 
-    // the start values are gonna be all out of whack
-    private function toASN1Array(): array
-    {
-        $this->mapping = [
-            'type' => ASN1::TYPE_SET,
-            'min' => 1,
-            'max' => -1,
-            'children' => ['type' => ASN1::TYPE_ANY]
-        ];
-        $oldTag = $this->tag;
-        $this->tag = 17;
-        $this->decodeCurrent();
-        $result = [];
-        foreach ($this->decoded as $value) {
-            if (!$value instanceof Element) {
-                $value = ['content' => $value] + $value->metadata;
-            } else { // $value instanceof Element
-                $raw = (string) $value;
-                $offset = 0;
-                $meta = ASN1::decodeTag($raw, $offset);
-                $length = ASN1::decodeLength($raw, $offset);
-                if (!isset($length)) {
-                    $actuallength = strlen($raw) - $offset;
-                }
-                $value = $meta['class'] == 0 ?
-                    ['type' => $meta['tag']] :
-                    ['type' => $meta['class'], 'constant' => $meta['tag']];
-                $value['headerlength'] = $offset;
-                $value['length'] = $length;
-                if (isset($actuallength)) {
-                    $value['actuallength'] = $actuallength;
-                    $length = $actuallength;
-                }
-                if (!$meta['constructed']) {
-                    $value['content'] = substr($raw, $offset, $length);
-                } else {
-                    $remaining = $length;
-                    $subvalue = [];
-                    while ($remaining > 0) {
-                        try {
-                            $temp = ASN1::decodeBER(substr($raw, $offset));
-                        } catch (EOCException $e) {
-                            $temp = [
-                                'headerlength' => 2,
-                                'length' => 0,
-                                'type' => 0,
-                            ];
-                            $subvalue[] = $temp;
-                            $offset+= 2;
-                            break;
-                        }
-                        if ($temp['content'] instanceof Constructed) {
-                            if (isset($temp['length'])) {
-                                $length = $temp['length'];
-                            } else {
-                                $suboffset = 0;
-                                $length = $temp['content']->calculateIndefiniteLength($suboffset);;
-                                $temp['actuallength'] = $length;
-                            }
-                            //$length = $temp['length'] ?? $temp['content']->calculateIndefiniteLength($suboffset);
-                            $temp['content'] = $temp['content']->toASN1Array();
-                        } else {
-                            $length = strlen($temp['content']->getEncoded());
-                        }
-                        $remaining-= ($temp['length'] ?? $length) + $temp['headerlength'];
-                        $subvalue[] = $temp;
-                        $offset+= ($temp['length'] ?? $length) + $temp['headerlength'];
-                    }
-                    $value['content'] = $subvalue;
-                }
-            }
-
-            $result[] = $value;
-        }
-        unset($this->mapping);
-        unset($this->decoded);
-        $this->tag = $oldTag;
-        return $result;
-    }
-
     public function toArray(): array
     {
         if (!isset($this->mapping)) {
-            return $this->toASN1Array();
+            throw new InsufficientSetupException('Cannot convert Constructed object to an array when no mapping has been provided');
         }
 
         self::decodeCurrent();
