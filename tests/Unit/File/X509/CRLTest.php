@@ -23,6 +23,7 @@ class CRLTest extends PhpseclibTestCase
         $test = file_get_contents(__DIR__ . '/crl.bin');
 
         $crl = CRL::load($test);
+        $this->assertEquals(103, $crl->numRevoked());
         $reason = $crl->getRevokedExtension(new BigInteger('9048354325167497831898969642461237543'), 'id-ce-cRLReasons')['extnValue'];
         $this->assertEquals('unspecified', $reason);
     }
