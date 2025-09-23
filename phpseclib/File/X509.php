@@ -1202,7 +1202,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
           certificates MUST be able to accept .cer files and SHOULD be able
           to accept .p7c files." -- https://tools.ietf.org/html/rfc4325
 
-         A .p7c file is 'a "certs-only" CMS message as specified in RFC 2797"
+         A .p7c file is 'a "certs-only" CMS message as specified in RFC 2797"'
 
          These are currently unsupported
         */
