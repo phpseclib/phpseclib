@@ -1573,4 +1573,51 @@ XPKVItoiHkqP9zckhd6b4ho=
         X509::checkKeyUsage();
         X509::checkBasicConstraints();
     }
+
+    public function testSetPostalAddress(): void
+    {
+        $x509 = new X509();
+        $address = [
+            'John Doe',
+            '111 Anywhere St',
+            'New York, NY 10001',
+        ];
+        $x509->addDNProp('id-at-postalAddress', $address);
+        X509::load("$x509");
+        $result = $x509->getDNProps('id-at-postalAddress')[0];
+        foreach ($address as $i=>$expected) {
+            $this->assertSame($expected, (string) $result[$i]);
+        }
+    }
+
+    public function testExtensionManagement(): void
+    {
+        $cert = '-----BEGIN CERTIFICATE-----
+MIIDtTCCAp2gAwIBAgICECEwDQYJKoZIhvcNAQELBQAwYzELMAkGA1UEBhMCVVMx
+ITAfBgNVBAoTGFRoZSBHbyBEYWRkeSBHcm91cCwgSW5jLjExMC8GA1UECxMoR28g
+RGFkZHkgQ2xhc3MgMiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAeFw0xNjAyMDcx
+NzI0MDBaFw0yNDAxMDYwNjQ0NThaMHkxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJD
+QTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLR29vZ2xlIEluYy4x
+GDAWBgNVBAsTD0dvb2dsZSBSZXNlYXJjaDEVMBMGA1UEAxQMKi5nb29nbGUuY29t
+MIIBIDANBgkqhkiG9w0BAQEFAAOCAQ0AMIIBCAKCAQEAxUWTaM/RKjoA8urhPYXr
+Nh2Oz9HA88XkFIxhD3pm80wBlTTTnymSJJVWKpEJO7OyengVFRIv7U19VAFd8VCh
+TCiFl7a4hsiWWQi3zh/NYgj0BnweNriblknBKTze6te1DP8otZ22qBUmhCR27aER
+MWE9urWLwMIuJN/hxK234MljS9lBB3fv52RrZzSftga/P5zK34ZOlbnGcLbtoKR3
+p0uWakBZM8u/665hQ4u4+YkA2kJy5YSF6wXpYKl29/mj1w9ODJTUFj3KmliiGXeo
+2IhYLu4Pq52D7OKjDvKZRKK6tOM8Pii1c310ljlCewCuF/Oy/ygbNmaJG7J8/jTA
+pwIBA6NfMF0wDAYDVR0TAQH/BAIwADANBgNVHREEBjAEggJhKzAdBgNVHQ4EFgQU
+Zd/yRfldVXIxnAKzGaO6vZrb2XswHwYDVR0jBBgwFoAU4J1tAjJyIZ/+BvOatp4W
+N1Fo5MMwDQYJKoZIhvcNAQELBQADggEBAAcwSIxKQegRqCs7adDb3VbqP1Ld0dA6
+FydwendbN1P4NaqqdM89NhpOVZ5g60eM4sc08m5oZIMWqjwp3Gyf2pqM2FMQ02zi
+1lMRb+t9rtjtZXCdcTjuwySYXw7M7NM0Lxhv7yN9+Vben1RTBWFghk8y4t6sai5L
+68hFu+fkQzKIpHE/9cdBS+rtqyCrNit3kvqVhVpGECTS2flTBHnCe7mINojSTOsB
+JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
+1ntA2AzsC0OGg/ekAnAlxia3mzcJv0PgxRpSG7xjWSL+FVFTTs2I/wk=
+-----END CERTIFICATE-----';
+        $x509 = X509::load($cert);
+        $this->assertSame(4, count($x509->listExtensions()));
+        $ext = $x509->getExtension('id-ce-subjectAltName');
+        $this->assertEquals($ext['extnValue'],$x509['tbsCertificate']['extensions'][1]['extnValue']);
+        $this->assertNotEquals($ext['extnValue'],$x509['tbsCertificate']['extensions'][2]['extnValue']);
+    }
 }
