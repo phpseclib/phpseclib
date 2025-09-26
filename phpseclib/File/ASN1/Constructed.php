@@ -36,6 +36,7 @@ use phpseclib3\File\ASN1\MalformedData;
 use phpseclib3\File\ASN1\Types\BaseString;
 use phpseclib3\File\ASN1\Types\BaseType;
 use phpseclib3\File\ASN1\Types\BitString;
+use phpseclib3\File\ASN1\Types\Boolean;
 use phpseclib3\File\ASN1\Types\Choice;
 use phpseclib3\File\ASN1\Types\Integer;
 use phpseclib3\File\ASN1\Types\OctetString;
@@ -302,7 +303,21 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                                 $map[$key] = new Integer(array_search($child['default'], $child['mapping']));
                                 $map[$key]->mappedValue = $child['default'];
                             } else {
-                                $map[$key] = $child['default'];
+                                switch ($child['type']) {
+                                    case ASN1::TYPE_BOOLEAN:
+                                        $map[$key] = new Boolean($child['default']);
+                                        break;
+                                    case ASN1::TYPE_INTEGER:
+                                        $map[$key] = new Integer($child['default']);
+                                        break;
+                                    case ASN1::TYPE_SEQUENCE:
+                                        $encoded = ASN1::encodeDER($child['default'], array_diff_key($child, ['default' => 1]));
+                                        $decoded = ASN1::decodeBER($encoded);
+                                        $map[$key] = ASN1::map($decoded, $map)->toArray();
+                                        break;
+                                    default:
+                                        $map[$key] = $child['default'];
+                                }
                             }
                             if (isset($rules[$key])) {
                                 $map[$key]->rules = $rules[$key];

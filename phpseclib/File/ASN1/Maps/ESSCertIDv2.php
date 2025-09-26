@@ -29,7 +29,7 @@ abstract class ESSCertIDv2
         'children' => [
             'hashAlgorithm' => [
                 'optional' => true,
-                'default' => ['algorithm' => 'id-sha256', 'parameters' => ['null' => '']],
+                'default' => ['algorithm' => 'id-sha256', 'parameters' => null],
             ] + AlgorithmIdentifier::MAP,
             'certHash' => Hash::MAP,
             'issuerSerial' => ['optional' => true] + IssuerSerial::MAP,

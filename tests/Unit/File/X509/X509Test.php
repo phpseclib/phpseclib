@@ -18,6 +18,7 @@ use phpseclib3\Exception\RuntimeException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\MalformedData;
+use phpseclib3\File\ASN1\Types\Boolean;
 use phpseclib3\File\ASN1\Types\PrintableString;
 use phpseclib3\File\ASN1\Types\UTF8String;
 use phpseclib3\File\X509;
@@ -71,6 +72,8 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
 
         $this->assertIsArray($cert->toArray()['tbsCertificate']['extensions'][3]['extnValue']);
         $this->assertIsArray($cert->getExtension('id-pe-authorityInfoAccess')['extnValue']->toArray());
+        $this->assertFalse($cert->getExtension('id-pe-authorityInfoAccess')['critical']);
+        $this->assertInstanceOf(Boolean::class, $cert['tbsCertificate']['extensions'][3]['critical']);
 
         $this->assertEquals(1, $cert['tbsCertificate']->depth);
         $this->assertEquals(2, $cert['tbsCertificate']['extensions']->depth);
@@ -93,6 +96,8 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
             $cert['tbsCertificate']['extensions'][3]->getEncoded(),
             $cert['tbsCertificate']['extensions'][3]['extnValue']->parent->getEncoded()
         );
+
+
     }
 
     public function testLoadUnsupportedExtension(): void

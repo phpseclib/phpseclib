@@ -774,11 +774,13 @@ abstract class ASN1
 
                 $value = '';
                 foreach ($mapping['children'] as $key => $child) {
-                    if (!isset($source[$key])) {
-                        if (!isset($child['optional'])) {
-                            throw new RuntimeException(implode('/', array_merge(self::$location, [$key])) . ' is not present and is not optional');
-                        }
-                        continue;
+                    switch (true) {
+                        case is_array($source) && !array_key_exists($key, $source):
+                        case !is_array($source) && !isset($source[$key]):
+                            if (!isset($child['optional'])) {
+                                throw new RuntimeException(implode('/', array_merge(self::$location, [$key])) . ' is not present and is not optional');
+                            }
+                            continue 2;
                     }
 
                     $temp = self::encode_der($source[$key], $child, $key);
