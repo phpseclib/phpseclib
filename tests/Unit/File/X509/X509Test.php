@@ -1628,4 +1628,12 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $this->assertEquals($ext['extnValue'],$x509['tbsCertificate']['extensions'][1]['extnValue']);
         $this->assertNotEquals($ext['extnValue'],$x509['tbsCertificate']['extensions'][2]['extnValue']);
     }
+
+    public function testDefaultBoolean(): void
+    {
+        $cert = file_get_contents(__DIR__ . '/google.crt');
+
+        $x509 = X509::load($cert);
+        $this->assertInstanceOf(Boolean::class, $x509->getExtension('id-ce-basicConstraints')['extnValue']['cA']);
+    }
 }

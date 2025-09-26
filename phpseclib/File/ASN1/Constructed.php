@@ -299,29 +299,8 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             }
                             break;
                         } elseif (isset($child['default'])) {
-                            if ($child['type'] == ASN1::TYPE_INTEGER && isset($child['mapping'])) {
-                                $map[$key] = new Integer(array_search($child['default'], $child['mapping']));
-                                $map[$key]->mappedValue = $child['default'];
-                            } else {
-                                switch ($child['type']) {
-                                    case ASN1::TYPE_BOOLEAN:
-                                        $map[$key] = new Boolean($child['default']);
-                                        break;
-                                    case ASN1::TYPE_INTEGER:
-                                        $map[$key] = new Integer($child['default']);
-                                        break;
-                                    case ASN1::TYPE_SEQUENCE:
-                                        $encoded = ASN1::encodeDER($child['default'], array_diff_key($child, ['default' => 1]));
-                                        $decoded = ASN1::decodeBER($encoded);
-                                        $map[$key] = ASN1::map($decoded, $map)->toArray();
-                                        break;
-                                    default:
-                                        $map[$key] = $child['default'];
-                                }
-                            }
-                            if (isset($rules[$key])) {
-                                $map[$key]->rules = $rules[$key];
-                            }
+                            $map[$key] = self::fillInDefault($child);
+
                         } elseif (!isset($child['optional'])) {
                             if (ASN1::isBlobsOnBadDecodesEnabled()) {
                                 $map[$key] = new MalformedData($temp['content']);
@@ -338,10 +317,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     $key = $keys[$j++];
                     $child = $children[$key];
                     if (isset($child['default'])) {
-                        $map[$key] = $child['type'] == ASN1::TYPE_INTEGER ? new Integer($child['default']) : $child['default'];
-                        if (isset($rules[$key])) {
-                            $map[$key]->rules = $rules[$key];
-                        }
+                        $map[$key] = self::fillInDefault($child);
                     } elseif (!isset($child['optional'])) {
                         if (ASN1::isBlobsOnBadDecodesEnabled()) {
                             break;
@@ -397,10 +373,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 foreach ($mapping['children'] as $key => $child) {
                     if (!isset($map[$key])) {
                         if (isset($child['default'])) {
-                            $map[$key] = $child['type'] == ASN1::TYPE_INTEGER ? new Integer($child['default']) : $child['default'];
-                            if (isset($rules[$key])) {
-                                $map[$key]->rules = $rules[$key];
-                            }
+                            $map[$key] = self::fillInDefault($child);
                         } elseif (!isset($child['optional'])) {
                             if (ASN1::isBlobsOnBadDecodesEnabled()) {
                                 $map[$key] = new MalformedData($temp['content']);
@@ -417,6 +390,27 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             default:
                 throw new RuntimeException('Unable to decode element (' . $this->tag . ') @ ' . $this->start);
         }
+    }
+
+    private static function fillInDefault(array $child): BaseType
+    {
+        if ($child['type'] == ASN1::TYPE_INTEGER && isset($child['mapping'])) {
+            $temp = new Integer(array_search($child['default'], $child['mapping']));
+            $temp->mappedValue = $child['default'];
+            return $temp;
+        }
+        switch ($child['type']) {
+            case ASN1::TYPE_BOOLEAN:
+                return new Boolean($child['default']);
+            case ASN1::TYPE_INTEGER:
+                return new Integer($child['default']);
+            case ASN1::TYPE_SEQUENCE:
+                $encoded = ASN1::encodeDER($child['default'], array_diff_key($child, ['default' => 1]));
+                $decoded = ASN1::decodeBER($encoded);
+                return ASN1::map($decoded, $child)->toArray();
+        }
+        //return $child['default'];
+        throw new RuntimeException('An unsupported default type was encountered');
     }
 
     private function setSeqOuterLoop(array $decoded, array $children): array
