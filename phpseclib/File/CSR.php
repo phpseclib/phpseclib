@@ -264,6 +264,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             if ($value instanceof Constructed && $attr['value'] instanceof Constructed) {
                 $value->parent = $attr['value'];
                 $value->depth = $attr['value']->depth + 1;
+                $value->key = $key;
             }
             unset($value);
         }

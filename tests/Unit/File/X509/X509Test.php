@@ -97,7 +97,10 @@ k6m17mi63YW/+iPCGOWZ2qXmY5HPEyyF2L4L4IDryFJ+8xLyw3pH9/yp5aHZDtp6
             $cert['tbsCertificate']['extensions'][3]['extnValue']->parent->getEncoded()
         );
 
-
+        $this->assertEquals('tbsCertificate', $cert['tbsCertificate']->key);
+        $this->assertEquals('extensions', $cert['tbsCertificate']['extensions']->key);
+        $this->assertEquals(3, $cert['tbsCertificate']['extensions'][3]->key);
+        $this->assertEquals('extnValue', $cert['tbsCertificate']['extensions'][3]['extnValue']->key);
     }
 
     public function testLoadUnsupportedExtension(): void

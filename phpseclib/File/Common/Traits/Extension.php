@@ -176,6 +176,7 @@ trait Extension
                 if ($ext['extnValue'] instanceof Constructed) {
                     $ext['extnValue']->parent = $ext;
                     $ext['extnValue']->depth = $ext->depth + 1;
+                    $ext['extnValue']->key = 'extnValue';
                 }
             } else {
                 $temp = ASN1::decodeBER((string) $ext['extnValue']);
