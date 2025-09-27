@@ -22,7 +22,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+                php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -72,7 +72,7 @@ jobs:
                 run: |
                     PHPSECLIB_SSH_USERNAME='phpseclib'
                     PHPSECLIB_SSH_PASSWORD='EePoov8po1aethu2kied1ne0'
-                    
+
                     sudo useradd --create-home --base-dir /home "$PHPSECLIB_SSH_USERNAME"
                     echo "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_PASSWORD" | sudo chpasswd
                     ssh-keygen -t rsa -b 1024 -f "$HOME/.ssh/id_rsa" -q -N ""
@@ -83,7 +83,7 @@ jobs:
                     sudo ssh-keyscan -t rsa localhost > "/tmp/known_hosts"
                     sudo cp "/tmp/known_hosts" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/known_hosts"
                     sudo chown "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_USERNAME" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/" -R
-                    
+
                     echo "PHPSECLIB_SSH_HOSTNAME=localhost" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_USERNAME=$PHPSECLIB_SSH_USERNAME" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_PASSWORD=$PHPSECLIB_SSH_PASSWORD" >> $GITHUB_ENV
@@ -95,4 +95,4 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+                php-version: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
