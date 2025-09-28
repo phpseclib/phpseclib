@@ -876,6 +876,44 @@ class Math_BigInteger
     }
 
     /**
+     *  __serialize() magic method
+     *
+     * __sleep / __wakeup were depreciated in PHP 8.5
+     * Will be called, automatically, when serialize() is called on a Math_BigInteger object.
+     *
+     * @see self::__unserialize()
+     * @access public
+     */
+    function __serialize()
+    {
+        $result = array('hex' => $this->toHex(true));
+        if ($this->precision > 0) {
+            $result['precision'] = 'precision';
+        }
+        return $result;
+    }
+
+    /**
+     *  __unserialize() magic method
+     *
+     * __sleep / __wakeup were depreciated in PHP 8.5
+     * Will be called, automatically, when unserialize() is called on a Math_BigInteger object.
+     *
+     * @see self::__serialize()
+     * @access public
+     */
+    function __unserialize($data)
+    {
+        $temp = new Math_BigInteger($data['hex'], -16);
+        $this->value = $temp->value;
+        $this->is_negative = $temp->is_negative;
+        if (isset($data['precision']) && $data['precision'] > 0) {
+            // recalculate $this->bitmask
+            $this->setPrecision($data['precision']);
+        }
+    }
+
+    /**
      *  __debugInfo() magic method
      *
      * Will be called, automatically, when print_r() or var_dump() are called
