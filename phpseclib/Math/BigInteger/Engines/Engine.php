@@ -373,7 +373,7 @@ abstract class Engine implements \JsonSerializable
      * @see self::__unserialize()
      * @access public
      */
-    public function __serialize(): array
+    public function __serialize()
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->precision > 0) {
