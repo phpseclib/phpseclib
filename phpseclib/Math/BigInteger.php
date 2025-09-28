@@ -868,7 +868,7 @@ class BigInteger
     {
         $result = array('hex' => $this->toHex(true));
         if ($this->precision > 0) {
-            $result['precision'] = 'precision';
+            $result['precision'] = $this->precision;
         }
         return $result;
     }
