@@ -914,7 +914,11 @@ class File_ASN1
                     $temp = new Math_BigInteger($decoded['content'], -256);
                 }
                 if (isset($mapping['mapping'])) {
-                    $temp = (int) $temp->toString();
+                    $temp = $temp->toString();
+                    if (strlen($temp) > 1) {
+                        return false;
+                    }
+                    $temp = (int) $temp;
                     return isset($mapping['mapping'][$temp]) ?
                         $mapping['mapping'][$temp] :
                         false;
