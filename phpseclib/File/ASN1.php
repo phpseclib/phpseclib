@@ -789,9 +789,12 @@ abstract class ASN1
                     $temp = new BigInteger($decoded['content'], -256);
                 }
                 if (isset($mapping['mapping'])) {
-                    $temp = (int) $temp->toString();
-                    return $mapping['mapping'][$temp] ??
-                        false;
+                    $temp = $temp->toString();
+                    if (strlen($temp) > 1) {
+                        return false;
+                    }
+                    $temp = (int) $temp;
+                    return $mapping['mapping'][$temp] ?? false;
                 }
                 return $temp;
         }
