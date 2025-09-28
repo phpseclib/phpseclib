@@ -589,7 +589,11 @@ abstract class ASN1
     {
         switch ($content::class) {
             case Integer::class:
-                $key = (int) $content->toString();
+                $temp = $content->toString();
+                if (strlen($temp) > 1) {
+                    throw new RuntimeException('Mapped integers > 255 are not supported');
+                }
+                $key = (int) $temp;
                 if (isset($mapping[$key])) {
                     $content->mappedValue = $mapping[$key];
                 }

@@ -25,7 +25,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['8.2', '8.3', '8.4']
+                php-version: ['8.2', '8.3', '8.4', '8.5']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -92,4 +92,4 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['8.2', '8.3', '8.4']
+                php-version: ['8.2', '8.3', '8.4', '8.5']
