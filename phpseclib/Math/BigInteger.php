@@ -884,7 +884,7 @@ class BigInteger
      */
     function __unserialize($data)
     {
-        $temp = new Math_BigInteger($data['hex'], -16);
+        $temp = new BigInteger($data['hex'], -16);
         $this->value = $temp->value;
         $this->is_negative = $temp->is_negative;
         if (isset($data['precision']) && $data['precision'] > 0) {
