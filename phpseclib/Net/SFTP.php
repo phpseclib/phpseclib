@@ -3240,6 +3240,95 @@ class SFTP extends SSH2
     }
 
     /**
+     * Copy
+     *
+     * This method (currently) only works if the copy-data extension is available
+     *
+     * @param string $oldname
+     * @param string $newname
+     * @return bool
+     */
+    public function copy(string $oldname, string $newname): bool
+    {
+        if (!$this->precheck()) {
+            return false;
+        }
+
+        $oldname = $this->realpath($oldname);
+        $newname = $this->realpath($newname);
+        if ($oldname === false || $newname === false) {
+            return false;
+        }
+
+        if (!isset($this->extensions['copy-data']) || $this->extensions['copy-data'] !== '1') {
+            throw new \RuntimeException(
+                "Extension 'copy-data' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
+        }
+
+        $size = $this->filesize($oldname);
+
+        $packet = Strings::packSSH2('s', $oldname);
+        $packet .= $this->version >= 5 ?
+            pack('N3', 0, OpenFlag5::OPEN_EXISTING, 0) :
+            pack('N2', OpenFlag::READ, 0);
+        $this->send_sftp_packet(PacketType::OPEN, $packet);
+
+        $response = $this->get_sftp_packet();
+        switch ($this->packet_type) {
+            case PacketType::HANDLE:
+                $oldhandle = substr($response, 4);
+                break;
+            case PacketType::STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+                $this->logError($response);
+                return false;
+            default:
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
+        }
+
+        if ($this->version >= 5) {
+            $flags = OpenFlag5::OPEN_OR_CREATE;
+        } else {
+            $flags = OpenFlag::WRITE | OpenFlag::CREATE;
+        }
+
+        $packet = Strings::packSSH2('s', $newname);
+        $packet .= $this->version >= 5 ?
+            pack('N3', 0, $flags, 0) :
+            pack('N2', $flags, 0);
+        $this->send_sftp_packet(PacketType::OPEN, $packet);
+
+        $response = $this->get_sftp_packet();
+        switch ($this->packet_type) {
+            case PacketType::HANDLE:
+                $newhandle = substr($response, 4);
+                break;
+            case PacketType::STATUS:
+                $this->logError($response);
+                return false;
+            default:
+                throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
+                                                  . 'Got packet type: ' . $this->packet_type);
+        }
+
+        $packet = Strings::packSSH2('ssQQsQ', 'copy-data', $oldhandle, 0, $size, $newhandle, 0);
+        $this->send_sftp_packet(PacketType::EXTENDED, $packet);
+
+        $response = $this->get_sftp_packet();
+        if ($this->packet_type != PacketType::STATUS) {
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                                              . 'Got packet type: ' . $this->packet_type);
+        }
+
+        $this->close_handle($oldhandle);
+        $this->close_handle($newhandle);
+
+        return true;
+    }
+
+    /**
      * POSIX Rename
      *
      * Where rename() fails "if there already exists a file with the name specified by newpath"
