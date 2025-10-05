@@ -3248,7 +3248,7 @@ class SFTP extends SSH2
      * @param string $newname
      * @return bool
      */
-    public function copy($oldname, $newname)
+    public function copy(string $oldname, string $newname): bool
     {
         if (!$this->precheck()) {
             return false;
@@ -3271,16 +3271,16 @@ class SFTP extends SSH2
 
         $packet = Strings::packSSH2('s', $oldname);
         $packet .= $this->version >= 5 ?
-            pack('N3', 0, NET_SFTP_OPEN_OPEN_EXISTING, 0) :
-            pack('N2', NET_SFTP_OPEN_READ, 0);
-        $this->send_sftp_packet(NET_SFTP_OPEN, $packet);
+            pack('N3', 0, OpenFlag5::OPEN_EXISTING, 0) :
+            pack('N2', OpenFlag::READ, 0);
+        $this->send_sftp_packet(PacketType::OPEN, $packet);
 
         $response = $this->get_sftp_packet();
         switch ($this->packet_type) {
-            case NET_SFTP_HANDLE:
+            case PacketType::HANDLE:
                 $oldhandle = substr($response, 4);
                 break;
-            case NET_SFTP_STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+            case PacketType::STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
                 $this->logError($response);
                 return false;
             default:
@@ -3289,23 +3289,23 @@ class SFTP extends SSH2
         }
 
         if ($this->version >= 5) {
-            $flags = NET_SFTP_OPEN_OPEN_OR_CREATE;
+            $flags = OpenFlag5::OPEN_OR_CREATE;
         } else {
-            $flags = NET_SFTP_OPEN_WRITE | NET_SFTP_OPEN_CREATE;
+            $flags = OpenFlag::WRITE | OpenFlag::CREATE;
         }
 
         $packet = Strings::packSSH2('s', $newname);
         $packet .= $this->version >= 5 ?
             pack('N3', 0, $flags, 0) :
             pack('N2', $flags, 0);
-        $this->send_sftp_packet(NET_SFTP_OPEN, $packet);
+        $this->send_sftp_packet(PacketType::OPEN, $packet);
 
         $response = $this->get_sftp_packet();
         switch ($this->packet_type) {
-            case NET_SFTP_HANDLE:
+            case PacketType::HANDLE:
                 $newhandle = substr($response, 4);
                 break;
-            case NET_SFTP_STATUS:
+            case PacketType::STATUS:
                 $this->logError($response);
                 return false;
             default:
@@ -3314,10 +3314,10 @@ class SFTP extends SSH2
         }
 
         $packet = Strings::packSSH2('ssQQsQ', 'copy-data', $oldhandle, 0, $size, $newhandle, 0);
-        $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
+        $this->send_sftp_packet(PacketType::EXTENDED, $packet);
 
         $response = $this->get_sftp_packet();
-        if ($this->packet_type != NET_SFTP_STATUS) {
+        if ($this->packet_type != PacketType::STATUS) {
             throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
                                               . 'Got packet type: ' . $this->packet_type);
         }
