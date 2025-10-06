@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.49 - 2025-10-05
+
+- fix PHP 8.5 deprecations
+- SFTP: check if realpath succeeded when changing SFTP directory (#2098)
+- SSH2: server identification string handling enhancements (#2082, #2083)
+
 ## 2.0.48 - 2024-12-14
 
 - BigInteger: workaround for regression in GMP that PHP introduced
@@ -384,6 +390,19 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.24 - 2025-10-05
+
+- fix PHP 8.4 / 8.5 deprecations
+- X509: make the attributes section of new CSRs be blank (#1522)
+- X509: CRL version number wasn't correctly being saved (#2037)
+- SFTP: check if realpath succeeded when changing SFTP directory (#2098)
+- SFTP: convert filenames to strings (#2065)
+- SSH2: ignore kex-strict-s-v00@openssh.com in key re-exchanges (#2050)
+- SSH2: update setPreferredAlgorithms() to accept csv's
+- SSH2: fix possible infinite loop on packet timeout
+- SSH2: handle SSH2_MSG_EXT_INFO out of login (#2001, #2002)
+- SSH2/Agent: reset supported_private_key_algorithms for every key (#1995)
 
 ## 1.0.23 - 2024-02-25
 
