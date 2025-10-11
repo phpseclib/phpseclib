@@ -15,6 +15,7 @@ use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\EC;
 use phpseclib3\Exception\RuntimeException;
+use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Element;
 use phpseclib3\File\ASN1\MalformedData;
@@ -1429,7 +1430,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $cert = file_get_contents(__DIR__ . '/mal-cert-01.der');
 
         $x509 = X509::load($cert);
-        $this->expectException(RuntimeException::class);
+        $this->expectException(UnsupportedFormatException::class);
         $x509->getPublicKey();
     }
 

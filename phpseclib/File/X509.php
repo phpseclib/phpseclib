@@ -322,7 +322,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public function getPublicKey(): PublicKey
     {
         if (!$this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey) {
-            throw new RuntimeException('Unable to decode subjectPublicKeyInfo');
+            throw new UnsupportedFormatException('Unable to decode subjectPublicKeyInfo');
         }
 
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];
