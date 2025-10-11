@@ -1636,4 +1636,17 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load($cert);
         $this->assertInstanceOf(Boolean::class, $x509->getExtension('id-ce-basicConstraints')['extnValue']['cA']);
     }
+
+    public function testMalformedIssuer(): void
+    {
+        ASN1::enableBlobsOnBadDecodes();
+
+        $x509 = file_get_contents(__DIR__ . '/google.crt');
+        $x509 = ASN1::extractBER($x509);
+        $x509[100] = '.';
+        $x509 = X509::load($x509)->toArray();
+        $this->assertInstanceOf(MalformedData::class, $x509['tbsCertificate']['issuer']);
+
+        ASN1::disableBlobsOnBadDecodes();
+    }
 }
