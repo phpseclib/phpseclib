@@ -32,7 +32,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     public int $depth = 0;
     public int|string $key;
     private string $rawheader = '';
-    private string $encoded = '';
+    public string $encoded = '';
     private string $wrapping = '';
     private bool $forcedCache = false;
     private bool $iteratorStart = true;
