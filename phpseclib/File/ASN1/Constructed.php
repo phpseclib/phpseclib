@@ -773,7 +773,11 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 $result[$key] = $value;
             } catch (\Exception $e) {
                 if (ASN1::isBlobsOnBadDecodesEnabled()) {
-                    $result[$key] = new MalformedData($value->encoded);
+                    $result[$key] = new MalformedData(
+                        $value instanceof Choice ?
+                            $value->value->encoded :
+                            $value->encoded
+                    );
                     continue;
                 }
                 throw $e;
