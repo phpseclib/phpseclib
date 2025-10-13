@@ -266,8 +266,8 @@ trait DN
             case 'id-at-postaladdress':
                 return 'id-at-postalAddress';
             case 'dc':
-            case 'domainComponent':
-            case 'id-domainComponent':
+            case 'domaincomponent':
+            case 'id-domaincomponent':
                 return 'id-domainComponent';
             default:
                 throw new InvalidArgumentException("$propName is not a supported distinguished name attribute");
