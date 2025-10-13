@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace phpseclib3\File;
 
 use phpseclib3\Common\Functions\Strings;
+use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\EncodedDataUnavailableException;
 use phpseclib3\Exception\EOCException;
@@ -1437,6 +1438,15 @@ abstract class ASN1
     public static function getRecursionDepth(): int
     {
         return self::$recursionDepth;
+    }
+
+    public static function convertToPrimitive(BaseType|PublicKey $value): string|null|bool
+    {
+        return match ($value::class) {
+            ExplicitNull::class => null,
+            Boolean::class => $value->value,
+            default => (string) $value
+        };
     }
 
     /*

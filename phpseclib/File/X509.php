@@ -314,9 +314,9 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::mapOutExtensionsHelper($extensions);
     }
 
-    public function toArray(): array
+    public function toArray(bool $convertPrimitives = false): array
     {
-        return $this->cert instanceof Constructed ? $this->cert->toArray() : $this->cert;
+        return $this->cert instanceof Constructed ? $this->cert->toArray($convertPrimitives) : $this->cert;
     }
 
     public function getPublicKey(): PublicKey

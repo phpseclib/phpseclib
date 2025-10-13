@@ -302,9 +302,9 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         ];
     }
 
-    public function toArray(): array
+    public function toArray(bool $convertPrimitives = false): array
     {
-        return $this->csr instanceof Constructed ? $this->csr->toArray() : $this->csr;
+        return $this->csr instanceof Constructed ? $this->csr->toArray($convertPrimitives) : $this->csr;
     }
 
     private function mapOutDNs(): void

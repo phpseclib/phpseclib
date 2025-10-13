@@ -164,11 +164,11 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
         return 1;
     }
 
-    public function toArray(): array
+    public function toArray(bool $convertPrimitives = false): array
     {
         return $this->value instanceof Constructed || $this->value instanceof Choice ?
-            [$this->index => $this->value->toArray()] :
-            [$this->index => $this->value];
+            [$this->index => $this->value->toArray($convertPrimitives)] :
+            [$this->index => $convertPrimitives ? ASN1::convertToPrimitive($this->value) : $this->value];
     }
 
     public function invalidateCache(): void

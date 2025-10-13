@@ -38,6 +38,7 @@ use phpseclib3\File\ASN1\Types\BaseType;
 use phpseclib3\File\ASN1\Types\BitString;
 use phpseclib3\File\ASN1\Types\Boolean;
 use phpseclib3\File\ASN1\Types\Choice;
+use phpseclib3\File\ASN1\Types\ExplicitNull;
 use phpseclib3\File\ASN1\Types\Integer;
 use phpseclib3\File\ASN1\Types\OctetString;
 
@@ -757,7 +758,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         return $output;
     }
 
-    public function toArray(): array
+    public function toArray(bool $convertPrimitives = false): array
     {
         if (!isset($this->mapping)) {
             throw new InsufficientSetupException('Cannot convert Constructed object to an array when no mapping has been provided');
@@ -768,7 +769,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         foreach ($this->decoded as $key=>$value) {
             try {
                 if ($value instanceof Constructed || $value instanceof Choice) {
-                    $value = $value->toArray();
+                    $value = $value->toArray($convertPrimitives);
+                } elseif ($convertPrimitives) {
+                    $value = ASN1::convertToPrimitive($value);
                 }
                 $result[$key] = $value;
             } catch (\Exception $e) {
