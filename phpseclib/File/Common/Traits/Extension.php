@@ -24,6 +24,7 @@ use phpseclib3\File\ASN1\Maps;
 use phpseclib3\File\ASN1\Types\BaseType;
 use phpseclib3\File\ASN1\Types\Choice;
 use phpseclib3\File\ASN1\Types\OctetString;
+use phpseclib3\File\ASN1\Types\OID;
 
 /**
  * Extension Helper for misc ASN1 classes
@@ -336,5 +337,16 @@ trait Extension
 
             default => false
         };
+    }
+
+    private static function extensionMatch(string $search, OID $candidate): bool
+    {
+        if ($candidate->value == $search) {
+            return true;
+        }
+        if (isset($candidate->name) && $candidate->name == $search) {
+            return true;
+        }
+        return false;
     }
 }

@@ -639,7 +639,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             return null;
         }
         foreach ($this->cert['tbsCertificate']['extensions'] as $ext) {
-            if ("$ext[extnId]" == $name) {
+            if (self::extensionMatch($name, $ext['extnId'])) {
                 return [
                     'extnId' => $name,
                     'extnValue' => $ext['extnValue'],
@@ -656,7 +656,10 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             return false;
         }
         foreach ($this->cert['tbsCertificate']['extensions'] as $ext) {
-            if ("$ext[extnId]" == $name) {
+            if (!$ext['extnId'] instanceof OID) {
+                $ext['extnId'] = new OID($ext['extnId']);
+            }
+            if (self::extensionMatch($name, $ext['extnId'])) {
                 return true;
             }
         }
@@ -675,7 +678,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         if (isset($this->cert['tbsCertificate']['extensions'])) {
             foreach ($this->cert['tbsCertificate']['extensions'] as $i => $ext) {
                 $ext = &$this->cert['tbsCertificate']['extensions'][$i];
-                if ("$ext[extnId]" == $name) {
+                if (self::extensionMatch($name, $ext['extnId'])) {
                     $ext['extnValue'] = $value;
                     if (isset($origCritical)) {
                         $ext['critical'] = $origCritical;
@@ -702,7 +705,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             return;
         }
         foreach ($this->cert['tbsCertificate']['extensions'] as $i => $ext) {
-            if ("$ext[extnId]" == $name) {
+            if (self::extensionMatch($name, $ext['extnId'])) {
                 unset($this->cert['tbsCertificate']['extensions'][$i]);
             }
         }
