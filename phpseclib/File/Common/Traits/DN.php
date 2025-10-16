@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace phpseclib3\File\Common\Traits;
 
 use phpseclib3\Common\Functions\Arrays;
+use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Exception\CharacterConversionException;
 use phpseclib3\Exception\InvalidArgumentException;
