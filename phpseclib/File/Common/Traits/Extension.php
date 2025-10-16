@@ -339,8 +339,11 @@ trait Extension
         };
     }
 
-    private static function extensionMatch(string $search, OID $candidate): bool
+    private static function extensionMatch(string $search, OID|string $candidate): bool
     {
+        if (is_string($candidate)) {
+            $candidate = new OID($candidate);
+        }
         if ($candidate->value == $search) {
             return true;
         }

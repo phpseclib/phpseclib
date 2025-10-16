@@ -59,9 +59,17 @@ class OID implements BaseType
     private function tryToSetName()
     {
         if (!isset($this->name)) {
-            $temp = ASN1::getNameFromOID($this->value);
-            if ($temp != $this->value) {
-                $this->name = $temp;
+            if (preg_match('#^\d[\d\.]+\d$#', $this->value)) {
+                $temp = ASN1::getNameFromOID($this->value);
+                if ($temp != $this->value) {
+                    $this->name = $temp;
+                }
+            } else {
+                $temp = ASN1::getOIDFromName($this->value);
+                if ($temp != $this->value) {
+                    $this->name = $this->value;
+                    $this->value = $temp;
+                }
             }
         }
     }
