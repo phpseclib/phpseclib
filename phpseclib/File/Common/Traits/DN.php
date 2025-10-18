@@ -335,6 +335,10 @@ trait DN
             return;
         }
 
+        if (empty($props)) {
+            $props = ['rdnSequence' => []];
+        }
+
         if (is_array($props)) {
             if (isset($props['rdnSequence'])) {
                 $dn = $props;
