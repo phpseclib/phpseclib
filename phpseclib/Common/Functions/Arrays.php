@@ -104,6 +104,10 @@ abstract class Arrays
                 return $false;
             }
 
+            if (!is_array($root) && !$root instanceof \ArrayAccess) {
+                return $false;
+            }
+
             if (!isset($root[$i])) {
                 if (!$create) {
                     return $false;

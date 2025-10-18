@@ -297,6 +297,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     private function mapOutDNs(string $path): void
     {
         $dns = &Arrays::subArray($this->cert, $path);
+
         if (!$dns) {
             return;
         }
@@ -332,12 +333,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $publicKey;
     }
 
-    public function setSubjectDN(array|string $props): void
+    public function setSubjectDN(array|string|Element $props): void
     {
         self::setDNInternal($this->cert['tbsCertificate']['subject'], $props);
     }
 
-    public function setIssuerDN(array|string $props): void
+    public function setIssuerDN(array|string|Element $props): void
     {
         self::setDNInternal($this->cert['tbsCertificate']['issuer'], $props);
     }
@@ -726,7 +727,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$checkKeyUsage = $oldKeyUsage;
     }
 
-    public function setDN(array|string $props): void
+    public function setDN(array|string|Element $props): void
     {
         $this->testForSelfSigned();
 

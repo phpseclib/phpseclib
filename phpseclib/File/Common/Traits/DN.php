@@ -326,9 +326,14 @@ trait DN
         }
     }
 
-    private static function setDNInternal(array|Choice &$dn, array|string $props): void
+    private static function setDNInternal(array|Choice &$dn, array|string|Element $props): void
     {
         $dn['rdnSequence'] = [];
+
+        if ($props instanceof Element) {
+            $dn = $props;
+            return;
+        }
 
         if (is_array($props)) {
             if (isset($props['rdnSequence'])) {

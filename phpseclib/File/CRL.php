@@ -147,7 +147,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->getIssuerDN($format);
     }
 
-    public function setDN(array|string $props): void
+    public function setDN(array|string|Element $props): void
     {
         $this->setIssuerDN($props);
     }
@@ -172,7 +172,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::formatDN($this->crl['tbsCertList']['issuer'], $format);
     }
 
-    public function setIssuerDN(array|string $props): void
+    public function setIssuerDN(array|string|Element $props): void
     {
         self::setDNInternal($this->crl['tbsCertList']['issuer'], $props);
     }

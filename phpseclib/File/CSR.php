@@ -396,7 +396,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->csr = $temp->csr;
     }
 
-    public function setSubjectDN(array|string $props): void
+    public function setSubjectDN(array|string|Element $props): void
     {
         self::setDNInternal($this->csr['certificationRequestInfo']['subject'], $props);
     }
@@ -438,7 +438,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::formatDN($this->csr['certificationRequestInfo']['subject'], $format);
     }
 
-    public function setDN(array|string $props): void
+    public function setDN(array|string|Element $props): void
     {
         self::setSubjectDN($props);
     }
