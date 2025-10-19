@@ -64,6 +64,43 @@ use phpseclib3\Math\BigInteger;
  */
 abstract class ASN1
 {
+    /**
+     * Return internal array representation
+     *
+     * @see \phpseclib3\File\X509::getDN()
+     */
+    const DN_ARRAY = 0;
+    /**
+     * Return string
+     *
+     * @see \phpseclib3\File\X509::getDN()
+     */
+    const DN_STRING = 1;
+    /**
+     * Return ASN.1 name string
+     *
+     * @see \phpseclib3\File\X509::getDN()
+     */
+    const DN_ASN1 = 2;
+    /**
+     * Return OpenSSL compatible array
+     *
+     * @see \phpseclib3\File\X509::getDN()
+     */
+    const DN_OPENSSL = 3;
+    /**
+     * Return canonical ASN.1 RDNs string
+     *
+     * @see \phpseclib3\File\X509::getDN()
+     */
+    const DN_CANON = 4;
+    /**
+     * Return name hash for file indexing
+     *
+     * @see \phpseclib3\File\X509::getDN()
+     */
+    const DN_HASH = 5;
+
     // Tag Classes
     // http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=12
     public const CLASS_UNIVERSAL        = 0;
