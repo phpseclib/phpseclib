@@ -713,7 +713,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
     }
 
     /**
-     * Returns the mapping for a registered extension or null if $id isn't registered
+     * Register the mapping for a custom/unsupported extension.
      */
     public static function getRegisteredExtension(string $id): ?array
     {

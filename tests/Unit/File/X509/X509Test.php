@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib3\Tests\Unit\File\X509;
 
+use phpseclib3\Common\Functions\Arrays;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\DSA;
@@ -22,7 +23,9 @@ use phpseclib3\File\ASN1\MalformedData;
 use phpseclib3\File\ASN1\Types\Boolean;
 use phpseclib3\File\ASN1\Types\PrintableString;
 use phpseclib3\File\ASN1\Types\UTF8String;
+use phpseclib3\File\CRL;
 use phpseclib3\File\X509;
+use phpseclib3\Math\BigInteger;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class X509Test extends PhpseclibTestCase
@@ -1649,5 +1652,33 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $this->assertInstanceOf(MalformedData::class, $x509['tbsCertificate']['issuer']);
 
         ASN1::disableBlobsOnBadDecodes();
+    }
+
+    public function testCRLCheck(): void
+    {
+        $x509 = X509::load(file_get_contents(__DIR__ . '/google.crt'));
+        $CRLCache = [];
+        $cacheMisses = $cacheHits = 0;
+        X509::setInCRLFunction(function(string $url, BigInteger $serial) use (&$CRLCache, &$cacheHits, &$cacheMisses) {
+            if (isset($CRLCache[$url])) {
+                $cacheHits++;
+            } else {
+                $crl = CRL::load(file_get_contents($url));
+                $CRLCache[$url] = $crl->getRevokedAsArray();
+                $cacheMisses++;
+            }
+            return isset($CRLCache[$url][$serial->toHex()]);
+        });
+        $this->assertTrue($x509->validateNonRevokedStatus());
+        $this->assertSame(0, $cacheHits);
+        $this->assertSame(1, $cacheMisses);
+
+        $crl = $x509->getExtension('id-ce-cRLDistributionPoints');
+        $url = Arrays::subArrayWithWildcards($crl['extnValue'], '*/distributionPoint/fullName/*/uniformResourceIdentifier');
+        $crl = CRL::load(file_get_contents("$url"));
+        $x509->setSerialNumber($crl->getRevokedByIndex(0)['userCertificate']);
+        $this->assertFalse($x509->validateNonRevokedStatus());
+        $this->assertSame(1, $cacheHits);
+        $this->assertSame(1, $cacheMisses);
     }
 }

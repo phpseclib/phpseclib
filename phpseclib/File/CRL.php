@@ -188,7 +188,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return isset($idx);
     }
 
-    public function getRevokedInfo(BigInteger|X509 $sn): array|null
+    public function getRevokedInfo(BigInteger|X509 $sn): ?array
     {
         $this->compile();
         $idx = $this->getRevokedIndex($sn);
@@ -212,12 +212,33 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
+    public function getRevokedAsArray(): array
+    {
+        $result = [];
+        $list = &$this->crl['tbsCertList']['revokedCertificates'];
+        $total = count($list);
+        for ($i = 0; $i < $total; $i++) {
+            $temp = ['revocationDate' => (string) $list[$i]['revocationDate']];
+            if (isset($list[$i]['crlEntryExtensions'])) {
+                foreach ($list[$i]['crlEntryExtensions'] as $entry) {
+                    if ($entry['extnId'] == 'id-ce-cRLReasons') {
+                        $temp['reason'] = (string) $entry['extnValue'];
+                        break;
+                    }
+                }
+            }
+            $result[$list[$i]['userCertificate']->toHex()] = $temp;
+            unset($list[$i]->decoded);
+        }
+        return $result;
+    }
+
     public function numRevoked(): int
     {
         return count($this->crl['tbsCertList']['revokedCertificates']);
     }
 
-    public function getRevokedByIndex(int $idx): array|null
+    public function getRevokedByIndex(int $idx): ?array
     {
         $this->compile();
         return $this->crl['tbsCertList']['revokedCertificates'][$idx]?->toArray() ?? null;

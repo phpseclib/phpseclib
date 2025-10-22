@@ -99,8 +99,20 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     private static array $extensions = [];
 
+    private static \Closure $inCRLFunction;
+
     public function __construct(PublicKey|CSR|null $cert = null)
     {
+        if (!isset(self::$inCRLFunction)) {
+            // ideally CRLs, which can sometimes be several megabytes in size, would be cached for some period
+            // of time, however, phpseclib, making no assumptions on the underlying filesystem, doesn't
+            // really have a mechanism to do this. if you want to save CRLs to some sort of DB then you can
+            // replace this function with one that'll cache to the DB and pull from the DB when appropriate
+            self::$inCRLFunction = function(string $url, BigInteger $serial) {
+                return false;
+            };
+        }
+
         ASN1::loadOIDs('X509');
 
         $startDate = new \DateTimeImmutable('now', new \DateTimeZone(@date_default_timezone_get()));
@@ -1120,6 +1132,25 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return false;
     }
 
+    // returns true if the X509 is NOT revoked and false if it is
+    public function validateNonRevokedStatus(): bool
+    {
+        $crl = $this->getExtension('id-ce-cRLDistributionPoints');
+        if ($crl) {
+            $key = '*/distributionPoint/fullName/*/uniformResourceIdentifier';
+            try {
+                $url = (string) Arrays::subArrayWithWildcards($crl['extnValue'], $key);
+                // self::$inCRLFunction should return true if the serial number IS in the CRL
+                if ((self::$inCRLFunction)($url, $this->cert['tbsCertificate']['serialNumber'])) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // there's not a URI for us to get the CRL from so we just won't check it
+            }
+        }
+        return true;
+    }
+
     /**
      * Validate a signature
      *
@@ -1151,6 +1182,10 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                     return $this->testForIntermediate(true, $count) && $this->validateSignature(true);
                 }
             }
+        }
+
+        if (!$this->validateNonRevokedStatus()) {
+            return false;
         }
 
         $signatureResult = self::validateSignatureHelper(
@@ -1323,5 +1358,10 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         return $data;
+    }
+
+    public static function setInCRLFunction(\Closure $func): void
+    {
+        self::$inCRLFunction = $func;
     }
 }

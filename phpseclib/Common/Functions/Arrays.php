@@ -122,6 +122,53 @@ abstract class Arrays
         return $root;
     }
 
+    public static function &subArrayWithWildcards(array|\ArrayAccess|null &$root, string $path, bool $create = false): mixed
+    {
+        if (!isset($root)) {
+            throw new RuntimeException('root is not set');
+        }
+
+        $parts = explode('/', $path);
+        foreach ($parts as $k=>$i) {
+            if (!isset($root)) {
+                $loc = implode('/', array_slice($parts, 0, $k));
+                throw new RuntimeException("Unable to find node for $loc");
+            }
+
+            if (!is_array($root) && !$root instanceof \ArrayAccess) {
+                $loc = implode('/', array_slice($parts, 0, $k));
+                throw new RuntimeException("$loc isn't an array or an instance of ArrayAccess");
+            }
+
+            if ($i == '*') {
+                $path = implode('/', array_slice($parts, $k + 1));
+                foreach ($root as $key=>$val) {
+                    if (empty($path)) {
+                        return $val;
+                    } else {
+                        $val = self::subArrayWithWildcards($root[$key], $path, $create);
+                        return $val;
+                    }
+                }
+                $loc = implode('/', array_slice($parts, 0, $k));
+                throw new RuntimeException("$loc wasn't found");
+            }
+
+            if (!isset($root[$i])) {
+                if (!$create) {
+                    $loc = implode('/', array_slice($parts, 0, $k));
+                    throw new RuntimeException("$loc wasn't found and the create flag wasn't set");
+                }
+
+                $root[$i] = [];
+            }
+
+            $root = &$root[$i];
+        }
+
+        return $root;
+    }
+
     public static function subArrayMapWithWildcards(array|\ArrayAccess|null &$root, string $path, \Closure $func): void
     {
         $parts = explode('/', $path);
