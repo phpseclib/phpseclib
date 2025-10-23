@@ -227,7 +227,15 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
                     }
                 }
             }
-            $result[$list[$i]['userCertificate']->toHex()] = $temp;
+            $hex = $list[$i]['userCertificate']->toHex();
+            if (!isset($result[$hex])) {
+                $result[$hex] = $temp;
+            } else {
+                if (isset($result[$hex]['revocationDate'])) {
+                    $result[$hex] = [$result[$hex]];
+                }
+                $result[$hex][] = $temp;
+            }
             unset($list[$i]->decoded);
         }
         return $result;
