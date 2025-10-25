@@ -517,7 +517,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             return null;
         }
         foreach ($this->csr['certificationRequestInfo']['attributes'] as $attr) {
-            if ("$attr[type]" == $name) {
+            if (self::extensionMatch($name, $ext['extnId'])) {
                 return $attr['value'];
             }
         }
@@ -536,7 +536,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             if ($attr['type'] == 'pkcs-9-at-extensionRequest') {
                 foreach ($attr['value'] as $subattr) {
                     foreach ($subattr as $ext) {
-                        if ("$ext[extnId]" == $name) {
+                        if (self::extensionMatch($name, $ext['extnId'])) {
                             return [
                                 'extnId' => $name,
                                 'extnValue' => $ext['extnValue'],
