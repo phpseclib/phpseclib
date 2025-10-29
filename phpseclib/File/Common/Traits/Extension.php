@@ -335,6 +335,11 @@ trait Extension
             'id-pe-authorityInfoAccess' => false,
             'id-pe-subjectInfoAccess' => false,
 
+            'id-ce-cRLNumber' => false,
+            'id-ce-cRLReasons' => false,
+            'id-ce-invalidityDate' => false,
+            'id-ce-certificateIssuer' => true,
+
             default => false
         };
     }

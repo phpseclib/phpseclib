@@ -473,7 +473,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
             return null;
         }
         foreach ($this->crl['tbsCertList']['crlExtensions'] as $ext) {
-            if ("$ext[extnId]" == $name) {
+            if (self::extensionMatch($name, $ext['extnId'])) {
                 return [
                     'extnId' => $name,
                     'extnValue' => $ext['extnValue'],
@@ -494,7 +494,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
             return null;
         }
         foreach ($r['crlEntryExtensions'] as $ext) {
-            if ("$ext[extnId]" === $name) {
+            if (self::extensionMatch($name, $ext['extnId'])) {
                 return [
                     'extnId' => $ext['extnId'],
                     'extnValue' => $ext['extnValue'],
