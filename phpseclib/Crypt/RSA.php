@@ -1406,14 +1406,14 @@ class RSA
                 }
                 // add <xml></xml> to account for "dangling" tags like <BitStrength>...</BitStrength> that are sometimes added
                 if (!xml_parse($xml, '<xml>' . $key . '</xml>')) {
-                    if (is_resource($xml) && function_exists('xml_parser_free')) {
+                    if (PHP_VERSION_ID < 80500 && function_exists('xml_parser_free')) {
                         xml_parser_free($xml);
                     }
                     unset($xml);
                     return false;
                 }
 
-                if (is_resource($xml) && function_exists('xml_parser_free')) {
+                if (PHP_VERSION_ID < 80500 && function_exists('xml_parser_free')) {
                     xml_parser_free($xml);
                 }
                 unset($xml);
