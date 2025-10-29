@@ -468,6 +468,6 @@ class ASN1Test extends PhpseclibTestCase
         $this->expectException(\Exception::class);
         $key = pack('H*', 'a309486df62e19383a7faecd02423d44fb28773f36403f8a5e3c45f62549c855');
         $decoded = ASN1::decodeBER($key);
-        $key = ASN1::map($decoded, \phpseclib3\File\ASN1\Maps\DSAPublicKey::MAP);
+        $key = ASN1::map($decoded, \phpseclib3\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
     }
 }
