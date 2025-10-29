@@ -746,8 +746,11 @@ ulvKGQSy068Bsn5fFNum21K5mvMSf3yinDtvmX3qUA12IxL/92ZzKbeVCq3Yi7Le
 IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 -----END CERTIFICATE-----');
 
-        $this->assertFalse($x509->validateDate('Nov 22, 2018'));
-        $this->assertTrue($x509->validateDate('Nov 22, 2012'));
+        $validateDate = new \ReflectionMethod($x509, 'validateDate');
+        $validateDate->setAccessible(true);
+
+        $this->assertFalse($validateDate->invoke($x509, 'Nov 22, 2018'));
+        $this->assertTrue($validateDate->invoke($x509, 'Nov 22, 2012'));
     }
 
     public function testDSALoad(): void
@@ -1669,7 +1672,11 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
             }
             return isset($CRLCache[$url][$serial->toHex()]);
         });
-        $this->assertTrue($x509->validateNonRevokedStatus());
+
+        $validateNonRevokedStatus = new \ReflectionMethod($x509, 'validateNonRevokedStatus');
+        $validateNonRevokedStatus->setAccessible(true);
+
+        $this->assertTrue($validateNonRevokedStatus->invoke($x509));
         $this->assertSame(0, $cacheHits);
         $this->assertSame(1, $cacheMisses);
 
@@ -1677,7 +1684,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $url = Arrays::subArrayWithWildcards($crl['extnValue'], '*/distributionPoint/fullName/*/uniformResourceIdentifier');
         $crl = CRL::load(file_get_contents("$url"));
         $x509->setSerialNumber($crl->getRevokedByIndex(0)['userCertificate']);
-        $this->assertFalse($x509->validateNonRevokedStatus());
+        $this->assertFalse($validateNonRevokedStatus->invoke($x509));
         $this->assertSame(1, $cacheHits);
         $this->assertSame(1, $cacheMisses);
     }

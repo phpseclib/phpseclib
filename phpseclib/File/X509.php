@@ -1024,7 +1024,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
      *
      * If $date isn't defined it is assumed to be the current date.
      */
-    public function validateDate(\DateTimeInterface|string|null $date = null): bool
+    private function validateDate(\DateTimeInterface|string|null $date = null): bool
     {
         if (!$date instanceof \DateTimeInterface) {
             $date = new \DateTimeImmutable($date ?? 'now', new \DateTimeZone(@date_default_timezone_get()));
@@ -1133,7 +1133,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     }
 
     // returns true if the X509 is NOT revoked and false if it is
-    public function validateNonRevokedStatus(): bool
+    private function validateNonRevokedStatus(): bool
     {
         $crl = $this->getExtension('id-ce-cRLDistributionPoints');
         if ($crl) {
