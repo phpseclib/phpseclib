@@ -517,7 +517,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             return null;
         }
         foreach ($this->csr['certificationRequestInfo']['attributes'] as $attr) {
-            if (self::extensionMatch($name, $ext['extnId'])) {
+            if (self::extensionMatch($name, $attr['extnId'])) {
                 return $attr['value'];
             }
         }
@@ -556,7 +556,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             return false;
         }
         foreach ($this->csr['certificationRequestInfo']['attributes'] as $attr) {
-            if ("$attr[type]" == $name) {
+            if (self::extensionMatch($name, $attr['type'])) {
                 return true;
             }
         }
@@ -572,7 +572,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             if ($attr['type'] == 'pkcs-9-at-extensionRequest') {
                 foreach ($attr['value'] as $subattr) {
                     foreach ($subattr as $ext) {
-                        if ("$ext[extnId]" == $name) {
+                        if (self::extensionMatch($name, $ext['extnId'])) {
                             return true;
                         }
                     }
@@ -587,7 +587,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         if (isset($this->csr['certificationRequestInfo']['attributes'])) {
             foreach ($this->csr['certificationRequestInfo']['attributes'] as $i => $attr) {
                 $attr = &$this->csr['certificationRequestInfo']['attributes'][$i];
-                if ("$attr[type]" == $type) {
+                if (self::extensionMatch($type, $attr['type'])) {
                     $attr['value'] = $value;
                     return;
                 }
@@ -609,7 +609,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             return;
         }
         foreach ($this->csr['certificationRequestInfo']['attributes'] as $i => $attr) {
-            if ("$attr[type]" == $type) {
+            if (self::extensionMatch($type, $attr['type'])) {
                 unset($this->csr['certificationRequestInfo']['attributes'][$i]);
             }
         }
@@ -624,7 +624,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             if ("$attr[type]" == 'pkcs-9-at-extensionRequest') {
                 foreach ($attr['value'] as $j => $subattr) {
                     foreach ($subattr as $k => $ext) {
-                        if ("$ext[extnId]" == $name) {
+                        if (self::extensionMatch($name, $ext['extnId'])) {
                             unset($this->csr['certificationRequestInfo']['attributes'][$i]['value'][$j][$k]);
                         }
                     }
@@ -659,7 +659,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
                 foreach ($attr['value'] as $j => $subattr) {
                     foreach ($subattr as $k => $ext) {
                         $ext = &$this->csr['certificationRequestInfo']['attributes'][$i]['value'][$j][$k];
-                        if ("$ext[extnId]" == $name) {
+                        if (self::extensionMatch($name, $ext['extnId'])) {
                             $ext['extnValue'] = $value;
                             if (isset($origCritical)) {
                                 $ext['critical'] = $origCritical;
