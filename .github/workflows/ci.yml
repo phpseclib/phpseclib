@@ -41,10 +41,8 @@ jobs:
                     update: true
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache
-            -   name: PHP_CodeSniffer
-                run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
-            -   name: PHP CS Fixer
-                run: vendor/bin/php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
+            -   name: ECS
+                run: vendor/bin/ecs
             -   name: Psalm
                 run: vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
         strategy:
