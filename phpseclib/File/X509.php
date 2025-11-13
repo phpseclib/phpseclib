@@ -2294,8 +2294,12 @@ class X509
 
     /**
      * Load a Certificate Revocation List
+     *
+     * @param string|array $crl
+     * @param int $mode
+     * @return mixed
      */
-    public function loadCRL(string $crl, int $mode = self::FORMAT_AUTO_DETECT)
+    public function loadCRL($crl, int $mode = self::FORMAT_AUTO_DETECT)
     {
         if (is_array($crl) && isset($crl['tbsCertList'])) {
             $this->currentCert = $crl;
