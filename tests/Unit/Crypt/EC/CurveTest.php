@@ -14,6 +14,7 @@ use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\EC\Curves\Ed448;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\File\ASN1;
+use phpseclib3\File\ASN1\OIDs\Curves;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class CurveTest extends PhpseclibTestCase
@@ -59,22 +60,7 @@ class CurveTest extends PhpseclibTestCase
 
     public static function curvesWithOIDs(): array
     {
-        $class = new \ReflectionClass('phpseclib3\Crypt\EC\Formats\Keys\PKCS8');
-
-        $initialize = $class->getMethod('initialize_static_variables');
-        $initialize->setAccessible(true);
-        $initialize->invoke(null);
-
-        $property = $class->getProperty('curveOIDs');
-        $property->setAccessible(true);
-
-        $curves = [];
-
-        foreach ($property->getValue() as $curve => $oid) {
-            $curves[] = [$curve];
-        }
-
-        return $curves;
+        return array_map(fn ($x) => [$x], array_keys(Curves::OIDs));
     }
 
     /**
@@ -126,7 +112,7 @@ class CurveTest extends PhpseclibTestCase
             case 'Ed448':
                 self::markTestSkipped('Ed25519 / Ed448 OIDs are treated a little differently');
         }
-        $this->assertNotSame(ASN1::getOID($name), $name);
+        $this->assertNotSame(ASN1::getOIDFromName($name), $name);
     }
 
     /**

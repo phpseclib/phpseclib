@@ -53,64 +53,29 @@ class X509ExtensionTest extends PhpseclibTestCase
 
         $publicKey = $privateKey->getPublicKey();
 
-        $subject = new X509();
-        $subject->setDNProp('id-at-organizationName', 'phpseclib CA cert');
-        $subject->setPublicKey($publicKey);
+        $certificate = new X509($publicKey);
+        $certificate->addDNProp('id-at-organizationName', 'phpseclib CA cert');
+        $certificate->makeCA();
+        $certificate->setExtension($customExtensionName, $customExtensionData, false);
+        $privateKey->sign($certificate);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($privateKey);
-        $issuer->setDN($subject->getDN());
-
-        $x509 = new X509();
-        $x509->setExtensionValue($customExtensionName, $customExtensionData);
-        $x509->makeCA();
-
-        $result = $x509->sign($issuer, $subject);
-
-        $certificate = $x509->saveX509($result);
-
-        $x509 = new X509();
-
-        $decodedData = $x509->loadX509($certificate);
+        $decodedData = X509::load("$certificate");
         $customExtensionDecodedData = null;
 
         foreach ($decodedData['tbsCertificate']['extensions'] as $extension) {
-            if ($extension['extnId'] === $customExtensionName) {
+            if ("$extension[extnId]" === $customExtensionName) {
                 $customExtensionDecodedData = $extension['extnValue'];
 
                 break;
             }
         }
 
-        $this->assertTrue($customExtensionDecodedData['toggle']);
+        $this->assertTrue($customExtensionDecodedData['toggle']->value);
         $this->assertInstanceOf('phpseclib3\Math\BigInteger', $customExtensionDecodedData['num']);
         $this->assertSame('3', (string) $customExtensionDecodedData['num']);
-        $this->assertSame('Johnny', $customExtensionDecodedData['name']);
-        $this->assertSame(['foo', 'bar'], $customExtensionDecodedData['list']);
+        $this->assertSame('Johnny', (string) $customExtensionDecodedData['name']);
+        $this->assertSame(['foo', 'bar'], array_map(fn($x) => "$x", $customExtensionDecodedData['list']->toArray()));
         $this->assertSame($customExtensionMapping, X509::getRegisteredExtension($customExtensionName));
-    }
-
-    public function testCustomExtensionRegisterTwiceTheSame(): void
-    {
-        $customExtensionMapping = [
-            'type' => ASN1::TYPE_SEQUENCE,
-            'children' => [
-                'toggle' => ['type' => ASN1::TYPE_BOOLEAN],
-                'num' => ['type' => ASN1::TYPE_INTEGER],
-                'name' => ['type' => ASN1::TYPE_OCTET_STRING],
-                'list' => [
-                    'type' => ASN1::TYPE_SEQUENCE,
-                    'min' => 0,
-                    'max' => -1,
-                    'children' => ['type' => ASN1::TYPE_OCTET_STRING],
-                ],
-            ],
-        ];
-
-        X509::registerExtension('foo', $customExtensionMapping);
-        X509::registerExtension('foo', $customExtensionMapping);
-
-        $this->assertSame($customExtensionMapping, X509::getRegisteredExtension('foo'));
     }
 
     public function testCustomExtensionRegisterConflict(): void
@@ -127,31 +92,16 @@ class X509ExtensionTest extends PhpseclibTestCase
         $issuerKey = EC::createKey('ed25519');
         $subjectKey = EC::createKey('ed25519')->getPublicKey();
 
-        $subject = new X509();
-        $subject->setPublicKey($subjectKey);
-        $subject->setDN(['commonName' => 'subject']);
+        $cert = new X509($subjectKey);
+        $cert->setSubjectDN(['commonName' => 'subject']);
+        $cert->setIssuerDN(['commonName' => 'issuer']);
+        $cert->setExtension('id-ce-keyUsage', ['digitalSignature']);
+        $issuerKey->sign($cert);
 
-        $issuer = new X509();
-        $issuer->setPrivateKey($issuerKey);
-        $issuer->setDN(['commonName' => 'issuer']);
+        $ext =  X509::load("$cert")['tbsCertificate']['extensions']->toArray()[0];
 
-        $authority = new X509();
-
-        $authority->setExtensionValue('id-ce-keyUsage', ['digitalSignature']);
-
-        $cert = $authority->saveX509($authority->sign($issuer, $subject));
-
-        $loader = new X509();
-
-        $this->assertSame(
-            [
-                [
-                    'extnId' => 'id-ce-keyUsage',
-                    'critical' => false,
-                    'extnValue' => ['digitalSignature'],
-                ],
-            ],
-            $loader->loadX509($cert)['tbsCertificate']['extensions']
-        );
+        $this->assertEquals('id-ce-keyUsage', $ext['extnId']);
+        $this->assertEquals(true, $ext['critical']->value);
+        $this->assertEquals(['digitalSignature'], $ext['extnValue']->toArray());
     }
 }

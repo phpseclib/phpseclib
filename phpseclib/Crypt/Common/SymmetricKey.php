@@ -483,6 +483,8 @@ abstract class SymmetricKey
      */
     protected $nonce = false;
 
+    private array $metadata = [];
+
     /**
      * Default Constructor.
      *
@@ -759,12 +761,11 @@ abstract class SymmetricKey
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
-     * @param int|string ...$func_args
      * @throws LengthException if pbkdf1 is being used and the derived key length exceeds the hash length
      * @throws RuntimeException if bcrypt is being used and a salt isn't provided
      * @see Crypt/Hash.php
      */
-    public function setPassword(string $password, string $method = 'pbkdf2', ...$func_args): bool
+    public function setPassword(string $password, string $method = 'pbkdf2', int|string ...$func_args): bool
     {
         $key = '';
 
@@ -2951,5 +2952,25 @@ abstract class SymmetricKey
     public function continuousBufferEnabled(): bool
     {
         return $this->continuousBuffer;
+    }
+
+    public function setMetaData(string $key, mixed $value): void
+    {
+        $this->metadata[$key] = $value;
+    }
+
+    public function getMetaData(string $key): mixed
+    {
+        return $this->metadata[$key];
+    }
+
+    public function hasMetaData(string $key): bool
+    {
+        return isset($this->metadata[$key]);
+    }
+
+    public function deleteMetaData(string $key): void
+    {
+        unset($this->metadata[$key]);
     }
 }

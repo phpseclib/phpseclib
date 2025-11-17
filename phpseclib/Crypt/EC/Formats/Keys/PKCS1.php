@@ -51,30 +51,30 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         self::initialize_static_variables();
 
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
         if (strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
             $components = [];
 
             preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
-            $decoded = parent::load($matches[0], $password);
-            $decoded = ASN1::decodeBER($decoded);
-            if (!$decoded) {
-                throw new RuntimeException('Unable to decode BER');
+            $decoded = parent::loadHelper($matches[0], $password);
+            try {
+                $decoded = ASN1::decodeBER($decoded);
+            } catch (\Exception $e) {
+                throw new RuntimeException('Unable to decode BER', 0, $e);
             }
 
-            $ecPrivate = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
-            if (!is_array($ecPrivate)) {
-                throw new RuntimeException('Unable to perform ASN1 mapping');
+            try {
+                $ecPrivate = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+            } catch (\Exeption $e) {
+                throw new RuntimeException('Unable to perform ASN1 mapping', 0, $e);
             }
 
             if (isset($ecPrivate['parameters'])) {
@@ -82,14 +82,17 @@ abstract class PKCS1 extends Progenitor
             }
 
             preg_match('#-*BEGIN EC PARAMETERS-*[^-]*-*END EC PARAMETERS-*#s', $key, $matches);
-            $decoded = parent::load($matches[0], '');
-            $decoded = ASN1::decodeBER($decoded);
-            if (!$decoded) {
-                throw new RuntimeException('Unable to decode BER');
+            $decoded = parent::loadHelper($matches[0], '');
+            try {
+                $decoded = ASN1::decodeBER($decoded);
+            } catch (\Exception $e) {
+                throw new RuntimeException('Unable to decode BER', 0, $e);
             }
-            $ecParams = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
-            if (!is_array($ecParams)) {
-                throw new RuntimeException('Unable to perform ASN1 mapping');
+
+            try {
+                $ecParams = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
+            } catch (\Exception $e) {
+                throw new RuntimeException('Unable to perform ASN1 mapping', 0, $e);
             }
             $ecParams = self::loadCurveByParam($ecParams);
 
@@ -103,30 +106,37 @@ abstract class PKCS1 extends Progenitor
                 $components['curve'] = $ecParams;
             }
 
-            $components['dA'] = new BigInteger($ecPrivate['privateKey'], 256);
+            $components['dA'] = new BigInteger((string) $ecPrivate['privateKey'], 256);
             $components['curve']->rangeCheck($components['dA']);
             $components['QA'] = isset($ecPrivate['publicKey']) ?
-                self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
+                self::extractPoint((string) $ecPrivate['publicKey'], $components['curve']) :
                 $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
             return $components;
         }
 
-        $key = parent::load($key, $password);
+        $key = parent::loadHelper($key, $password);
 
-        $decoded = ASN1::decodeBER($key);
-        if (!$decoded) {
-            throw new RuntimeException('Unable to decode BER');
+        try {
+            $decoded = ASN1::decodeBER($key);
+        } catch (\Exception $e) {
+            throw new RuntimeException('Unable to decode BER', 0, $e);
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\ECParameters::MAP);
+        try {
+            $key = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
+        } catch (\Exception $e) {
+            $key = false;
+        }
+
         if (is_array($key)) {
             return ['curve' => self::loadCurveByParam($key)];
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\ECPrivateKey::MAP);
-        if (!is_array($key)) {
-            throw new RuntimeException('Unable to perform ASN1 mapping');
+        try {
+            $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+        } catch (\Exception $e) {
+            throw new RuntimeException('Unable to perform ASN1 mapping', 0, $e);
         }
         if (!isset($key['parameters'])) {
             throw new RuntimeException('Key cannot be loaded without parameters');
@@ -134,7 +144,7 @@ abstract class PKCS1 extends Progenitor
 
         $components = [];
         $components['curve'] = self::loadCurveByParam($key['parameters']);
-        $components['dA'] = new BigInteger($key['privateKey'], 256);
+        $components['dA'] = new BigInteger((string) $key['privateKey'], 256);
         $components['QA'] = isset($ecPrivate['publicKey']) ?
             self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
             $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);

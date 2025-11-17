@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace phpseclib3\Crypt\RSA\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnexpectedValueException;
@@ -41,14 +40,11 @@ abstract class PKCS1 extends Progenitor
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
-     * @param string|false $password
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
         if (str_contains($key, 'PUBLIC')) {
@@ -59,14 +55,19 @@ abstract class PKCS1 extends Progenitor
             $components = [];
         }
 
-        $key = parent::load($key, $password);
+        $key = parent::loadHelper($key, $password);
 
-        $decoded = ASN1::decodeBER($key);
-        if (!$decoded) {
-            throw new RuntimeException('Unable to decode BER');
+        try {
+            $decoded = ASN1::decodeBER($key);
+        } catch (\Exception $e) {
+            throw new RuntimeException('Unable to decode BER', 0, $e);
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\RSAPrivateKey::MAP);
+        try {
+            $key = ASN1::map($decoded, Maps\RSAPrivateKey::MAP)->toArray();
+        } catch (\Exception $e) {
+            $key = false;
+        }
         if (is_array($key)) {
             $components += [
                 'modulus' => $key['modulus'],
@@ -89,9 +90,9 @@ abstract class PKCS1 extends Progenitor
             return $components;
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\RSAPublicKey::MAP);
-
-        if (!is_array($key)) {
+        try {
+            $key = ASN1::map($decoded, Maps\RSAPublicKey::MAP)->toArray();
+        } catch (\Exception $e) {
             throw new RuntimeException('Unable to perform ASN1 mapping');
         }
 
@@ -118,9 +119,6 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string|false $password
-     * @param array $options optional
      */
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
@@ -165,12 +163,12 @@ abstract class PKCS1 extends Progenitor
     }
 
     /**
-     * Negative numbers make no sense in RSA so convert them to positive
+     * Negative numbers make no sense in RSA so convert them to positiveAdd commentMore actions
      *
      * @param BigInteger $x
      * @return string
      */
-    private static function makePositive(BigInteger $x)
+    private static function makePositive(BigInteger $x): BigInteger
     {
         return $x->isNegative() ?
             new BigInteger($x->toBytes(true), 256) :

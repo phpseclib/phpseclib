@@ -38,10 +38,8 @@ final class PublicKey extends EC implements Common\PublicKey
      * Verify a signature
      *
      * @see self::verify()
-     * @param string $message
-     * @param string $signature
      */
-    public function verify($message, $signature): bool
+    public function verify(string $message, string $signature): bool
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');

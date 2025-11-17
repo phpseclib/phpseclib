@@ -45,31 +45,30 @@ abstract class PKCS1 extends Progenitor
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
-        $key = parent::load($key, $password);
+        $key = parent::loadHelper($key, $password);
 
-        $decoded = ASN1::decodeBER($key);
-        if (!$decoded) {
-            throw new RuntimeException('Unable to decode BER');
+        try {
+            $decoded = ASN1::decodeBER($key);
+        } catch (\Exception $e) {
+            throw new RuntimeException('Unable to decode BER', 0, $e);
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\DSAParams::MAP);
-        if (is_array($key)) {
-            return $key;
+        try {
+            return ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
+        } catch (\Exception $e) {
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\DSAPrivateKey::MAP);
-        if (is_array($key)) {
-            return $key;
+        try {
+            return ASN1::map($decoded, Maps\DSAPrivateKey::MAP)->toArray();
+        } catch (\Exception $e) {
         }
 
-        $key = ASN1::asn1map($decoded[0], Maps\DSAPublicKey::MAP);
-        if (is_array($key)) {
-            return $key;
+        try {
+            return ASN1::map($decoded, Maps\DSAPublicKey::MAP)->toArray();
+        } catch (\Exception $e) {
         }
 
         throw new RuntimeException('Unable to perform ASN1 mapping');
@@ -95,11 +94,8 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string $password optional
-     * @param array $options optional
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, #[SensitiveParameter] string $password = '', array $options = []): string
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         $key = [
             'version' => 0,

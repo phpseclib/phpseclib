@@ -19,6 +19,7 @@ use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\Common\PrivateKey;
 use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Exception\NoKeyLoadedException;
+use phpseclib3\File\ASN1;
 use phpseclib3\File\X509;
 
 /**
@@ -31,34 +32,52 @@ abstract class PublicKeyLoader
     /**
      * Loads a public or private key
      *
-     * @param string|array $key
      * @throws NoKeyLoadedException if key is not valid
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
+        // use ASN1::EXCEPTIONS_EVERY_TIME here because without it a valid RSAPublicKey
+        // will be recognized as an invalid RSAPrivateKey
+        $reenable = ASN1::isBlobsOnBadDecodesEnabled();
+        ASN1::disableBlobsOnBadDecodes();
         try {
-            return EC::load($key, $password);
-        } catch (NoKeyLoadedException $e) {
-        }
-
-        try {
-            return RSA::load($key, $password);
-        } catch (NoKeyLoadedException $e) {
-        }
-
-        try {
-            return DSA::load($key, $password);
-        } catch (NoKeyLoadedException $e) {
-        }
-
-        try {
-            $x509 = new X509();
-            $x509->loadX509($key);
-            $key = $x509->getPublicKey();
-            if ($key) {
-                return $key;
+            $key = EC::load($key, $password);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
             }
+            return $key;
+        } catch (NoKeyLoadedException $e) {
+        }
+
+        try {
+            $key = RSA::load($key, $password);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
+            return $key;
+        } catch (NoKeyLoadedException $e) {
+        }
+
+        try {
+            $key = DSA::load($key, $password);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
+            return $key;
+        } catch (NoKeyLoadedException $e) {
+        }
+
+        try {
+            $key = X509::load($key)->getPublicKey();
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
+            return $key;
         } catch (\Exception $e) {
+        }
+
+        if ($reenable) {
+            ASN1::enableBlobsOnBadDecodes();
         }
 
         throw new NoKeyLoadedException('Unable to read key');

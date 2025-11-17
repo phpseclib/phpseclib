@@ -270,7 +270,7 @@ abstract class EC extends AsymmetricKey
      *
      * @return string|array
      */
-    public function getCurve()
+    public function getCurve(): string|array
     {
         if ($this->curveName) {
             return $this->curveName;
@@ -289,14 +289,10 @@ abstract class EC extends AsymmetricKey
         $params = $this->getParameters()->toString('PKCS8', ['namedCurve' => true]);
         $decoded = ASN1::extractBER($params);
         $decoded = ASN1::decodeBER($decoded);
-        $decoded = ASN1::asn1map($decoded[0], ECParameters::MAP);
+        $decoded = ASN1::map($decoded, ECParameters::MAP)->toArray();
         if (isset($decoded['namedCurve'])) {
-            $this->curveName = $decoded['namedCurve'];
-            return $decoded['namedCurve'];
-        }
-
-        if (!$namedCurves) {
-            PKCS1::useSpecifiedCurve();
+            $this->curveName = (string) $decoded['namedCurve'];
+            return (string) $decoded['namedCurve'];
         }
 
         return $decoded;

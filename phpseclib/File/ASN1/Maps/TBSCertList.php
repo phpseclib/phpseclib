@@ -31,6 +31,7 @@ abstract class TBSCertList
                 'type' => ASN1::TYPE_INTEGER,
                 'mapping' => ['v1', 'v2'],
                 'optional' => true,
+                'implicit' => true,
                 'default' => 'v1',
             ],
             'signature' => AlgorithmIdentifier::MAP,
@@ -38,10 +39,12 @@ abstract class TBSCertList
             'thisUpdate' => Time::MAP,
             'nextUpdate' => [
                 'optional' => true,
+                'implicit' => true,
             ] + Time::MAP,
             'revokedCertificates' => [
                 'type' => ASN1::TYPE_SEQUENCE,
                 'optional' => true,
+                'implicit' => true,
                 'min' => 0,
                 'max' => -1,
                 'children' => RevokedCertificate::MAP,

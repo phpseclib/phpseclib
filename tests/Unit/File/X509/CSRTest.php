@@ -12,7 +12,7 @@ namespace phpseclib3\Tests\Unit\File\X509;
 
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
-use phpseclib3\File\X509;
+use phpseclib3\File\CSR;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class CSRTest extends PhpseclibTestCase
@@ -30,11 +30,9 @@ npzHkI1Trraveu0gtRjT/EzHoqjCBI0ekCZ9+fhrex8Sm6Nsq9IgHYyrqnE+PQko
 v5RwaQHmQEzHofTzF7I+
 -----END CERTIFICATE REQUEST-----';
 
-        $x509 = new X509();
+        $csr = CSR::load($test)->toArray();
 
-        $spkac = $x509->loadCSR($test);
-
-        $this->assertIsArray($spkac);
+        $this->assertIsArray($csr);
     }
 
     public function testCSRWithAttributes(): void
@@ -70,9 +68,7 @@ secxBTTCNgI48YezK3GDkn65cmlnkt6F6Mf0MwoDaXTuB88Jycbwb5ihKnHEJIsO
 draiRBZruwMPwPIP
 -----END NEW CERTIFICATE REQUEST-----';
 
-        $x509 = new X509();
-
-        $csr = $x509->loadCSR($test);
+        $csr = CSR::load($test)->toArray();
 
         $this->assertIsArray($csr);
     }
@@ -95,9 +91,7 @@ draiRBZruwMPwPIP
                'AjmgMowaN5otTXM=';
         $csr = base64_decode($csr);
 
-        $x509 = new X509();
-
-        $csr = $x509->loadCSR($csr);
+        $csr = CSR::load($csr)->toArray();
 
         $this->assertIsArray($csr);
     }
@@ -105,7 +99,7 @@ draiRBZruwMPwPIP
     // on PHP 7.1, with older versions of phpseclib, this would produce a "A non-numeric value encountered" warning
     public function testNewCSR(): void
     {
-        $x509 = new X509();
+        CSR::enableBinaryOutput();
 
         $rsa = PublicKeyLoader::load('-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
@@ -122,13 +116,24 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 -----END RSA PRIVATE KEY-----')
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('sha1');
-        $x509->setPrivateKey($rsa);
-        $x509->setDN(['cn' => 'website.com']);
-        $x509->saveCSR($x509->signCSR(), X509::FORMAT_DER);
+        $csr = new CSR($rsa->getPublicKey());
+        $csr->setDN(['cn' => 'website.com']);
+        $rsa->sign($csr);
         self::assertSame(
             'MIIBVTCBvwIBADAWMRQwEgYDVQQDDAt3ZWJzaXRlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqhirpDtQ3u84WY+vh9KrY05FccEwqbynuHgmdBT6q4tHG9iWX1yfw4GEher1KcJiRvMFUGSo3hnIwzi+VJbLrrBZ3As1gUO0SjVEnrJkETEhpFW9f94/rJGelLVvubtPZRzbI+rUOdbNUj6wgZHnWzX9E6dBmzCQ8keHvU9OGWcCAwEAAaAAMA0GCSqGSIb3DQEBBQUAA4GBACu5LfpfpPfZfeSKblywn/SJj6RLwwG3cPeB4ctnHpkAcjuiWSURoY40mn7FqNPfEzApLcCfB7xemapyfz6EA4l1kbTEcXb5L9Pjr1Rffa6I+0KI29ELZEmjnvAyPdf7YEKMLRax5hvpYe6ueG7u7zNZwDdMQbLHKj4UOMyMVaxk',
-            base64_encode($x509->saveCSR($x509->signCSR(), X509::FORMAT_DER))
+            base64_encode("$csr")
         );
+
+        $csr = new CSR();
+        $csr->setPublicKey($rsa->getPublicKey());
+        $csr->setDN(['cn' => 'website.com']);
+        $rsa->sign($csr);
+        self::assertSame(
+            'MIIBVTCBvwIBADAWMRQwEgYDVQQDDAt3ZWJzaXRlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqhirpDtQ3u84WY+vh9KrY05FccEwqbynuHgmdBT6q4tHG9iWX1yfw4GEher1KcJiRvMFUGSo3hnIwzi+VJbLrrBZ3As1gUO0SjVEnrJkETEhpFW9f94/rJGelLVvubtPZRzbI+rUOdbNUj6wgZHnWzX9E6dBmzCQ8keHvU9OGWcCAwEAAaAAMA0GCSqGSIb3DQEBBQUAA4GBACu5LfpfpPfZfeSKblywn/SJj6RLwwG3cPeB4ctnHpkAcjuiWSURoY40mn7FqNPfEzApLcCfB7xemapyfz6EA4l1kbTEcXb5L9Pjr1Rffa6I+0KI29ELZEmjnvAyPdf7YEKMLRax5hvpYe6ueG7u7zNZwDdMQbLHKj4UOMyMVaxk',
+            base64_encode("$csr")
+        );
+
+        CSR::disableBinaryOutput();
     }
 
     /**
@@ -136,8 +141,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
      */
     public function testPKCS1CSR(): void
     {
-        $x509 = new X509();
-        $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
+        $csr = CSR::load('-----BEGIN CERTIFICATE REQUEST-----
 MIICijCCAXICAQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUx
 ITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcN
 AQEBBQADggEPADCCAQoCggEBAJ/PFzGDOThrFNMmEFGoheGD5uOzAEBfTMLusRul
@@ -153,8 +157,8 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
 7qncJric4bulCQ0CmNiv+IUnyoLHzaef79+q+7ohi6mYYDP9dmdlj/Yd7Ndae3wt
 2qzmm8yz+tnp3rOpfrHvQLBK5C7g/qaM2jBguSsj
 -----END CERTIFICATE REQUEST-----');
-        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
-        $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+        $this->assertTrue(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertFalse(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
 
     /**
@@ -162,8 +166,7 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
      */
     public function testPSSCSR(): void
     {
-        $x509 = new X509();
-        $x509->loadCSR('-----BEGIN CERTIFICATE REQUEST-----
+        $csr = CSR::load('-----BEGIN CERTIFICATE REQUEST-----
 MIICuTCCAXACAQAwRTELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUx
 ITAfBgNVBAoMGEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDCCASAwCwYJKoZIhvcN
 AQEKA4IBDwAwggEKAoIBAQDM8Dapuz5bjff8xxmOBGxg4dZZd2/Vp6pKGvEewSHC
@@ -180,42 +183,42 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
 +3qWznvQLPSZVSEp03EViSh82fuRxa+6B/W5ur43FERi/5sakzI1kMcvYDO/pord
 12M26xz/hpPfs5yFls/NPzW3o7PSkvFJhSrGmgg=
 -----END CERTIFICATE REQUEST-----');
-        $this->assertFalse(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
-        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+        $this->assertFalse(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertTrue(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
 
     public function testAttributes(): void
     {
-        $private = RSA::createKey();
+        $private = RSA::createKey(512);
         $private = $private->withHash('sha256');
         $private = $private->withPadding(RSA::ENCRYPTION_PKCS1 | RSA::SIGNATURE_PKCS1);
-        $subject = new X509();
-        $subject->setDNProp('id-at-commonName', 'example.com');
-        $subject->setDNProp('id-at-organizationName', 'Example Organization');
-        $subject->setDNProp('id-at-organizationalUnitName', 'IT Department');
-        $subject->setDNProp('id-at-localityName', 'City');
-        $subject->setDNProp('id-at-stateOrProvinceName', 'State');
-        $subject->setDNProp('id-at-countryName', 'US');
-        $subject->setDNProp('id-at-emailAddress', 'admin@example.com');
-        $subject->setPublicKey($private->getPublicKey()->withPadding(RSA::SIGNATURE_PKCS1));
-        $subject->setPrivateKey($private);
+        $csr = new CSR($private->getPublicKey()->withPadding(RSA::SIGNATURE_PKCS1));
+        $csr->addDNProp('id-at-commonName', 'example.com');
+        $csr->addDNProp('id-at-organizationName', 'Example Organization');
+        $csr->addDNProp('id-at-organizationalUnitName', 'IT Department');
+        $csr->addDNProp('id-at-localityName', 'City');
+        $csr->addDNProp('id-at-stateOrProvinceName', 'State');
+        $csr->addDNProp('id-at-countryName', 'US');
+        $csr->addDNProp('id-at-emailAddress', 'admin@example.com');
 
-        $subject->setAttribute('pkcs-9-at-unstructuredName', 'Some unstructured name');
-        $subject->setAttribute('pkcs-9-at-challengePassword', 'MySecretPassword');
+        $csr->setChallengePassword('MySecretPassword');
+        $csr->setAttribute('pkcs-9-at-unstructuredName', [['ia5String' => 'Some unstructured name']]);
         $extensions = [
             ['extnId' => 'id-ce-basicConstraints', 'critical' => true, 'extnValue' => ['cA' => false]],
             ['extnId' => 'id-ce-keyUsage', 'critical' => true, 'extnValue' => ['digitalSignature', 'keyEncipherment']],
-            ['extnId' => 'id-ce-extKeyUsage', 'extnValue' => ['id-kp-serverAuth', 'id-kp-clientAuth']],
+            //['extnId' => 'id-ce-extKeyUsage', 'extnValue' => ['id-kp-serverAuth', 'id-kp-clientAuth']],
         ];
-        $subject->setAttribute('pkcs-9-at-extensionRequest', $extensions);
 
-        $csr = $subject->signCSR();
-        $csrPem = $subject->saveCSR($csr);
+        $csr->setAttribute('pkcs-9-at-extensionRequest', [$extensions]);
+        $csr->setExtension('id-ce-extKeyUsage', ['id-kp-serverAuth', 'id-kp-clientAuth'], true);
 
-        $x509 = new X509();
-        $r = $x509->loadCSR($csrPem);
+        $private->sign($csr);
 
-        $this->assertArrayHasKey('attributes', $r['certificationRequestInfo']);
-        $this->assertCount(0, $r['certificationRequestInfo']['attributes']);
+        $csrObj = CSR::load("$csr");
+        $csr = $csrObj->toArray();
+
+        $this->assertArrayHasKey('attributes', $csr['certificationRequestInfo']);
+        $this->assertCount(3, $csr['certificationRequestInfo']['attributes']);
+        $this->assertCount(3, $csrObj->listExtensions());
     }
 }

@@ -34,19 +34,12 @@ abstract class ASN1
      *
      * @return array
      */
-    public static function load(string $sig)
+    public static function load(string $sig): array
     {
-        if (!is_string($sig)) {
-            return false;
-        }
-
         $decoded = Encoder::decodeBER($sig);
-        if (empty($decoded)) {
-            return false;
-        }
-        $components = Encoder::asn1map($decoded[0], EcdsaSigValue::MAP);
+        $components = Encoder::map($decoded, EcdsaSigValue::MAP);
 
-        return $components;
+        return $components->toArray();
     }
 
     /**

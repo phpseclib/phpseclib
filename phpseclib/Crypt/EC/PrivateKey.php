@@ -25,6 +25,8 @@ use phpseclib3\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Exception\RuntimeException;
 use phpseclib3\Exception\UnsupportedOperationException;
+use phpseclib3\File\Common\Signable;
+use phpseclib3\File\CSR;
 use phpseclib3\Math\BigInteger;
 
 /**
@@ -86,12 +88,21 @@ final class PrivateKey extends EC implements Common\PrivateKey
      * Create a signature
      *
      * @see self::verify()
-     * @param string $message
      */
-    public function sign($message)
+    public function sign(string|Signable $source): string
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+        }
+
+        if ($source instanceof Signable) {
+            if ($source instanceof CSR && !$source->hasPublicKey()) {
+                $source->setPublicKey($this->getPublicKey());
+            }
+            $source->setSignatureAlgorithm($source::identifySignatureAlgorithm($this));
+            $message = $source->getSignableSection();
+        } else {
+            $message = $source;
         }
 
         $dA = $this->dA;
@@ -100,13 +111,17 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $shortFormat = $this->shortFormat;
         $format = $this->sigFormat;
         if ($format === false) {
-            return false;
+            throw new RuntimeException('No signature format has been specified');
         }
 
         if ($this->curve instanceof TwistedEdwardsCurve) {
             if ($this->curve instanceof Ed25519 && self::$engines['libsodium'] && !isset($this->context)) {
                 $result = sodium_crypto_sign_detached($message, $this->withPassword()->toString('libsodium'));
-                return $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $result) : $result;
+                $signature = $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $result) : $result;
+                if ($source instanceof Signable) {
+                    $source->setSignature($signature);
+                }
+                return $signature;
             }
 
             // contexts (Ed25519ctx) are supported but prehashing (Ed25519ph) is not.
@@ -139,7 +154,11 @@ final class PrivateKey extends EC implements Common\PrivateKey
             $S = $k->multiply($dA)->add($r);
             [, $S] = $S->divide($order);
             $S = str_pad(strrev($S->toBytes()), $curve::SIZE, "\0");
-            return $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $R . $S) : $R . $S;
+            $signature = $shortFormat == 'SSH2' ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $R . $S) : $R . $S;
+            if ($source instanceof Signable) {
+                $source->setSignature($signature);
+            }
+            return $signature;
         }
 
         if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
@@ -153,12 +172,20 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
             if ($result) {
                 if ($shortFormat == 'ASN1') {
+                    if ($source instanceof Signable) {
+                        $source->setSignature($signature);
+                    }
                     return $signature;
                 }
 
                 ['r' => $r, 's' => $s] = ASN1Signature::load($signature);
+                $signature = $this->formatSignature($r, $s);
 
-                return $this->formatSignature($r, $s);
+                if ($source instanceof Signable) {
+                    $source->setSignature($signature);
+                }
+
+                return $signature;
             }
         }
 
@@ -207,7 +234,13 @@ final class PrivateKey extends EC implements Common\PrivateKey
         list(, $s) = $temp->divide($this->q);
         */
 
-        return $this->formatSignature($r, $s);
+        $signature = $this->formatSignature($r, $s);
+
+        if ($source instanceof Signable) {
+            $source->setSignature($signature);
+        }
+
+        return $signature;
     }
 
     /**
@@ -227,7 +260,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
      *
      * @see self::getPrivateKey()
      */
-    public function getPublicKey()
+    public function getPublicKey(): PublicKey
     {
         $format = 'PKCS8';
         if ($this->curve instanceof MontgomeryCurve) {

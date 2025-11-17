@@ -44,4 +44,14 @@ trait PasswordProtected
         $new->password = $password;
         return $new;
     }
+
+    public function withoutPassword(): self
+    {
+        return $this->withPassword();
+    }
+
+    public function hasPassword(): bool
+    {
+        return isset($this->password);
+    }
 }

@@ -148,10 +148,8 @@ abstract class Strings
 
     /**
      * Create SSH2-style string
-     *
-     * @param string|int|float|array|bool ...$elements
      */
-    public static function packSSH2(string $format, ...$elements): string
+    public static function packSSH2(string $format, string|int|float|array|bool|BigInteger|FiniteField\Integer ...$elements): string
     {
         $format = self::formatPack($format);
         if (strlen($format) != count($elements)) {
@@ -190,7 +188,7 @@ abstract class Strings
                     $result .= pack('N', $element);
                     break;
                 case 's':
-                    if (!self::is_stringable($element)) {
+                    if (!is_string($element)) {
                         throw new InvalidArgumentException('A string was expected.');
                     }
                     $result .= pack('Na*', strlen($element), $element);
