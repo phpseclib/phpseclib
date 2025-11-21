@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1\Types;
+namespace phpseclib4\File\ASN1\Types;
 
-use phpseclib3\File\ASN1;
+use phpseclib4\File\ASN1;
 
 /**
  * OID (Object Identifier)

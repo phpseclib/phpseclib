@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common;
+namespace phpseclib4\Crypt\Common;
 
-use phpseclib3\Crypt\Hash;
-use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Base Class for all asymmetric cipher classes
@@ -308,7 +308,7 @@ abstract class AsymmetricKey
                 if ($name[0] == '.') {
                     continue;
                 }
-                $type = 'phpseclib3\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
+                $type = 'phpseclib4\Crypt\\' . static::ALGORITHM . '\\Formats\\' . $format . '\\' . $name;
                 $reflect = new \ReflectionClass($type);
                 if ($reflect->isTrait()) {
                     continue;

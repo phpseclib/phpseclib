@@ -23,22 +23,22 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib3\Crypt\EC\Curves\Ed25519;
-use phpseclib3\Crypt\EC\Curves\Ed448;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Exception\UnsupportedCurveException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
+use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Crypt\EC\Curves\Ed448;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * PKCS#8 Formatted EC Key Handler

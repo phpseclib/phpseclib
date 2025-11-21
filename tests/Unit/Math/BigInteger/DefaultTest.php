@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\BigInteger;
+namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Math\BigInteger;
 
 class DefaultTest extends TestCase
 {
@@ -21,6 +21,6 @@ class DefaultTest extends TestCase
 
     public static function getStaticClass(): string
     {
-        return 'phpseclib3\Math\BigInteger';
+        return 'phpseclib4\Math\BigInteger';
     }
 }

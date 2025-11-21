@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines\BCMath;
+namespace phpseclib4\Math\BigInteger\Engines\BCMath;
 
-use phpseclib3\Math\BigInteger\Engines\BCMath;
+use phpseclib4\Math\BigInteger\Engines\BCMath;
 
 /**
  * Built-In BCMath Modular Exponentiation Engine

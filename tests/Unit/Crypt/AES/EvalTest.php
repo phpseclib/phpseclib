@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\AES;
+namespace phpseclib4\Tests\Unit\Crypt\AES;
 
 class EvalTest extends TestCase
 {

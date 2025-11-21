@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\BigInteger;
+namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 abstract class TestCase extends PhpseclibTestCase
 {

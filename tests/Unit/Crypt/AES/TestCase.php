@@ -8,13 +8,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\AES;
+namespace phpseclib4\Tests\Unit\Crypt\AES;
 
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Rijndael;
-use phpseclib3\Exception\InconsistentSetupException;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\AES;
+use phpseclib4\Crypt\Rijndael;
+use phpseclib4\Exception\InconsistentSetupException;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 abstract class TestCase extends PhpseclibTestCase
 {

@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1\Types;
+namespace phpseclib4\File\ASN1\Types;
 
-use phpseclib3\Exception\RuntimeException;
+use phpseclib4\Exception\RuntimeException;
 
 /**
  * ASN.1 Bit String
  *
  * The use of the \ArrayAccess, \Countable and \Iterator interfaces is due to stuff like
- * \phpseclib3\File\ASN1\Maps\KeyUsage
+ * \phpseclib4\File\ASN1\Maps\KeyUsage
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */

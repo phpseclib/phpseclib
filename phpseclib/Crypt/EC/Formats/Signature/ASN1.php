@@ -16,11 +16,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Signature;
+namespace phpseclib4\Crypt\EC\Formats\Signature;
 
-use phpseclib3\File\ASN1 as Encoder;
-use phpseclib3\File\ASN1\Maps\EcdsaSigValue;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\File\ASN1 as Encoder;
+use phpseclib4\File\ASN1\Maps\EcdsaSigValue;
+use phpseclib4\Math\BigInteger;
 
 /**
  * ASN1 Signature Handler

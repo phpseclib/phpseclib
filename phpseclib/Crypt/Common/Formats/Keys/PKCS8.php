@@ -25,18 +25,18 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common\Formats\Keys;
+namespace phpseclib4\Crypt\Common\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Element;
-use phpseclib3\File\ASN1\Types\BaseType;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\File\ASN1\Maps;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\Types\BaseType;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Maps;
 
 /**
  * PKCS#8 Formatted Key Handler
@@ -45,7 +45,7 @@ use phpseclib3\File\ASN1\Maps;
  */
 abstract class PKCS8 extends PKCS
 {
-    use \phpseclib3\Crypt\Common\Traits\ASN1AlgorithmIdentifier;
+    use \phpseclib4\Crypt\Common\Traits\ASN1AlgorithmIdentifier;
 
     /**
      * OIDs loaded

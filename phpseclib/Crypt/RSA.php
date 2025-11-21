@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $private = \phpseclib3\Crypt\RSA::createKey();
+ * $private = \phpseclib4\Crypt\RSA::createKey();
  * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
@@ -26,7 +26,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $private = \phpseclib3\Crypt\RSA::createKey();
+ * $private = \phpseclib4\Crypt\RSA::createKey();
  * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
@@ -53,17 +53,17 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\AsymmetricKey;
-use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib3\Crypt\RSA\PrivateKey;
-use phpseclib3\Crypt\RSA\PublicKey;
-use phpseclib3\Exception\InconsistentSetupException;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\OutOfRangeException;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common\AsymmetricKey;
+use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib4\Crypt\RSA\PrivateKey;
+use phpseclib4\Crypt\RSA\PublicKey;
+use phpseclib4\Exception\InconsistentSetupException;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\OutOfRangeException;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Pure-PHP PKCS#1 compliant implementation of RSA.
@@ -670,7 +670,7 @@ abstract class RSA extends AsymmetricKey
     {
         $new = clone $this;
 
-        // \phpseclib3\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib4\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch (strtolower($hash)) {
             case 'md2':
             case 'md5':
@@ -703,7 +703,7 @@ abstract class RSA extends AsymmetricKey
     {
         $new = clone $this;
 
-        // \phpseclib3\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib4\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
         switch (strtolower($hash)) {
             case 'md2':
             case 'md5':

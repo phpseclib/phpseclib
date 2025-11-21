@@ -8,13 +8,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Net;
+namespace phpseclib4\Tests\Unit\Net;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\TimeoutException;
-use phpseclib3\Net\SSH2;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\TimeoutException;
+use phpseclib4\Net\SSH2;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
 {
@@ -292,7 +292,7 @@ class SSH2UnitTest extends PhpseclibTestCase
      */
     public function testSendChannelPacketNoBufferedData(): void
     {
-        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+        $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
@@ -319,7 +319,7 @@ class SSH2UnitTest extends PhpseclibTestCase
      */
     public function testSendChannelPacketBufferedData(): void
     {
-        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+        $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
@@ -350,7 +350,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->expectException(TimeoutException::class);
         $this->expectExceptionMessage('Timed out waiting for server');
 
-        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+        $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
@@ -380,7 +380,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Data window was not adjusted');
 
-        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+        $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
@@ -402,7 +402,7 @@ class SSH2UnitTest extends PhpseclibTestCase
      */
     public function testDisconnectHelper(): void
     {
-        $ssh = $this->getMockBuilder('phpseclib3\Net\SSH2')
+        $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['__destruct', 'isConnected', 'send_binary_packet'])
             ->getMock();
@@ -424,7 +424,7 @@ class SSH2UnitTest extends PhpseclibTestCase
 
     protected function createSSHMock(): SSH2
     {
-        return $this->getMockBuilder('phpseclib3\Net\SSH2')
+        return $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
             ->setMethods(['__destruct'])
             ->getMock();

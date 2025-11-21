@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common\Traits;
+namespace phpseclib4\Crypt\Common\Traits;
 
-use phpseclib3\Crypt\Hash;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
 
 /**
  * Fingerprint Trait for Private Keys

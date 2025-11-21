@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines;
+namespace phpseclib4\Math\BigInteger\Engines;
 
-use phpseclib3\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadConfigurationException;
 
 /**
  * GMP Engine.

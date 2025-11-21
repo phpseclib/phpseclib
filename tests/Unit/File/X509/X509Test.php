@@ -8,25 +8,25 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\File\X509;
+namespace phpseclib4\Tests\Unit\File\X509;
 
-use phpseclib3\Common\Functions\Arrays;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\EC;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Element;
-use phpseclib3\File\ASN1\MalformedData;
-use phpseclib3\File\ASN1\Types\Boolean;
-use phpseclib3\File\ASN1\Types\PrintableString;
-use phpseclib3\File\ASN1\Types\UTF8String;
-use phpseclib3\File\CRL;
-use phpseclib3\File\X509;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Common\Functions\Arrays;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\MalformedData;
+use phpseclib4\File\ASN1\Types\Boolean;
+use phpseclib4\File\ASN1\Types\PrintableString;
+use phpseclib4\File\ASN1\Types\UTF8String;
+use phpseclib4\File\CRL;
+use phpseclib4\File\X509;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class X509Test extends PhpseclibTestCase
 {

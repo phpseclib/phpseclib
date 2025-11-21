@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\PrimeField;
+namespace phpseclib4\Tests\Unit\Math\PrimeField;
 
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\PrimeField;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\PrimeField;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 abstract class TestCase extends PhpseclibTestCase
 {
@@ -43,9 +43,9 @@ abstract class TestCase extends PhpseclibTestCase
         $public = "\0" . substr($blob, 0, 49);
         $private = substr($blob, -24);
 
-        $point = \phpseclib3\Crypt\EC\Formats\Keys\PKCS1::extractPoint(
+        $point = \phpseclib4\Crypt\EC\Formats\Keys\PKCS1::extractPoint(
             $public,
-            new \phpseclib3\Crypt\EC\Curves\secp192r1()
+            new \phpseclib4\Crypt\EC\Curves\secp192r1()
         );
 
         $this->assertIsString($point[0]->toBytes());

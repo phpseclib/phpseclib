@@ -18,7 +18,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $des = new \phpseclib3\Crypt\DES('ctr');
+ *    $des = new \phpseclib4\Crypt\DES('ctr');
  *
  *    $des->setKey('abcdefgh');
  *
@@ -40,11 +40,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\BlockCipher;
-use phpseclib3\Exception\BadModeException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Crypt\Common\BlockCipher;
+use phpseclib4\Exception\BadModeException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of DES.
@@ -56,15 +56,15 @@ class DES extends BlockCipher
     /**
      * Contains $keys[self::ENCRYPT]
      *
-     * @see \phpseclib3\Crypt\DES::setupKey()
-     * @see \phpseclib3\Crypt\DES::processBlock()
+     * @see \phpseclib4\Crypt\DES::setupKey()
+     * @see \phpseclib4\Crypt\DES::processBlock()
      */
     public const ENCRYPT = 0;
     /**
      * Contains $keys[self::DECRYPT]
      *
-     * @see \phpseclib3\Crypt\DES::setupKey()
-     * @see \phpseclib3\Crypt\DES::processBlock()
+     * @see \phpseclib4\Crypt\DES::setupKey()
+     * @see \phpseclib4\Crypt\DES::processBlock()
      */
     public const DECRYPT = 1;
 
@@ -570,7 +570,7 @@ class DES extends BlockCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see Common\SymmetricKey::isValidEngine()
      */

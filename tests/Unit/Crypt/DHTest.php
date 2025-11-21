@@ -8,16 +8,16 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt;
+namespace phpseclib4\Tests\Unit\Crypt;
 
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\DH;
-use phpseclib3\Crypt\DH\Parameters;
-use phpseclib3\Crypt\DH\PrivateKey;
-use phpseclib3\Crypt\DH\PublicKey;
-use phpseclib3\Crypt\EC;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\AES;
+use phpseclib4\Crypt\DH;
+use phpseclib4\Crypt\DH\Parameters;
+use phpseclib4\Crypt\DH\PrivateKey;
+use phpseclib4\Crypt\DH\PublicKey;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class DHTest extends PhpseclibTestCase
 {

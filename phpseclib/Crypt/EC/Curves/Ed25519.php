@@ -12,14 +12,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Curves;
+namespace phpseclib4\Crypt\EC\Curves;
 
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards;
-use phpseclib3\Crypt\Hash;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards;
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Math\BigInteger;
 
 class Ed25519 extends TwistedEdwards
 {

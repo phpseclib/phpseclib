@@ -79,12 +79,12 @@
             "phpseclib/bootstrap.php"
         ],
         "psr-4": {
-            "phpseclib3\\": "phpseclib/"
+            "phpseclib4\\": "phpseclib/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "phpseclib3\\Tests\\": "tests/"
+            "phpseclib4\\Tests\\": "tests/"
         }
     },
     "config": {

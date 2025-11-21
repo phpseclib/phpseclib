@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1\OIDs;
+namespace phpseclib4\File\ASN1\OIDs;
 
 /**
  * ASN.1 PFX (PKCS#12) OIDs

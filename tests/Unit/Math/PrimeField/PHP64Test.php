@@ -6,10 +6,10 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib3\Tests\Unit\Math\PrimeField;
+namespace phpseclib4\Tests\Unit\Math\PrimeField;
 
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\BigInteger\Engines\PHP64;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\BigInteger\Engines\PHP64;
 
 class PHP64Test extends TestCase
 {

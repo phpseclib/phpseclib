@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $ourPrivate = \phpseclib3\Crypt\DH::createKey();
+ * $ourPrivate = \phpseclib4\Crypt\DH::createKey();
  * $secret = DH::computeSecret($ourPrivate, $theirPublic);
  *
  * ?>
@@ -24,16 +24,16 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\AsymmetricKey;
-use phpseclib3\Crypt\DH\Parameters;
-use phpseclib3\Crypt\DH\PrivateKey;
-use phpseclib3\Crypt\DH\PublicKey;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Exception\UnsupportedOperationException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common\AsymmetricKey;
+use phpseclib4\Crypt\DH\Parameters;
+use phpseclib4\Crypt\DH\PrivateKey;
+use phpseclib4\Crypt\DH\PublicKey;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Exception\UnsupportedOperationException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Pure-PHP (EC)DH implementation
@@ -84,7 +84,7 @@ abstract class DH extends AsymmetricKey
         $params = new Parameters();
         if (count($args) == 2 && $args[0] instanceof BigInteger && $args[1] instanceof BigInteger) {
             //if (!$args[0]->isPrime()) {
-            //    throw new \phpseclib3\Exception\InvalidArgumentException('The first parameter should be a prime number');
+            //    throw new \phpseclib4\Exception\InvalidArgumentException('The first parameter should be a prime number');
             //}
             $params->prime = $args[0];
             $params->base = $args[1];

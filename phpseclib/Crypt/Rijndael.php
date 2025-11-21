@@ -30,7 +30,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rijndael = new \phpseclib3\Crypt\Rijndael('ctr');
+ *    $rijndael = new \phpseclib4\Crypt\Rijndael('ctr');
  *
  *    $rijndael->setKey('abcdefghijklmnop');
  *
@@ -52,16 +52,16 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\BlockCipher;
-use phpseclib3\Exception\BadDecryptionException;
-use phpseclib3\Exception\BadModeException;
-use phpseclib3\Exception\InconsistentSetupException;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\BlockCipher;
+use phpseclib4\Exception\BadDecryptionException;
+use phpseclib4\Exception\BadModeException;
+use phpseclib4\Exception\InconsistentSetupException;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Rijndael.
@@ -240,9 +240,9 @@ class Rijndael extends BlockCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -477,7 +477,7 @@ class Rijndael extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::setupKey()
      */
     protected function setupKey(): void
     {
@@ -783,7 +783,7 @@ class Rijndael extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::setupInlineCrypt()
      */
     protected function setupInlineCrypt(): void
     {

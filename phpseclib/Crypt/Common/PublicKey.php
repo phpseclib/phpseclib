@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common;
+namespace phpseclib4\Crypt\Common;
 
 /**
  * PublicKey interface

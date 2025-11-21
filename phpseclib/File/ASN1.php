@@ -9,7 +9,7 @@
  * utilized scheme is DER or the "Distinguished Encoding Rules".  PEM's are base64 encoded
  * DER blobs.
  *
- * \phpseclib3\File\ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
+ * \phpseclib4\File\ASN1 decodes and encodes DER formatted messages and places them in a semantic context.
  *
  * Uses the 1988 ASN.1 syntax.
  *
@@ -21,41 +21,41 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File;
+namespace phpseclib4\File;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\PublicKey;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\EncodedDataUnavailableException;
-use phpseclib3\Exception\EOCException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\NoValidTagFoundException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\File\ASN1\Constructed;
-use phpseclib3\File\ASN1\Element;
-use phpseclib3\File\ASN1\MalformedData;
-use phpseclib3\File\ASN1\Types\BaseType;
-use phpseclib3\File\ASN1\Types\BMPString;
-use phpseclib3\File\ASN1\Types\BitString;
-use phpseclib3\File\ASN1\Types\Boolean;
-use phpseclib3\File\ASN1\Types\Choice;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\File\ASN1\Types\GeneralString;
-use phpseclib3\File\ASN1\Types\GeneralizedTime;
-use phpseclib3\File\ASN1\Types\GraphicString;
-use phpseclib3\File\ASN1\Types\IA5String;
-use phpseclib3\File\ASN1\Types\Integer;
-use phpseclib3\File\ASN1\Types\NumericString;
-use phpseclib3\File\ASN1\Types\OID;
-use phpseclib3\File\ASN1\Types\OctetString;
-use phpseclib3\File\ASN1\Types\PrintableString;
-use phpseclib3\File\ASN1\Types\TeletexString;
-use phpseclib3\File\ASN1\Types\UTCTime;
-use phpseclib3\File\ASN1\Types\UTF8String;
-use phpseclib3\File\ASN1\Types\UniversalString;
-use phpseclib3\File\ASN1\Types\VideotexString;
-use phpseclib3\File\ASN1\Types\VisibleString;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\EncodedDataUnavailableException;
+use phpseclib4\Exception\EOCException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\NoValidTagFoundException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\MalformedData;
+use phpseclib4\File\ASN1\Types\BaseType;
+use phpseclib4\File\ASN1\Types\BMPString;
+use phpseclib4\File\ASN1\Types\BitString;
+use phpseclib4\File\ASN1\Types\Boolean;
+use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Types\GeneralString;
+use phpseclib4\File\ASN1\Types\GeneralizedTime;
+use phpseclib4\File\ASN1\Types\GraphicString;
+use phpseclib4\File\ASN1\Types\IA5String;
+use phpseclib4\File\ASN1\Types\Integer;
+use phpseclib4\File\ASN1\Types\NumericString;
+use phpseclib4\File\ASN1\Types\OID;
+use phpseclib4\File\ASN1\Types\OctetString;
+use phpseclib4\File\ASN1\Types\PrintableString;
+use phpseclib4\File\ASN1\Types\TeletexString;
+use phpseclib4\File\ASN1\Types\UTCTime;
+use phpseclib4\File\ASN1\Types\UTF8String;
+use phpseclib4\File\ASN1\Types\UniversalString;
+use phpseclib4\File\ASN1\Types\VideotexString;
+use phpseclib4\File\ASN1\Types\VisibleString;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Pure-PHP ASN.1 Parser
@@ -67,37 +67,37 @@ abstract class ASN1
     /**
      * Return internal array representation
      *
-     * @see \phpseclib3\File\X509::getDN()
+     * @see \phpseclib4\File\X509::getDN()
      */
     const DN_ARRAY = 0;
     /**
      * Return string
      *
-     * @see \phpseclib3\File\X509::getDN()
+     * @see \phpseclib4\File\X509::getDN()
      */
     const DN_STRING = 1;
     /**
      * Return ASN.1 name string
      *
-     * @see \phpseclib3\File\X509::getDN()
+     * @see \phpseclib4\File\X509::getDN()
      */
     const DN_ASN1 = 2;
     /**
      * Return OpenSSL compatible array
      *
-     * @see \phpseclib3\File\X509::getDN()
+     * @see \phpseclib4\File\X509::getDN()
      */
     const DN_OPENSSL = 3;
     /**
      * Return canonical ASN.1 RDNs string
      *
-     * @see \phpseclib3\File\X509::getDN()
+     * @see \phpseclib4\File\X509::getDN()
      */
     const DN_CANON = 4;
     /**
      * Return name hash for file indexing
      *
-     * @see \phpseclib3\File\X509::getDN()
+     * @see \phpseclib4\File\X509::getDN()
      */
     const DN_HASH = 5;
 
@@ -913,7 +913,7 @@ abstract class ASN1
             case self::TYPE_ENUMERATED:
                 if (!is_string($source) && !$source instanceof BigInteger && !is_numeric($source)) {
                     $message = implode('/', self::$location) . ' must be a string, a numeric (is_numeric), or an instance of ' .
-                        'either phpseclib3\File\ASN1\Types\Integer or a phpseclib3\Math\BigInteger';
+                        'either phpseclib4\File\ASN1\Types\Integer or a phpseclib4\Math\BigInteger';
                     throw new RuntimeException($message);
                 }
                 if (!isset($mapping['mapping'])) {
@@ -1297,7 +1297,7 @@ abstract class ASN1
 
             return true;
         }
-        $class = 'phpseclib3\File\ASN1\OIDs\\' . $oids;
+        $class = 'phpseclib4\File\ASN1\OIDs\\' . $oids;
         if (!class_exists($class)) {
             return false;
         }

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Common;
+namespace phpseclib4\Common;
 
-use phpseclib3\Exception\InvalidArgumentException;
+use phpseclib4\Exception\InvalidArgumentException;
 
 /**
  * @internal

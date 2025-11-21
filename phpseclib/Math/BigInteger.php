@@ -11,8 +11,8 @@
  * Here's an example of how to use this library:
  * <code>
  * <?php
- *    $a = new \phpseclib3\Math\BigInteger(2);
- *    $b = new \phpseclib3\Math\BigInteger(3);
+ *    $a = new \phpseclib4\Math\BigInteger(2);
+ *    $b = new \phpseclib4\Math\BigInteger(3);
  *
  *    $c = $a->add($b);
  *
@@ -27,12 +27,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math;
+namespace phpseclib4\Math;
 
-use phpseclib3\Exception\BadConfigurationException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Math\BigInteger\Engines\Engine;
+use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger\Engines\Engine;
 
 /**
  * Pure-PHP arbitrary precision integer arithmetic library. Supports base-2, base-10, base-16, and base-256
@@ -92,7 +92,7 @@ class BigInteger implements \JsonSerializable
     {
         self::$engines = [];
 
-        $fqmain = 'phpseclib3\\Math\\BigInteger\\Engines\\' . $main;
+        $fqmain = 'phpseclib4\\Math\\BigInteger\\Engines\\' . $main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
             throw new InvalidArgumentException("$main is not a valid engine");
         }
@@ -271,8 +271,8 @@ class BigInteger implements \JsonSerializable
      * Here's an example:
      * <code>
      * <?php
-     *    $a = new \phpseclib3\Math\BigInteger('10');
-     *    $b = new \phpseclib3\Math\BigInteger('20');
+     *    $a = new \phpseclib4\Math\BigInteger('10');
+     *    $b = new \phpseclib4\Math\BigInteger('20');
      *
      *    list($quotient, $remainder) = $a->divide($b);
      *

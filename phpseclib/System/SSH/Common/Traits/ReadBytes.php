@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\System\SSH\Common\Traits;
+namespace phpseclib4\System\SSH\Common\Traits;
 
-use phpseclib3\Exception\RuntimeException;
+use phpseclib4\Exception\RuntimeException;
 
 /**
  * ReadBytes trait

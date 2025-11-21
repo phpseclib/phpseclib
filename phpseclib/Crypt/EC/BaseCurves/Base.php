@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\BaseCurves;
+namespace phpseclib4\Crypt\EC\BaseCurves;
 
-use phpseclib3\Exception\RangeException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\FiniteField\Integer;
+use phpseclib4\Exception\RangeException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\FiniteField\Integer;
 
 /**
  * Base
@@ -52,7 +52,7 @@ abstract class Base
     }
 
     /**
-     * Converts a BigInteger to a \phpseclib3\Math\FiniteField\Integer integer
+     * Converts a BigInteger to a \phpseclib4\Math\FiniteField\Integer integer
      *
      * @return object
      */

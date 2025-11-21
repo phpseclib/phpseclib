@@ -13,7 +13,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $hash = new \phpseclib3\Crypt\Hash('sha512');
+ *    $hash = new \phpseclib4\Crypt\Hash('sha512');
  *
  *    $hash->setKey('abcdefg');
  *
@@ -31,14 +31,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\PrimeField;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\PrimeField;
 
 /**
  * @author  Jim Wigginton <terrafrost@php.net>
@@ -412,7 +412,7 @@ class Hash
                 'length' => $this->length,
                 'padding' => $this->paddingType,
             ];
-            $hash = ['phpseclib3\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
+            $hash = ['phpseclib4\Crypt\Hash', PHP_INT_SIZE == 8 ? 'sha3_64' : 'sha3_32'];
         }
 
         if (is_array($hash)) {

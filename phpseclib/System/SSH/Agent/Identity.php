@@ -15,24 +15,24 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\System\SSH\Agent;
+namespace phpseclib4\System\SSH\Agent;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\PrivateKey;
-use phpseclib3\Crypt\Common\PublicKey;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\EC;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\System\SSH\Agent;
-use phpseclib3\System\SSH\Common\Traits\ReadBytes;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\PrivateKey;
+use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\System\SSH\Agent;
+use phpseclib4\System\SSH\Common\Traits\ReadBytes;
 
 /**
  * Pure-PHP ssh-agent client identity object
  *
- * Instantiation should only be performed by \phpseclib3\System\SSH\Agent class.
- * This could be thought of as implementing an interface that phpseclib3\Crypt\RSA
+ * Instantiation should only be performed by \phpseclib4\System\SSH\Agent class.
+ * This could be thought of as implementing an interface that phpseclib4\Crypt\RSA
  * implements. ie. maybe a Net_SSH_Auth_PublicKey interface or something.
  * The methods in this interface would be getPublicKey and sign since those are the
  * methods phpseclib looks for to perform public key authentication.
@@ -114,7 +114,7 @@ class Identity implements PrivateKey
     /**
      * Set Public Key
      *
-     * Called by \phpseclib3\System\SSH\Agent::requestIdentities()
+     * Called by \phpseclib4\System\SSH\Agent::requestIdentities()
      */
     public function withPublicKey(PublicKey $key): Identity
     {
@@ -132,7 +132,7 @@ class Identity implements PrivateKey
     /**
      * Set Public Key
      *
-     * Called by \phpseclib3\System\SSH\Agent::requestIdentities(). The key blob could be extracted from $this->key
+     * Called by \phpseclib4\System\SSH\Agent::requestIdentities(). The key blob could be extracted from $this->key
      * but this saves a small amount of computation.
      */
     public function withPublicKeyBlob(string $key_blob): Identity

@@ -13,11 +13,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Curves;
+namespace phpseclib4\Crypt\EC\Curves;
 
-use phpseclib3\Crypt\EC\BaseCurves\Montgomery;
-use phpseclib3\Exception\RangeException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery;
+use phpseclib4\Exception\RangeException;
+use phpseclib4\Math\BigInteger;
 
 class Curve448 extends Montgomery
 {

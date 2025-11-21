@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DSA;
+namespace phpseclib4\Crypt\DSA;
 
-use phpseclib3\Crypt\Common;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib4\Crypt\Common;
+use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
 
 /**
  * DSA Public Key

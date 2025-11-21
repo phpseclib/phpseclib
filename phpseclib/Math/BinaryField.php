@@ -14,12 +14,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math;
+namespace phpseclib4\Math;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\OutOfBoundsException;
-use phpseclib3\Math\BinaryField\Integer;
-use phpseclib3\Math\Common\FiniteField;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\OutOfBoundsException;
+use phpseclib4\Math\BinaryField\Integer;
+use phpseclib4\Math\Common\FiniteField;
 
 /**
  * Binary Finite Fields

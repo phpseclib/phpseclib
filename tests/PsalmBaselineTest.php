@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests;
+namespace phpseclib4\Tests;
 
 use PHPUnit\Framework\TestCase;
 

@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DSA;
+namespace phpseclib4\Crypt\DSA;
 
-use phpseclib3\Crypt\Common;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib3\File\Common\Signable;
-use phpseclib3\File\CSR;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common;
+use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
+use phpseclib4\File\Common\Signable;
+use phpseclib4\File\CSR;
+use phpseclib4\Math\BigInteger;
 
 /**
  * DSA Private Key

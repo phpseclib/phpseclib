@@ -13,20 +13,20 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Binary as BinaryCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Exception\UnsupportedCurveException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\File\ASN1\OIDs\Curves;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib4\Crypt\EC\BaseCurves\Binary as BinaryCurve;
+use phpseclib4\Crypt\EC\BaseCurves\Prime as PrimeCurve;
+use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\OIDs\Curves;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Generic EC Key Parsing Helper functions
@@ -71,7 +71,7 @@ trait Common
     }
 
     /**
-     * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
+     * Returns an instance of \phpseclib4\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
      * @return BaseCurve|false
@@ -82,7 +82,7 @@ trait Common
             throw new RuntimeException('No parameters are present');
         }
         if (isset($params['namedCurve'])) {
-            $curve = '\phpseclib3\Crypt\EC\Curves\\' . $params['namedCurve'];
+            $curve = '\phpseclib4\Crypt\EC\Curves\\' . $params['namedCurve'];
             if (!class_exists($curve)) {
                 throw new UnsupportedCurveException('Named Curve of ' . $params['namedCurve'] . ' is not supported');
             }
@@ -234,7 +234,7 @@ trait Common
                     continue;
                 }
                 $testName = $file->getBasename('.php');
-                $class = 'phpseclib3\Crypt\EC\Curves\\' . $testName;
+                $class = 'phpseclib4\Crypt\EC\Curves\\' . $testName;
                 $reflect = new \ReflectionClass($class);
                 if ($reflect->isFinal()) {
                     continue;

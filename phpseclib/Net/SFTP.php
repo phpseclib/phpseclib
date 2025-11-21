@@ -14,7 +14,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $sftp = new \phpseclib3\Net\SFTP('www.domain.tld');
+ *    $sftp = new \phpseclib4\Net\SFTP('www.domain.tld');
  *    if (!$sftp->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -33,21 +33,21 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Net;
+namespace phpseclib4\Net;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\BadFunctionCallException;
-use phpseclib3\Exception\FileNotFoundException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Net\SFTP\Attribute;
-use phpseclib3\Net\SFTP\FileType;
-use phpseclib3\Net\SFTP\OpenFlag;
-use phpseclib3\Net\SFTP\OpenFlag5;
-use phpseclib3\Net\SFTP\PacketType;
-use phpseclib3\Net\SFTP\PacketType as SFTPPacketType;
-use phpseclib3\Net\SFTP\StatusCode;
-use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\BadFunctionCallException;
+use phpseclib4\Exception\FileNotFoundException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Net\SFTP\Attribute;
+use phpseclib4\Net\SFTP\FileType;
+use phpseclib4\Net\SFTP\OpenFlag;
+use phpseclib4\Net\SFTP\OpenFlag5;
+use phpseclib4\Net\SFTP\PacketType;
+use phpseclib4\Net\SFTP\PacketType as SFTPPacketType;
+use phpseclib4\Net\SFTP\StatusCode;
+use phpseclib4\Net\SSH2\MessageType as SSH2MessageType;
 
 /**
  * Pure-PHP implementations of SFTP.
@@ -59,23 +59,23 @@ class SFTP extends SSH2
     /**
      * SFTP channel constant
      *
-     * \phpseclib3\Net\SSH2::exec() uses 0 and \phpseclib3\Net\SSH2::read() / \phpseclib3\Net\SSH2::write() use 1.
+     * \phpseclib4\Net\SSH2::exec() uses 0 and \phpseclib4\Net\SSH2::read() / \phpseclib4\Net\SSH2::write() use 1.
      *
-     * @see \phpseclib3\Net\SSH2::send_channel_packet()
-     * @see \phpseclib3\Net\SSH2::get_channel_packet()
+     * @see \phpseclib4\Net\SSH2::send_channel_packet()
+     * @see \phpseclib4\Net\SSH2::get_channel_packet()
      */
     public const CHANNEL = 0x100;
 
     /**
      * Reads data from a local file.
      *
-     * @see \phpseclib3\Net\SFTP::put()
+     * @see \phpseclib4\Net\SFTP::put()
      */
     public const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
      *
-     * @see \phpseclib3\Net\SFTP::put()
+     * @see \phpseclib4\Net\SFTP::put()
      */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
     public const SOURCE_STRING = 2;
@@ -83,19 +83,19 @@ class SFTP extends SSH2
      * Reads data from callback:
      * function callback($length) returns string to proceed, null for EOF
      *
-     * @see \phpseclib3\Net\SFTP::put()
+     * @see \phpseclib4\Net\SFTP::put()
      */
     public const SOURCE_CALLBACK = 16;
     /**
      * Resumes an upload
      *
-     * @see \phpseclib3\Net\SFTP::put()
+     * @see \phpseclib4\Net\SFTP::put()
      */
     public const RESUME = 4;
     /**
      * Append a local file to an already existing remote file
      *
-     * @see \phpseclib3\Net\SFTP::put()
+     * @see \phpseclib4\Net\SFTP::put()
      */
     public const RESUME_START = 8;
 
@@ -445,7 +445,7 @@ class SFTP extends SSH2
          So what do you do if you have a client whose initial SSH_FXP_INIT packet says it implements v3 and
          a server whose initial SSH_FXP_VERSION reply says it implements v4 and only v4?  If it only implements
          v4, the "versions" extension is likely not going to have been sent so version re-negotiation as discussed
-         in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what \phpseclib3\Net\SFTP would do is close the
+         in draft-ietf-secsh-filexfer-13 would be quite impossible.  As such, what \phpseclib4\Net\SFTP would do is close the
          channel and reopen it with a new and updated SSH_FXP_INIT packet.
         */
         $this->version = $this->defaultVersion;
@@ -744,7 +744,7 @@ class SFTP extends SSH2
 
         $this->send_sftp_packet(SFTPPacketType::OPENDIR, Strings::packSSH2('s', $dir));
 
-        // see \phpseclib3\Net\SFTP::nlist() for a more thorough explanation of the following
+        // see \phpseclib4\Net\SFTP::nlist() for a more thorough explanation of the following
         $response = $this->get_sftp_packet();
         switch ($this->packet_type) {
             case SFTPPacketType::HANDLE:
@@ -1276,7 +1276,7 @@ class SFTP extends SSH2
     /**
      * Returns general information about a file or symbolic link
      *
-     * Determines information without calling \phpseclib3\Net\SFTP::realpath().
+     * Determines information without calling \phpseclib4\Net\SFTP::realpath().
      * The second parameter can be either PacketType::STAT or PacketType::LSTAT.
      *
      * @return array|false
@@ -1811,8 +1811,8 @@ class SFTP extends SSH2
     /**
      * Uploads a file to the SFTP server.
      *
-     * By default, \phpseclib3\Net\SFTP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
-     * So, for example, if you set $data to 'filename.ext' and then do \phpseclib3\Net\SFTP::get(), you will get a file, twelve bytes
+     * By default, \phpseclib4\Net\SFTP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
+     * So, for example, if you set $data to 'filename.ext' and then do \phpseclib4\Net\SFTP::get(), you will get a file, twelve bytes
      * long, containing 'filename.ext' as its contents.
      *
      * Setting $mode to self::SOURCE_LOCAL_FILE will change the above behavior.  With self::SOURCE_LOCAL_FILE, $remote_file will
@@ -1844,7 +1844,7 @@ class SFTP extends SSH2
      *
      * Setting $local_start to > 0 or $mode | self::RESUME_START doesn't do anything unless $mode | self::SOURCE_LOCAL_FILE.
      *
-     * {@internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib3\Net\SFTP::setMode().}
+     * {@internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib4\Net\SFTP::setMode().}
      *
      * @param  resource|array|string $data
      * @throws UnexpectedValueException on receipt of unexpected packets

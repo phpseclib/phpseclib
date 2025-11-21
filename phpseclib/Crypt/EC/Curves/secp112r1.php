@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Curves;
+namespace phpseclib4\Crypt\EC\Curves;
 
-use phpseclib3\Crypt\EC\BaseCurves\Prime;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\EC\BaseCurves\Prime;
+use phpseclib4\Math\BigInteger;
 
 class secp112r1 extends Prime
 {

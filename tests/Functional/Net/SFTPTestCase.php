@@ -8,10 +8,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Functional\Net;
+namespace phpseclib4\Tests\Functional\Net;
 
-use phpseclib3\Net\SFTP;
-use phpseclib3\Tests\PhpseclibFunctionalTestCase;
+use phpseclib4\Net\SFTP;
+use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
 /**
  * This class provides each test method with a new and empty $this->scratchDir.

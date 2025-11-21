@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Functional\Net;
+namespace phpseclib4\Tests\Functional\Net;
 
-use phpseclib3\Net\SSH2;
-use phpseclib3\System\SSH\Agent;
-use phpseclib3\Tests\PhpseclibFunctionalTestCase;
+use phpseclib4\Net\SSH2;
+use phpseclib4\System\SSH\Agent;
+use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
 class SSH2AgentTest extends PhpseclibFunctionalTestCase
 {

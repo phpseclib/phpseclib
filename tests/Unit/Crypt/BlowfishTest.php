@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt;
+namespace phpseclib4\Tests\Unit\Crypt;
 
-use phpseclib3\Crypt\Blowfish;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\Blowfish;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class BlowfishTest extends PhpseclibTestCase
 {

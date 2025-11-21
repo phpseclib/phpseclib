@@ -6,10 +6,10 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib3\Tests\Unit\Math\PrimeField;
+namespace phpseclib4\Tests\Unit\Math\PrimeField;
 
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\BigInteger\Engines\PHP32;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\BigInteger\Engines\PHP32;
 
 class PHP32Test extends TestCase
 {

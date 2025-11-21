@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DH;
+namespace phpseclib4\Crypt\DH;
 
-use phpseclib3\Crypt\Common;
-use phpseclib3\Crypt\DH;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common;
+use phpseclib4\Crypt\DH;
+use phpseclib4\Math\BigInteger;
 
 /**
  * DH Public Key

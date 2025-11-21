@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Functional\Net;
+namespace phpseclib4\Tests\Functional\Net;
 
-use phpseclib3\Exception\UnableToConnectException;
-use phpseclib3\Net\SFTP;
+use phpseclib4\Exception\UnableToConnectException;
+use phpseclib4\Net\SFTP;
 use PHPUnit\Framework\TestCase;
 
 class SFTPWrongServerTest extends TestCase

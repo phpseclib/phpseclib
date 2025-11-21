@@ -8,10 +8,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\BigInteger;
+namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
-use phpseclib3\Exception\BadConfigurationException;
-use phpseclib3\Math\BigInteger\Engines\PHP64;
+use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Math\BigInteger\Engines\PHP64;
 
 class PHP64OpenSSLTest extends TestCase
 {
@@ -43,6 +43,6 @@ class PHP64OpenSSLTest extends TestCase
 
     public static function getStaticClass(): string
     {
-        return 'phpseclib3\Math\BigInteger\Engines\PHP64';
+        return 'phpseclib4\Math\BigInteger\Engines\PHP64';
     }
 }

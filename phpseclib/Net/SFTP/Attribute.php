@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Net\SFTP;
+namespace phpseclib4\Net\SFTP;
 
 /**
  * http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-7.1
- * the order, in this case, matters quite a lot - see \phpseclib3\Net\SFTP::_parseAttributes() to understand why
+ * the order, in this case, matters quite a lot - see \phpseclib4\Net\SFTP::_parseAttributes() to understand why
  *
  * @internal
  */

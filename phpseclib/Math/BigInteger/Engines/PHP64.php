@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines;
+namespace phpseclib4\Math\BigInteger\Engines;
 
 /**
  * Pure-PHP 64-bit Engine.

@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1\Types;
+namespace phpseclib4\File\ASN1\Types;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Constructed;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Constructed;
 
 /**
  * ASN.1 Choice

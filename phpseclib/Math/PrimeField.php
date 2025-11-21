@@ -15,10 +15,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math;
+namespace phpseclib4\Math;
 
-use phpseclib3\Math\Common\FiniteField;
-use phpseclib3\Math\PrimeField\Integer;
+use phpseclib4\Math\Common\FiniteField;
+use phpseclib4\Math\PrimeField\Integer;
 
 /**
  * Prime Finite Fields
@@ -47,7 +47,7 @@ class PrimeField extends FiniteField
     public function __construct(BigInteger $modulo)
     {
         if (!$modulo->isPrime()) {
-            throw new \phpseclib3\Exception\UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
+            throw new \phpseclib4\Exception\UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
         }
 
         $this->instanceID = self::$instanceCounter++;

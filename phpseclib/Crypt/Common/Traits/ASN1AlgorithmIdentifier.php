@@ -13,20 +13,20 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common\Traits;
+namespace phpseclib4\Crypt\Common\Traits;
 
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Common\SymmetricKey;
-use phpseclib3\Crypt\DES;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RC2;
-use phpseclib3\Crypt\RC4;
-use phpseclib3\Crypt\TripleDES;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Constructed;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\File\ASN1\Types\OctetString;
+use phpseclib4\Crypt\AES;
+use phpseclib4\Crypt\Common\SymmetricKey;
+use phpseclib4\Crypt\DES;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Crypt\RC2;
+use phpseclib4\Crypt\RC4;
+use phpseclib4\Crypt\TripleDES;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\Types\OctetString;
 
 /**
  * PKCS12 PBKDF Helper for Symmetric Keys and MACs

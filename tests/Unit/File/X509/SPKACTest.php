@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\File\X509;
+namespace phpseclib4\Tests\Unit\File\X509;
 
-use phpseclib3\Crypt\RSA;
-use phpseclib3\File\SPKAC;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\File\SPKAC;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class SPKACTest extends PhpseclibTestCase
 {

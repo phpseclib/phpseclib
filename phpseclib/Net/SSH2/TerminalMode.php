@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Net\SSH2;
+namespace phpseclib4\Net\SSH2;
 
 /**
  * @internal

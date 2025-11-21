@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
+namespace phpseclib4\Math\BigInteger\Engines\PHP\Reductions;
 
-use phpseclib3\Math\BigInteger\Engines\PHP;
+use phpseclib4\Math\BigInteger\Engines\PHP;
 
 /**
  * PHP Montgomery Modular Exponentiation Engine with interleaved multiplication

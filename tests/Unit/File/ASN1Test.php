@@ -8,19 +8,19 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\File;
+namespace phpseclib4\Tests\Unit\File;
 
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Constructed;
-use phpseclib3\File\ASN1\MalformedData;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\Common\Functions\Arrays;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\MalformedData;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Common\Functions\Arrays;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
 {
     /**
-     * on older versions of \phpseclib3\File\ASN1 this would yield a PHP Warning
+     * on older versions of \phpseclib4\File\ASN1 this would yield a PHP Warning
      * @group github275
      */
     public function testAnyString(): void
@@ -92,7 +92,7 @@ class ASN1Test extends PhpseclibTestCase
     }
 
     /**
-     * on older versions of \phpseclib3\File\ASN1 this would produce a null instead of an array
+     * on older versions of \phpseclib4\File\ASN1 this would produce a null instead of an array
      * @group github275
      */
     public function testIncorrectString(): void
@@ -131,7 +131,7 @@ class ASN1Test extends PhpseclibTestCase
                     'min' => 0,
                     'max' => -1,
                     'type' => ASN1::TYPE_SEQUENCE,
-                    'children' => ['type' => ASN1::TYPE_IA5_STRING], // should be \phpseclib3\File\ASN1::TYPE_GENERAL_STRING
+                    'children' => ['type' => ASN1::TYPE_IA5_STRING], // should be \phpseclib4\File\ASN1::TYPE_GENERAL_STRING
                 ],
             ],
         ];
@@ -250,7 +250,7 @@ class ASN1Test extends PhpseclibTestCase
             if ($file == '.' || $file == '..') {
                 continue;
             }
-            self::assertTrue(defined('phpseclib3\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP'));
+            self::assertTrue(defined('phpseclib4\\File\\ASN1\\Maps\\' . basename($file, '.php') . '::MAP'));
         }
     }
 
@@ -468,6 +468,6 @@ class ASN1Test extends PhpseclibTestCase
         $this->expectException(\Exception::class);
         $key = pack('H*', 'a309486df62e19383a7faecd02423d44fb28773f36403f8a5e3c45f62549c855');
         $decoded = ASN1::decodeBER($key);
-        $key = ASN1::map($decoded, \phpseclib3\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
+        $key = ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
     }
 }

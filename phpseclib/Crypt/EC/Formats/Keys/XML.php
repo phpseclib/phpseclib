@@ -18,20 +18,20 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib3\Crypt\EC\BaseCurves\Prime as PrimeCurve;
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib3\Exception\BadConfigurationException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Exception\UnsupportedCurveException;
-use phpseclib3\File\ASN1\OIDs\Curves;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib4\Crypt\EC\BaseCurves\Prime as PrimeCurve;
+use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\File\ASN1\OIDs\Curves;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * XML Formatted EC Key Handler
@@ -191,7 +191,7 @@ abstract class XML
     }
 
     /**
-     * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
+     * Returns an instance of \phpseclib4\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
      * @return BaseCurve|false
@@ -207,7 +207,7 @@ abstract class XML
                 throw new UnsupportedCurveException('Curve with OID of ' . $oid . ' is not supported');
             }
 
-            $curve = '\phpseclib3\Crypt\EC\Curves\\' . $name;
+            $curve = '\phpseclib4\Crypt\EC\Curves\\' . $name;
             if (!class_exists($curve)) {
                 throw new UnsupportedCurveException('Named Curve of ' . $name . ' is not supported');
             }
@@ -270,7 +270,7 @@ abstract class XML
     }
 
     /**
-     * Returns an instance of \phpseclib3\Crypt\EC\BaseCurves\Base based
+     * Returns an instance of \phpseclib4\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
      *
      * @return BaseCurve|false

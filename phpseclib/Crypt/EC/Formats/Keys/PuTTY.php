@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField;
-use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * PuTTY Formatted EC Key Handler
@@ -38,7 +38,7 @@ abstract class PuTTY extends Progenitor
      *
      * @var string
      */
-    public const PUBLIC_HANDLER = 'phpseclib3\Crypt\EC\Formats\Keys\OpenSSH';
+    public const PUBLIC_HANDLER = 'phpseclib4\Crypt\EC\Formats\Keys\OpenSSH';
 
     /**
      * Supported Key Types

@@ -11,19 +11,19 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\RSA;
+namespace phpseclib4\Crypt\RSA;
 
-use phpseclib3\Crypt\Common;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\OutOfRangeException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\File\Common\Signable;
-use phpseclib3\File\CSR;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\OutOfRangeException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\File\Common\Signable;
+use phpseclib4\File\CSR;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Raw RSA Key Handler

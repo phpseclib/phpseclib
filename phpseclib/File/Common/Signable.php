@@ -11,9 +11,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\Common;
+namespace phpseclib4\File\Common;
 
-use phpseclib3\Crypt\Common\PrivateKey;
+use phpseclib4\Crypt\Common\PrivateKey;
 
 /**
  * Signable interface

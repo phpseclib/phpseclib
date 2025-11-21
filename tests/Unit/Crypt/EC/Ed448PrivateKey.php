@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\EC;
+namespace phpseclib4\Tests\Unit\Crypt\EC;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\EC\Curves\Ed448;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\UnexpectedValueException;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\EC\Curves\Ed448;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\UnexpectedValueException;
 
 class Ed448PrivateKey
 {

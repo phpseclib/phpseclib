@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\BigInteger;
+namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
-use phpseclib3\Math\BigInteger\Engines\BCMath;
+use phpseclib4\Math\BigInteger\Engines\BCMath;
 
 class BCMathTest extends TestCase
 {
@@ -40,6 +40,6 @@ class BCMathTest extends TestCase
 
     public static function getStaticClass(): string
     {
-        return 'phpseclib3\Math\BigInteger\Engines\BCMath';
+        return 'phpseclib4\Math\BigInteger\Engines\BCMath';
     }
 }

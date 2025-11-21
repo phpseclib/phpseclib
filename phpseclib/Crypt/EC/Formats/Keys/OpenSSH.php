@@ -15,17 +15,17 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\Curves\Ed25519;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnsupportedCurveException;
-use phpseclib3\File\ASN1\OIDs\Curves;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
+use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\File\ASN1\OIDs\Curves;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * OpenSSH Formatted EC Key Handler
@@ -89,7 +89,7 @@ abstract class OpenSSH extends Progenitor
             $qa = self::extractPoint($parsed['publicKey'], $curve);
         } else {
             [$curveName, $publicKey] = Strings::unpackSSH2('ss', $parsed['publicKey']);
-            $curveName = '\phpseclib3\Crypt\EC\Curves\\' . $curveName;
+            $curveName = '\phpseclib4\Crypt\EC\Curves\\' . $curveName;
             $curve = new $curveName();
 
             $qa = self::extractPoint("\0" . $publicKey, $curve);

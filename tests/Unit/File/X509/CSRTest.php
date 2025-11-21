@@ -8,12 +8,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\File\X509;
+namespace phpseclib4\Tests\Unit\File\X509;
 
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\File\CSR;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\File\CSR;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class CSRTest extends PhpseclibTestCase
 {

@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Exception\BadDecryptionException;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\UnexpectedValueException;
+use phpseclib4\Exception\BadDecryptionException;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\UnexpectedValueException;
 
 /**
  * Pure-PHP implementation of ChaCha20.
@@ -37,9 +37,9 @@ class ChaCha20 extends Salsa20
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::__construct()
      */
     protected function isValidEngineHelper(int $engine): bool
     {
@@ -76,7 +76,7 @@ class ChaCha20 extends Salsa20
      * Encrypts a message.
      *
      * @return string $ciphertext
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
     public function encrypt(string $plaintext): string
@@ -97,7 +97,7 @@ class ChaCha20 extends Salsa20
      * At least if the continuous buffer is disabled.
      *
      * @return string $plaintext
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::encrypt()
      * @see self::crypt()
      */
     public function decrypt(string $ciphertext): string

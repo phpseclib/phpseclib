@@ -20,13 +20,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BinaryField;
+namespace phpseclib4\Math\BinaryField;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\BinaryField;
-use phpseclib3\Math\Common\FiniteField\Integer as Base;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\BinaryField;
+use phpseclib4\Math\Common\FiniteField\Integer as Base;
 
 /**
  * Binary Finite Fields

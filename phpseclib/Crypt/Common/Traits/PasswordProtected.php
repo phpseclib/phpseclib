@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common\Traits;
+namespace phpseclib4\Crypt\Common\Traits;
 
 /**
  * Password Protected Trait for Private Keys

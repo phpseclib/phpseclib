@@ -10,7 +10,7 @@
  * <?php
  * include 'vendor/autoload.php';
  *
- * $private = \phpseclib3\Crypt\DSA::createKey();
+ * $private = \phpseclib4\Crypt\DSA::createKey();
  * $public = $private->getPublicKey();
  *
  * $plaintext = 'terrafrost';
@@ -29,15 +29,15 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\AsymmetricKey;
-use phpseclib3\Crypt\DSA\Parameters;
-use phpseclib3\Crypt\DSA\PrivateKey;
-use phpseclib3\Crypt\DSA\PublicKey;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common\AsymmetricKey;
+use phpseclib4\Crypt\DSA\Parameters;
+use phpseclib4\Crypt\DSA\PrivateKey;
+use phpseclib4\Crypt\DSA\PublicKey;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.

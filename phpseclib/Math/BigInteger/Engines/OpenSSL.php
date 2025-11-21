@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines;
+namespace phpseclib4\Math\BigInteger\Engines;
 
-use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
-use phpseclib3\Exception\OutOfRangeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib4\Exception\OutOfRangeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * OpenSSL Modular Exponentiation Engine

@@ -8,10 +8,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt;
+namespace phpseclib4\Tests\Unit\Crypt;
 
-use phpseclib3\Crypt\RC2;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\RC2;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class RC2Test extends PhpseclibTestCase
 {

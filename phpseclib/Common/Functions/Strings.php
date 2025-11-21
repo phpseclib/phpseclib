@@ -13,16 +13,16 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Common\Functions;
+namespace phpseclib4\Common\Functions;
 
 use ParagonIE\ConstantTime\Base64;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\ConstantTime\Hex;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField;
 
 /**
  * Common String Functions
@@ -195,7 +195,7 @@ abstract class Strings
                     break;
                 case 'i':
                     if (!$element instanceof BigInteger && !$element instanceof FiniteField\Integer) {
-                        throw new InvalidArgumentException('A phpseclib3\Math\BigInteger or phpseclib3\Math\Common\FiniteField\Integer object was expected.');
+                        throw new InvalidArgumentException('A phpseclib4\Math\BigInteger or phpseclib4\Math\Common\FiniteField\Integer object was expected.');
                     }
                     $element = $element->toBytes(true);
                     $result .= pack('Na*', strlen($element), $element);

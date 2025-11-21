@@ -12,12 +12,12 @@ declare(strict_types=1);
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib3\Math\PrimeField;
+namespace phpseclib4\Math\PrimeField;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField\Integer as Base;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer as Base;
 
 /**
  * Prime Finite Fields

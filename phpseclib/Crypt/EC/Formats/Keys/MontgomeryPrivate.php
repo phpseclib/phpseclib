@@ -20,15 +20,15 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib3\Crypt\EC\Curves\Curve25519;
-use phpseclib3\Crypt\EC\Curves\Curve448;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
+use phpseclib4\Crypt\EC\Curves\Curve25519;
+use phpseclib4\Crypt\EC\Curves\Curve448;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * Montgomery Curve Private Key Handler

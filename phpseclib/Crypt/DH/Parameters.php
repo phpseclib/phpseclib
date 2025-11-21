@@ -11,9 +11,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DH;
+namespace phpseclib4\Crypt\DH;
 
-use phpseclib3\Crypt\DH;
+use phpseclib4\Crypt\DH;
 
 /**
  * DH Parameters

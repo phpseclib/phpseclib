@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Exception;
+namespace phpseclib4\Exception;
 
 /**
  * Indicates an absent or malformed packet length header

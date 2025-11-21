@@ -8,13 +8,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\DSA;
+namespace phpseclib4\Tests\Unit\Crypt\DSA;
 
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\DSA\Parameters;
-use phpseclib3\Crypt\DSA\PrivateKey;
-use phpseclib3\Crypt\DSA\PublicKey;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\DSA\Parameters;
+use phpseclib4\Crypt\DSA\PrivateKey;
+use phpseclib4\Crypt\DSA\PublicKey;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 /**
  * @requires PHP 7.0

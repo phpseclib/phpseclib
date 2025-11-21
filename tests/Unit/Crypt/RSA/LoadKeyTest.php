@@ -8,21 +8,21 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\RSA;
+namespace phpseclib4\Tests\Unit\Crypt\RSA;
 
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\RSA\Formats\Keys\OpenSSH;
-use phpseclib3\Crypt\RSA\Formats\Keys\PKCS1;
-use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
-use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib3\Crypt\RSA\Formats\Keys\PuTTY;
-use phpseclib3\Crypt\RSA\PrivateKey;
-use phpseclib3\Crypt\RSA\PublicKey;
-use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\Formats\Keys\OpenSSH;
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS1;
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib4\Crypt\RSA\Formats\Keys\PuTTY;
+use phpseclib4\Crypt\RSA\PrivateKey;
+use phpseclib4\Crypt\RSA\PublicKey;
+use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 

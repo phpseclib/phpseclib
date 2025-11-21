@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\BigInteger;
+namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
-use phpseclib3\Math\BigInteger\Engines\GMP;
+use phpseclib4\Math\BigInteger\Engines\GMP;
 
 class GMPTest extends TestCase
 {
@@ -29,6 +29,6 @@ class GMPTest extends TestCase
 
     public static function getStaticClass(): string
     {
-        return 'phpseclib3\Math\BigInteger\Engines\GMP';
+        return 'phpseclib4\Math\BigInteger\Engines\GMP';
     }
 }

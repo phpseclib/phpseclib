@@ -8,11 +8,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt;
+namespace phpseclib4\Tests\Unit\Crypt;
 
-use phpseclib3\Crypt\Hash;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class HashTest extends PhpseclibTestCase
 {

@@ -13,13 +13,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\StreamCipher;
-use phpseclib3\Exception\BadDecryptionException;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\StreamCipher;
+use phpseclib4\Exception\BadDecryptionException;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Salsa20.
@@ -50,12 +50,12 @@ class Salsa20 extends StreamCipher
     protected $key_length = 32; // = 256 bits
 
     /**
-     * @see \phpseclib3\Crypt\Salsa20::crypt()
+     * @see \phpseclib4\Crypt\Salsa20::crypt()
      */
     public const ENCRYPT = 0;
 
     /**
-     * @see \phpseclib3\Crypt\Salsa20::crypt()
+     * @see \phpseclib4\Crypt\Salsa20::crypt()
      */
     public const DECRYPT = 1;
 
@@ -233,7 +233,7 @@ class Salsa20 extends StreamCipher
      * Encrypts a message.
      *
      * @return string $ciphertext
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
     public function encrypt(string $plaintext): string
@@ -252,7 +252,7 @@ class Salsa20 extends StreamCipher
      * At least if the continuous buffer is disabled.
      *
      * @return string $plaintext
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::encrypt()
      * @see self::crypt()
      */
     public function decrypt(string $ciphertext): string

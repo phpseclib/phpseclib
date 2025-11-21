@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
+namespace phpseclib4\Math\BigInteger\Engines\PHP\Reductions;
 
-use phpseclib3\Math\BigInteger\Engines\PHP\Montgomery as Progenitor;
+use phpseclib4\Math\BigInteger\Engines\PHP\Montgomery as Progenitor;
 
 /**
  * PHP Montgomery Modular Exponentiation Engine

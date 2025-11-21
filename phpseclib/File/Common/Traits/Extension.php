@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\Common\Traits;
+namespace phpseclib4\File\Common\Traits;
 
-use phpseclib3\Common\Functions\Arrays;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Constructed;
-use phpseclib3\File\ASN1\Element;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\File\ASN1\Types\BaseType;
-use phpseclib3\File\ASN1\Types\Choice;
-use phpseclib3\File\ASN1\Types\OctetString;
-use phpseclib3\File\ASN1\Types\OID;
+use phpseclib4\Common\Functions\Arrays;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\Types\BaseType;
+use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\File\ASN1\Types\OctetString;
+use phpseclib4\File\ASN1\Types\OID;
 
 /**
  * Extension Helper for misc ASN1 classes

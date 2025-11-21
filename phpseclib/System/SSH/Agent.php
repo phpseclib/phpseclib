@@ -12,9 +12,9 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $agent = new \phpseclib3\System\SSH\Agent();
+ *    $agent = new \phpseclib4\System\SSH\Agent();
  *
- *    $ssh = new \phpseclib3\Net\SSH2('www.domain.tld');
+ *    $ssh = new \phpseclib4\Net\SSH2('www.domain.tld');
  *    if (!$ssh->login('username', $agent)) {
  *        exit('Login Failed');
  *    }
@@ -32,20 +32,20 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\System\SSH;
+namespace phpseclib4\System\SSH;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\PublicKey;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Exception\BadConfigurationException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Net\SSH2;
-use phpseclib3\System\SSH\Agent\Identity;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Net\SSH2;
+use phpseclib4\System\SSH\Agent\Identity;
 
 /**
  * Pure-PHP ssh-agent client identity factory
  *
- * requestIdentities() method pumps out \phpseclib3\System\SSH\Agent\Identity objects
+ * requestIdentities() method pumps out \phpseclib4\System\SSH\Agent\Identity objects
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
@@ -153,7 +153,7 @@ class Agent
      * Request Identities
      *
      * See "2.5.2 Requesting a list of protocol 2 keys"
-     * Returns an array containing zero or more \phpseclib3\System\SSH\Agent\Identity objects
+     * Returns an array containing zero or more \phpseclib4\System\SSH\Agent\Identity objects
      *
      * @throws RuntimeException on receipt of unexpected packets
      */

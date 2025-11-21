@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DSA\Formats\Keys;
+namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * PuTTY Formatted DSA Key Handler
@@ -37,7 +37,7 @@ abstract class PuTTY extends Progenitor
      *
      * @var string
      */
-    public const PUBLIC_HANDLER = 'phpseclib3\Crypt\DSA\Formats\Keys\OpenSSH';
+    public const PUBLIC_HANDLER = 'phpseclib4\Crypt\DSA\Formats\Keys\OpenSSH';
 
     /**
      * Algorithm Identifier

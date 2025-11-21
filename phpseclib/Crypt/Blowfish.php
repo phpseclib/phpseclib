@@ -93,7 +93,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $blowfish = new \phpseclib3\Crypt\Blowfish('ctr');
+ *    $blowfish = new \phpseclib4\Crypt\Blowfish('ctr');
  *
  *    $blowfish->setKey('12345678901234567890123456789012');
  *
@@ -112,11 +112,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\BlockCipher;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Crypt\Common\BlockCipher;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Blowfish.
@@ -347,7 +347,7 @@ class Blowfish extends BlockCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see Common\SymmetricKey::isValidEngine()
      */

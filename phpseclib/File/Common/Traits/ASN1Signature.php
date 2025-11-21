@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\Common\Traits;
+namespace phpseclib4\File\Common\Traits;
 
-use phpseclib3\Crypt\Common\PublicKey;
-use phpseclib3\Crypt\Common\PrivateKey;
-use phpseclib3\Crypt\DSA;
-use phpseclib3\Crypt\EC;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\File\ASN1\Types\BitString;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\File\ASN1\Types\OID;
+use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\PrivateKey;
+use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\File\ASN1\Types\BitString;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Types\OID;
 
 /**
  * Common methods for signature algorithm identification

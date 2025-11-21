@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines;
+namespace phpseclib4\Math\BigInteger\Engines;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Exception\BadConfigurationException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Base Engine.
@@ -226,7 +226,7 @@ abstract class Engine implements \JsonSerializable
      */
     public static function setModExpEngine(string $engine): void
     {
-        $fqengine = '\\phpseclib3\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
+        $fqengine = '\\phpseclib4\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
         if (!class_exists($fqengine) || !method_exists($fqengine, 'isValidEngine')) {
             throw new InvalidArgumentException("$engine is not a valid engine");
         }
@@ -1110,7 +1110,7 @@ abstract class Engine implements \JsonSerializable
         $class = static::class;
 
         $fqengine = !method_exists(static::$modexpEngine[static::class], 'reduce') ?
-            '\\phpseclib3\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\DefaultEngine' :
+            '\\phpseclib4\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\DefaultEngine' :
             static::$modexpEngine[static::class];
         if (method_exists($fqengine, 'generateCustomReduction')) {
             $func = $fqengine::generateCustomReduction($this, static::class);

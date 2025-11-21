@@ -24,38 +24,38 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File;
+namespace phpseclib4\File;
 
-use phpseclib3\Common\Functions\Arrays;
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\PrivateKey;
-use phpseclib3\Crypt\Common\PublicKey;
-use phpseclib3\Crypt\Hash;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Exception\CharacterConversionException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\MethodOnlyAvailableForSelfSigned;
-use phpseclib3\Exception\NoKeyLoadedException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\File\ASN1\Constructed;
-use phpseclib3\File\ASN1\Element;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\File\ASN1\Types\BaseString;
-use phpseclib3\File\ASN1\Types\BaseType;
-use phpseclib3\File\ASN1\Types\BitString;
-use phpseclib3\File\ASN1\Types\Boolean;
-use phpseclib3\File\ASN1\Types\Choice;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\File\ASN1\Types\GeneralizedTime;
-use phpseclib3\File\ASN1\Types\OctetString;
-use phpseclib3\File\ASN1\Types\OID;
-use phpseclib3\File\ASN1\Types\UTCTime;
-use phpseclib3\File\ASN1\Types\UTF8String;
-use phpseclib3\File\Common\Signable;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Arrays;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\PrivateKey;
+use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Exception\CharacterConversionException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\MethodOnlyAvailableForSelfSigned;
+use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\Types\BaseString;
+use phpseclib4\File\ASN1\Types\BaseType;
+use phpseclib4\File\ASN1\Types\BitString;
+use phpseclib4\File\ASN1\Types\Boolean;
+use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Types\GeneralizedTime;
+use phpseclib4\File\ASN1\Types\OctetString;
+use phpseclib4\File\ASN1\Types\OID;
+use phpseclib4\File\ASN1\Types\UTCTime;
+use phpseclib4\File\ASN1\Types\UTF8String;
+use phpseclib4\File\Common\Signable;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Pure-PHP X.509 Parser
@@ -64,9 +64,9 @@ use phpseclib3\Math\BigInteger;
  */
 class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 {
-    use \phpseclib3\File\Common\Traits\Extension;
-    use \phpseclib3\File\Common\Traits\DN;
-    use \phpseclib3\File\Common\Traits\ASN1Signature;
+    use \phpseclib4\File\Common\Traits\Extension;
+    use \phpseclib4\File\Common\Traits\DN;
+    use \phpseclib4\File\Common\Traits\ASN1Signature;
 
     private Constructed|array $cert;
     private static bool $strictDNComparison = true;
@@ -543,7 +543,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public function __toString(): string
     {
         //if ($this->cert['tbsCertificate']['serialNumber']->isNegative()) {
-        //    throw new \phpseclib3\Exception\UnexpectedValueException('The serial number of an X.509 certificate must be positive');
+        //    throw new \phpseclib4\Exception\UnexpectedValueException('The serial number of an X.509 certificate must be positive');
         //}
 
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];

@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $twofish = new \phpseclib3\Crypt\Twofish('ctr');
+ *    $twofish = new \phpseclib4\Crypt\Twofish('ctr');
  *
  *    $twofish->setKey('12345678901234567890123456789012');
  *
@@ -35,11 +35,11 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\BlockCipher;
-use phpseclib3\Exception\BadModeException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Crypt\Common\BlockCipher;
+use phpseclib4\Exception\BadModeException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Twofish.

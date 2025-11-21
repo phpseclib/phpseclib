@@ -8,9 +8,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Math\BigInteger;
+namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
-use phpseclib3\Math\BigInteger\Engines\PHP32;
+use phpseclib4\Math\BigInteger\Engines\PHP32;
 
 class PHP32Test extends TestCase
 {
@@ -38,6 +38,6 @@ class PHP32Test extends TestCase
 
     public static function getStaticClass(): string
     {
-        return 'phpseclib3\Math\BigInteger\Engines\PHP32';
+        return 'phpseclib4\Math\BigInteger\Engines\PHP32';
     }
 }

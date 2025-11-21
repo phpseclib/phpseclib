@@ -11,9 +11,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC;
+namespace phpseclib4\Crypt\EC;
 
-use phpseclib3\Crypt\EC;
+use phpseclib4\Crypt\EC;
 
 /**
  * EC Parameters

@@ -8,10 +8,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\File;
+namespace phpseclib4\Tests\Unit\File;
 
-use phpseclib3\File\ANSI;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\File\ANSI;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class ANSITest extends PhpseclibTestCase
 {

@@ -8,10 +8,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Functional\Net;
+namespace phpseclib4\Tests\Functional\Net;
 
-use phpseclib3\Net\SFTP\Stream;
-use phpseclib3\Net\SSH2;
+use phpseclib4\Net\SFTP\Stream;
+use phpseclib4\Net\SSH2;
 
 class SFTPStreamTest extends SFTPTestCase
 {

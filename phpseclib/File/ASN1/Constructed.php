@@ -20,27 +20,27 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1;
+namespace phpseclib4\File\ASN1;
 
-use phpseclib3\Exception\EncodedDataUnavailableException;
-use phpseclib3\Exception\EOCException;
-use phpseclib3\Exception\ExcessivelyDeepDataException;
-use phpseclib3\Exception\InsufficientSetupException;
-use phpseclib3\Exception\NoValidTagFoundException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\X509;
-use phpseclib3\File\ASN1\Element;
-use phpseclib3\File\ASN1\ExcessivelyDeepData;
-use phpseclib3\File\ASN1\MalformedData;
-use phpseclib3\File\ASN1\Types\BaseString;
-use phpseclib3\File\ASN1\Types\BaseType;
-use phpseclib3\File\ASN1\Types\BitString;
-use phpseclib3\File\ASN1\Types\Boolean;
-use phpseclib3\File\ASN1\Types\Choice;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\File\ASN1\Types\Integer;
-use phpseclib3\File\ASN1\Types\OctetString;
+use phpseclib4\Exception\EncodedDataUnavailableException;
+use phpseclib4\Exception\EOCException;
+use phpseclib4\Exception\ExcessivelyDeepDataException;
+use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\NoValidTagFoundException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\X509;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\ExcessivelyDeepData;
+use phpseclib4\File\ASN1\MalformedData;
+use phpseclib4\File\ASN1\Types\BaseString;
+use phpseclib4\File\ASN1\Types\BaseType;
+use phpseclib4\File\ASN1\Types\BitString;
+use phpseclib4\File\ASN1\Types\Boolean;
+use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Types\Integer;
+use phpseclib4\File\ASN1\Types\OctetString;
 
 /**
  * ASN.1 Constructed Array Object

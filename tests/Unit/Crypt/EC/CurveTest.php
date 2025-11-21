@@ -8,14 +8,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\EC;
+namespace phpseclib4\Tests\Unit\Crypt\EC;
 
-use phpseclib3\Crypt\EC;
-use phpseclib3\Crypt\EC\Curves\Ed448;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\OIDs\Curves;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\EC\Curves\Ed448;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\OIDs\Curves;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class CurveTest extends PhpseclibTestCase
 {
@@ -30,7 +30,7 @@ class CurveTest extends PhpseclibTestCase
             if ($testName == 'Curve25519' || $testName == 'Curve448') {
                 continue;
             }
-            $class = 'phpseclib3\Crypt\EC\Curves\\' . $testName;
+            $class = 'phpseclib4\Crypt\EC\Curves\\' . $testName;
             $reflect = new \ReflectionClass($class);
             if ($reflect->isFinal()) {
                 continue;
@@ -70,7 +70,7 @@ class CurveTest extends PhpseclibTestCase
      */
     public function testBasePoint($name): void
     {
-        $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
+        $class = 'phpseclib4\Crypt\EC\Curves\\' . $name;
         $curve = new $class();
         $this->assertTrue($curve->verifyPoint($curve->getBasePoint()), "Failed to verify basepoint of curve $name");
     }
@@ -83,7 +83,7 @@ class CurveTest extends PhpseclibTestCase
      */
     public function testKeyGeneration($name): void
     {
-        $class = 'phpseclib3\Crypt\EC\Curves\\' . $name;
+        $class = 'phpseclib4\Crypt\EC\Curves\\' . $name;
         $curve = new $class();
         $dA = $curve->createRandomMultiplier();
         $QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);

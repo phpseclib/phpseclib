@@ -15,13 +15,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DSA\Formats\Keys;
+namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * OpenSSH Formatted DSA Key Handler

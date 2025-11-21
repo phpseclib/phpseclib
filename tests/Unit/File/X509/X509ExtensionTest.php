@@ -8,13 +8,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\File\X509;
+namespace phpseclib4\Tests\Unit\File\X509;
 
-use phpseclib3\Crypt\EC;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\X509;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\X509;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class X509ExtensionTest extends PhpseclibTestCase
 {
@@ -71,7 +71,7 @@ class X509ExtensionTest extends PhpseclibTestCase
         }
 
         $this->assertTrue($customExtensionDecodedData['toggle']->value);
-        $this->assertInstanceOf('phpseclib3\Math\BigInteger', $customExtensionDecodedData['num']);
+        $this->assertInstanceOf('phpseclib4\Math\BigInteger', $customExtensionDecodedData['num']);
         $this->assertSame('3', (string) $customExtensionDecodedData['num']);
         $this->assertSame('Johnny', (string) $customExtensionDecodedData['name']);
         $this->assertSame(['foo', 'bar'], array_map(fn($x) => "$x", $customExtensionDecodedData['list']->toArray()));

@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Common\Functions;
+namespace phpseclib4\Common\Functions;
 
-use phpseclib3\Exception\RuntimeException;
+use phpseclib4\Exception\RuntimeException;
 
 /**
  * Common Array Functions

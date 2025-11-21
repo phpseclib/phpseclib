@@ -12,7 +12,7 @@ declare(strict_types=1);
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib3\Math\Common;
+namespace phpseclib4\Math\Common;
 
 /**
  * Finite Fields

@@ -16,7 +16,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rc2 = new \phpseclib3\Crypt\RC2('ctr');
+ *    $rc2 = new \phpseclib4\Crypt\RC2('ctr');
  *
  *    $rc2->setKey('abcdefgh');
  *
@@ -33,12 +33,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\BlockCipher;
-use phpseclib3\Exception\BadModeException;
-use phpseclib3\Exception\InvalidArgumentException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Crypt\Common\BlockCipher;
+use phpseclib4\Exception\BadModeException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of RC2.
@@ -76,7 +76,7 @@ class RC2 extends BlockCipher
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib3\Crypt\RC2::setKeyLength()
+     * @see \phpseclib4\Crypt\RC2::setKeyLength()
      * @var int
      */
     protected $key_length = 16; // = 128 bits
@@ -264,10 +264,10 @@ class RC2 extends BlockCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
 <<<<<<< HEAD
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::__construct()
 =======
      * @see Common\SymmetricKey::__construct()
      * @param int $engine
@@ -299,7 +299,7 @@ class RC2 extends BlockCipher
      *
      * Valid key lengths are 8 to 1024.
      * Calling this function after setting the key has no effect until the next
-     *  \phpseclib3\Crypt\RC2::setKey() call.
+     *  \phpseclib4\Crypt\RC2::setKey() call.
      *
      * @param int $length in bits
      * @throws LengthException if the key length isn't supported
@@ -332,7 +332,7 @@ class RC2 extends BlockCipher
      *
 <<<<<<< HEAD
      * @throws LengthException if the key length isn't supported
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::setKey()
 =======
      * @see Common\SymmetricKey::setKey()
      * @param string $key
@@ -394,7 +394,7 @@ class RC2 extends BlockCipher
     /**
      * Encrypts a message.
      *
-     * Mostly a wrapper for \phpseclib3\Crypt\Common\SymmetricKey::encrypt, with some additional OpenSSL handling code
+     * Mostly a wrapper for \phpseclib4\Crypt\Common\SymmetricKey::encrypt, with some additional OpenSSL handling code
      *
      * @return string $ciphertext
      * @see self::decrypt()
@@ -415,7 +415,7 @@ class RC2 extends BlockCipher
     /**
      * Decrypts a message.
      *
-     * Mostly a wrapper for \phpseclib3\Crypt\Common\SymmetricKey::decrypt, with some additional OpenSSL handling code
+     * Mostly a wrapper for \phpseclib4\Crypt\Common\SymmetricKey::decrypt, with some additional OpenSSL handling code
      *
      * @return string $plaintext
      * @see self::encrypt()
@@ -437,8 +437,8 @@ class RC2 extends BlockCipher
      * Encrypts a block
      *
 <<<<<<< HEAD
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encryptBlock()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::encryptBlock()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::encrypt()
 =======
      * @see Common\SymmetricKey::encryptBlock()
      * @see Common\SymmetricKey::encrypt()
@@ -486,8 +486,8 @@ class RC2 extends BlockCipher
      * Decrypts a block
      *
 <<<<<<< HEAD
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decryptBlock()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::decryptBlock()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::decrypt()
 =======
      * @see Common\SymmetricKey::decryptBlock()
      * @see Common\SymmetricKey::decrypt()
@@ -542,7 +542,7 @@ class RC2 extends BlockCipher
             $this->setKey('');
         }
 
-        // Key has already been expanded in \phpseclib3\Crypt\RC2::setKey():
+        // Key has already been expanded in \phpseclib4\Crypt\RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
         array_unshift($l, self::$pitable[$l['a']] | ($l['b'] << 8));

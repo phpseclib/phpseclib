@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\BaseCurves;
+namespace phpseclib4\Crypt\EC\BaseCurves;
 
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\BinaryField;
-use phpseclib3\Math\BinaryField\Integer as BinaryInteger;
-use phpseclib3\Math\PrimeField\Integer;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\BinaryField;
+use phpseclib4\Math\BinaryField\Integer as BinaryInteger;
+use phpseclib4\Math\PrimeField\Integer;
 
 /**
  * Curves over y^2 + x*y = x^3 + a*x^2 + b
@@ -144,7 +144,7 @@ class Binary extends Base
         }
         /*
         if (!isset($this->p)) {
-            throw new \phpseclib3\Exception\RuntimeException('setBasePoint needs to be called before this method');
+            throw new \phpseclib4\Exception\RuntimeException('setBasePoint needs to be called before this method');
         }
         */
         return $this->p;

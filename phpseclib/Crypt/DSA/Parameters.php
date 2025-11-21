@@ -11,9 +11,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\DSA;
+namespace phpseclib4\Crypt\DSA;
 
-use phpseclib3\Crypt\DSA;
+use phpseclib4\Crypt\DSA;
 
 /**
  * DSA Parameters

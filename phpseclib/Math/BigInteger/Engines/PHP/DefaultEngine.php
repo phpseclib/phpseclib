@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines\PHP;
+namespace phpseclib4\Math\BigInteger\Engines\PHP;
 
-use phpseclib3\Math\BigInteger\Engines\PHP\Reductions\EvalBarrett;
+use phpseclib4\Math\BigInteger\Engines\PHP\Reductions\EvalBarrett;
 
 /**
  * PHP Default Modular Exponentiation Engine

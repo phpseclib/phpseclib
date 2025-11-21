@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines\GMP;
+namespace phpseclib4\Math\BigInteger\Engines\GMP;
 
-use phpseclib3\Math\BigInteger\Engines\GMP;
+use phpseclib4\Math\BigInteger\Engines\GMP;
 
 /**
  * GMP Modular Exponentiation Engine

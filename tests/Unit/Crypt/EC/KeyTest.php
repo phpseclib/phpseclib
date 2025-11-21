@@ -8,18 +8,18 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\EC;
+namespace phpseclib4\Tests\Unit\Crypt\EC;
 
-use phpseclib3\Crypt\EC;
-use phpseclib3\Crypt\EC\Formats\Keys\OpenSSH;
-use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
-use phpseclib3\Crypt\EC\Formats\Keys\PKCS8;
-use phpseclib3\Crypt\EC\Formats\Keys\PuTTY;
-use phpseclib3\Crypt\EC\Formats\Keys\XML;
-use phpseclib3\Crypt\EC\PrivateKey;
-use phpseclib3\Crypt\EC\PublicKey;
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\EC\Formats\Keys\OpenSSH;
+use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
+use phpseclib4\Crypt\EC\Formats\Keys\PKCS8;
+use phpseclib4\Crypt\EC\Formats\Keys\PuTTY;
+use phpseclib4\Crypt\EC\Formats\Keys\XML;
+use phpseclib4\Crypt\EC\PrivateKey;
+use phpseclib4\Crypt\EC\PublicKey;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class KeyTest extends PhpseclibTestCase
 {
@@ -710,7 +710,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
     public function testMislabledPKCS8PubKey(): void
     {
-        $this->expectException('\phpseclib3\Exception\NoKeyLoadedException');
+        $this->expectException('\phpseclib4\Exception\NoKeyLoadedException');
 
         $key = '-----BEGIN PRIVATE KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErPJyxEu2/oKCrJaaTVTrq39DKJ2X

@@ -20,7 +20,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $rc4 = new \phpseclib3\Crypt\RC4();
+ *    $rc4 = new \phpseclib4\Crypt\RC4();
  *
  *    $rc4->setKey('abcdefgh');
  *
@@ -42,10 +42,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Crypt\Common\StreamCipher;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Crypt\Common\StreamCipher;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of RC4.
@@ -55,19 +55,19 @@ use phpseclib3\Exception\LengthException;
 class RC4 extends StreamCipher
 {
     /**
-     * @see \phpseclib3\Crypt\RC4::_crypt()
+     * @see \phpseclib4\Crypt\RC4::_crypt()
      */
     public const ENCRYPT = 0;
 
     /**
-     * @see \phpseclib3\Crypt\RC4::_crypt()
+     * @see \phpseclib4\Crypt\RC4::_crypt()
      */
     public const DECRYPT = 1;
 
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib3\Crypt\RC4::setKeyLength()
+     * @see \phpseclib4\Crypt\RC4::setKeyLength()
      * @var int
      */
     protected $key_length = 128; // = 1024 bits
@@ -91,7 +91,7 @@ class RC4 extends StreamCipher
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
      * @see Common\SymmetricKey::__construct()
      */

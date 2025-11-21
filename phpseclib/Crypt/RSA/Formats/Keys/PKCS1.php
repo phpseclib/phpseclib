@@ -22,14 +22,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\RSA\Formats\Keys;
+namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
-use phpseclib3\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnexpectedValueException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Maps;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Math\BigInteger;
 
 /**
  * PKCS#1 Formatted RSA Key Handler

@@ -13,9 +13,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1\Types;
+namespace phpseclib4\File\ASN1\Types;
 
-use phpseclib3\Exception\RuntimeException;
+use phpseclib4\Exception\RuntimeException;
 
 /**
  * Generic ASN.1 Type Helper functions

@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\File\ASN1\Maps;
+namespace phpseclib4\File\ASN1\Maps;
 
 /**
  * HashAglorithm

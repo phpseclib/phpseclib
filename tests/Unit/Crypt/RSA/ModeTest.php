@@ -8,13 +8,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\RSA;
+namespace phpseclib4\Tests\Unit\Crypt\RSA;
 
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class ModeTest extends PhpseclibTestCase
 {

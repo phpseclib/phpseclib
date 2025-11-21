@@ -15,12 +15,12 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Net\SFTP;
+namespace phpseclib4\Net\SFTP;
 
-use phpseclib3\Crypt\Common\PrivateKey;
-use phpseclib3\Net\SFTP;
-use phpseclib3\Net\SSH2;
-use phpseclib3\Net\SSH2\MessageType as SSH2MessageType;
+use phpseclib4\Crypt\Common\PrivateKey;
+use phpseclib4\Net\SFTP;
+use phpseclib4\Net\SSH2;
+use phpseclib4\Net\SSH2\MessageType as SSH2MessageType;
 
 /**
  * SFTP Stream Wrapper
@@ -189,7 +189,7 @@ class Stream
                 return false;
             }
 
-            // casting $pass to a string is necessary in the event that it's a \phpseclib3\Crypt\RSA object
+            // casting $pass to a string is necessary in the event that it's a \phpseclib4\Crypt\RSA object
             if (isset(self::$instances[$host][$port][$user][(string) $pass])) {
                 $this->sftp = self::$instances[$host][$port][$user][(string) $pass];
             } else {
@@ -431,7 +431,7 @@ class Stream
      * Renames a file or directory
      *
      * Attempts to rename oldname to newname, moving it between directories if necessary.
-     * If newname exists, it will be overwritten.  This is a departure from what \phpseclib3\Net\SFTP
+     * If newname exists, it will be overwritten.  This is a departure from what \phpseclib4\Net\SFTP
      * does.
      */
     private function _rename(string $path_from, string $path_to): bool
@@ -556,7 +556,7 @@ class Stream
     /**
      * Flushes the output
      *
-     * See <http://php.net/fflush>. Always returns true because \phpseclib3\Net\SFTP doesn't cache stuff before writing
+     * See <http://php.net/fflush>. Always returns true because \phpseclib4\Net\SFTP doesn't cache stuff before writing
      */
     private function _stream_flush(): bool
     {
@@ -591,7 +591,7 @@ class Stream
     /**
      * Retrieve information about a file
      *
-     * Ignores the STREAM_URL_STAT_QUIET flag because the entirety of \phpseclib3\Net\SFTP\Stream is quiet by default
+     * Ignores the STREAM_URL_STAT_QUIET flag because the entirety of \phpseclib4\Net\SFTP\Stream is quiet by default
      * might be worthwhile to reconstruct bits 12-16 (ie. the file type) if mode doesn't have them but we'll
      * cross that bridge when and if it's reached
      */
@@ -629,7 +629,7 @@ class Stream
      * Change stream options
      *
      * STREAM_OPTION_WRITE_BUFFER isn't supported for the same reason stream_flush isn't.
-     * The other two aren't supported because of limitations in \phpseclib3\Net\SFTP.
+     * The other two aren't supported because of limitations in \phpseclib4\Net\SFTP.
      */
     private function _stream_set_option(int $option, int $arg1, int $arg2): bool
     {

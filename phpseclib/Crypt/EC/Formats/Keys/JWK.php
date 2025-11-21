@@ -13,19 +13,19 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common\Formats\Keys\JWK as Progenitor;
-use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib3\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib3\Crypt\EC\Curves\Ed25519;
-use phpseclib3\Crypt\EC\Curves\secp256k1;
-use phpseclib3\Crypt\EC\Curves\secp256r1;
-use phpseclib3\Crypt\EC\Curves\secp384r1;
-use phpseclib3\Crypt\EC\Curves\secp521r1;
-use phpseclib3\Exception\UnsupportedCurveException;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\Formats\Keys\JWK as Progenitor;
+use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
+use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Crypt\EC\Curves\secp256k1;
+use phpseclib4\Crypt\EC\Curves\secp256r1;
+use phpseclib4\Crypt\EC\Curves\secp384r1;
+use phpseclib4\Crypt\EC\Curves\secp521r1;
+use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\Math\BigInteger;
 
 /**
  * JWK Formatted EC Handler
@@ -70,7 +70,7 @@ abstract class JWK extends Progenitor
                 throw new \Exception('Only EC and OKP JWK keys are supported');
         }
 
-        $curve = '\phpseclib3\Crypt\EC\Curves\\' . str_replace('P-', 'nistp', $key->crv);
+        $curve = '\phpseclib4\Crypt\EC\Curves\\' . str_replace('P-', 'nistp', $key->crv);
         $curve = new $curve();
 
         if ($curve instanceof TwistedEdwardsCurve) {
@@ -130,7 +130,7 @@ abstract class JWK extends Progenitor
     /**
      * Return the array superstructure for an EC public key
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib4\Math\Common\FiniteField\Integer[] $publicKey
      */
     private static function savePublicKeyHelper(BaseCurve $curve, array $publicKey): array
     {
@@ -153,7 +153,7 @@ abstract class JWK extends Progenitor
     /**
      * Convert an EC public key to the appropriate format
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib4\Math\Common\FiniteField\Integer[] $publicKey
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
     {
@@ -165,7 +165,7 @@ abstract class JWK extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param \phpseclib4\Math\Common\FiniteField\Integer[] $publicKey
      */
     public static function savePrivateKey(
         BigInteger $privateKey,

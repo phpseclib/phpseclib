@@ -8,14 +8,14 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Tests\Unit\Crypt\RSA;
+namespace phpseclib4\Tests\Unit\Crypt\RSA;
 
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\RSA\Formats\Keys\PKCS1;
-use phpseclib3\Crypt\RSA\Formats\Keys\PKCS8;
-use phpseclib3\Crypt\RSA\PrivateKey;
-use phpseclib3\Crypt\RSA\PublicKey;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS1;
+use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib4\Crypt\RSA\PrivateKey;
+use phpseclib4\Crypt\RSA\PublicKey;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class CreateKeyTest extends PhpseclibTestCase
 {

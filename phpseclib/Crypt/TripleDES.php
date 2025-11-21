@@ -14,7 +14,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $des = new \phpseclib3\Crypt\TripleDES('ctr');
+ *    $des = new \phpseclib4\Crypt\TripleDES('ctr');
  *
  *    $des->setKey('abcdefghijklmnopqrstuvwx');
  *
@@ -36,10 +36,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt;
+namespace phpseclib4\Crypt;
 
-use phpseclib3\Exception\BadModeException;
-use phpseclib3\Exception\LengthException;
+use phpseclib4\Exception\BadModeException;
+use phpseclib4\Exception\LengthException;
 
 /**
  * Pure-PHP implementation of Triple DES.
@@ -58,14 +58,14 @@ class TripleDES extends DES
     /**
      * Encrypt / decrypt using outer chaining
      *
-     * Outer chaining is used by SSH-2 and when the mode is set to \phpseclib3\Crypt\Common\BlockCipher::MODE_CBC.
+     * Outer chaining is used by SSH-2 and when the mode is set to \phpseclib4\Crypt\Common\BlockCipher::MODE_CBC.
      */
     public const MODE_CBC3 = self::MODE_CBC;
 
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib3\Crypt\TripleDES::setKeyLength()
+     * @see \phpseclib4\Crypt\TripleDES::setKeyLength()
      * @var int
      */
     protected $key_length = 24;
@@ -107,7 +107,7 @@ class TripleDES extends DES
     private $mode_3cbc;
 
     /**
-     * The \phpseclib3\Crypt\DES objects
+     * The \phpseclib4\Crypt\DES objects
      *
      * Used only if $mode_3cbc === true
      *
@@ -135,8 +135,8 @@ class TripleDES extends DES
      * - cbc3 (same as cbc)
      *
 <<<<<<< HEAD
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
-     * @see \phpseclib3\Crypt\DES::__construct()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib4\Crypt\DES::__construct()
 =======
      * @see Crypt\DES::__construct()
      * @see Common\SymmetricKey::__construct()
@@ -159,7 +159,7 @@ class TripleDES extends DES
                     new DES('cbc'),
                 ];
 
-                // we're going to be doing the padding, ourselves, so disable it in the \phpseclib3\Crypt\DES objects
+                // we're going to be doing the padding, ourselves, so disable it in the \phpseclib4\Crypt\DES objects
                 $this->des[0]->disablePadding();
                 $this->des[1]->disablePadding();
                 $this->des[2]->disablePadding();
@@ -180,10 +180,10 @@ class TripleDES extends DES
     /**
      * Test for engine validity
      *
-     * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
+     * This is mainly just a wrapper to set things up for \phpseclib4\Crypt\Common\SymmetricKey::isValidEngine()
      *
 <<<<<<< HEAD
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::__construct()
 =======
      * @see Common\SymmetricKey::__construct()
      * @param int $engine
@@ -204,10 +204,10 @@ class TripleDES extends DES
     /**
      * Sets the initialization vector.
      *
-     * SetIV is not required when \phpseclib3\Crypt\Common\SymmetricKey::MODE_ECB is being used.
+     * SetIV is not required when \phpseclib4\Crypt\Common\SymmetricKey::MODE_ECB is being used.
      *
 <<<<<<< HEAD
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setIV()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::setIV()
 =======
      * @see Common\SymmetricKey::setIV()
      * @param string $iv
@@ -232,7 +232,7 @@ class TripleDES extends DES
      *
 <<<<<<< HEAD
      * @throws LengthException if the key length is invalid
-     * @see \phpseclib3\Crypt\Common\SymmetricKey:setKeyLength()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey:setKeyLength()
 =======
      * @see Common\SymmetricKey:setKeyLength()
      * @throws \LengthException if the key length is invalid
@@ -261,8 +261,8 @@ class TripleDES extends DES
      *
 <<<<<<< HEAD
      * @throws LengthException if the key length is invalid
-     * @see \phpseclib3\Crypt\DES::setKey()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setKey()
+     * @see \phpseclib4\Crypt\DES::setKey()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::setKey()
 =======
      * @see DES::setKey()
      * @see Common\SymmetricKey::setKey()
@@ -308,7 +308,7 @@ class TripleDES extends DES
      * @param string $plaintext
 >>>>>>> 3.0
      * @return string $cipertext
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see \phpseclib4\Crypt\Common\SymmetricKey::encrypt()
      */
     public function encrypt(string $plaintext): string
     {
@@ -381,7 +381,7 @@ class TripleDES extends DES
      * outputs.  The reason is due to the fact that the initialization vector's change after every encryption /
      * decryption round when the continuous buffer is enabled.  When it's disabled, they remain constant.
      *
-     * Put another way, when the continuous buffer is enabled, the state of the \phpseclib3\Crypt\DES() object changes after each
+     * Put another way, when the continuous buffer is enabled, the state of the \phpseclib4\Crypt\DES() object changes after each
      * encryption / decryption round, whereas otherwise, it'd remain constant.  For this reason, it's recommended that
      * continuous buffers not be used.  They do offer better security and are, in fact, sometimes required (SSH uses them),
      * however, they are also less intuitive and more likely to cause you problems.

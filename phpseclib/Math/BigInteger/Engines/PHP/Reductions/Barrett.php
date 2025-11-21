@@ -13,10 +13,10 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Math\BigInteger\Engines\PHP\Reductions;
+namespace phpseclib4\Math\BigInteger\Engines\PHP\Reductions;
 
-use phpseclib3\Math\BigInteger\Engines\PHP;
-use phpseclib3\Math\BigInteger\Engines\PHP\Base;
+use phpseclib4\Math\BigInteger\Engines\PHP;
+use phpseclib4\Math\BigInteger\Engines\PHP\Base;
 
 /**
  * PHP Barrett Modular Exponentiation Engine

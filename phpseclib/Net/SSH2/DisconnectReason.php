@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Net\SSH2;
+namespace phpseclib4\Net\SSH2;
 
-use phpseclib3\Common\ConstantUtilityTrait;
+use phpseclib4\Common\ConstantUtilityTrait;
 
 /**
  * @internal

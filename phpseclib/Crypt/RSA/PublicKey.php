@@ -11,23 +11,23 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\RSA;
+namespace phpseclib4\Crypt\RSA;
 
-use phpseclib3\Common\Functions\Strings;
-use phpseclib3\Crypt\Common;
-use phpseclib3\Crypt\Hash;
-use phpseclib3\Crypt\Random;
-use phpseclib3\Crypt\RSA;
-use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib3\Exception\LengthException;
-use phpseclib3\Exception\OutOfRangeException;
-use phpseclib3\Exception\UnsupportedAlgorithmException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Maps\DigestInfo;
-use phpseclib3\File\ASN1\OIDs\Hashes;
-use phpseclib3\File\ASN1\Types\ExplicitNull;
-use phpseclib3\Math\BigInteger;
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common;
+use phpseclib4\Crypt\Hash;
+use phpseclib4\Crypt\Random;
+use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\OutOfRangeException;
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Maps\DigestInfo;
+use phpseclib4\File\ASN1\OIDs\Hashes;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\Math\BigInteger;
 
 /**
  * Raw RSA Key Handler

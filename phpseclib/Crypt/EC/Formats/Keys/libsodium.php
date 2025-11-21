@@ -17,13 +17,13 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\EC\Formats\Keys;
+namespace phpseclib4\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Crypt\EC\Curves\Ed25519;
-use phpseclib3\Exception\RuntimeException;
-use phpseclib3\Exception\UnsupportedFormatException;
-use phpseclib3\Math\BigInteger;
-use phpseclib3\Math\Common\FiniteField\Integer;
+use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * libsodium Key Handler

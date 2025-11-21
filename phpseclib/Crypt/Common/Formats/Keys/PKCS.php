@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Crypt\Common\Formats\Keys;
+namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 /**
  * PKCS1 Formatted Key Handler

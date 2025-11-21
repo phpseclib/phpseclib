@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace phpseclib3\Net\SFTP;
+namespace phpseclib4\Net\SFTP;
 
 /**
  * http://tools.ietf.org/html/draft-ietf-secsh-filexfer-04#section-6.3

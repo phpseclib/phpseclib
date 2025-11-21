@@ -16054,7 +16054,7 @@
   <file src="../tests/Unit/Crypt/EC/CurveTest.php">
     <ArgumentTypeCoercion occurrences="2">
       <code>$class</code>
-      <code>'phpseclib3\Crypt\EC\Formats\Keys\PKCS8'</code>
+      <code>'phpseclib4\Crypt\EC\Formats\Keys\PKCS8'</code>
     </ArgumentTypeCoercion>
     <InvalidStringClass occurrences="2">
       <code>new $class()</code>
@@ -17032,7 +17032,7 @@
   </file>
   <file src="../tests/Unit/File/X509/X509ExtensionTest.php">
     <ArgumentTypeCoercion occurrences="1">
-      <code>'phpseclib3\Math\BigInteger'</code>
+      <code>'phpseclib4\Math\BigInteger'</code>
     </ArgumentTypeCoercion>
     <InvalidArgument occurrences="1">
       <code>$publicKey</code>
@@ -17800,7 +17800,7 @@
   </file>
   <file src="../tests/Unit/Net/SSH2UnitTest.php">
     <ArgumentTypeCoercion occurrences="1">
-      <code>'phpseclib3\Net\SSH2'</code>
+      <code>'phpseclib4\Net\SSH2'</code>
     </ArgumentTypeCoercion>
     <DeprecatedMethod occurrences="1">
       <code>setMethods</code>
