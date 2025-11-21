@@ -1487,4 +1487,43 @@ vtpiPBM=
         // the real test here is to make sure that an exception isn't thrown
         $this->assertIsString($result);
     }
+
+    /**
+     * @group github2107
+     */
+    public function testPSSWithoutSaltLen()
+    {
+        $key = '-----BEGIN PRIVATE KEY-----
+MIIE6AIBADA4BgkqhkiG9w0BAQowK6ANMAsGCWCGSAFlAwQCAaEaMBgGCSqGSIb3
+DQEBCDALBglghkgBZQMEAgMEggSnMIIEowIBAAKCAQEA+i92dl1Dx+70VNV5eWi6
+Vtox/7oajorUVdv9UABEJOlWrCNk4yXnz+kpi/rXu9YBOD1UzKZtC6JbkSM70GIH
+i8AxVMy7J9q/x95SpUvytCi/PdGjT0jbh8ClWELAXdjrkkEGdOMTNRNFTcRC3FuF
+XOtxU8hs0eKJENjBh0H8T/xaDTX2iMY8m+5cvX3hjUd6SEXC9ghDH8mZKqxBN0sT
+aBkxzE2yITBnIVk619VflcpEoMvfipg9AA/EsD95xR9wTS3qCw4ZFNi+i6fV2Io8
+d0QLz3mEZTAMjqcpUcVzOWdaAZs2gpQ1RPJrSZDD6WbIRm1cMW866YfFQBQX9xc2
+BQIDAQABAoIBADLtyIKt16dyiEBguHqzjAM0Jat2GgPcVP8pajaH51dQPLmL9vSa
+eccEItYA+Tueg98L9SA33MjagyNXdcykt/6F4ETv7EVfrVylcFN/02dDSDLwYvs3
+zKCk4cPGytwP1VyPah4PP5C1XI1JH4c2Bj71GrvAeA59vAM27KZ5E0DAqhabguNW
+vFMzl+67xCj0y6fO38CNbuPMnAylStGSoyTEEJd0m2GlSCmWuHLWr//cAnuSwJ2q
+eeUtC9dxXVB2xiSs1KiJOtTYAq/FqNegGAjlC800zVRNuI5dg3NR/rJOtW9RQv08
+VvYlmcfYIr0dVYIxuX1C28cAPzL3u0mLXyECgYEA/mv8vKcSD4AV2/dGeKaAqkbI
+CVT5rurEPEk29Fom7cg/yChAqKBjqSNegP/POJDcl5H3CMCurcZ5z2G5rypTR4El
+J4RHmr6x33lJssq0GkwLNyNIri+LLTkkRxzww+9j0UpD5MujTBK1+BeFb2Oo5BYc
+LDSXrcX9qiJyZ+Vmei0CgYEA+7y/ihNBxy2dw1Wj+6UTDsfRb5Ia7Zqi2X0rjFMH
+iqpwBR55BD2RbshUTKDy93B2lSz5Bpl/Lyvxi/0BAij3g8hP4xBcxkFfi5+D3q2k
+tY87u+7mM1nLinWmxUDfd/YmdoFeTFAeybeM31EX9unx9VB5Lu67PzIpN4y3xPXp
+SjkCgYA84RYvBkNaFiok4nyobh8nn5xKL103r9GZI2PVAKWEDIDGomsmboqqdF4u
+vAeX34IJetID9CdYSb/oEdhew9/9ojeDxzFjI/JoKRurfrmt+ThNz1Ga7KF/BsdZ
+hOFP4T6fXAf2/YtrrqaAYRB64PwO6AOByGvrFw9l4KxDlC77WQKBgQCe90UZAyoR
+hhvO4wDHgylytvnpc6DvlCvsHV/nn/LuPMy6XtDavapeA8FAFo73dBxd/WVQJpQr
+DJve46jEXWxX2qGf6JA9XcDhIZ0bfBm70TRObAEQQk8HI15px5qWXWlSgkUy+ZFH
+nlImH0Z71KXHXMb5vSWfNaTTgFf317Y2+QKBgFFZuHp1Un7z7qQbI8nVOBB71NGN
+CNiB9Ra51RfEyP/SqXbtluWyTeV0oW+49giAiCk6+8FcJ/2u1V7HECiFW1wsvPkZ
+7f43XVxXhRLvcx1siV/VuHxiJMhOM30T5k5FSuEuffUlEJB3YApcwDjGVCAYL92t
+y8m/iELU++SxNcox
+-----END PRIVATE KEY-----';
+
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
+    }
 }
