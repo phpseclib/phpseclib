@@ -141,11 +141,7 @@ abstract class PSS extends Progenitor
         $result['hash'] = str_replace('id-', '', $params['hashAlgorithm']['algorithm']);
         $result['MGFHash'] = str_replace('id-', '', $params['maskGenAlgorithm']['parameters']['algorithm']);
         if (isset($params['saltLength'])) {
-            if (is_int($params['saltLength'])) {
-                $result['saltLength'] = $params['saltLength'];
-            } else {
-                $result['saltLength'] = (int) $params['saltLength']->toString();
-            }
+            $result['saltLength'] = (int) "$params[saltLength]";
         }
 
         if (isset($key['meta'])) {
