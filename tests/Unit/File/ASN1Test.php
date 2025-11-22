@@ -364,7 +364,7 @@ class ASN1Test extends PhpseclibTestCase
         $bad = [];
 
         // the following are from CVE-2021-30130
-        // see #1635 and https://www.ndss-symposium.org/ndss-paper/analyzing-semantic-correctness-with-symbolic-execution-a-case-study-on-pkcs1-v1-5-signature-verification/
+        // see #1635 and https://dl.acm.org/doi/pdf/10.1145/3460120.3485382
 
         // in phpseclib 3.0 and earlier the following two were in the testNullGarbage() unit test
         $bad[] = [
