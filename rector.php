@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\Rules\AddVoidLifeCycleAssert;
-use Rector\Rules\RemoveClassNamePrefix;
+
+use Rector\Rules\HashLength;
+use Rector\Rules\SFTPFilesize;
+use Rector\Rules\CreateKey;
+use Rector\Rules\PublicKeyLoader;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -12,5 +15,8 @@ return RectorConfig::configure()
         // __DIR__ . '/tests',
     ])
     ->withRules([
-
+        CreateKey::class,
+        SFTPFilesize::class,
+        HashLength::class,
+        PublicKeyLoader::class,
     ]);
