@@ -163,3 +163,27 @@ use phpseclib3\Crypt\Hash;
 $hash = new Hash('sha512/224');
 echo $hash->getLengthInBytes();
 ```
+
+### SFTP File Size
+
+This rule is for `v2` -> `v3` upgrade.
+
+In phpseclib `v2` you have filemtime, fileatime, fileowner but, instead of filesize, you just have size?
+phpseclib `v3` fixes that.
+
+It replaces
+```php
+use phpseclib\Net\SFTP;
+
+$sftp = new SFTP('...');
+$sftp->login('username', 'password');
+echo $sftp->size('/path/to/filename.ext');
+```
+with
+```php
+use phpseclib3\Net\SFTP;
+
+$sftp = new SFTP('...');
+$sftp->login('username', 'password');
+echo $sftp->filesize('/path/to/filename.ext');
+```

@@ -12,7 +12,7 @@ use Rector\Rules\PublicKeyLoader;
 return RectorConfig::configure()
     ->withPaths([
         // TODO: add project directory path to run rector
-        // __DIR__ . '/tests',
+        __DIR__ . '/src',
     ])
     ->withRules([
         CreateKey::class,
