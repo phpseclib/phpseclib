@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\Rules\AddVoidLifeCycleAssert;
 use Rector\Rules\RemoveClassNamePrefix;
+use Rector\Rules\ShortenShaExtends;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -13,5 +14,6 @@ return RectorConfig::configure()
     ])
     ->withRules([
         AddVoidLifeCycleAssert::class,
-        RemoveClassNamePrefix::class
+        RemoveClassNamePrefix::class,
+        ShortenShaExtends::class
     ]);
