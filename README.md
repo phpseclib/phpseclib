@@ -75,7 +75,7 @@ Need Support?
 ## Additional Thanks
 
 - Allan Simon
-- [Filina Consulting](https://afilina.com/)
+- [Anna Filina](https://afilina.com/)
 - delovelady
 - [ChargeOver](https://chargeover.com/)
 - <a href="https://jb.gg/OpenSource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" height="20px"></a>
