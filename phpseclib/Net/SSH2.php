@@ -679,7 +679,7 @@ class SSH2
      * @see self::send_channel_packet()
      * @var array
      */
-    private $packet_size_client_to_server = [];
+    protected $packet_size_client_to_server = [];
 
     /**
      * Message Number Log
@@ -2941,6 +2941,9 @@ class SSH2
             $this->channel_id_last_interactive = self::CHANNEL_EXEC;
             return true;
         }
+        if ($callback === false) {
+            return true;
+        }
 
         $output = '';
         while (true) {
@@ -4714,7 +4717,7 @@ class SSH2
      * @param bool $want_reply
      * @return void
      */
-    private function close_channel($client_channel)
+    protected function close_channel($client_channel)
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 

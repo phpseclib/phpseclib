@@ -3462,13 +3462,10 @@ class SFTP extends SSH2
                 return $this->packet_type_log;
         }
     }
-
     /**
      * Returns all errors on the SFTP layer
-     *
-     * @return array
      */
-    public function getSFTPErrors()
+    public function getSFTPErrors(): array
     {
         return $this->sftp_errors;
     }
