@@ -228,20 +228,19 @@ class SCP extends SSH2
 
         if (is_resource($local_file)) {
             $fp = $local_file;
-        } else {
-            if ($local_file !== false && !is_callable($local_file)) {
-                $fp = fopen($local_file, 'w+b');
-                if (!$fp) {
-                    $this->close_channel(self::CHANNEL_EXEC, true);
-                    return false;
-                }
+        } elseif ($local_file !== false) {
+            $fp = fopen($local_file, 'w+b');
+            if (!$fp) {
+                $this->close_channel(self::CHANNEL_EXEC, true);
+                return false;
             }
+        } else {
+            $content = '';
         }
 
         $fclose_check = $local_file !== false && !is_callable($local_file) && !is_resource($local_file);
 
         $size = 0;
-        $content = '';
         while (true) {
             $data = $this->get_channel_packet(self::CHANNEL_EXEC, true);
             // Terminate the loop in case the server repeatedly sends an empty response
@@ -294,8 +293,10 @@ class SCP extends SSH2
 
     /**
      * Returns all errors on the SCP layer
+     * 
+     * @return array
      */
-    public function getSCPErrors(): array
+    public function getSCPErrors()
     {
         return $this->scp_errors;
     }

@@ -3464,8 +3464,10 @@ class SFTP extends SSH2
     }
     /**
      * Returns all errors on the SFTP layer
+     *
+     * @return array
      */
-    public function getSFTPErrors(): array
+    public function getSFTPErrors()
     {
         return $this->sftp_errors;
     }
