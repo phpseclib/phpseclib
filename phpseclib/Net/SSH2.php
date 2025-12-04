@@ -579,7 +579,7 @@ class SSH2
      *
      * @see self::send_channel_packet()
      */
-    private array $packet_size_client_to_server = [];
+    protected array $packet_size_client_to_server = [];
 
     /**
      * Message Number Log
@@ -2642,6 +2642,9 @@ class SSH2
             $this->channel_id_last_interactive = self::CHANNEL_EXEC;
             return true;
         }
+        if ($callback === false) {
+            return true;
+        }
 
         $output = '';
         while (true) {
@@ -4357,7 +4360,11 @@ class SSH2
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      */
+<<<<<<< HEAD
     private function close_channel(int $client_channel): void
+=======
+    protected function close_channel($client_channel)
+>>>>>>> 3.0
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 
