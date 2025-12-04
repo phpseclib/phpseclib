@@ -188,7 +188,7 @@ class SCP extends SSH2
      * @return mixed
      * @access public
      */
-    function get($remote_file, $local_file = false, $progressCallback = null)
+    function get($remote_file, $local_file = null, $progressCallback = null)
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
@@ -216,29 +216,19 @@ class SCP extends SSH2
             return false;
         }
 
-        $fclose_check = $local_file !== false && !is_resource($local_file);
-
-        if ($local_file !== false) {
+        $fclose_check = false;
+        if (is_resource($local_file)) {
+            $fp = $local_file;
+        } elseif (!is_null($local_file)) {
             $fp = @fopen($local_file, 'wb');
             if (!$fp) {
                 $this->close_channel(self::CHANNEL_EXEC, true);
                 return false;
             }
-        }
-
-        if (is_resource($local_file)) {
-            $fp = $local_file;
-        } elseif ($local_file !== false) {
-            $fp = fopen($local_file, 'w+b');
-            if (!$fp) {
-                $this->close_channel(self::CHANNEL_EXEC, true);
-                return false;
-            }
+            $fclose_check = true;
         } else {
             $content = '';
         }
-
-        $fclose_check = $local_file !== false && !is_callable($local_file) && !is_resource($local_file);
 
         $size = 0;
         while (true) {
@@ -266,7 +256,7 @@ class SCP extends SSH2
                 }
             }
 
-            if ($local_file === false) {
+            if (is_null($local_file)) {
                 $content.= $data;
             } else {
                 fputs($fp, $data);
