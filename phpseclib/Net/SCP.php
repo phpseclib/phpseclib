@@ -176,8 +176,10 @@ class SCP extends SSH2
      * Returns a string containing the contents of $remote_file if $local_file is left undefined or a boolean false if
      * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
      * operation
+     *
+     * @param string|resource|null $local_file
      */
-    function get(string $remote_file, string $local_file = false, ?callable $progressCallback = null): bool|string
+    function get(string $remote_file, mixed $local_file = null, ?callable $progressCallback = null): bool|string
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
@@ -208,7 +210,7 @@ class SCP extends SSH2
         $fclose_check = false;
         if (is_resource($local_file)) {
             $fp = $local_file;
-        } elseif ($local_file !== false) {
+        } elseif (!is_null($local_file)) {
             $fp = @fopen($local_file, 'wb');
             if (!$fp) {
                 $this->close_channel(self::CHANNEL_EXEC, true);
@@ -245,7 +247,7 @@ class SCP extends SSH2
                 }
             }
 
-            if ($local_file === false) {
+            if (is_null($local_file)) {
                 $content.= $data;
             } else {
                 fputs($fp, $data);

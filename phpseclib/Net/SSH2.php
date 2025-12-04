@@ -2566,11 +2566,10 @@ class SSH2
      * If $callback is set to false then \phpseclib4\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of.
      *
-     * @return string|bool
      * @psalm-return ($callback is callable ? bool : string|bool)
      * @throws RuntimeException on connection error
      */
-    public function exec(string $command, ?callable $callback = null)
+    public function exec(string $command, false|null|callable $callback = null): string|bool
     {
         $this->curTimeout = $this->timeout;
         $this->is_timeout = false;
@@ -4360,11 +4359,7 @@ class SSH2
      * and for SFTP channels are presumably closed when the client disconnects.  This functions is intended
      * for SCP more than anything.
      */
-<<<<<<< HEAD
-    private function close_channel(int $client_channel): void
-=======
-    protected function close_channel($client_channel)
->>>>>>> 3.0
+    protected function close_channel($client_channel): void
     {
         // see http://tools.ietf.org/html/rfc4254#section-5.3
 

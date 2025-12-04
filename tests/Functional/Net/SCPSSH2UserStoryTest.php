@@ -17,7 +17,7 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     static protected $exampleData;
     static protected $exampleDataLength;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         self::$remoteFile = uniqid('phpseclib-scp-ssh2-') . '.txt';
