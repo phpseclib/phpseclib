@@ -112,6 +112,15 @@ class Net_SCP
     var $mode;
 
     /**
+     * Error information
+     *
+     * @see self::getSCPErrors()
+     * @see self::getLastSCPError()
+     * @var array
+     */
+    var $scp_errors = array();
+
+    /**
      * Default Constructor.
      *
      * Connects to an SSH server
@@ -191,6 +200,7 @@ class Net_SCP
 
         $temp = $this->_receive();
         if ($temp !== chr(0)) {
+            $this->_close();
             return false;
         }
 
@@ -204,12 +214,14 @@ class Net_SCP
             $size = strlen($data);
         } else {
             if (!is_file($data)) {
+                $this->_close();
                 user_error("$data is not a valid file", E_USER_NOTICE);
                 return false;
             }
 
             $fp = @fopen($data, 'rb');
             if (!$fp) {
+                $this->_close();
                 return false;
             }
             $size = filesize($data);
@@ -219,6 +231,7 @@ class Net_SCP
 
         $temp = $this->_receive();
         if ($temp !== chr(0)) {
+            $this->_close();
             return false;
         }
 
@@ -265,7 +278,18 @@ class Net_SCP
 
         $this->_send("\0");
 
-        if (!preg_match('#(?<perms>[^ ]+) (?<size>\d+) (?<name>.+)#', rtrim($this->_receive()), $info)) {
+        $info = $this->_receive();
+
+        // per https://goteleport.com/blog/scp-familiar-simple-insecure-slow/ non-zero responses mean there are errors
+        if ($info[0] === chr(1) || $info[0] == chr(2)) {
+            $type = $info[0] === chr(1) ? 'warning' : 'error';
+            $this->scp_errors[] = "$type: " . substr($info, 1);
+            $this->_close();
+            return false;
+        }
+
+        if (!preg_match('#(?<perms>[^ ]+) (?<size>\d+) (?<name>.+)#', rtrim($info), $info)) {
+            $this->_close();
             return false;
         }
 
@@ -276,6 +300,7 @@ class Net_SCP
         if ($local_file !== false) {
             $fp = @fopen($local_file, 'wb');
             if (!$fp) {
+                $this->_close();
                 return false;
             }
         }
@@ -286,12 +311,27 @@ class Net_SCP
 
             // Terminate the loop in case the server repeatedly sends an empty response
             if ($data === false) {
+                $this->_close();
                 user_error('No data received from server', E_USER_NOTICE);
                 return false;
             }
 
             // SCP usually seems to split stuff out into 16k chunks
-            $size+= strlen($data);
+            $length = strlen($data);
+            $size+= $length;
+            $end = $size > $info['size'];
+            if ($end) {
+                $diff = $size - $info['size'];
+                $offset = $length - $diff;
+                if ($data[$offset] === chr(0)) {
+                    $data = substr($data, 0, -$diff);
+                } else {
+                    $type = $data[$offset] === chr(1) ? 'warning' : 'error';
+                    $this->scp_errors[] = "$type: " . substr($data, 1);
+                    $this->_close();
+                    return false;
+                }
+            }
 
             if ($local_file === false) {
                 $content.= $data;
@@ -381,5 +421,25 @@ class Net_SCP
             case NET_SCP_SSH1:
                 $this->ssh->disconnect();
         }
+    }
+
+    /**
+     * Returns all errors on the SCP layer
+     *
+     * @return array
+     */
+    function getSCPErrors()
+    {
+        return $this->scp_errors;
+    }
+
+    /**
+     * Returns the last error on the SCP layer
+     *
+     * @return string
+     */
+    function getLastSCPError()
+    {
+        return count($this->scp_errors) ? $this->scp_errors[count($this->scp_errors) - 1] : '';
     }
 }

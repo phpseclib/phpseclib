@@ -51,15 +51,14 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
             'Failed asserting that data could successfully be put() into file.'
         );
         $content = $scp->get(self::$remoteFile);
-        // TODO: Address https://github.com/phpseclib/phpseclib/issues/146
-        $this->assertContains(
+        $this->assertSame(
             strlen($content),
-            array(self::$exampleDataLength, self::$exampleDataLength + 1),
+            self::$exampleDataLength,
             'Failed asserting that string length matches expected length.'
         );
-        $this->assertContains(
+        $this->assertSame(
             $content,
-            array(self::$exampleData, self::$exampleData . "\0"),
+            self::$exampleData,
             'Failed asserting that string content matches expected content.'
         );
         return $scp;
@@ -73,7 +72,6 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
             $scp->get(self::$remoteFile, $localFilename),
             'Failed asserting that get() into file was successful.'
         );
-        // TODO: Address https://github.com/phpseclib/phpseclib/issues/146
         $this->assertContains(
             filesize($localFilename),
             array(self::$exampleDataLength, self::$exampleDataLength + 1),
@@ -84,5 +82,36 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
             array(self::$exampleData, self::$exampleData . "\0"),
             'Failed asserting that file content matches expected content.'
         );
+        return $scp;
+    }
+
+    /**
+     * @depends testGetFile
+     * @group github873
+     */
+    public function testGetBadFilePutGet($scp)
+    {
+        $scp->ssh->exec('rm ' . self::$remoteFile);
+        $this->assertFalse(
+            $scp->get(self::$remoteFile),
+            'Failed asserting that get() on a non-existant file failed'
+        );
+        $this->assertCount(1, $scp->getSCPErrors());
+        $this->assertTrue(
+            $scp->put(self::$remoteFile, self::$exampleData),
+            'Failed asserting that put() succeeded'
+        );
+        $content = $scp->get(self::$remoteFile);
+        $this->assertSame(
+            strlen($content),
+            self::$exampleDataLength,
+            'Failed asserting that string length matches expected length.'
+        );
+        $this->assertSame(
+            $content,
+            self::$exampleData,
+            'Failed asserting that string content matches expected content.'
+        );
+        return $scp;
     }
 }
