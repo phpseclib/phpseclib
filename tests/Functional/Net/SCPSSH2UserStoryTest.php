@@ -6,9 +6,12 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-use phpseclib3\Net\SCP;
+namespace phpseclib3\Tests\Functional\Net;
 
-class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
+use phpseclib3\Net\SCP;
+use phpseclib3\Tests\PhpseclibFunctionalTestCase;
+
+class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
 {
     static protected $remoteFile;
     static protected $exampleData;
@@ -22,11 +25,7 @@ class Functional_Net_SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         self::$exampleDataLength = 10000;
     }
 
-    /**
-     * @depends testConstructSSH2
-     * @param \phpseclib\Net\SSH2 $ssh
-     */
-    public function testConstructor($ssh)
+    public function testConstructor()
     {
         $scp = new SCP($this->getEnv('SSH_HOSTNAME'));
         $this->assertTrue(
