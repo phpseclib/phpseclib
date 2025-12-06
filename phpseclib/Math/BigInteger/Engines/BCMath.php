@@ -141,7 +141,7 @@ class BCMath extends Engine
 
         while (bccomp($current, '0', 0) > 0) {
             $temp = bcmod($current, '16777216', 0);
-            $value = chr($temp >> 16) . chr($temp >> 8) . chr((int) $temp) . $value;
+            $value = chr($temp >> 16) . chr(($temp >> 8) & 0xFF) . chr($temp & 0xFF) . $value;
             $current = bcdiv($current, '16777216', 0);
         }
 
