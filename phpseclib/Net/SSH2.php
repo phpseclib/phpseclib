@@ -3668,7 +3668,7 @@ class SSH2
                     break;
                 case MessageType::GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     Strings::shift($payload, 1);
-                    [$request_name, $want_reply] = Strings::unpackSSH2('s', $payload);
+                    [$request_name, $want_reply] = Strings::unpackSSH2('sb', $payload);
                     $this->errors[] = "SSH_MSG_GLOBAL_REQUEST: $request_name";
                     if ($want_reply) {
                         $this->send_binary_packet(pack('C', MessageType::REQUEST_FAILURE));
