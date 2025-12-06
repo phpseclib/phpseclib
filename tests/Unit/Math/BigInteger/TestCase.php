@@ -462,4 +462,13 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
         $y = $this->getInstance('0xE932AC92252F585B3A80A4DD76A897C8B7652952FE788F6EC8DD640587A1EE5647670A8AD', 16);
         $this->assertSame("$x", "$y");
     }
+
+    /**
+     * @group github2113
+     */
+    public function testPHP85ChrDeprecation()
+    {
+        $a = $this->getInstance('999999999');
+        $this->assertSame('3b9ac9ff', $a->toHex());
+    }
 }
