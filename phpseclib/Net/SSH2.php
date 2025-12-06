@@ -3668,9 +3668,11 @@ class SSH2
                     break;
                 case MessageType::GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     Strings::shift($payload, 1);
-                    [$request_name] = Strings::unpackSSH2('s', $payload);
+                    [$request_name, $want_reply] = Strings::unpackSSH2('s', $payload);
                     $this->errors[] = "SSH_MSG_GLOBAL_REQUEST: $request_name";
-                    $this->send_binary_packet(pack('C', MessageType::REQUEST_FAILURE));
+                    if ($want_reply) {
+                        $this->send_binary_packet(pack('C', MessageType::REQUEST_FAILURE));
+                    }
                     $payload = $this->get_binary_packet();
                     break;
                 case MessageType::CHANNEL_OPEN: // see http://tools.ietf.org/html/rfc4254#section-5.1
@@ -3898,7 +3900,6 @@ class SSH2
                                 if (strlen($error_message)) {
                                     $this->errors[count($this->errors) - 1] .= "\r\n$error_message";
                                 }
-
                                 if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != MessageType::CHANNEL_CLOSE) {
                                     if ($this->channel_status[$channel] != MessageType::CHANNEL_EOF) {
                                         $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$channel]));
@@ -3907,7 +3908,6 @@ class SSH2
 
                                     $this->channel_status[$channel] = MessageType::CHANNEL_CLOSE;
                                 }
-
                                 continue 3;
                             case 'exit-status':
                                 [, $this->exit_status] = Strings::unpackSSH2('CN', $response);
@@ -3917,8 +3917,13 @@ class SSH2
 
                                 continue 3;
                             default:
-                                // "Some systems may not implement signals, in which case they SHOULD ignore this message."
-                                //  -- http://tools.ietf.org/html/rfc4254#section-6.9
+                                list($want_reply) = Strings::unpackSSH2('b', $response);
+                                if ($want_reply) {
+                                    // "If the request is not recognized or is not supported for the channel,
+                                    //  SSH_MSG_CHANNEL_FAILURE is returned."
+                                    // -- https://datatracker.ietf.org/doc/html/rfc4254#page-10
+                                    $this->send_binary_packet(pack('CN', MessageType::CHANNEL_FAILURE, $this->server_channels[$channel]));
+                                }
                                 continue 3;
                         }
                 }
