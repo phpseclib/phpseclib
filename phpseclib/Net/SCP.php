@@ -155,7 +155,7 @@ class SCP extends SSH2
         while ($sent < $size) {
             $temp = $mode & self::SOURCE_STRING ? substr($data, $sent, $packet_size) : fread($fp, $packet_size);
             $this->send_channel_packet(self::CHANNEL_EXEC, $temp);
-            $sent+= strlen($temp);
+            $sent += strlen($temp);
 
             if (is_callable($callback)) {
                 call_user_func($callback, $sent);
@@ -179,7 +179,7 @@ class SCP extends SSH2
      *
      * @param string|resource|null $local_file
      */
-    function get(string $remote_file, mixed $local_file = null, ?callable $progressCallback = null): bool|string
+    public function get(string $remote_file, mixed $local_file = null, ?callable $progressCallback = null): bool|string
     {
         if (!($this->bitmap & self::MASK_LOGIN)) {
             return false;
@@ -232,7 +232,7 @@ class SCP extends SSH2
             }
             // SCP usually seems to split stuff out into 16k chunks
             $length = strlen($data);
-            $size+= $length;
+            $size += $length;
             $end = $size > $info['size'];
             if ($end) {
                 $diff = $size - $info['size'];
@@ -248,7 +248,7 @@ class SCP extends SSH2
             }
 
             if (is_null($local_file)) {
-                $content.= $data;
+                $content .= $data;
             } else {
                 fputs($fp, $data);
             }
