@@ -1,5 +1,5 @@
 /vendor
 /composer.phar
 composer.lock
-/.idea/
 .gitignore
+.idea
