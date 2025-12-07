@@ -1,4 +1,4 @@
-/.idea/
+.idea
 /build/php-cs-fixer.cache
 /composer.lock
 /composer.phar
