@@ -326,10 +326,6 @@ abstract class ASN1
      */
     public static function decodeBER(string $encoded, int $start = 0, int $encoded_pos = 0): array
     {
-        if ($encoded instanceof Element) {
-            $encoded = (string) $encoded;
-        }
-
         $current = ['start' => $start];
 
         $old_encoded_pos = $encoded_pos;
@@ -379,7 +375,7 @@ abstract class ASN1
                             $start,
                             0,
                             $current['headerlength'],
-                            substr($encoded, $old_encoded_pos, $current['headerlength']),
+                            $headercontent,
                         ) :
                         $content,
                     'length'   => $length,
@@ -413,7 +409,7 @@ abstract class ASN1
                 $start,
                 $encoded_pos,
                 $current['headerlength'],
-                substr($encoded, $old_encoded_pos, $current['headerlength'])
+                $headercontent
              )];
         }
 
