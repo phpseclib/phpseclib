@@ -408,7 +408,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             case ASN1::TYPE_SEQUENCE:
                 $encoded = ASN1::encodeDER($child['default'], array_diff_key($child, ['default' => 1]));
                 $decoded = ASN1::decodeBER($encoded);
-                return ASN1::map($decoded, $child)->toArray();
+                return ASN1::map($decoded, $child);
         }
         //return $child['default'];
         throw new RuntimeException('An unsupported default type was encountered');
