@@ -38,6 +38,7 @@ abstract class SigningCertificateV2
                 'min' => 1,
                 'max' => -1,
                 'children' => PolicyInformation::MAP,
+                'optional' => true,
             ],
         ],
     ];
