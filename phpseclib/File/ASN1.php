@@ -616,7 +616,12 @@ abstract class ASN1
                 return $decoded['content'];
         }
 
-        throw new RuntimeException('Unable to perform mapping');
+        throw new RuntimeException(
+            'Unable to perform mapping - found ' .
+            self::convertTypeConstantToString($decoded['type']) .
+            ' - expected ' .
+            self::convertTypeConstantToString($mapping['type'])
+        );
     }
 
     private static function applyMap(Integer|BitString $content, array $mapping): Integer|BitString
