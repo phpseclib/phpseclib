@@ -616,9 +616,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
             // ideally for an X509 cert, unless __debugInfo were called _directly_ on it, we'd
             // render the X509 cert differently. eg. as the PEM vs the broken down PEM
-            //if ($value instanceof X509) {
-            //    $this->decoded[$key] = "$value";
-            //}
+            if ($value instanceof X509) {
+                $value->enableHideFullDecode();
+            }
         }
 
         return $this->decoded;

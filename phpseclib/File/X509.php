@@ -76,6 +76,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     private static bool $checkBasicConstraints = true;
     private int $caSeq;
     private bool $isCA = false;
+    private bool $hideFullDecode = false;
 
     /**
      * Recursion Limit
@@ -297,6 +298,10 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public function __debugInfo(): array
     {
+        if ($this->hideFullDecode) {
+            $this->hideFullDecode = false;
+            return ['value' => (string) $this];
+        }
         $this->compile();
         return $this->cert->__debugInfo();
     }
@@ -1363,5 +1368,10 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public static function setInCRLFunction(\Closure $func): void
     {
         self::$inCRLFunction = $func;
+    }
+
+    public function enableHideFullDecode(): void
+    {
+        $this->hideFullDecode = true;
     }
 }
