@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.48 - 2025-12-15
+
+- readd SCP support (#2108)
+- SSH2: adjust want_reply handling for GLOBAL_REQUEST and CHANNEL_REQUEST (#2111)
+- ASN1: add more validation checks to asn1map (#2104)
+- RSA/PSS: more elegant int conversion (#2107)
+- more PHP 8.5 deprecations (#2103, #2113)
+
 ## 3.0.47 - 2025-10-05
 
 - fix PHP 8.5 deprecations
@@ -328,7 +336,13 @@
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
 
-## 2.0.49 - 2025-10-04
+## 2.0.50 - 2025-12-15
+
+- SCP: some downloads have an extra null byte tacked onto the end (#146)
+- SCP: uploading a file after trying to download a non existant file fails (#873)
+- more PHP 8.5 deprecations (#2103, #2113)
+
+## 2.0.49 - 2025-10-05
 
 - fix PHP 8.5 deprecations
 - SFTP: check if realpath succeeded when changing SFTP directory (#2098)
@@ -718,6 +732,12 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.25 - 2025-12-15
+
+- SCP: some downloads have an extra null byte tacked onto the end (#146)
+- SCP: uploading a file after trying to download a non existant file fails (#873)
+- more PHP 8.5 deprecations (#2103, #2113)
 
 ## 1.0.24 - 2025-10-05
 
