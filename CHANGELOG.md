@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.25 - 2025-12-15
+
+- SCP: some downloads have an extra null byte tacked onto the end (#146)
+- SCP: uploading a file after trying to download a non existant file fails (#873)
+- more PHP 8.5 deprecations (#2103, #2113)
+
 ## 1.0.24 - 2025-10-05
 
 - fix PHP 8.4 / 8.5 deprecations
