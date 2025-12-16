@@ -6,6 +6,8 @@ phpseclib uses [Rector](https://getrector.com/) that you can run on any PHP proj
 
 Rector works with `rector.php` config file. This is located at the project root and this is where you define the project path and rules to be implemented.
 
+Both configured and custom rule are used here. Configured rules are directly added to the `rector.php` file and custom rules are added to the `rules` folder.
+
 This is current file structure for rector rules and tests:
 
 ```
@@ -48,7 +50,7 @@ B. `skip_rule_test_fixture.php.inc` - The Code Should Be Skipped
 To run a rector test fixture, add --filter to the test command.
 
 ```
-vendor/bin/phpunit tests --filter AddVoidLifecycle
+vendor/bin/phpunit tests --filter AddVoidLifecycleAssertTest
 
 vendor/bin/phpunit tests --filter RemoveClassNamePrefixTest
 

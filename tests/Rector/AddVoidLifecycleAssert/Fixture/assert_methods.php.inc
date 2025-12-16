@@ -1,6 +1,8 @@
 <?php
 
-class AssertMethods
+use PHPUnit\Framework\Assert;
+
+final class AssertMethods extends Assert
 {
   public static function assertIsArray($value) {
     print($value);
@@ -26,7 +28,9 @@ class AssertMethods
 -----
 <?php
 
-class AssertMethods
+use PHPUnit\Framework\Assert;
+
+final class AssertMethods extends Assert
 {
   public static function assertIsArray($value): void {
     print($value);

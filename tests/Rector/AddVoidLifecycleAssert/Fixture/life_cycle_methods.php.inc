@@ -1,8 +1,8 @@
 <?php
 
-namespace Rector\Tests\TypeDeclaration\Rector\AddVoidLifeCycleAssertRector\Fixture;
+use PHPUnit\Framework\TestCase;
 
-class LifeCycleMethods
+final class LifeCycleMethods extends TestCase
   {
     public static function setUpBeforeClass() {
       print("set up before class");
@@ -21,9 +21,9 @@ class LifeCycleMethods
 -----
 <?php
 
-namespace Rector\Tests\TypeDeclaration\Rector\AddVoidLifeCycleAssertRector\Fixture;
+use PHPUnit\Framework\TestCase;
 
-class LifeCycleMethods
+final class LifeCycleMethods extends TestCase
   {
     public static function setUpBeforeClass(): void {
       print("set up before class");
