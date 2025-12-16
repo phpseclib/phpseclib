@@ -66,8 +66,29 @@ abstract class PKCS1 extends Progenitor
         } catch (\Exception $e) {
         }
 
+        // PKCS1 DSA public keys are not supported by phpseclib since they can't be used to do
+        // anything on their own. in order to verify a signature with DSA you need p, q, g and y.
+        // a PKCS1 DSA public key only has y. to verify a signature with a PKCS1 DSA public key
+        // you'd also need to load a PKCS1 DSA parameters file separately. like you'd need to
+        // load two files instead of just one. there's no other key format that phpseclib supports
+        // that has that requirement so building it in for PKCS1 DSA public keys seems excessive.
+        //
+        // the whole thing would be rather like an RSA public key having the modulo live in
+        // a separate file than the exponent.
+        //
+        // this isn't an issue for PKCS8 DSA public keys because those keys have the parameters
+        // included. eg. \phpseclib3\File\ASN1\Maps\SubjectPublicKeyInfo has "algorithm" and
+        // "subjectPublicKey" and "algorithm", in turn, has "algorithm" and "parameters". y
+        // is saved as "subjectPublicKey" and p, q and g are saved as "parameters".
+        //
+        // furthermore, the following ASN1::map() doesn't return a Constructed object
+        // with Maps\DSAPublicKey::MAP - it returns a BigInteger object that doesn't
+        // even have the toArray() method, anyway
+
         try {
-            return ASN1::map($decoded, Maps\DSAPublicKey::MAP)->toArray();
+            if (ASN1::map($decoded, Maps\DSAPublicKey::MAP) instanceof BigInteger) {
+                throw new RuntimeException('Key appears to be a DSAPublicKey, which is unsupported');
+            }
         } catch (\Exception $e) {
         }
 
