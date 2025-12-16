@@ -14,6 +14,7 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\MethodCall;
@@ -22,7 +23,7 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\BinaryOp\BitwiseOr;
 
-final class PublicKeyLoader extends AbstractRector
+final class PublicKeyLoaderChained extends AbstractRector
 {
     private ?bool $hasExtract = null;
     private ?string $currentFilePath = null;
@@ -107,7 +108,9 @@ final class PublicKeyLoader extends AbstractRector
             $this->isName($expr->expr->class, 'phpseclib\Crypt\RSA')
             ) {
                 // Remember the variable name
-                $this->rsaVarName = is_string($expr->var->name) ? $expr->var->name : '';
+                if (is_string($expr->var->name)) {
+                    $this->rsaVarName = $expr->var->name;
+                }
                 $this->passwordValue = null;
 
                 return NodeTraverser::REMOVE_NODE;
@@ -214,12 +217,11 @@ final class PublicKeyLoader extends AbstractRector
     private function findWithPaddingMethodCall(array $nodes): ?MethodCall
     {
         foreach ($nodes as $node) {
-            if (
-                $node instanceof Expression
-                && $node->expr instanceof MethodCall
-                && $this->isName($node->expr->name, 'withPadding')
-            ) {
-                return $node->expr;
+            if ($node instanceof Expression) {
+                $found = $this->findWithPaddingInExpr($node->expr);
+                if ($found !== null) {
+                    return $found;
+                }
             }
 
             // Descend into nested statement lists
@@ -234,34 +236,105 @@ final class PublicKeyLoader extends AbstractRector
         return null;
     }
 
+    private function findWithPaddingInExpr(Node $expr): ?MethodCall
+    {
+        if ($expr instanceof MethodCall) {
+            if ($this->isName($expr->name, 'withPadding')) {
+                return $expr;
+            }
+
+            // Continue walking the chain
+            return $this->findWithPaddingInExpr($expr->var);
+        }
+
+        if ($expr instanceof Assign) {
+            return $this->findWithPaddingInExpr($expr->expr);
+        }
+
+        return null;
+    }
+
     public function afterTraverse(array $nodes): ?array
     {
-        if (! $this->encryptionParam && ! $this->signatureParam) {
-            return null;
-        }
+        $this->traverseNodesWithCallable($nodes, function(Node $node) {
+            if ($node instanceof ClassMethod && $node->stmts) {
+                $this->chainMethodCalls($node->stmts);
+            }
+        });
 
-        $padding = null;
-        if ($this->encryptionParam && $this->signatureParam) {
-            $padding = new BitwiseOr($this->signatureParam, $this->encryptionParam);
-        } elseif ($this->encryptionParam) {
-            $padding = $this->encryptionParam;
-        } else {
-            $padding = $this->signatureParam;
-        }
+        if ($this->encryptionParam || $this->signatureParam) {
+            $padding = null;
+            if ($this->encryptionParam && $this->signatureParam) {
+                $padding = new BitwiseOr($this->signatureParam, $this->encryptionParam);
+            } elseif ($this->encryptionParam) {
+                $padding = $this->encryptionParam;
+            } else {
+                $padding = $this->signatureParam;
+            }
 
-        $methodCall = $this->findWithPaddingMethodCall($nodes);
-        if (! $methodCall instanceof MethodCall) {
+            // reset params
+            $this->withPaddingInserted = false;
+            $this->encryptionParam = null;
+            $this->signatureParam = null;
+
+            $methodCall = $this->findWithPaddingMethodCall($nodes);
+            if (! $methodCall instanceof MethodCall) {
+                return $nodes;
+            }
+
+            $methodCall->args = [
+                new Arg($padding),
+            ];
+
             return $nodes;
         }
-
-        $methodCall->args = [
-            new Arg($padding),
-        ];
-
-        // reset params
-        $this->withPaddingInserted = false;
-        $this->encryptionParam = null;
-        $this->signatureParam = null;
         return $nodes;
+    }
+
+    private function chainMethodCalls(array &$stmts): void
+    {
+        $nodesToRemove = [];
+        $count = count($stmts);
+
+        for ($i = 0; $i < $count; $i++) {
+            $stmt = $stmts[$i];
+            if (!$stmt instanceof Expression) {
+                continue;
+            }
+
+            if (!$stmt->expr instanceof Assign) {
+                continue;
+            }
+
+            $assign = $stmt->expr;
+            $varName = $this->getName($assign->var);
+            if ($varName === null) {
+                continue;
+            }
+
+            $currentExpr = $assign->expr;
+
+            // Look ahead for consecutive method calls on the same variable
+            $j = $i + 1;
+            while (isset($stmts[$j]) && $stmts[$j] instanceof Expression && $stmts[$j]->expr instanceof MethodCall) {
+                $methodCall = $stmts[$j]->expr;
+                if ($this->getName($methodCall->var) === $varName) {
+                    $currentExpr = new MethodCall($currentExpr, $methodCall->name, $methodCall->args);
+                    $nodesToRemove[] = $j;
+                    $j++;
+                } else {
+                    break;
+                }
+            }
+
+            $assign->expr = $currentExpr;
+        }
+
+        // Remove the original method calls that were chained
+        foreach (array_reverse($nodesToRemove) as $removeIndex) {
+            unset($stmts[$removeIndex]);
+        }
+
+        $stmts = array_values($stmts);
     }
 }

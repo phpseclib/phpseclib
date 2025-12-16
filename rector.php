@@ -8,6 +8,7 @@ use Rector\Rules\HashLength;
 use Rector\Rules\SFTPFilesize;
 use Rector\Rules\CreateKey;
 use Rector\Rules\PublicKeyLoader;
+use Rector\Rules\PublicKeyLoaderChained;
 
 return RectorConfig::configure()
     ->withPaths([
@@ -19,4 +20,5 @@ return RectorConfig::configure()
         SFTPFilesize::class,
         HashLength::class,
         PublicKeyLoader::class,
+        // PublicKeyLoaderChained::class,
     ]);

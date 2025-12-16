@@ -2,12 +2,13 @@
 
 use phpseclib\Crypt\RSA;
 
-function createKey() {
-  $rsa = new RSA();
-  extract($rsa->createKey(2048));
+abstract class BaseClass
+{
+    abstract public function createKey();
 }
 
-class CreateKey {
+final class CreateKeyClass extends BaseClass
+{
   function createKey() {
     $rsa = new RSA();
     extract($rsa->createKey(2048));
@@ -20,12 +21,13 @@ class CreateKey {
 
 use phpseclib3\Crypt\RSA;
 
-function createKey()
+abstract class BaseClass
 {
-    $rsa = RSA::createKey(2048);
+    abstract public function createKey();
 }
 
-class CreateKey {
+final class CreateKeyClass extends BaseClass
+{
   function createKey()
   {
       $rsa = RSA::createKey(2048);
