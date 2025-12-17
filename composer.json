@@ -56,6 +56,7 @@
     "require-dev": {
         "phing/phing": "~2.7",
         "phpunit/phpunit": "^4.8.35|^5.7|^6.0|^9.4",
+        "rector/rector": "^2.2",
         "squizlabs/php_codesniffer": "~2.0"
     },
     "suggest": {
@@ -78,5 +79,11 @@
             "phpseclib/bootstrap.php",
             "phpseclib/Crypt/Random.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "phpseclib4\\Tests\\": "tests/",
+            "Rector\\Rules\\": "rector/rules"
+        }
     }
 }
