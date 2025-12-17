@@ -46,6 +46,8 @@ use phpseclib4\Math\PrimeField;
  */
 class Hash
 {
+    use Common\Traits\PKCS12Helper;
+
     /**
      * Padding Types
      */
@@ -1500,5 +1502,34 @@ class Hash
     public function __toString()
     {
         return $this->getHash();
+    }
+
+    // from https://www.rfc-editor.org/rfc/rfc7292#appendix-B.2
+    // this is mostly the same as SymmetricKey::setPassword()'s implementation of pkcs12
+    public function setPassword(string $password, string $salt, int $iterationCount): void
+    {
+        if (!isset($this->blockSize)) {
+            throw new UnsupportedAlgorithmException($this->hashParam . ' cannot be used with the PKCS#12 KDF');
+        }
+
+        $password = "\0" . chunk_split($password, 1, "\0") . "\0";
+
+        $u = $this->length << 3;
+        $v = $this->blockSize >> 3;
+        $saltLength = strlen($salt);
+        $passLength = strlen($password);
+
+        $d = str_repeat("\3", $v);
+
+        $s = $saltLength ? str_repeat($salt, (int) ceil($v / $saltLength)) : '';
+        $s = substr($s, 0, $v);
+
+        $p = $passLength ? str_repeat($password, (int) ceil($v / $passLength)) : '';
+        $p = substr($p, 0, $v);
+
+        $i = $s . $p;
+
+        $key = self::pkcs12helper($this->length, $this, $i, $d, $iterationCount);
+        $this->setKey($key);
     }
 }
