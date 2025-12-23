@@ -81,7 +81,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $temp;
     }
 
-    private static function loadString(string $pfx, ?string $password): ?Constructed
+    private static function loadString(string $pfx, ?string $password): Constructed
     {
         ASN1::disableCacheInvalidation();
 
@@ -522,6 +522,11 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     {
         $this->compile();
         return $this->pfx->valid();
+    }
+
+    public function keys(): array
+    {
+        return $this->pfx instanceof Constructed ? $this->pfx->keys() : array_keys($this->pfx);
     }
 
     public function __debugInfo(): array

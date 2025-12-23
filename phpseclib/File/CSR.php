@@ -99,12 +99,12 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return $new;
     }
 
-    private static function loadString(string $csr, int $mode): ?Constructed
+    private static function loadString(string $csr, int $mode): Constructed
     {
         if ($mode != ASN1::FORMAT_DER) {
             $newcsr = ASN1::extractBER($csr);
             if ($mode == ASN1::FORMAT_PEM && $csr == $newcsr) {
-                return null;
+                throw new RuntimeException('Unable to decode PEM');
             }
             $csr = $newcsr;
         }
@@ -130,7 +130,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->csr->__debugInfo();
     }
 
-    public function keys(): ?array
+    public function keys(): array
     {
         return $this->csr instanceof Constructed ? $this->csr->keys() : array_keys($this->csr);
     }
