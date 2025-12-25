@@ -244,12 +244,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$binary = false;
     }
 
-    private static function loadString(string $cert, int $mode): ?Constructed
+    private static function loadString(string $cert, int $mode): Constructed
     {
         if ($mode != ASN1::FORMAT_DER) {
             $newcert = ASN1::extractBER($cert);
             if ($mode == ASN1::FORMAT_PEM && $cert == $newcert) {
-                return null;
+                throw new RuntimeException('Unable to decode PEM');
             }
             $cert = $newcert;
         }
@@ -306,7 +306,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cert->__debugInfo();
     }
 
-    public function keys(): ?array
+    public function keys(): array
     {
         return $this->cert instanceof Constructed ? $this->cert->keys() : array_keys($this->cert);
     }

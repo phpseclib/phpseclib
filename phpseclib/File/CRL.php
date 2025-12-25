@@ -24,6 +24,7 @@ use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Exception\RuntimeException;
 use phpseclib4\File\ASN1\Constructed;
 use phpseclib4\File\ASN1\Element;
 use phpseclib4\File\ASN1\Maps;
@@ -80,12 +81,12 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $new;
     }
 
-    private static function loadString(string $crl, int $mode): ?Constructed
+    private static function loadString(string $crl, int $mode): Constructed
     {
         if ($mode != ASN1::FORMAT_DER) {
             $newcrl = ASN1::extractBER($crl);
             if ($mode == ASN1::FORMAT_PEM && $crl == $newcrl) {
-                return null;
+                throw new RuntimeException('Unable to decode PEM');
             }
             $crl = $newcrl;
         }
@@ -106,7 +107,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->crl->__debugInfo();
     }
 
-    public function keys(): ?array
+    public function keys(): array
     {
         return $this->crl instanceof Constructed ? $this->crl->keys() : array_keys($this->crl);
     }

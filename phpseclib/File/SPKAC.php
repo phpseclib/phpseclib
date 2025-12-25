@@ -115,12 +115,12 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         return $new;
     }
 
-    private static function loadString(string $spkac, int $mode): ?Constructed
+    private static function loadString(string $spkac, int $mode): Constructed
     {
         if ($mode != ASN1::FORMAT_DER) {
             $newspkac = ASN1::extractBER($spkac);
             if ($mode == ASN1::FORMAT_PEM && $spkac == $newspkac) {
-                return null;
+                throw new RuntimeException('Unable to decode PEM');
             }
             $spkac = $newspkac;
         }
@@ -312,5 +312,10 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
     public function offsetUnset(mixed $offset): void
     {
         unset($this->spkac[$offset]);
+    }
+
+    public function keys(): array
+    {
+        return $this->spkac instanceof Constructed ? $this->spkac->keys() : array_keys($this->spkac);
     }
 }

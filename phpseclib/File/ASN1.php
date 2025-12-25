@@ -898,7 +898,9 @@ abstract class ASN1
 
                 if (!isset($temp)) {
                     $options = implode(',', array_keys($mapping['children']));
-                    throw new RuntimeException(implode('/', self::$location) . " appears to contain a key that\'s defined in the CHOICE ($options)");
+                    $actual = is_array($source) ? array_keys($source) : $source->keys();
+                    $actual = implode(',', $actual);
+                    throw new RuntimeException(implode('/', self::$location) . " appears to contain a key that's not defined in the CHOICE (expected: $options) (actual: $actual)");
                 }
 
                 if (isset($idx)) {
