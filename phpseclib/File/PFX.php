@@ -634,9 +634,33 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $objects;
     }
 
-    public function linearize(): array
+    public function getAll(): array
     {
         return $this->pluck();
+    }
+
+    public function getX509(): array
+    {
+        $arr = $this->getAll();
+        $x509 = [];
+        foreach ($arr as $el) {
+            if ($el instanceof X509) {
+                $x509[] = $el;
+            }
+        }
+        return $x509;
+    }
+
+    public function getPrivateKey(): array
+    {
+        $arr = $this->getAll();
+        $keys = [];
+        foreach ($arr as $el) {
+            if ($el instanceof PrivateKey) {
+                $keys[] = $el;
+            }
+        }
+        return $keys;
     }
 
     public function pluckByFriendlyName(string|BaseString $value): array
@@ -669,7 +693,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     public function sign(string|Signable $source): string
     {
-        $objects = $this->linearize();
+        $objects = $this->getAll();
         $message = 'Signatures can only be performed if there are *exactly* one private key and one matching X509 cert OR if there is just one private key, no more no less';
         if (count($objects) > 2 || !count($objects)) {
             throw new UnsupportedOperationException("$message - x1");
