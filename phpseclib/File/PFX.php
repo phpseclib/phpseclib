@@ -453,6 +453,11 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $output;
     }
 
+    public function toArray(): array
+    {
+        return $this->pfx->toArray();
+    }
+
     private static function handleCertBag(string $value): Constructed
     {
         $decoded = ASN1::decodeBER($value);
