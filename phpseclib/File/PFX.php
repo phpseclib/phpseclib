@@ -455,7 +455,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     public function toArray(): array
     {
-        return $this->pfx->toArray();
+        $this->compile();
+        return $this->pfx instanceof Constructed ? $this->pfx->toArray() : $this->pfx;
     }
 
     private static function handleCertBag(string $value): Constructed
@@ -644,7 +645,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $this->pluck();
     }
 
-    public function getX509(): array
+    public function getCertificates(): array
     {
         $arr = $this->getAll();
         $x509 = [];
@@ -656,7 +657,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $x509;
     }
 
-    public function getPrivateKey(): array
+    public function getPrivateKeys(): array
     {
         $arr = $this->getAll();
         $keys = [];

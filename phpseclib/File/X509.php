@@ -177,10 +177,19 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $x509;
     }
 
-    public static function addCA(string|array|Constructed $cert, int $mode = ASN1::FORMAT_AUTO_DETECT): void
+    public static function addCA(string|array|Constructed|X509 $cert, int $mode = ASN1::FORMAT_AUTO_DETECT): void
     {
         $x509 = new self();
-        $x509->cert = is_string($cert) ? self::loadString($cert, $mode) : $cert;
+        switch (true) {
+            case is_string($cert):
+                $x509->cert = self::loadString($cert, $mode);
+                break;
+            case $cert instanceof X509:
+                $x509->cert = $cert->cert;
+                break;
+            default:
+                $x509->cert = $cert;
+        }
         $x509->isCA = true;
         self::$CAs[] = $x509;
     }
@@ -334,6 +343,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public function toArray(bool $convertPrimitives = false): array
     {
+        $this->compile();
         return $this->cert instanceof Constructed ? $this->cert->toArray($convertPrimitives) : $this->cert;
     }
 
@@ -424,12 +434,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::retrieveDNProps($this->cert['tbsCertificate']['issuer'], $propName);
     }
 
-    public function getSubjectDN(int $format = self::DN_ARRAY): array|string
+    public function getSubjectDN(int $format = self::DN_STRING): array|string
     {
         return self::formatDN($this->cert['tbsCertificate']['subject'], $format);
     }
 
-    public function getIssuerDN(int $format = self::DN_ARRAY): array|string
+    public function getIssuerDN(int $format = self::DN_STRING): array|string
     {
         return self::formatDN($this->cert['tbsCertificate']['issuer'], $format);
     }
@@ -796,7 +806,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->hasSubjectDNProp($propName);
     }
 
-    public function getDN(int $format = self::DN_ARRAY): array|string
+    public function getDN(int $format = self::DN_STRING): array|string
     {
         $this->testForSelfSigned();
 
@@ -1090,31 +1100,70 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->validateSignatureCountable($caonly, 0) && $this->testPathLen();
     }
 
-    public function isIssuerOf(self|CRL $subject): bool
+    /**
+     * Tests whether or not the X509 cert issued the $subject
+     *
+     * If $subject is an array or an instance of Choice it should have _either_:
+     *
+     *  - issuerAndSerialNumber
+     *  - subjectKeyIdentifier
+     */
+    public function isIssuerOf(self|CRL|Choice|array $subject): bool
     {
         if (self::$checkKeyUsage && !$this->isCA) {
             if (!$this->hasExtension('id-ce-keyUsage')) {
                 return false;
             }
-            $expected = $subject instanceof self ? 'keyCertSign' : 'cRLSign';
+            switch (true) {
+                case is_array($subject) || $subject instanceof Choice:
+                    // "The digitalSignature bit is asserted when the subject public key
+                    //  is used for verifying digital signatures, other than signatures on
+                    //  certificates (bit 5) and CRLs (bit 6)"
+                    // -- https://datatracker.ietf.org/doc/html/rfc5280#page-30
+                    $expected = 'digitalSignature';
+                    break;
+                case $subject instanceof self:
+                    $expected = 'keyCertSign';
+                    break;
+                //case $subject instanceof CRL:
+                default:
+                    $expected = 'cRLSign';
+            }
             $ext = $this->getExtension('id-ce-keyUsage')['extnValue'];
             switch (true) {
                 case $ext instanceof BitString && !$ext->contains($expected):
                 case is_array($ext) && !in_array($expected, $ext):
                     return false;
             }
+
+            if (self::$checkBasicConstraints && $expected == 'keyCertSign' && !$this->isCA) {
+                if (!$this->hasExtension('id-ce-basicConstraints')) {
+                    return false;
+                }
+                $ext = $this->getExtension('id-ce-basicConstraints')['extnValue'];
+                switch (true) {
+                    case $ext['cA'] instanceof Boolean && !$ext['cA']->value:
+                    case is_bool($ext['cA']) && !$ext['cA']:
+                        return false;
+                }
+            }
         }
 
-        if (self::$checkBasicConstraints && !$this->isCA) {
-            if (!$this->hasExtension('id-ce-basicConstraints')) {
+        if (is_array($subject) || $subject instanceof Choice) {
+            if (isset($subject['issuerAndSerialNumber'])) {
+                switch (true) {
+                    case self::$strictDNComparison && self::formatDN($subject['issuerAndSerialNumber']['issuer'], self::DN_ASN1) === $this->getIssuerDN(self::DN_ASN1):
+                    case !self::$strictDNComparison && self::formatDN($subject['issuerAndSerialNumber']['issuer'], self::DN_CANON) === $this->getIssuerDN(self::DN_CANON):
+                        return $subject['issuerAndSerialNumber']['serialNumber']->equals($this->cert['tbsCertificate']['serialNumber']);
+                }
                 return false;
             }
-            $ext = $this->getExtension('id-ce-basicConstraints')['extnValue'];
-            switch (true) {
-                case $ext['cA'] instanceof Boolean && !$ext['cA']->value:
-                case is_bool($ext['cA']) && !$ext['cA']:
-                    return false;
+            if (isset($subject['subjectKeyIdentifier'])) {
+                $subjectKeyID = $this->getExtension('id-ce-subjectKeyIdentifier');
+                return isset($subjectKeyID['subjectKeyIdentifier']) && $subject['subjectKeyIdentifier']->value === $subjectKeyID['extnValue']->value;
             }
+            // it shouldn't be possible to get to this point
+            return false;
         }
 
         switch (true) {

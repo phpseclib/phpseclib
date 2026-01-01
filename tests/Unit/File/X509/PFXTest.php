@@ -177,7 +177,7 @@ class PFXTest extends PhpseclibTestCase
 
         $this->assertIsString("$pfx");
 
-        X509::addCA((string) $pfx->getX509()[0]);
+        X509::addCA((string) $pfx->getCertificates()[0]);
         $this->assertTrue($x509->validateSignature());
     }
 }

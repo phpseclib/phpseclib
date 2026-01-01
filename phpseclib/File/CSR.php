@@ -304,6 +304,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public function toArray(bool $convertPrimitives = false): array
     {
+        $this->compile();
         return $this->csr instanceof Constructed ? $this->csr->toArray($convertPrimitives) : $this->csr;
     }
 
@@ -433,7 +434,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::retrieveDNProps($this->csr['certificationRequestInfo']['subject'], $propName);
     }
 
-    public function getSubjectDN(int $format = self::DN_ARRAY): array|string
+    public function getSubjectDN(int $format = self::DN_STRING): array|string
     {
         return self::formatDN($this->csr['certificationRequestInfo']['subject'], $format);
     }
@@ -473,7 +474,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::getSubjectDNProps($propName);
     }
 
-    public function getDN(int $format = self::DN_ARRAY): array|string
+    public function getDN(int $format = self::DN_STRING): array|string
     {
         return self::getSubjectDN($format);
     }

@@ -143,7 +143,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->hasIssuerNProp($propName);
     }
 
-    public function getDN(int $format = self::DN_ARRAY): array|string
+    public function getDN(int $format = self::DN_STRING): array|string
     {
         return $this->getIssuerDN($format);
     }
@@ -168,7 +168,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::retrieveDNProps($this->crl['tbsCertList']['issuer'], $propName);
     }
 
-    public function getIssuerDN(int $format = self::DN_ARRAY): array|string
+    public function getIssuerDN(int $format = self::DN_STRING): array|string
     {
         return self::formatDN($this->crl['tbsCertList']['issuer'], $format);
     }
@@ -323,6 +323,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public function toArray(bool $convertPrimitives = false): array
     {
+        $this->compile();
         return $this->crl instanceof Constructed ? $this->crl->toArray($convertPrimitives) : $this->crl;
     }
 
@@ -698,5 +699,11 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
             $this->crl['signature'],
             $this->crl['tbsCertList']->getEncoded()
         );
+    }
+
+    public function getEncoded(): string
+    {
+        $this->compile();
+        return $this->crl->getEncoded();
     }
 }
