@@ -453,10 +453,10 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $output;
     }
 
-    public function toArray(): array
+    public function toArray(bool $convertPrimitives = false): array
     {
         $this->compile();
-        return $this->pfx instanceof Constructed ? $this->pfx->toArray() : $this->pfx;
+        return $this->pfx instanceof Constructed ? $this->pfx->toArray($convertPrimitives) : $this->pfx;
     }
 
     private static function handleCertBag(string $value): Constructed
