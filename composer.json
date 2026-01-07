@@ -82,7 +82,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "phpseclib4\\Tests\\": "tests/",
             "Rector\\Rules\\": "rector/rules"
         }
     }
