@@ -1427,7 +1427,7 @@ class Crypt_RSA
 
                 return $components;
             case CRYPT_RSA_PUBLIC_FORMAT_OPENSSH:
-                $parts = explode(' ', $key, 3);
+                $parts = preg_split("#[\t ]+#", $key);
 
                 $key = isset($parts[1]) ? base64_decode($parts[1]) : false;
                 if ($key === false) {

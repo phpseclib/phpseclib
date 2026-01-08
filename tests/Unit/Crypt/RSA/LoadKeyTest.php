@@ -670,4 +670,38 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
         $this->assertIsString($rsa->getPublicKey());
         $this->assertIsString($rsa->getPrivateKey());
     }
+
+    /**
+     * @group github2116
+     */
+    public function testOpenSSHPubKeyWithMultipleSpaces()
+    {
+        $rsa = new Crypt_RSA();
+
+        $key = 'ssh-rsa      AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e' .
+               'CZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMS' .
+               'GkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZw== ' .
+               'phpseclib-generated-key';
+
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertFalse($rsa->getPrivateKey());
+    }
+
+    /**
+     * @group github2116
+     */
+    public function testOpenSSHPubKeyWithTabs()
+    {
+        $rsa = new Crypt_RSA();
+
+        $key = "ssh-rsa\tAAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e" .
+               'CZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMS' .
+               'GkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZw== ' .
+               'phpseclib-generated-key';
+
+        $this->assertTrue($rsa->loadKey($key));
+        $this->assertIsString($rsa->getPublicKey());
+        $this->assertFalse($rsa->getPrivateKey());
+    }
 }
