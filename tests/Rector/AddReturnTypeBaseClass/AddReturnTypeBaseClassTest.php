@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-
-namespace Tests\Rector\AddVoidLifecycleAssert;
+namespace Rector\Tests\TypeDeclaration\Rector\AddReturnTypeBaseClass;
 use Rector\Testing\PHPUnit\AbstractRectorTestCase;
 
-final class AddVoidLifecycleAssertTest extends AbstractRectorTestCase
+final class AddReturnTypeBaseClassTest extends AbstractRectorTestCase
 {
     /**
-     * @dataProvider provideData
+     * @dataProvider provideData()
      */
     public function test(string $filePath): void
     {
