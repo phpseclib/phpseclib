@@ -95,6 +95,7 @@ final class PublicKeyLoader extends AbstractRector
         if ($node instanceof UseUse && $this->isName($node->name, 'phpseclib\Crypt\RSA')) {
             $node->name = new Name('phpseclib3\Crypt\PublicKeyLoader');
             $node->alias = null;
+            return $node;
         }
 
         // Remove $foo = new RSA()

@@ -34,6 +34,7 @@ final class HashLength extends AbstractRector
     if ($node instanceof UseUse) {
       if ($this->isName($node->name, 'phpseclib\Crypt\Hash')) {
         $node->name = new Name('phpseclib3\Crypt\Hash');
+        return $node;
       }
     }
 

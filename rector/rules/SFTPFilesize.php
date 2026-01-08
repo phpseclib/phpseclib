@@ -34,6 +34,7 @@ final class SFTPFilesize extends AbstractRector
     if ($node instanceof UseUse) {
       if ($this->isName($node->name, 'phpseclib\Net\SFTP')) {
         $node->name = new Name('phpseclib3\Net\SFTP');
+        return $node;
       }
     }
 
