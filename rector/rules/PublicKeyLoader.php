@@ -148,16 +148,22 @@ final class PublicKeyLoader extends AbstractRector
             }
 
             // $rsa = PublicKeyLoader::load('...', $password);
-            return new Expression(
-                new Assign(
-                    new Variable($this->rsaVarName),
-                    new StaticCall(
-                        new Name('PublicKeyLoader'),
-                        'load',
-                        $newArgs
-                    )
+            $assignExpr = new Assign(
+                new Variable($this->rsaVarName),
+                new StaticCall(
+                    new Name('PublicKeyLoader'),
+                    'load',
+                    $newArgs
                 )
             );
+
+            // If node is a statement wrap it
+            if ($node instanceof Expression) {
+                return new Expression($assignExpr);
+            }
+
+            // Other expressions like if / while / ! / ternary / etc.
+            return $assignExpr;
         }
 
         $methodMap = [
