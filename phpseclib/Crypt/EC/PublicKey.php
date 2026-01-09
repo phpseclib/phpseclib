@@ -58,13 +58,11 @@ final class PublicKey extends EC implements Common\PublicKey
                 [, $signature] = Strings::unpackSSH2('ss', $signature);
             }
 
-            // Use OpenSSL for Ed25519/Ed448 verification if available (PHP 8.4+)
-            // Ed25519ctx (with context) is not supported by OpenSSL, so skip if context is set
+            // OpenSSL supports Ed25519/Ed448 but not Ed25519ctx (context), so skip if context is set
             if (self::$engines['OpenSSL'] && !isset($this->context)) {
                 $keyTypeConstant = $this->curve instanceof Ed25519 ? 'OPENSSL_KEYTYPE_ED25519' : 'OPENSSL_KEYTYPE_ED448';
                 if (defined($keyTypeConstant)) {
-                    // Ed25519/Ed448 use algorithm 0 (no separate hash)
-                    // Returns 1 if valid, 0 if invalid, -1 on error
+                    // algorithm 0 is used because EdDSA has a built-in hash
                     return openssl_verify($message, $signature, $this->toString('PKCS8'), 0) === 1;
                 }
             }

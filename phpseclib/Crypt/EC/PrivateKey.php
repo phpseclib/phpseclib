@@ -115,13 +115,12 @@ final class PrivateKey extends EC implements Common\PrivateKey
         }
 
         if ($this->curve instanceof TwistedEdwardsCurve) {
-            // Use OpenSSL for Ed25519/Ed448 signing if available (PHP 8.4+)
-            // Ed25519ctx (with context) is not supported by OpenSSL, so skip if context is set
+            // OpenSSL supports Ed25519/Ed448 but not Ed25519ctx (context), so skip if context is set
             if (self::$engines['OpenSSL'] && !isset($this->context)) {
                 $keyTypeConstant = $this->curve instanceof Ed25519 ? 'OPENSSL_KEYTYPE_ED25519' : 'OPENSSL_KEYTYPE_ED448';
                 if (defined($keyTypeConstant)) {
                     $result = '';
-                    // Ed25519/Ed448 use algorithm 0 (no separate hash - EdDSA has built-in hash)
+                    // algorithm 0 is used because EdDSA has a built-in hash
                     openssl_sign($message, $result, $this->withPassword()->toString('PKCS8'), 0);
                     $signature = $shortFormat == 'SSH2'
                         ? Strings::packSSH2('ss', 'ssh-' . strtolower($this->getCurve()), $result)

@@ -153,7 +153,7 @@ abstract class EC extends AsymmetricKey
 
         $curve = strtolower($curve);
 
-        // Use OpenSSL for Ed25519/Ed448 if available (PHP 8.4+ with OpenSSL 3.0+)
+        // OpenSSL supports Ed25519/Ed448 when OPENSSL_KEYTYPE_ED25519/ED448 constants are defined
         if (self::$engines['OpenSSL'] && $curve == 'ed25519' && defined('OPENSSL_KEYTYPE_ED25519')) {
             $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_ED25519]);
             openssl_pkey_export($key, $privateKeyStr);

@@ -445,13 +445,10 @@ Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
         $this->assertSameNL($expected, $key->toString('libsodium'));
     }
 
-    /**
-     * Test OpenSSL Ed25519 key generation, signing, and verification
-     */
     public function testOpenSSLEd25519(): void
     {
         if (!extension_loaded('openssl') || !defined('OPENSSL_KEYTYPE_ED25519')) {
-            self::markTestSkipped('OpenSSL Ed25519 support is not available (requires PHP 8.4+ with OpenSSL 3.0+).');
+            self::markTestSkipped('OpenSSL Ed25519 support is not available.');
         }
 
         // Force OpenSSL engine
@@ -483,13 +480,10 @@ Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
         $this->assertTrue($publicKey->verify($message, $loadedKey->sign($message)));
     }
 
-    /**
-     * Test OpenSSL Ed448 key generation, signing, and verification
-     */
     public function testOpenSSLEd448(): void
     {
         if (!extension_loaded('openssl') || !defined('OPENSSL_KEYTYPE_ED448')) {
-            self::markTestSkipped('OpenSSL Ed448 support is not available (requires PHP 8.4+ with OpenSSL 3.0+).');
+            self::markTestSkipped('OpenSSL Ed448 support is not available.');
         }
 
         EC::useBestEngine();
@@ -509,9 +503,6 @@ Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
         $this->assertFalse($publicKey->verify('Tampered message', $signature));
     }
 
-    /**
-     * Test that OpenSSL and libsodium produce compatible Ed25519 keys
-     */
     public function testOpenSSLLibsodiumInterop(): void
     {
         if (!extension_loaded('openssl') || !defined('OPENSSL_KEYTYPE_ED25519')) {
