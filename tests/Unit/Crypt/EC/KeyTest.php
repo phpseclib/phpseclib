@@ -445,6 +445,99 @@ Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
         $this->assertSameNL($expected, $key->toString('libsodium'));
     }
 
+    /**
+     * Test OpenSSL Ed25519 key generation, signing, and verification
+     */
+    public function testOpenSSLEd25519(): void
+    {
+        if (!extension_loaded('openssl') || !defined('OPENSSL_KEYTYPE_ED25519')) {
+            self::markTestSkipped('OpenSSL Ed25519 support is not available (requires PHP 8.4+ with OpenSSL 3.0+).');
+        }
+
+        // Force OpenSSL engine
+        EC::useBestEngine();
+
+        // Test key generation
+        $privateKey = EC::createKey('Ed25519');
+        $this->assertSameNL('Ed25519', $privateKey->getCurve());
+
+        // Test that we can export to various formats
+        $pkcs8 = $privateKey->toString('PKCS8');
+        $this->assertStringContainsString('BEGIN PRIVATE KEY', $pkcs8);
+
+        $publicKey = $privateKey->getPublicKey();
+        $this->assertSameNL('Ed25519', $publicKey->getCurve());
+
+        // Test signing and verification
+        $message = 'Test message for Ed25519 signing';
+        $signature = $privateKey->sign($message);
+
+        $this->assertSame(64, strlen($signature)); // Ed25519 signatures are 64 bytes
+
+        $this->assertTrue($publicKey->verify($message, $signature));
+        $this->assertFalse($publicKey->verify('Tampered message', $signature));
+
+        // Test round-trip through PKCS8 format
+        $loadedKey = EC::loadFormat('PKCS8', $pkcs8);
+        $this->assertSameNL('Ed25519', $loadedKey->getCurve());
+        $this->assertTrue($publicKey->verify($message, $loadedKey->sign($message)));
+    }
+
+    /**
+     * Test OpenSSL Ed448 key generation, signing, and verification
+     */
+    public function testOpenSSLEd448(): void
+    {
+        if (!extension_loaded('openssl') || !defined('OPENSSL_KEYTYPE_ED448')) {
+            self::markTestSkipped('OpenSSL Ed448 support is not available (requires PHP 8.4+ with OpenSSL 3.0+).');
+        }
+
+        EC::useBestEngine();
+
+        $privateKey = EC::createKey('Ed448');
+        $this->assertSameNL('Ed448', $privateKey->getCurve());
+
+        $publicKey = $privateKey->getPublicKey();
+        $this->assertSameNL('Ed448', $publicKey->getCurve());
+
+        $message = 'Test message for Ed448 signing';
+        $signature = $privateKey->sign($message);
+
+        $this->assertSame(114, strlen($signature)); // Ed448 signatures are 114 bytes
+
+        $this->assertTrue($publicKey->verify($message, $signature));
+        $this->assertFalse($publicKey->verify('Tampered message', $signature));
+    }
+
+    /**
+     * Test that OpenSSL and libsodium produce compatible Ed25519 keys
+     */
+    public function testOpenSSLLibsodiumInterop(): void
+    {
+        if (!extension_loaded('openssl') || !defined('OPENSSL_KEYTYPE_ED25519')) {
+            self::markTestSkipped('OpenSSL Ed25519 support is not available.');
+        }
+        if (!function_exists('sodium_crypto_sign_keypair')) {
+            self::markTestSkipped('libsodium extension is not available.');
+        }
+
+        // Generate key with OpenSSL
+        EC::useBestEngine();
+        $privateKey = EC::createKey('Ed25519');
+
+        // Sign with OpenSSL
+        $message = 'Interoperability test message';
+        $signature = $privateKey->sign($message);
+
+        // Verify signature is valid
+        $publicKey = $privateKey->getPublicKey();
+        $this->assertTrue($publicKey->verify($message, $signature));
+
+        // Export to libsodium format and verify we can load it
+        $libsodiumKey = $privateKey->toString('libsodium');
+        $this->assertSame(64, strlen($libsodiumKey)); // libsodium secret key is 64 bytes
+    }
+
     // ssh-keygen -t ed25519
     public function testOpenSSHPrivateKey(): void
     {

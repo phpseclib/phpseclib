@@ -152,6 +152,29 @@ abstract class EC extends AsymmetricKey
         }
 
         $curve = strtolower($curve);
+
+        // Use OpenSSL for Ed25519/Ed448 if available (PHP 8.4+ with OpenSSL 3.0+)
+        if (self::$engines['OpenSSL'] && $curve == 'ed25519' && defined('OPENSSL_KEYTYPE_ED25519')) {
+            $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_ED25519]);
+            openssl_pkey_export($key, $privateKeyStr);
+            // clear the buffer of error strings
+            while (openssl_error_string() !== false) {
+            }
+            $privatekey = EC::loadFormat('PKCS8', $privateKeyStr);
+            $privatekey->curveName = 'Ed25519';
+            return $privatekey;
+        }
+
+        if (self::$engines['OpenSSL'] && $curve == 'ed448' && defined('OPENSSL_KEYTYPE_ED448')) {
+            $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_ED448]);
+            openssl_pkey_export($key, $privateKeyStr);
+            while (openssl_error_string() !== false) {
+            }
+            $privatekey = EC::loadFormat('PKCS8', $privateKeyStr);
+            $privatekey->curveName = 'Ed448';
+            return $privatekey;
+        }
+
         if (self::$engines['libsodium'] && $curve == 'ed25519' && function_exists('sodium_crypto_sign_keypair')) {
             $kp = sodium_crypto_sign_keypair();
 
