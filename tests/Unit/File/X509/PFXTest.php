@@ -160,8 +160,6 @@ class PFXTest extends PhpseclibTestCase
 
     public function testCreatePFX(): void
     {
-        $subject = 'hello, world!';
-
         $key = EC::createKey('Ed25519');
         $x509 = new X509($key->getPublicKey());
         $x509->setDN('O=phpseclib');

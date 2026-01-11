@@ -556,8 +556,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         if ($this->pfx->hasEncoded()) {
             return;
         }
-        $temp = self::load("$this");
-        $this->pfx = $temp->pfx;
+        "$this";
     }
 
     private function getNames(string $type): array
