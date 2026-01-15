@@ -21,8 +21,8 @@ class PublicKeyLoaderRsaClass {
   public static function PublicKeyLoaderFunc()
   {
       $rsa = PublicKeyLoader::load('...');
-      $rsa->withHash('sha256');
-      $rsa->withMGFHash('sha256');
+      $rsa = $rsa->withHash('sha256');
+      $rsa = $rsa->withMGFHash('sha256');
   }
 }
 

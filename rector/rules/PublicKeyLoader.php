@@ -172,11 +172,23 @@ final class PublicKeyLoader extends AbstractRector
             $newMethod = $methodMap[$expr->name->toString()];
             $expr->name = new Identifier($newMethod);
             // Change the call to be assigned to $rsa
+            $newMethodCall = new MethodCall(
+                new Variable($this->rsaVarName),
+                $newMethod,
+                $expr->args
+            );
+
+            if ($newMethod === 'getLength' || $newMethod ===  'withSaltLength') {
+                return $this->wrap(
+                    $newMethodCall,
+                    $node
+                );
+            }
+            // In v2, Crypt/RSA.php was not immutable. In v3, it is.
             return $this->wrap(
-                new MethodCall(
+                new Assign(
                     new Variable($this->rsaVarName),
-                    $newMethod,
-                    $expr->args
+                    $newMethodCall
                 ),
                 $node
             );
