@@ -18,7 +18,7 @@ use phpseclib3\Crypt\RSA;
 class CreateWithExtraArguments {
   public function createWithExtraArguments()
   {
-      $rsa = RSA::createKey(2048);
+      $privateKey = RSA::createKey(2048);
   }
 }
 

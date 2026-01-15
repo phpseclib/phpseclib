@@ -22,13 +22,13 @@ use phpseclib3\Crypt\RSA;
 
 function createKey()
 {
-    $rsa = RSA::createKey(2048);
+    $privateKey = RSA::createKey(2048);
 }
 
 class CreateKey {
   function createKey()
   {
-      $rsa = RSA::createKey(2048);
+      $privateKey = RSA::createKey(2048);
   }
 }
 

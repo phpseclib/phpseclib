@@ -151,7 +151,8 @@ final class CreateKey extends AbstractRector
     // refactor to $rsa = RSA::createKey(2048);
     return new Expression(
       new Assign(
-        new Variable($varName),
+        // or $varName if you want to keep the original one
+        new Variable('privateKey'),
         new StaticCall(
           new Name('RSA'),
           'createKey',

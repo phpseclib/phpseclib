@@ -18,7 +18,7 @@ use phpseclib3\Crypt\RSA;
 class CreateVariableKey {
   public function createVariableKey(int $size)
   {
-      $rsa = RSA::createKey($size);
+      $privateKey = RSA::createKey($size);
   }
 }
 

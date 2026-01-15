@@ -18,7 +18,7 @@ use phpseclib3\Crypt\RSA;
 class CreateNameNotRsa {
   public function createNameNotRsa()
   {
-      $keyGen = RSA::createKey(2048);
+      $privateKey = RSA::createKey(2048);
   }
 }
 

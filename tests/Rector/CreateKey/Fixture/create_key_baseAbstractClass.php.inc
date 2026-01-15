@@ -30,7 +30,7 @@ final class CreateKeyClass extends BaseClass
 {
   function createKey()
   {
-      $rsa = RSA::createKey(2048);
+      $privateKey = RSA::createKey(2048);
   }
 }
 
