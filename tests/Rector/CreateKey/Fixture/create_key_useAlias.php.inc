@@ -19,6 +19,9 @@ class CreateWithAlias {
   public function createWithAlias()
   {
       $privateKey = RSA::createKey(2048);
+      $publicKey = $privateKey->getPublicKey();
+      $privateKey = (string) $privateKey;
+      $publicKey = (string) $publicKey;
   }
 }
 

@@ -19,6 +19,9 @@ class CreateVariableKey {
   public function createVariableKey(int $size)
   {
       $privateKey = RSA::createKey($size);
+      $publicKey = $privateKey->getPublicKey();
+      $privateKey = (string) $privateKey;
+      $publicKey = (string) $publicKey;
   }
 }
 

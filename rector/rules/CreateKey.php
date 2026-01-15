@@ -13,6 +13,7 @@ use PhpParser\Node\Expr\New_;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Expr\MethodCall;
+use PhpParser\Node\Expr\Cast\String_;
 use PhpParser\Node\Stmt\UseUse;
 use PhpParser\Node\Stmt\Expression;
 
@@ -61,7 +62,7 @@ final class CreateKey extends AbstractRector
       return false;
   }
 
-  public function refactor(Node $node): null|Node|int
+  public function refactor(Node $node): null|Node|int|array
   {
     $filePath = $this->file->getFilePath();
     if ($this->currentFilePath !== $filePath) {
@@ -149,7 +150,7 @@ final class CreateKey extends AbstractRector
     }
 
     // refactor to $rsa = RSA::createKey(2048);
-    return new Expression(
+    $originalPrivateKeyExpr = new Expression(
       new Assign(
         // or $varName if you want to keep the original one
         new Variable('privateKey'),
@@ -160,5 +161,42 @@ final class CreateKey extends AbstractRector
         )
       )
     );
+
+    // $publickey = $privatekey->getPublicKey();
+    $publicKeyExpr = new Expression(
+      new Assign(
+        new Variable('publicKey'),
+        new MethodCall(
+          new Variable('privateKey'),
+          'getPublicKey',
+        )
+      )
+    );
+
+    // $privatekey = (string) $privatekey;
+    $privateKeyString = new Expression(
+      new Assign(
+        new Variable('privateKey'),
+        new String_(
+          new Variable('privateKey'),
+        )
+      )
+    );
+    // $publickey = (string) $publickey;
+    $publicKeySting = new Expression(
+      new Assign(
+        new Variable('publicKey'),
+        new String_(
+          new Variable('publicKey'),
+        )
+      )
+    );
+
+    return [
+      $originalPrivateKeyExpr,
+      $publicKeyExpr,
+      $privateKeyString,
+      $publicKeySting,
+    ];
   }
 }

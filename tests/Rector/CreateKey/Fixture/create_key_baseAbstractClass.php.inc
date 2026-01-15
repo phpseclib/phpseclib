@@ -31,6 +31,9 @@ final class CreateKeyClass extends BaseClass
   function createKey()
   {
       $privateKey = RSA::createKey(2048);
+      $publicKey = $privateKey->getPublicKey();
+      $privateKey = (string) $privateKey;
+      $publicKey = (string) $publicKey;
   }
 }
 

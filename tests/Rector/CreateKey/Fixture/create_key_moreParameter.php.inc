@@ -19,6 +19,9 @@ class CreateWithExtraArguments {
   public function createWithExtraArguments()
   {
       $privateKey = RSA::createKey(2048);
+      $publicKey = $privateKey->getPublicKey();
+      $privateKey = (string) $privateKey;
+      $publicKey = (string) $publicKey;
   }
 }
 
