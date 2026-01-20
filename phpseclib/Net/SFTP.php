@@ -820,11 +820,12 @@ class SFTP extends SSH2
     /**
      * Returns a detailed list of files in the given directory
      *
+     * @param null|\Closure(string, string, array):void $onFile Callback invoked for each file found. The parameters are: directory, filename, attributes.
      * @return array|false
      */
-    public function rawlist(string $dir = '.', bool $recursive = false)
+    public function rawlist(string $dir = '.', bool $recursive = false, ?\Closure $onFile = null)
     {
-        $files = $this->readlist($dir, true);
+        $files = $this->readlist($dir, true, $onFile);
 
         // If we get an int back, then that is an "unexpected" status.
         // We do not have a file list, so return false.
@@ -855,7 +856,7 @@ class SFTP extends SSH2
 
             if ($is_directory) {
                 $depth++;
-                $files[$key] = $this->rawlist($dir . '/' . $key, true);
+                $files[$key] = $this->rawlist($dir . '/' . $key, true, $onFile);
                 $depth--;
             } else {
                 $files[$key] = (object) $value;
@@ -868,10 +869,11 @@ class SFTP extends SSH2
     /**
      * Reads a list, be it detailed or not, of files in the given directory
      *
+     * @param null|\Closure(string, string, array):void $onFile Callback invoked for each file found. The parameters are: directory, filename, attributes.
      * @return array|int|false array of files, integer status (if known) or false if something else is wrong
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
-    private function readlist(string $dir, bool $raw = true): array|int|false
+    private function readlist(string $dir, bool $raw = true, ?\Closure $onFile = null): array|int|false
     {
         if (!$this->precheck()) {
             return false;
@@ -946,6 +948,10 @@ class SFTP extends SSH2
                         }
                         // SFTPv6 has an optional boolean end-of-list field, but we'll ignore that, since the
                         // final SSH_FXP_STATUS packet should tell us that, already.
+
+                        if ($onFile !== null) {
+                            $onFile($dir, $shortname, $attributes);
+                        }
                     }
                     break;
                 case SFTPPacketType::STATUS:
