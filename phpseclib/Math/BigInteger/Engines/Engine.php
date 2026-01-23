@@ -549,8 +549,8 @@ abstract class Engine implements \JsonSerializable
 
         $carry = 0;
         for ($i = strlen($x) - 1; $i >= 0; --$i) {
-            $temp = ord($x[$i]) << $shift | $carry;
-            $x[$i] = chr($temp);
+            $temp = (ord($x[$i]) << $shift) | $carry;
+            $x[$i] = chr($temp & 0xFF);
             $carry = $temp >> 8;
         }
         $carry = ($carry != 0) ? chr($carry) : '';
