@@ -792,6 +792,25 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     /**
      * @depends testRawlistDisabledStatCache
      */
+    public function testRawlistCallback(SFTP $sftp)
+    {
+        $files = [];
+        $callback = function ($dir, $filename, $attributes) use (&$files): void {
+            $files[] = $filename;
+        };
+
+        $sftp->rawlist(self::$scratchDir, true, $callback);
+
+        $this->assertContains('text.txt', $files);
+        $this->assertContains('subdir', $files);
+        $this->assertContains('leaf.txt', $files);
+
+        return $sftp;
+    }
+
+    /**
+     * @depends testRawlistCallback
+     */
     public function testChownChgrp(SFTP $sftp)
     {
         $stat = $sftp->stat(self::$scratchDir);
