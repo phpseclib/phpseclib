@@ -39,6 +39,11 @@ final class RemoveClassNamePrefix extends AbstractRector
             return null;
         }
 
+        // do not rename abstract class
+        if ($node->isAbstract()) {
+            return null;
+        }
+
         $className = $this->getName($node->name);
         if ($className === null) {
             return null;

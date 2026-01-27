@@ -30,6 +30,12 @@ class Unit_Net_Client {
 class Functional_Net_Client {
 }
 
+class Unit_Crypt_AES_McryptTest extends Unit_Crypt_AES_TestCase {
+}
+
+abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase {
+}
+
 ?>
 -----
 <?php
@@ -62,6 +68,12 @@ class Client {
 }
 
 class Client {
+}
+
+class McryptTest extends Unit_Crypt_AES_TestCase {
+}
+
+abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase {
 }
 
 ?>
