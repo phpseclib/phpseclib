@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.49 - 2026-01-27
+
+- more PHP 8.5 deprecations (#2113)
+- Keys/OpenSSH: add support for pub keys with multiple spaces / tabs (#2116)
+
 ## 3.0.48 - 2025-12-15
 
 - readd SCP support (#2108)
@@ -335,6 +340,11 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.51 - 2026-01-27
+
+- more PHP 8.5 deprecations (#2113)
+- RSA: add support for OpenSSH pub keys with multiple spaces / tabs (#2116)
 
 ## 2.0.50 - 2025-12-15
 
@@ -732,6 +742,11 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.26 - 2026-01-27
+
+- more PHP 8.5 deprecations (#2113)
+- RSA: add support for OpenSSH pub keys with multiple spaces / tabs (#2116)
 
 ## 1.0.25 - 2025-12-15
 
