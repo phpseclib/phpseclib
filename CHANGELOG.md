@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.26 - 2026-01-27
+
+- more PHP 8.5 deprecations (#2113)
+- RSA: add support for OpenSSH pub keys with multiple spaces / tabs (#2116)
+
 ## 1.0.25 - 2025-12-15
 
 - SCP: some downloads have an extra null byte tacked onto the end (#146)
