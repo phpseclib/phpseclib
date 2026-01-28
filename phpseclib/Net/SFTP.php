@@ -368,8 +368,8 @@ class SFTP extends SSH2
         if ($response === false) {
             // from PuTTY's psftp.exe
             $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
-                       "test -x /usr/local/lib/sftp-server && exec /usr/local/lib/sftp-server\n" .
-                       "exec sftp-server";
+                "test -x /usr/local/lib/sftp-server && exec /usr/local/lib/sftp-server\n" .
+                "exec sftp-server";
             // we don't do $this->exec($command, false) because exec() operates on a different channel and plus the SSH_MSG_CHANNEL_OPEN that exec() does
             // is redundant
             $packet = Strings::packSSH2(
@@ -694,7 +694,7 @@ class SFTP extends SSH2
             switch ($dir) {
                 case '..':
                     array_pop($new);
-                    // fall-through
+                // fall-through
                 case '.':
                     break;
                 default:
@@ -721,7 +721,7 @@ class SFTP extends SSH2
         // assume current dir if $dir is empty
         if ($dir === '') {
             $dir = './';
-        // suffix a slash if needed
+            // suffix a slash if needed
         } elseif ($dir[-1] != '/') {
             $dir .= '/';
         }
@@ -1029,7 +1029,7 @@ class SFTP extends SSH2
                 case 'mode':
                     $a[$sort] &= 0o7777;
                     $b[$sort] &= 0o7777;
-                    // fall-through
+                // fall-through
                 default:
                     if ($a[$sort] === $b[$sort]) {
                         break;
@@ -2100,25 +2100,26 @@ class SFTP extends SSH2
     /**
      * Downloads a file from the SFTP server.
      *
-     * Returns a string containing the contents of $remote_file if $local_file is left undefined or a boolean false if
-     * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
-     * operation.
+     * Returns a string containing the contents of $remote_file if $local_file is left undefined.
+     * If $local_file is defined, returns true on success.
      *
      * $offset and $length can be used to download files in chunks.
      *
      * @param  string|bool|resource|callable $local_file
-     * @return string|bool
+     * @return string|true
+     * @throws RuntimeException if unable to download file (not connected, file not found, permission denied, etc.)
+     * @throws FileNotFoundException if remote file path cannot be resolved
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
     public function get(string $remote_file, $local_file = false, int $offset = 0, int $length = -1, ?callable $progressCallback = null)
     {
         if (!$this->precheck()) {
-            return false;
+            throw new RuntimeException('Unable to download file. Not connected or SFTP connection not initialized');
         }
 
         $remote_file = $this->realpath($remote_file);
         if ($remote_file === false) {
-            return false;
+            throw new FileNotFoundException("Cannot resolve remote file path: $remote_file");
         }
 
         $packet = Strings::packSSH2('s', $remote_file);
@@ -2134,7 +2135,7 @@ class SFTP extends SSH2
                 break;
             case SFTPPacketType::STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
                 $this->logError($response);
-                return false;
+                throw new RuntimeException("Unable to open remote file \"$remote_file\": " . $this->getLastSFTPError());
             default:
                 throw new UnexpectedValueException(
                     'Expected PacketType::HANDLE or PacketType::STATUS. '
@@ -2151,7 +2152,7 @@ class SFTP extends SSH2
             if ($local_file !== false && !is_callable($local_file)) {
                 $fp = fopen($local_file, 'wb');
                 if (!$fp) {
-                    return false;
+                    throw new RuntimeException("Unable to open local file \"$local_file\" for writing");
                 }
             } else {
                 $content = '';
@@ -2229,11 +2230,11 @@ class SFTP extends SSH2
                         if ($this->channel_close) {
                             $this->partial_init = false;
                             $this->init_sftp_connection();
-                            return false;
+                            throw new RuntimeException('Connection closed while downloading file');
                         } else {
                             throw new UnexpectedValueException(
                                 'Expected PacketType::DATA or PacketType::STATUS. '
-                                                          . 'Got packet type: ' . $this->packet_type
+                                . 'Got packet type: ' . $this->packet_type
                             );
                         }
                 }
@@ -2255,7 +2256,7 @@ class SFTP extends SSH2
         }
 
         if (!$this->close_handle($handle)) {
-            return false;
+            throw new RuntimeException('Failed to close remote file handle');
         }
 
         // if $content isn't set that means a file was written to
@@ -2967,7 +2968,7 @@ class SFTP extends SSH2
 
         if (defined('NET_SFTP_LOGGING')) {
             $packet_type = '-> ' . $this->packet_types[$type] .
-                           ' (' . round($stop - $start, 4) . 's)';
+                ' (' . round($stop - $start, 4) . 's)';
             $this->append_log($packet_type, $data);
         }
     }
@@ -3078,7 +3079,7 @@ class SFTP extends SSH2
 
         if (defined('NET_SFTP_LOGGING')) {
             $packet_type = '<- ' . $this->packet_types[$this->packet_type] .
-                           ' (' . round($stop - $start, 4) . 's)';
+                ' (' . round($stop - $start, 4) . 's)';
             $this->append_log($packet_type, $packet);
         }
 
@@ -3290,7 +3291,7 @@ class SFTP extends SSH2
                 return false;
             default:
                 throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                    . 'Got packet type: ' . $this->packet_type);
         }
 
         if ($this->version >= 5) {
@@ -3315,7 +3316,7 @@ class SFTP extends SSH2
                 return false;
             default:
                 throw new \UnexpectedValueException('Expected NET_SFTP_HANDLE or NET_SFTP_STATUS. '
-                                                  . 'Got packet type: ' . $this->packet_type);
+                    . 'Got packet type: ' . $this->packet_type);
         }
 
         $packet = Strings::packSSH2('ssQQsQ', 'copy-data', $oldhandle, 0, $size, $newhandle, 0);
@@ -3324,7 +3325,7 @@ class SFTP extends SSH2
         $response = $this->get_sftp_packet();
         if ($this->packet_type != PacketType::STATUS) {
             throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
-                                              . 'Got packet type: ' . $this->packet_type);
+                . 'Got packet type: ' . $this->packet_type);
         }
 
         $this->close_handle($oldhandle);
