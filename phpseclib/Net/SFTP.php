@@ -2100,25 +2100,26 @@ class SFTP extends SSH2
     /**
      * Downloads a file from the SFTP server.
      *
-     * Returns a string containing the contents of $remote_file if $local_file is left undefined or a boolean false if
-     * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
-     * operation.
+     * Returns a string containing the contents of $remote_file if $local_file is left undefined.
+     * If $local_file is defined, returns true on success.
      *
      * $offset and $length can be used to download files in chunks.
      *
      * @param  string|bool|resource|callable $local_file
-     * @return string|bool
+     * @return string|true
+     * @throws RuntimeException if unable to download file (not connected, file not found, permission denied, etc.)
+     * @throws FileNotFoundException if remote file path cannot be resolved
      * @throws UnexpectedValueException on receipt of unexpected packets
      */
     public function get(string $remote_file, $local_file = false, int $offset = 0, int $length = -1, ?callable $progressCallback = null)
     {
         if (!$this->precheck()) {
-            return false;
+            throw new RuntimeException('Unable to download file. Not connected or SFTP connection not initialized');
         }
 
         $remote_file = $this->realpath($remote_file);
         if ($remote_file === false) {
-            return false;
+            throw new FileNotFoundException("Cannot resolve remote file path: $remote_file");
         }
 
         $packet = Strings::packSSH2('s', $remote_file);
@@ -2134,7 +2135,7 @@ class SFTP extends SSH2
                 break;
             case SFTPPacketType::STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
                 $this->logError($response);
-                return false;
+                throw new RuntimeException("Unable to open remote file \"$remote_file\": " . $this->getLastSFTPError());
             default:
                 throw new UnexpectedValueException(
                     'Expected PacketType::HANDLE or PacketType::STATUS. '
@@ -2151,7 +2152,7 @@ class SFTP extends SSH2
             if ($local_file !== false && !is_callable($local_file)) {
                 $fp = fopen($local_file, 'wb');
                 if (!$fp) {
-                    return false;
+                    throw new RuntimeException("Unable to open local file \"$local_file\" for writing");
                 }
             } else {
                 $content = '';
@@ -2229,7 +2230,7 @@ class SFTP extends SSH2
                         if ($this->channel_close) {
                             $this->partial_init = false;
                             $this->init_sftp_connection();
-                            return false;
+                            throw new RuntimeException('Connection closed while downloading file');
                         } else {
                             throw new UnexpectedValueException(
                                 'Expected PacketType::DATA or PacketType::STATUS. '
@@ -2255,7 +2256,7 @@ class SFTP extends SSH2
         }
 
         if (!$this->close_handle($handle)) {
-            return false;
+            throw new RuntimeException('Failed to close remote file handle');
         }
 
         // if $content isn't set that means a file was written to
