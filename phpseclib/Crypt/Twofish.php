@@ -469,12 +469,12 @@ class Crypt_Twofish extends Crypt_Base
     {
         parent::__construct($mode);
 
-        $this->m0 = array_map('intval', $this->m0);
-        $this->m1 = array_map('intval', $this->m1);
-        $this->m2 = array_map('intval', $this->m2);
-        $this->m3 = array_map('intval', $this->m3);
-        $this->q0 = array_map('intval', $this->q0);
-        $this->q1 = array_map('intval', $this->q1);
+        $this->m0 = array_map('Crypt_Base::safe_intval', $this->m0);
+        $this->m1 = array_map('Crypt_Base::safe_intval', $this->m1);
+        $this->m2 = array_map('Crypt_Base::safe_intval', $this->m2);
+        $this->m3 = array_map('Crypt_Base::safe_intval', $this->m3);
+        $this->q0 = array_map('Crypt_Base::safe_intval', $this->q0);
+        $this->q1 = array_map('Crypt_Base::safe_intval', $this->q1);
     }
 
     /**

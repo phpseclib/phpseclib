@@ -536,6 +536,11 @@ class Crypt_Base
 
         if (!defined('CRYPT_BASE_USE_REG_INTVAL')) {
             switch (true) {
+                // PHP 8.5, per https://www.php.net/manual/en/migration85.incompatible.php, now emits a warning
+                // "when casting floats (or strings that look like floats) to int if they cannot be represented as one"
+                case version_compare(PHP_VERSION, '8.5.0') >= 0 && PHP_INT_SIZE == 4:
+                    define('CRYPT_BASE_USE_REG_INTVAL', false);
+                    break;
                 // PHP 5.3, per http://php.net/releases/5_3_0.php, introduced "more consistent float rounding"
                 case version_compare(PHP_VERSION, '5.3.0') >= 0 && !(is_string(php_uname('m')) && (php_uname('m') & "\xDF\xDF\xDF") == 'ARM'):
                 // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
