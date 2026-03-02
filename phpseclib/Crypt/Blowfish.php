@@ -401,11 +401,11 @@ class Blowfish extends Base
     {
         parent::__construct($mode);
 
-        $this->sbox0 = array_map('intval', $this->sbox0);
-        $this->sbox1 = array_map('intval', $this->sbox1);
-        $this->sbox2 = array_map('intval', $this->sbox2);
-        $this->sbox3 = array_map('intval', $this->sbox3);
-        $this->parray = array_map('intval', $this->parray);
+        $this->sbox0 = array_map([$this, 'safe_intval'], $this->sbox0);
+        $this->sbox1 = array_map([$this, 'safe_intval'], $this->sbox1);
+        $this->sbox2 = array_map([$this, 'safe_intval'], $this->sbox2);
+        $this->sbox3 = array_map([$this, 'safe_intval'], $this->sbox3);
+        $this->parray = array_map([$this, 'safe_intval'], $this->parray);
     }
 
     /**
