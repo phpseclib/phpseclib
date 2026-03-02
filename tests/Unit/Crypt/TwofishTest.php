@@ -35,6 +35,7 @@ class TwofishTest extends PhpseclibTestCase
             if (!$tf->isValidEngine($engine)) {
                 self::markTestSkipped("Unable to initialize $engine engine");
             }
+            $tf->setPreferredEngine($engine);
 
             $plaintext = pack('H*', '00000000000000000000000000000000');
             $ciphertext = $tf->encrypt($plaintext);
