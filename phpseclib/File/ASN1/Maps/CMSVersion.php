@@ -26,6 +26,6 @@ abstract class CMSVersion
 {
     public const MAP = [
         'type' => ASN1::TYPE_INTEGER,
-        'mapping' => ['v0', 'v1', 'v2', 'v4', 'v5'],
+        'mapping' => ['v0', 'v1', 'v2', 'v3', 'v4', 'v5'],
     ];
 }

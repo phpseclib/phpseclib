@@ -34,6 +34,7 @@ use phpseclib4\Crypt\Hash;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\Random;
 use phpseclib4\Crypt\RSA;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\CharacterConversionException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\MethodOnlyAvailableForSelfSigned;
@@ -217,6 +218,11 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$strictDNComparison = false;
     }
 
+    public static function isStrictDNComparisonEnabled(): bool
+    {
+        return self::$strictDNComparison;
+    }
+
     public static function checkKeyUsage(): void
     {
         self::$checkKeyUsage = true;
@@ -227,6 +233,11 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$checkKeyUsage = false;
     }
 
+    public static function isCheckKeyUsageEnabled(): bool
+    {
+        return self::$checkKeyUsage;
+    }
+
     public static function checkBasicConstraints(): void
     {
         self::$checkBasicConstraints = true;
@@ -235,6 +246,11 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public static function ignoreBasicConstraints(): void
     {
         self::$checkBasicConstraints = false;
+    }
+
+    public static function isCheckBasicConstraintsEnabled(): bool
+    {
+        return self::$checkBasicConstraints;
     }
 
     /**
@@ -269,9 +285,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $rules['tbsCertificate']['extensions']['*'] = [self::class, 'mapInExtensions'];
         $rules['tbsCertificate']['subject']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
         $rules['tbsCertificate']['issuer']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
-        $rules['tbsCertificate']['subjectPublicKeyInfo'] = function(Constructed &$cert) {
+        $rules['tbsCertificate']['subjectPublicKeyInfo'] = function(Constructed &$key) {
             try {
-                $cert = PublicKeyLoader::load($cert->getEncoded());
+                $key = PublicKeyLoader::load($key->getEncoded());
+                if ($key instanceof RSA && $key->getLoadedFormat() == 'PKCS8') {
+                    $key = $key->withPadding(RSA::SIGNATURE_PKCS1);
+                }
             } catch (NoKeyLoadedException $e) {
             }
         };
@@ -347,6 +366,46 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cert instanceof Constructed ? $this->cert->toArray($convertPrimitives) : $this->cert;
     }
 
+    public function setPadding(int $padding): void
+    {
+        $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
+        if (!$publicKey instanceof RSA) {
+            throw new BadMethodCallException('Padding can only be set for RSA X509 certificates');
+        }
+
+        $publicKey = $publicKey->withPadding($padding);
+    }
+
+    public function setHash(string $hash): void
+    {
+        $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
+        if (!$publicKey instanceof RSA && !$publicKey instanceof EC) {
+            throw new BadMethodCallException('Hash can only be set for RSA or EC X509 certificates');
+        }
+
+        $publicKey = $publicKey->withHash($hash);
+    }
+
+    public function setMFGHash(string $hash): void
+    {
+        $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
+        if (!$publicKey instanceof RSA) {
+            throw new BadMethodCallException('MGF Hash can only be set for RSA X509 certificates');
+        }
+
+        $publicKey = $publicKey->withMFGHash($hash);
+    }
+
+    public function setLabel(string $label): void
+    {
+        $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
+        if (!$publicKey instanceof RSA) {
+            throw new BadMethodCallException('MGF Hash can only be set for RSA X509 certificates');
+        }
+
+        $publicKey = $publicKey->withLabel($label);
+    }
+
     public function getPublicKey(): PublicKey
     {
         if (!$this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey) {
@@ -354,9 +413,9 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];
-        if ($publicKey instanceof RSA && $publicKey->getLoadedFormat() == 'PKCS8') {
-            return $publicKey->withPadding(RSA::SIGNATURE_PKCS1);
-        }
+        //if ($publicKey instanceof RSA && $publicKey->getLoadedFormat() == 'PKCS8') {
+        //    return $publicKey->withPadding(RSA::SIGNATURE_PKCS1);
+        //}
         return $publicKey;
     }
 
@@ -555,7 +614,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cert = $temp->cert;
     }
 
-    public function __toString(): string
+    public function toString(array $options = []): string
     {
         //if ($this->cert['tbsCertificate']['serialNumber']->isNegative()) {
         //    throw new \phpseclib4\Exception\UnexpectedValueException('The serial number of an X.509 certificate must be positive');
@@ -564,7 +623,8 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];
         if ($publicKey instanceof PublicKey) {
             $origKey = $publicKey;
-            $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = new Element($publicKey->toString('PKCS8', ['binary' => true]));
+            $format = $publicKey instanceof RSA && ($publicKey->getPadding() & RSA::SIGNATURE_PSS) ? 'PSS' : 'PKCS8';
+            $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = new Element($publicKey->toString($format, ['binary' => true]));
         }
 
         $this->mapOutDNs('tbsCertificate/issuer/rdnSequence');
@@ -577,11 +637,16 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = $origKey;
         }
 
-        if (self::$binary) {
+        if ($options['binary'] ?? self::$binary) {
             return $cert;
         }
 
         return "-----BEGIN CERTIFICATE-----\r\n" . chunk_split(Strings::base64_encode($cert), 64) . '-----END CERTIFICATE-----';
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 
     public function getEncoded(): string
@@ -745,7 +810,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $oldBasicConstraints = self::$checkBasicConstraints;
         self::$checkKeyUsage = false;
         self::$checkBasicConstraints = false;
-        if (!$this->isIssuerOf($this, $this)) {
+        if (!$this->isIssuerOf($this)) {
             self::$checkBasicConstraints = $oldBasicConstraints;
             self::$checkKeyUsage = $oldKeyUsage;
             throw new MethodOnlyAvailableForSelfSigned('This method is only available for self signed certificates');
@@ -957,20 +1022,25 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cert['signature'] = new BitString("\0$signature");
     }
 
-    public function setSignatureAlgorithm(array $algorithm): void
-    {
-        $this->cert['tbsCertificate']['signature'] = $algorithm;
-        $this->cert['signatureAlgorithm'] = $algorithm;
-    }
-
     /**
      * Identify signature algorithm from private key
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public static function identifySignatureAlgorithm(PrivateKey $key): array
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
-        return self::identifySignatureAlgorithmHelper($key);
+        $algorithm = self::identifySignatureAlgorithmHelper($key);
+        $this->cert['tbsCertificate']['signature'] = $algorithm;
+        $this->cert['signatureAlgorithm'] = $algorithm;
+    }
+
+    public function copySigningX509Attributes(X509 $x509): void
+    {
+        $this->setIssuerDN($x509->getSubjectDN(X509::DN_ARRAY));
+        $subjectKeyIdentifier = $x509->getExtension('id-ce-subjectKeyIdentifier');
+        if (isset($subjectKeyIdentifier)) {
+            $this->setAuthorityKeyIdentifier($subjectKeyIdentifier['extnValue']);
+        }
     }
 
     /**
@@ -1108,7 +1178,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
      *  - issuerAndSerialNumber
      *  - subjectKeyIdentifier
      */
-    public function isIssuerOf(self|CRL|Choice|array $subject): bool
+    public function isIssuerOf(self|CRL|Choice|array $subject, array $expectedKeyUsage = []): bool
     {
         if (self::$checkKeyUsage && !$this->isCA) {
             if (!$this->hasExtension('id-ce-keyUsage')) {
@@ -1116,24 +1186,26 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             }
             switch (true) {
                 case is_array($subject) || $subject instanceof Choice:
-                    // "The digitalSignature bit is asserted when the subject public key
-                    //  is used for verifying digital signatures, other than signatures on
-                    //  certificates (bit 5) and CRLs (bit 6)"
-                    // -- https://datatracker.ietf.org/doc/html/rfc5280#page-30
-                    $expected = 'digitalSignature';
+                    $expected = $expectedKeyUsage;
                     break;
                 case $subject instanceof self:
-                    $expected = 'keyCertSign';
+                    $expected = ['keyCertSign'];
                     break;
                 //case $subject instanceof CRL:
                 default:
-                    $expected = 'cRLSign';
+                    $expected = ['cRLSign'];
             }
             $ext = $this->getExtension('id-ce-keyUsage')['extnValue'];
-            switch (true) {
-                case $ext instanceof BitString && !$ext->contains($expected):
-                case is_array($ext) && !in_array($expected, $ext):
-                    return false;
+            $found = false;
+            foreach ($expected as $search) {
+                switch (true) {
+                    case $ext instanceof BitString && $ext->contains($search):
+                    case is_array($ext) && in_array($search, $ext):
+                        $found = true;
+                }
+            }
+            if (!$found) {
+                return false;
             }
 
             if (self::$checkBasicConstraints && $expected == 'keyCertSign' && !$this->isCA) {
@@ -1182,7 +1254,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                         return true;
                 }
         }
-
         return false;
     }
 

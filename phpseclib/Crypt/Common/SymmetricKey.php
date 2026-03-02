@@ -695,6 +695,14 @@ abstract class SymmetricKey
     }
 
     /**
+     * Returns the current key length in bytes
+     */
+    public function getKeyLengthInBytes(): int
+    {
+        return $this->key_length;
+    }
+
+    /**
      * Returns the current block length in bits
      */
     public function getBlockLength(): int

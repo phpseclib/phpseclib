@@ -48,6 +48,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     use \phpseclib4\File\Common\Traits\ASN1Signature;
 
     private Constructed|array $crl;
+    private bool $hideFullDecode = false;
 
     /**
      * Binary key flag
@@ -103,6 +104,10 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public function __debugInfo(): array
     {
+        if ($this->hideFullDecode) {
+            $this->hideFullDecode = false;
+            return ['value' => (string) $this];
+        }
         $this->compile();
         return $this->crl->__debugInfo();
     }
@@ -343,18 +348,23 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$binary = false;
     }
 
-    public function __toString(): string
+    public function toString(array $options = []): string
     {
         $this->mapOutDNs();
         $this->mapOutExtensions();
 
         $crl = ASN1::encodeDER($this->crl, Maps\CertificateList::MAP);
 
-        if (self::$binary) {
+        if ($options['binary'] ?? self::$binary) {
             return $crl;
         }
 
         return "-----BEGIN X509 CRL-----\r\n" . chunk_split(Strings::base64_encode($crl), 64) . '-----END X509 CRL-----';
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 
     private function mapOutDNs(): void
@@ -409,20 +419,25 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->crl['signature'] = new BitString("\0$signature");
     }
 
-    public function setSignatureAlgorithm(array $algorithm): void
-    {
-        $this->crl['tbsCertList']['signature'] = $algorithm;
-        $this->crl['signatureAlgorithm'] = $algorithm;
-    }
-
     /**
      * Identify signature algorithm from private key
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public static function identifySignatureAlgorithm(PrivateKey $key): array
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
-        return self::identifySignatureAlgorithmHelper($key);
+        $algorithm = self::identifySignatureAlgorithmHelper($key);
+        $this->crl['tbsCertList']['signature'] = $algorithm;
+        $this->crl['signatureAlgorithm'] = $algorithm;
+    }
+
+    public function copySigningX509Attributes(X509 $x509): void
+    {
+        $this->setIssuerDN($x509->getSubjectDN(X509::DN_ARRAY));
+        $subjectKeyIdentifier = $x509->getExtension('id-ce-subjectKeyIdentifier');
+        if (isset($subjectKeyIdentifier)) {
+            $this->setAuthorityKeyIdentifier($subjectKeyIdentifier['extnValue']);
+        }
     }
 
     public function setAuthorityKeyIdentifier(string|OctetString $value): void
@@ -705,5 +720,10 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $this->compile();
         return $this->crl->getEncoded();
+    }
+
+    public function enableHideFullDecode(): void
+    {
+        $this->hideFullDecode = true;
     }
 }

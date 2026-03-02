@@ -28,7 +28,7 @@ abstract class CompressedData
         'type' => ASN1::TYPE_SEQUENCE,
         'children' => [
             'version' => CMSVersion::MAP,
-            'compressionAlgorithms' => CompressionAlgorithmIdentifiers::MAP,
+            'compressionAlgorithm' => CompressionAlgorithmIdentifier::MAP,
             'encapContentInfo' => EncapsulatedContentInfo::MAP,
        ],
     ];

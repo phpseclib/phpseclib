@@ -187,7 +187,8 @@ abstract class PSS extends Progenitor
         $params = self::savePSSParams($options);
         return self::wrapPublicKey(
             key: $key,
-            params: $params
+            params: $params,
+            options: $options
         );
     }
 

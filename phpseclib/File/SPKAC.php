@@ -161,7 +161,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->spkac['publicKeyAndChallenge']['challenge']->value;
     }
 
-    public function __toString(): string
+    public function toString(array $options = []): string
     {
         $publicKey = $this->spkac['publicKeyAndChallenge']['spki'] ;
         if ($publicKey instanceof PublicKey) {
@@ -174,7 +174,16 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
             $this->spkac['publicKeyAndChallenge']['spki'] = $origKey;
         }
 
-        return self::$binary ? $spkac : 'SPKAC=' . Strings::base64_encode($spkac);
+        if ($options['binary'] ?? self::$binary) {
+            return $spkac;
+        }
+
+        return 'SPKAC=' . Strings::base64_encode($spkac);
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 
     public function getSignableSection(): string
@@ -188,20 +197,20 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['signature'] = new BitString("\0$signature");
     }
 
-    public function setSignatureAlgorithm(array $algorithm): void
-    {
-        $this->spkac['publicKeyAndChallenge']['signature'] = $algorithm;
-        $this->spkac['signatureAlgorithm'] = $algorithm;
-    }
-
     /**
      * Identify signature algorithm from private key
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public static function identifySignatureAlgorithm(PrivateKey $key): array
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
-        return self::identifySignatureAlgorithmHelper($key);
+        $algorithm = self::identifySignatureAlgorithmHelper($key);
+        $this->spkac['publicKeyAndChallenge']['signature'] = $algorithm;
+        $this->spkac['signatureAlgorithm'] = $algorithm;
+    }
+
+    public function copySigningX509Attributes(X509 $x509): void
+    {
     }
 
     private function compile(): void

@@ -36,6 +36,8 @@ namespace phpseclib4\Crypt;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\InsufficientSetupException;
 use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField;
@@ -943,20 +945,28 @@ class Hash
 
     /**
      * Compute the Hash / HMAC / UMAC.
+     *
+     * @param string|resource $text
      */
-    public function hash(string $text): string
+    public function hash(mixed $text): string
     {
+        if (!is_string($text) && !is_resource($text)) {
+            throw new UnexpectedValueException('$text must be either a string or a resource');
+        }
         $algo = $this->algo;
         // https://www.rfc-editor.org/rfc/rfc4493.html
         // https://en.wikipedia.org/wiki/One-key_MAC
         if ($algo == 'aes_cmac') {
+            if (is_resource($text)) {
+                throw new RuntimeException('aes_cmac only works with strings');
+            }
             $constZero = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
             if ($this->recomputeAESKey) {
                 if (!is_string($this->key)) {
                     throw new InsufficientSetupException('No key has been set');
                 }
                 if (strlen($this->key) != 16) {
-                    throw new \LengthException('Key must be 16 bytes long');
+                    throw new LengthException('Key must be 16 bytes long');
                 }
                 // Algorithm Generate_Subkey
                 $constRb = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x87";
@@ -1011,6 +1021,9 @@ class Hash
             return $c->encrypt($y);
         }
         if ($algo == 'umac') {
+            if (is_resource($text)) {
+                throw new RuntimeException('umac only works with strings');
+            }
             if ($this->recomputeAESKey) {
                 if (!is_string($this->nonce)) {
                     throw new InsufficientSetupException('No nonce has been set');
@@ -1063,6 +1076,9 @@ class Hash
         }
 
         if (is_array($algo)) {
+            if (is_resource($algo)) {
+                throw new RuntimeException($this->hashParam . ' only works with strings');
+            }
             if (empty($this->key) || !is_string($this->key)) {
                 return substr($algo($text, ...array_values($this->parameters)), 0, $this->length);
             }
@@ -1080,9 +1096,20 @@ class Hash
             return substr($output, 0, $this->length);
         }
 
-        $output = !empty($this->key) || is_string($this->key) ?
-            hash_hmac($algo, $text, $this->computedKey, true) :
-            hash($algo, $text, true);
+        if (is_resource($text)) {
+            $pos = ftell($text);
+            rewind($text);
+            $ctx = !empty($this->key) || is_string($this->key) ?
+                hash_init($algo, HASH_HMAC, $this->computedKey) :
+                hash_init($algo);
+            hash_update_stream($ctx, $text);
+            fseek($text, $pos);
+            $output = hash_final($ctx, true);
+        } else {
+            $output = !empty($this->key) || is_string($this->key) ?
+                hash_hmac($algo, $text, $this->computedKey, true) :
+                hash($algo, $text, true);
+        }
 
         return strlen($output) > $this->length
             ? substr($output, 0, $this->length)

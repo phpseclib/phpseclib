@@ -33,6 +33,7 @@ namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\AsymmetricKey;
 use phpseclib4\Crypt\EC\BaseCurves\Base;
+use phpseclib4\Crypt\EC\BaseCurves\Binary as BinaryCurve;
 use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
 use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib4\Crypt\EC\Curves\Curve25519;
@@ -296,6 +297,11 @@ abstract class EC extends AsymmetricKey
         }
 
         return $decoded;
+    }
+
+    public function isBinaryCurve(): bool
+    {
+        return $this->curve instanceof BinaryCurve;
     }
 
     /**

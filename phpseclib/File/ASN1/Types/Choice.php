@@ -19,6 +19,10 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\RuntimeException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
+use phpseclib4\File\CMS\EnvelopedData\Recipient;
+use phpseclib4\File\CMS\SignedData\Signer;
+use phpseclib4\File\X509;
 
 /**
  * ASN.1 Choice
@@ -48,6 +52,12 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
 
     public function __debugInfo(): array
     {
+        if ($this->value instanceof X509) {
+            $this->value->enableHideFullDecode();
+        }
+        if (isset($this->rules[$this->index]) && ($this->value instanceof Constructed || $this->value instanceof Choice)) {
+            $this->value->rules = $this->rules[$this->index];
+        }
         return [$this->index => $this->value];
     }
 
@@ -118,13 +128,18 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     public function &offsetGet(mixed $offset): mixed
     {
         if ($offset != $this->index) {
-            throw new RuntimeException("The requested offset '$offset' was not found");
+            throw new RuntimeException("The requested offset '$offset' was not found - did you mean '{$this->index}'?");
             return $this->value;
         }
         if (($this->value instanceof Constructed || $this->value instanceof Choice) && !$this->value->parent) {
             $this->value->parent = $this;
-            $this->value->depth = $this->depth + 1;
-            $this->value->key = $this->key;
+            if (isset($this->rules[$this->index])) {
+                $this->value->rules = $this->rules[$offset];
+            }
+            if (isset($this->value->depth)) {
+                $this->value->depth = $this->depth + 1;
+                $this->value->key = $this->key;
+            }
         }
         return $this->value;
     }
@@ -134,6 +149,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
         if (!Strings::is_stringable($offset)) {
             throw new RuntimeException('Only offsets that can be cast to strings are supported');
         }
+
         $this->index = "$offset";
         $this->value = $value;
 
@@ -166,9 +182,27 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
 
     public function toArray(bool $convertPrimitives = false): array
     {
+        if ($this->value instanceof Constructed || $this->value instanceof Choice) {
+            if (isset($this->rules[$this->index])) {
+                $this->value->rules = $this->rules[$this->index];
+            }
+            return [$this->index => $this->value->toArray($convertPrimitives)];
+        }
+        if ($this->value instanceof Signer || $this->value instanceof Recipient || $this->value instanceof EncryptedKey) {
+            return [$this->index => $this->value->toArray($convertPrimitives)];
+        }
+        return [$this->index => $convertPrimitives ? ASN1::convertToPrimitive($this->value) : $this->value];
         return $this->value instanceof Constructed || $this->value instanceof Choice ?
             [$this->index => $this->value->toArray($convertPrimitives)] :
             [$this->index => $convertPrimitives ? ASN1::convertToPrimitive($this->value) : $this->value];
+    }
+
+    public function reconstituteKeyHelper(): ?string
+    {
+        if (!isset($this->key)) {
+            return null;
+        }
+        return !isset($this->parent) || !isset($this->parent->key) ? (string) $this->key : $this->parent->reconstituteKeyHelper() . '/' . $this->key;
     }
 
     public function invalidateCache(): void

@@ -29,6 +29,10 @@ use phpseclib4\Exception\InsufficientSetupException;
 use phpseclib4\Exception\NoValidTagFoundException;
 use phpseclib4\Exception\RuntimeException;
 use phpseclib4\File\ASN1;
+use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
+use phpseclib4\File\CMS\EnvelopedData\Recipient;
+use phpseclib4\File\CMS\SignedData\Signer;
+use phpseclib4\File\CRL;
 use phpseclib4\File\X509;
 use phpseclib4\File\ASN1\Element;
 use phpseclib4\File\ASN1\ExcessivelyDeepData;
@@ -54,7 +58,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
     public Choice|Constructed|null $parent = null;
     public int $depth = 0;
     public int|string $key;
-    private array $rules = [];
+    public array $rules = [];
     private string $wrapping = '';
     private bool $forcedCache = false;
 
@@ -140,7 +144,11 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
 
         if (!isset($this->decoded[$offset])) {
             //throw new RuntimeException("The requested offset '$offset' was not found");
+            //this is https://en.wikipedia.org/wiki/Autovivification
             $this->decoded[$offset] = [];
+            if (ASN1::invalidateCache()) {
+                $this->invalidateCache();
+            }
         }
 
         if ($this->decoded[$offset] instanceof Constructed) {
@@ -169,6 +177,20 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         return count($this->decoded);
     }
 
+    public function reconstituteKeyHelper(): ?string
+    {
+        if (!isset($this->key)) {
+            return null;
+        }
+        return !isset($this->parent) || !isset($this->parent->key) ? (string) $this->key : $this->parent->reconstituteKeyHelper() . '/' . $this->key;
+    }
+
+    private function reconstituteKey(): string
+    {
+        $key = $this->reconstituteKeyHelper();
+        return isset($key) ? " ($key)" : '';
+    }
+
     // $this->depth is normally set in either setSeqOuterLoop() or setSeqInnerLoop(), however,
     // constructed OCTET_STRINGs and BIT_STRINGs keep track of the depth via the $depth parameter
     // to decodeCurrent()
@@ -185,7 +207,42 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $decoded = [];
 
         if ($this->tag != $mapping['type']) {
-            throw new RuntimeException('Found ' . ASN1::convertTypeConstantToString($this->tag) . ' - expecting ' . ASN1::convertTypeConstantToString($mapping['type']));
+            $key = $this->reconstituteKey();
+            throw new RuntimeException('Found ' . ASN1::convertTypeConstantToString($this->tag) . ' - expecting ' . ASN1::convertTypeConstantToString($mapping['type']) . $key);
+        }
+
+        /*
+         * let's say you have a CMS with a 5,202,560 byte PDF embedded within it as a indefinite length OCTET STRING
+         * that's in 5202x 1,000 byte chunks and 1x 560 byte chunk. without this code it takes 0.21s to load it.
+         * with this chunk of code it takes 0.11s. at least on PHP 8.3
+         *
+         * the basic idea is that if you have something like this:
+         *
+         * OCTET STRING
+         *   OCTET STRING
+         *   OCTET STRING
+         *   OCTET STRING
+         *   ...
+         *
+         * that all the nested OCTET STRINGS save for the last one will match.
+         *
+         * if you have something like this otoh:
+         *
+         * OCTET STRING
+         *   OCTET STRING
+         *     OCTET STRING
+         *       OCTET STRING
+         *         ...
+         *
+         * then it should parse that using the existing logic
+         */
+        if ($this->tag == ASN1::TYPE_OCTET_STRING) {
+            $sample = ASN1::decodeBER($this->encoded, $this->start + $offset, $offset);
+            $taglength = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($sample['length']);
+            $temp = preg_replace('#((?:' . $taglength . '.{' . $sample['length'] . '})*).*#s', '$1', $this->encoded);
+            $this->encoded = substr($this->encoded, strlen($temp));
+            $temp = preg_replace('#' . $taglength . '(.{' . $sample['length'] . '})#s', '$1', $temp);
+            $result = $temp;
         }
 
         $content_len = strlen($this->encoded);
@@ -199,6 +256,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     $offset += $length;
                 } else {
                     $temp['actuallength'] = $length;
+                    if ($temp['content'] instanceof Constructed) {
+                        $temp['content']->encoded = substr($temp['content']->encoded, 0, $length);
+                    }
                 }
                 $decoded[] = $temp;
             } catch (EOCException $e) {
@@ -218,7 +278,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 break;
             case ASN1::TYPE_BIT_STRING:
             case ASN1::TYPE_OCTET_STRING:
-                $result = '';
+                if (!isset($result)) {
+                    $result = '';
+                }
                 $excessivelyDeepData = false;
                 foreach ($decoded as $content) {
                     if ($content['content'] instanceof Constructed) {
@@ -286,7 +348,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                         $key = $keys[$j++];
                         $child = $children[$key];
                         $candidate = $this->setSeqInnerLoop($child, $temp, $tempClass, $key);
-
                         if ($candidate) {
                             // Got the match: use it.
                             $map[$key] = $candidate;
@@ -301,10 +362,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             break;
                         } elseif (isset($child['default'])) {
                             $map[$key] = self::fillInDefault($child);
-
                         } elseif (!isset($child['optional'])) {
                             if (ASN1::isBlobsOnBadDecodesEnabled()) {
-                                $map[$key] = new MalformedData($temp['content']);
+                                $map[$key] = new MalformedData((string) $temp['content']);
                                 break;
                             }
                             throw new RuntimeException("Unable to find a matching element for $key in the SEQUENCE");
@@ -616,7 +676,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
             // ideally for an X509 cert, unless __debugInfo were called _directly_ on it, we'd
             // render the X509 cert differently. eg. as the PEM vs the broken down PEM
-            if ($value instanceof X509) {
+            if ($value instanceof X509 || $value instanceof CRL) {
                 $value->enableHideFullDecode();
             }
         }
@@ -733,6 +793,11 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
 
         self::decodeCurrent();
 
+        $key = key($this->decoded);
+        if (!isset($key)) {
+            return false;
+        }
+
         return isset($this->decoded[key($this->decoded)]);
     }
 
@@ -768,7 +833,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $result = [];
         foreach ($this->decoded as $key=>$value) {
             try {
-                if ($value instanceof Constructed || $value instanceof Choice) {
+                if ($value instanceof Constructed || $value instanceof Choice || $value instanceof Signer || $value instanceof Recipient || $value instanceof EncryptedKey) {
                     $value = $value->toArray($convertPrimitives);
                 } elseif ($convertPrimitives) {
                     $value = ASN1::convertToPrimitive($value);
