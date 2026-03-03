@@ -669,7 +669,7 @@ abstract class SymmetricKey
                 // PHP 8.5, per https://www.php.net/manual/en/migration85.incompatible.php, now emits a warning
                 // "when casting floats (or strings that look like floats) to int if they cannot be represented as one"
                 case PHP_VERSION_ID >= 80500 && PHP_INT_SIZE == 4:
-                    define('CRYPT_BASE_USE_REG_INTVAL', false);
+                    self::$use_reg_intval = false;
                     break;
                 // PHP_OS & "\xDF\xDF\xDF" == strtoupper(substr(PHP_OS, 0, 3)), but a lot faster
                 case (PHP_OS & "\xDF\xDF\xDF") === 'WIN':
