@@ -1688,4 +1688,25 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $this->assertSame(1, $cacheHits);
         $this->assertSame(1, $cacheMisses);
     }
+
+    public function testWithPadding(): void
+    {
+        $private = RSA::createKey(1024);
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib demo');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $x509 = X509::load("$x509");
+        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+
+        $private = $private->withPadding(RSA::SIGNATURE_PKCS1);
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib demo');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $x509 = X509::load("$x509");
+        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+    }
 }

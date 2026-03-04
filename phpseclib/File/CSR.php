@@ -334,7 +334,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$binary = false;
     }
 
-    public function __toString(): string
+    public function toString(array $options = []): string
     {
         $publicKey = $this->csr['certificationRequestInfo']['subjectPKInfo'] ;
         if ($publicKey instanceof PublicKey) {
@@ -350,11 +350,16 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             $this->csr['certificationRequestInfo']['subjectPKInfo'] = $origKey;
         }
 
-        if (self::$binary) {
+        if ($options['binary'] ?? self::$binary) {
             return $csr;
         }
 
         return "-----BEGIN NEW CERTIFICATE REQUEST-----\r\n" . chunk_split(Strings::base64_encode($csr), 64) . '-----END NEW CERTIFICATE REQUEST-----';
+    }
+
+    public function __toString(): string
+    {
+        return $this->toString();
     }
 
     public function getSignableSection(): string
@@ -368,20 +373,30 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->csr['signature'] = new BitString("\0$signature");
     }
 
-    public function setSignatureAlgorithm(array $algorithm): void
-    {
-        $this->csr['certificationRequestInfo']['signature'] = $algorithm;
-        $this->csr['signatureAlgorithm'] = $algorithm;
-    }
-
     /**
      * Identify signature algorithm from private key
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public static function identifySignatureAlgorithm(PrivateKey $key): array
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
-        return self::identifySignatureAlgorithmHelper($key);
+        $algorithm = self::identifySignatureAlgorithmHelper($key);
+        $this->csr['certificationRequestInfo']['signature'] = $algorithm;
+        $this->csr['signatureAlgorithm'] = $algorithm;
+    }
+
+    public function copySigningX509Attributes(X509 $x509): void
+    {
+        // signing a CSR with a PFX doesn't quite make as much sense as signing an X509 or CRL does
+        // but, regardless, this behavior is basically analgous to this:
+        // $csr = new CSR($x509);
+        // $private->sign($csr);
+        $this->setSubjectDN($x509->getSubjectDN());
+        $exts = array_unique($x509->listExtensions());
+        foreach ($exts as $name) {
+            $ext = $x509->getExtension($name);
+            $this->setExtension($name, $ext['extnValue'], $ext['critical']);
+        }
     }
 
     private function compile(): void

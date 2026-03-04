@@ -130,6 +130,9 @@ abstract class X509
         'sha256WithRSAEncryption' => '1.2.840.113549.1.1.11',
         'sha384WithRSAEncryption' => '1.2.840.113549.1.1.12',
         'sha512WithRSAEncryption' => '1.2.840.113549.1.1.13',
+        // from https://datatracker.ietf.org/doc/html/rfc8017#appendix-A.2.4
+        'sha512-224WithRSAEncryption' => '1.2.840.113549.1.1.15',
+        'sha512-256WithRSAEncryption' => '1.2.840.113549.1.1.16',
 
         'id-ecPublicKey' => '1.2.840.10045.2.1',
         'ecdsa-with-SHA1' => '1.2.840.10045.4.1',
@@ -150,6 +153,8 @@ abstract class X509
         'id-Ed448' => '1.3.101.113',
 
         'id-RSASSA-PSS' => '1.2.840.113549.1.1.10',
+
+        'dhKeyAgreement' => '1.2.840.113549.1.3.1',
 
         //'id-sha224' => '2.16.840.1.101.3.4.2.4',
         //'id-sha256' => '2.16.840.1.101.3.4.2.1',

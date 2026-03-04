@@ -213,7 +213,7 @@ trait DN
             case 'localityname':
             case 'l':
                 return 'id-at-localityName';
-            case 'id-at-emailaddress';
+            case 'id-at-emailaddress':
             case 'id-emailaddress':
             case 'emailaddress':
                 return 'pkcs-9-at-emailAddress';

@@ -64,9 +64,9 @@ abstract class Arrays
      * Passing a reference (i.e. $root) by-value (i.e. to is_array())
      * creates a copy. If $root is an especially large array, this is expensive.
      */
-    public static function &subArrayUnchecked(array|\ArrayAccess &$root, string $path, bool $create = false): array|\ArrayAccess|false
+    public static function &subArrayUnchecked(array|\ArrayAccess &$root, string $path, bool $create = false): array|\ArrayAccess|null
     {
-        $false = false;
+        $false = null;
 
         foreach (explode('/', $path) as $i) {
             if (!isset($root[$i])) {
@@ -89,9 +89,9 @@ abstract class Arrays
      * This is kinda like Laravel's Arr::set() / Arr::get() method with their dot notation
      * except that / is used as the component separator instead
      */
-    public static function &subArray(array|\ArrayAccess|null &$root, string $path, bool $create = false): array|\ArrayAccess|false
+    public static function &subArray(array|\ArrayAccess|null &$root, string $path, bool $create = false): array|\ArrayAccess|null
     {
-        $false = false;
+        $false = null;
 
         if (!isset($root)) {
             // if you do "return false" you'll get this error:
@@ -146,7 +146,7 @@ abstract class Arrays
                     if (empty($path)) {
                         return $val;
                     } else {
-                        $val = self::subArrayWithWildcards($root[$key], $path, $create);
+                        $val = &self::subArrayWithWildcards($root[$key], $path, $create);
                         return $val;
                     }
                 }

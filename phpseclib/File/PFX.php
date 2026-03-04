@@ -453,10 +453,10 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $output;
     }
 
-    public function toArray(bool $convertPrimitives = false): array
+    public function toArray(): array
     {
         $this->compile();
-        return $this->pfx instanceof Constructed ? $this->pfx->toArray($convertPrimitives) : $this->pfx;
+        return $this->pfx instanceof Constructed ? $this->pfx->toArray() : $this->pfx;
     }
 
     private static function handleCertBag(string $value): Constructed
@@ -729,25 +729,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         }
 
         if (isset($public)) {
-            if ($source instanceof X509 || $source instanceof CRL) {
-                $source->setIssuerDN($public->getSubjectDN());
-                $subjectKeyIdentifier = $public->getExtension('id-ce-subjectKeyIdentifier');
-                if (isset($subjectKeyIdentifier)) {
-                    $source->setAuthorityKeyIdentifier($subjectKeyIdentifier['extnValue']);
-                }
-            }
-            // signing a CSR with a PFX doesn't quite make as much sense as signing an X509 or CRL does
-            // but, regardless, this behavior is basically analgous to this:
-            // $csr = new CSR($x509);
-            // $private->sign($csr);
-            if ($source instanceof CSR) {
-                $source->setSubjectDN($public->getSubjectDN());
-                $exts = array_unique($public->listExtensions());
-                foreach ($exts as $name) {
-                    $ext = $public->getExtension($name);
-                    $source->setExtension($name, $ext['extnValue'], $ext['critical']);
-                }
-            }
+            $source->copySigningX509Attributes($public);
         }
         $signature = $private->sign($source);
 

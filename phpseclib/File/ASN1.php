@@ -55,6 +55,9 @@ use phpseclib4\File\ASN1\Types\UTF8String;
 use phpseclib4\File\ASN1\Types\UniversalString;
 use phpseclib4\File\ASN1\Types\VideotexString;
 use phpseclib4\File\ASN1\Types\VisibleString;
+use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
+use phpseclib4\File\CMS\EnvelopedData\Recipient;
+use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -398,7 +401,7 @@ abstract class ASN1
                     break;
                 default:
                     if (!self::$blobsOnBadDecodes) {
-                        throw new RuntimeException("$tag should not have the constructed bit set");
+                        throw new RuntimeException("Tag #$tag should not have the constructed bit set");
                     }
                     return $current + ['content' => new MalformedData($headercontent . $content)];
             }
@@ -747,7 +750,6 @@ abstract class ASN1
         self::$location = [];
         return self::encode_der($source, $mapping);
     }
-
     /**
      * ASN.1 Encode (Helper function)
      *
@@ -758,6 +760,9 @@ abstract class ASN1
     {
         if ($source instanceof Element) {
             return $source->value;
+        }
+        if ($source instanceof X509 || $source instanceof CRL || $source instanceof Signer || $source instanceof Recipient || $source instanceof EncryptedKey) {
+            return $source->getEncoded();
         }
 
         if (is_array($source) && isset($source['content']) && $source['content'] instanceof Constructed && !$source['content']->hasMapping()) {
@@ -794,6 +799,9 @@ abstract class ASN1
         switch ($tag) {
             case self::TYPE_SET:    // Children order is not important, thus process in sequence.
             case self::TYPE_SEQUENCE:
+                if (!is_array($source) && !$source instanceof Constructed) {
+                    throw new RuntimeException(implode('/', self::$location) . ' is not an array or an instance of Constructed');
+                }
                 $tag |= 0x20; // set the constructed bit
 
                 // ignore the min and max
@@ -866,14 +874,15 @@ abstract class ASN1
                         }
                     }
                     $value .= $temp;
+
                 }
+
                 break;
             case self::TYPE_CHOICE:
                 foreach ($mapping['children'] as $key => $child) {
                     if (!isset($source[$key])) {
                         continue;
                     }
-
                     $temp = self::encode_der($source[$key], $child, $key);
 
                     // An empty child encoding means it has been optimized out.
@@ -932,7 +941,7 @@ abstract class ASN1
                     }
                     $value = array_search($source, $mapping['mapping']);
                     if ($value === false) {
-                        throw new RuntimeException('Unexpected value encountered for ' . implode('/', self::$location));
+                        throw new RuntimeException("Unexpected value ($source) encountered for " . implode('/', self::$location) . '; expected any of ' . implode(',', $mapping['mapping']));
                     }
                     $value = new BigInteger($value);
                     $value = $value->toBytes(true);
@@ -1480,7 +1489,7 @@ abstract class ASN1
         return self::$recursionDepth;
     }
 
-    public static function convertToPrimitive(BaseType|PublicKey $value): string|null|bool
+    public static function convertToPrimitive(BaseType|PublicKey|X509|CRL $value): string|null|bool
     {
         return match ($value::class) {
             ExplicitNull::class => null,

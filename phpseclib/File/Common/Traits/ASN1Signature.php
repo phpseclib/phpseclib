@@ -52,6 +52,9 @@ trait ASN1Signature
                 ];
             }
             switch ($hash) {
+                case 'sha512/224':
+                case 'sha512/256':
+                    $hash = str_replace('/', '-', $hash);
                 case 'md2':
                 case 'md5':
                 case 'sha1':
@@ -97,7 +100,7 @@ trait ASN1Signature
         throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, EC');
     }
 
-    private static function validateSignatureHelper(PublicKey $key, OID $signatureAlgorithm, BitString $signature, string $signatureSubject)
+    private static function validateSignatureHelper(PublicKey $key, OID|string $signatureAlgorithm, BitString $signature, string $signatureSubject)
     {
         $signatureAlgorithm = (string) $signatureAlgorithm;
         if ($key instanceof RSA) {
@@ -112,8 +115,12 @@ trait ASN1Signature
                 case 'sha256WithRSAEncryption':
                 case 'sha384WithRSAEncryption':
                 case 'sha512WithRSAEncryption':
+                case 'sha512-224WithRSAEncryption':
+                case 'sha512-256WithRSAEncryption':
+                    $hash = preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm);
+                    $hash = str_replace('-', '/', $hash);
                     $key = $key
-                        ->withHash(preg_replace('#WithRSAEncryption$#', '', $signatureAlgorithm))
+                        ->withHash($hash)
                         ->withPadding(RSA::SIGNATURE_PKCS1);
                     break;
                 default:

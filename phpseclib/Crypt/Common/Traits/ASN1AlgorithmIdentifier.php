@@ -22,6 +22,7 @@ use phpseclib4\Crypt\Random;
 use phpseclib4\Crypt\RC2;
 use phpseclib4\Crypt\RC4;
 use phpseclib4\Crypt\TripleDES;
+use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Constructed;
@@ -108,6 +109,7 @@ trait ASN1AlgorithmIdentifier
      */
     private static function getPBES1EncryptionObject(string $algo): SymmetricKey
     {
+        $origAlgo = $algo;
         $algo = preg_match('#^pbeWith(?:MD2|MD5|SHA1|SHA)And(.*?)-CBC$#', $algo, $matches) ?
             $matches[1] :
             substr($algo, 13); // strlen('pbeWithSHAAnd') == 13
@@ -144,7 +146,7 @@ trait ASN1AlgorithmIdentifier
                 $cipher->setKeyLength(40);
                 break;
             default:
-                throw new UnsupportedAlgorithmException("$algo is not a supported algorithm");
+                throw new UnsupportedAlgorithmException("$origAlgo is not a supported algorithm");
         }
 
         return $cipher;
@@ -183,7 +185,7 @@ trait ASN1AlgorithmIdentifier
     /**
      * Returns a SymmetricKey object baesd on a PBES2 $algo
      */
-    private static function getPBES2EncryptionObject(string $algo): SymmetricKey
+    protected static function getPBES2EncryptionObject(string $algo): SymmetricKey
     {
         switch ($algo) {
             case 'desCBC':
@@ -291,40 +293,48 @@ trait ASN1AlgorithmIdentifier
                 }
 
                 $meta['meta']['keyDerivationFunc'] = $keyDerivationFunc['algorithm'];
-                switch ($keyDerivationFunc['algorithm']) {
-                    case 'id-PBKDF2':
-                        $prf = ['algorithm' => 'id-hmacWithSHA1'];
-                        try {
-                            $temp = ASN1::decodeBER((string) $keyDerivationFunc['parameters']);
-                            $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray();
-                            extract($params);
-                        } catch (\Exception $e) {
-                            throw new RuntimeException('Unable to decode BER', 0, $e);
-                        }
-                        $meta['meta']['prf'] = $prf['algorithm'];
-                        $hash = str_replace('-', '/', substr((string) $prf['algorithm'], 11));
-                        $params = [
-                            $password,
-                            'pbkdf2',
-                            $hash,
-                            (string) $salt,
-                            (int) $iterationCount->toString(),
-                        ];
-                        if (isset($keyLength)) {
-                            $params[] = (int) $keyLength->toString();
-                        }
-                        $cipher->setPassword(...$params);
-                        $cipher->setMetaData('meta', $meta);
-                        return $cipher;
-                    default:
-                        throw new UnsupportedAlgorithmException('Only PBKDF2 is supported for PBES2 PKCS#8 keys');
-                }
+                $cipher->setMetaData('meta', $meta);
+                self::setupPBKDF2($keyDerivationFunc, $password, $cipher);
+                return $cipher;
             case 'id-PBMAC1':
                 //$temp = ASN1::decodeBER($data['parameters']);
                 //$value = ASN1::map($temp[0], Maps\PBMAC1params::MAP)->toArray();
                 // since i can't find any implementation that does PBMAC1 it is unsupported
                 throw new UnsupportedAlgorithmException('Only PBES1 and PBES2 PKCS#8 keys are supported.');
             // at this point we'll assume that the key conforms to PublicKeyInfo
+        }
+    }
+
+    protected static function setupPBKDF2(array|Constructed $keyDerivationFunc, string $password, SymmetricKey $cipher): void
+    {
+        switch ($keyDerivationFunc['algorithm']) {
+            case 'id-PBKDF2':
+                $meta = $cipher->hasMetaData('meta') ? $cipher->getMetaData('meta') : [];
+                $prf = ['algorithm' => 'id-hmacWithSHA1'];
+                try {
+                    $temp = ASN1::decodeBER((string) $keyDerivationFunc['parameters']);
+                    $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray();
+                    extract($params);
+                } catch (\Exception $e) {
+                    throw new RuntimeException('Unable to decode BER', 0, $e);
+                }
+                $meta['meta']['prf'] = $prf['algorithm'];
+                $hash = str_replace('-', '/', substr((string) $prf['algorithm'], 11));
+                $params = [
+                    $password,
+                    'pbkdf2',
+                    $hash,
+                    (string) $salt,
+                    (int) $iterationCount->toString(),
+                ];
+                if (isset($keyLength)) {
+                    $params[] = (int) $keyLength->toString();
+                }
+                $cipher->setPassword(...$params);
+                $cipher->setMetaData('meta', $meta);
+                break;
+            default:
+                throw new UnsupportedAlgorithmException('Only PBKDF2 is supported for PBES2 PKCS#8 keys');
         }
     }
 

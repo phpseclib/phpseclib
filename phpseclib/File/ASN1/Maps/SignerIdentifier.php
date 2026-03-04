@@ -31,6 +31,7 @@ abstract class SignerIdentifier
             'subjectKeyIdentifier' => [
                 'constant' => 0,
                 'optional' => true,
+                'explicit' => true,
             ] + SubjectKeyIdentifier::MAP,
         ],
     ];

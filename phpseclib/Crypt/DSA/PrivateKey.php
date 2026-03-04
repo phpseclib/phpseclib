@@ -82,7 +82,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
             if ($source instanceof CSR && !$source->hasPublicKey()) {
                 $source->setPublicKey($this->getPublicKey());
             }
-            $source->setSignatureAlgorithm($source::identifySignatureAlgorithm($this));
+            $source->identifySignatureAlgorithm($this);
             $message = $source->getSignableSection();
         } else {
             $message = $source;
