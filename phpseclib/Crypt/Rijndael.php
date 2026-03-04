@@ -413,7 +413,7 @@ class Crypt_Rijndael extends Crypt_Base
         $k = $c[2];
         $l = $c[3];
         while ($i < $Nb) {
-            $temp[$i] = ($state[$i] & intval(0xFF000000)) ^
+            $temp[$i] = ($state[$i] & (PHP_INT_SIZE === 8 ? 0xFF000000 : -16777216)) ^
                         ($state[$j] & 0x00FF0000) ^
                         ($state[$k] & 0x0000FF00) ^
                         ($state[$l] & 0x000000FF) ^
@@ -499,7 +499,7 @@ class Crypt_Rijndael extends Crypt_Base
         $l = $Nb - $c[3];
 
         while ($i < $Nb) {
-            $word = ($state[$i] & intval(0xFF000000)) |
+            $word = ($state[$i] & (PHP_INT_SIZE === 8 ? 0xFF000000 : -16777216)) |
                     ($state[$j] & 0x00FF0000) |
                     ($state[$k] & 0x0000FF00) |
                     ($state[$l] & 0x000000FF);
@@ -943,7 +943,7 @@ class Crypt_Rijndael extends Crypt_Base
             $encrypt_block .= '$in = pack("N*"'."\n";
             for ($i = 0; $i < $Nb; ++$i) {
                 $encrypt_block.= ',
-                    ($'.$e.$i                  .' & '.(PHP_INT_SIZE == 8 ? 0xFF000000 : -16777216).') ^
+                    ($'.$e.$i                  .' & '.(PHP_INT_SIZE === 8 ? 0xFF000000 : -16777216).') ^
                     ($'.$e.(($i + $c[1]) % $Nb).' &         0x00FF0000   ) ^
                     ($'.$e.(($i + $c[2]) % $Nb).' &         0x0000FF00   ) ^
                     ($'.$e.(($i + $c[3]) % $Nb).' &         0x000000FF   ) ^
@@ -999,7 +999,7 @@ class Crypt_Rijndael extends Crypt_Base
             $decrypt_block .= '$in = pack("N*"'."\n";
             for ($i = 0; $i < $Nb; ++$i) {
                 $decrypt_block.= ',
-                    ($'.$e.$i.                        ' & '.(PHP_INT_SIZE == 8 ? 0xFF000000 : -16777216).') ^
+                    ($'.$e.$i.                        ' & '.(PHP_INT_SIZE === 8 ? 0xFF000000 : -16777216).') ^
                     ($'.$e.(($Nb + $i - $c[1]) % $Nb).' &         0x00FF0000   ) ^
                     ($'.$e.(($Nb + $i - $c[2]) % $Nb).' &         0x0000FF00   ) ^
                     ($'.$e.(($Nb + $i - $c[3]) % $Nb).' &         0x000000FF   ) ^
