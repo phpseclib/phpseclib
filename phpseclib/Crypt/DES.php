@@ -689,14 +689,14 @@ class DES extends Base
     {
         static $sbox1, $sbox2, $sbox3, $sbox4, $sbox5, $sbox6, $sbox7, $sbox8, $shuffleip, $shuffleinvip;
         if (!$sbox1) {
-            $sbox1 = array_map([$this, 'safe_intval'], $this->sbox1);
-            $sbox2 = array_map([$this, 'safe_intval'], $this->sbox2);
-            $sbox3 = array_map([$this, 'safe_intval'], $this->sbox3);
-            $sbox4 = array_map([$this, 'safe_intval'], $this->sbox4);
-            $sbox5 = array_map([$this, 'safe_intval'], $this->sbox5);
-            $sbox6 = array_map([$this, 'safe_intval'], $this->sbox6);
-            $sbox7 = array_map([$this, 'safe_intval'], $this->sbox7);
-            $sbox8 = array_map([$this, 'safe_intval'], $this->sbox8);
+            $sbox1 = array_map(array($this, 'safe_intval'), $this->sbox1);
+            $sbox2 = array_map(array($this, 'safe_intval'), $this->sbox2);
+            $sbox3 = array_map(array($this, 'safe_intval'), $this->sbox3);
+            $sbox4 = array_map(array($this, 'safe_intval'), $this->sbox4);
+            $sbox5 = array_map(array($this, 'safe_intval'), $this->sbox5);
+            $sbox6 = array_map(array($this, 'safe_intval'), $this->sbox6);
+            $sbox7 = array_map(array($this, 'safe_intval'), $this->sbox7);
+            $sbox8 = array_map(array($this, 'safe_intval'), $this->sbox8);
             /* Merge $shuffle with $[inv]ipmap */
             for ($i = 0; $i < 256; ++$i) {
                 $shuffleip[]    =  $this->shuffle[$this->ipmap[$i]];
