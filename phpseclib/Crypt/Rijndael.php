@@ -378,7 +378,7 @@ class Rijndael extends BlockCipher
         $k = $c[2];
         $l = $c[3];
         while ($i < $Nb) {
-            $temp[$i] = ($state[$i] & intval(0xFF000000)) ^
+            $temp[$i] = ($state[$i] & (PHP_INT_SIZE == 8 ? 0xFF000000 : -16777216)) ^
                         ($state[$j] & 0x00FF0000) ^
                         ($state[$k] & 0x0000FF00) ^
                         ($state[$l] & 0x000000FF) ^
@@ -452,7 +452,7 @@ class Rijndael extends BlockCipher
         $l = $Nb - $c[3];
 
         while ($i < $Nb) {
-            $word = ($state[$i] & intval(0xFF000000)) |
+            $word = ($state[$i] & (PHP_INT_SIZE == 8 ? 0xFF000000 : -16777216)) |
                     ($state[$j] & 0x00FF0000) |
                     ($state[$k] & 0x0000FF00) |
                     ($state[$l] & 0x000000FF);
