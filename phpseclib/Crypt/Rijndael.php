@@ -347,7 +347,7 @@ class Rijndael extends BlockCipher
         $k = $c[2];
         $l = $c[3];
         while ($i < $Nb) {
-            $temp[$i] = ($state[$i] & intval(0xFF000000)) ^
+            $temp[$i] = ($state[$i] & (PHP_INT_SIZE == 8 ? 0xFF000000 : -16777216)) ^
                         ($state[$j] & 0x00FF0000) ^
                         ($state[$k] & 0x0000FF00) ^
                         ($state[$l] & 0x000000FF) ^
@@ -418,7 +418,7 @@ class Rijndael extends BlockCipher
         $l = $Nb - $c[3];
 
         while ($i < $Nb) {
-            $word = ($state[$i] & intval(0xFF000000)) |
+            $word = ($state[$i] & (PHP_INT_SIZE == 8 ? 0xFF000000 : -16777216)) |
                     ($state[$j] & 0x00FF0000) |
                     ($state[$k] & 0x0000FF00) |
                     ($state[$l] & 0x000000FF);
@@ -494,7 +494,7 @@ class Rijndael extends BlockCipher
                 0x97000000, 0x35000000, 0x6A000000, 0xD4000000, 0xB3000000,
                 0x7D000000, 0xFA000000, 0xEF000000, 0xC5000000, 0x91000000,
             ];
-            $rcon = array_map('self::safe_intval', $rcon);
+            $rcon = array_map([self::class, 'safe_intval'], $rcon);
         }
 
         if (isset($this->kl['key']) && $this->key === $this->kl['key'] && $this->key_length === $this->kl['key_length'] && $this->block_size === $this->kl['block_size']) {
@@ -626,7 +626,7 @@ class Rijndael extends BlockCipher
             // according to <http://csrc.nist.gov/archive/aes/rijndael/Rijndael-ammended.pdf#page=19> (section 5.2.1),
             // precomputed tables can be used in the mixColumns phase. in that example, they're assigned t0...t3, so
             // those are the names we'll use.
-            $t3 = array_map('self::safe_intval', [
+            $t3 = array_map([self::class, 'safe_intval'], [
                 // with array_map('intval', ...) we ensure we have only int's and not
                 // some slower floats converted by php automatically on high values
                 0x6363A5C6, 0x7C7C84F8, 0x777799EE, 0x7B7B8DF6, 0xF2F20DFF, 0x6B6BBDD6, 0x6F6FB1DE, 0xC5C55491,
@@ -711,7 +711,7 @@ class Rijndael extends BlockCipher
     {
         static $tables;
         if (empty($tables)) {
-            $dt3 = array_map('self::safe_intval', [
+            $dt3 = array_map([self::class, 'safe_intval'], [
                 0xF4A75051, 0x4165537E, 0x17A4C31A, 0x275E963A, 0xAB6BCB3B, 0x9D45F11F, 0xFA58ABAC, 0xE303934B,
                 0x30FA5520, 0x766DF6AD, 0xCC769188, 0x024C25F5, 0xE5D7FC4F, 0x2ACBD7C5, 0x35448026, 0x62A38FB5,
                 0xB15A49DE, 0xBA1B6725, 0xEA0E9845, 0xFEC0E15D, 0x2F7502C3, 0x4CF01281, 0x4697A38D, 0xD3F9C66B,
