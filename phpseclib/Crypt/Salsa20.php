@@ -411,7 +411,7 @@ class Salsa20 extends StreamCipher
             $r1 &= 0xFFFFFFFF;
             $r2 = ($x & 0xFFFFFFFF) >> (32 - $n);
         } else {
-            $x = (int) $x;
+            $x = self::safe_intval($x);
             $r1 = $x << $n;
             $r2 = $x >> (32 - $n);
             $r2 &= (1 << $n) - 1;
@@ -482,7 +482,7 @@ class Salsa20 extends StreamCipher
         }
 
         for ($i = 1; $i <= 16; $i++) {
-            $x[$i] += $z[$i];
+            $x[$i] = self::safe_intval($x[$i] + $z[$i]);
         }
 
         return pack('V*', ...$x);
