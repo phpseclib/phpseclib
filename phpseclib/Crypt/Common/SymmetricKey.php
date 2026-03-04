@@ -488,6 +488,14 @@ abstract class SymmetricKey
     private array $metadata = [];
 
     /**
+     * Flag for using regular vs "safe" intval
+     *
+     * @see self::initialize_static_variables()
+     * @var boolean
+     */
+    protected static $use_reg_intval;
+
+    /**
      * Default Constructor.
      *
      * $mode could be:
@@ -558,6 +566,7 @@ abstract class SymmetricKey
      */
     protected static function initialize_static_variables(): void
     {
+        self::$use_reg_intval = PHP_VERSION_ID < 80500 || PHP_INT_SIZE == 8;
     }
 
     /**
@@ -2767,6 +2776,38 @@ abstract class SymmetricKey
             return $bindedClosure;
         }
         throw new LogicException('\Closure::bind() failed.');
+    }
+
+    /**
+     * Convert float to int
+     *
+     * On ARM CPUs converting floats to ints doesn't always work
+     */
+    protected static function safe_intval(float $x): int
+    {
+        if (is_int($x)) {
+            return $x;
+        }
+
+        if (self::$use_reg_intval) {
+            return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? intval($x) : $x;
+        }
+
+        return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
+            ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
+    }
+
+    /**
+     * eval()'able string for in-line float to int
+     */
+    protected static function safe_intval_inline(): string
+    {
+        if (self::$use_reg_intval) {
+            return PHP_INT_SIZE == 4 && PHP_VERSION_ID >= 80100 ? 'intval(%s)' : '%s';
+        }
+
+        $safeint = '(is_int($temp = %s) ? $temp : (fmod($temp, 0x80000000) & 0x7FFFFFFF) | ';
+        return $safeint . '((fmod(floor($temp / 0x80000000), 2) & 1) << 31))';
     }
 
     /**

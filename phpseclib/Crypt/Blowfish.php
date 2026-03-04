@@ -427,8 +427,8 @@ class Blowfish extends BlockCipher
     protected static function initialize_static_variables(): void
     {
         if (is_float(self::$sbox[0x200])) {
-            self::$sbox = array_map('intval', self::$sbox);
-            self::$parray = array_map('intval', self::$parray);
+            self::$sbox = array_map([self::class, 'safe_intval'], self::$sbox);
+            self::$parray = array_map([self::class, 'safe_intval'], self::$parray);
         }
 
         parent::initialize_static_variables();
@@ -658,7 +658,7 @@ class Blowfish extends BlockCipher
      * @param int[] $p
      * @return int[]
      */
-    private static function encryptBlockHelperSlow(int $x0, int $x1, array $sbox0, array $sbox, array $p): array
+    private static function encryptBlockHelperSlow(int $x0, int $x1, array $sbox, array $p): array
     {
         // -16777216 == intval(0xFF000000) on 32-bit PHP installs
         $x0 ^= $p[0];
@@ -696,12 +696,12 @@ class Blowfish extends BlockCipher
 
         for ($i = 17; $i > 2; $i -= 2) {
             $l ^= $p[$i];
-            $r ^= intval((intval($sb[$l >> 24 & 0xff] + $sb[0x100 + ($l >> 16 & 0xff)]) ^
+            $r ^= self::safe_intval((self::safe_intval($sb[$l >> 24 & 0xff] + $sb[0x100 + ($l >> 16 & 0xff)]) ^
                   $sb[0x200 + ($l >>  8 & 0xff)]) +
                   $sb[0x300 + ($l       & 0xff)]);
 
             $r ^= $p[$i - 1];
-            $l ^= intval((intval($sb[$r >> 24 & 0xff] + $sb[0x100 + ($r >> 16 & 0xff)]) ^
+            $l ^= self::safe_intval((self::safe_intval($sb[$r >> 24 & 0xff] + $sb[0x100 + ($r >> 16 & 0xff)]) ^
                   $sb[0x200 + ($r >>  8 & 0xff)]) +
                   $sb[0x300 + ($r       & 0xff)]);
         }
@@ -723,6 +723,8 @@ class Blowfish extends BlockCipher
             }
         ';
 
+        $safeint = self::safe_intval_inline();
+
         // Generating encrypt code:
         $encrypt_block = '
             $in = unpack("N*", $in);
@@ -732,14 +734,14 @@ class Blowfish extends BlockCipher
         for ($i = 0; $i < 16; $i += 2) {
             $encrypt_block .= '
                 $l^= ' . $p[$i] . ';
-                $r^= intval((intval($sb[$l >> 24 & 0xff] + $sb[0x100 + ($l >> 16 & 0xff)]) ^
+                $r^= ' . sprintf($safeint, '(' . sprintf($safeint, '$sb[$l >> 24 & 0xff] + $sb[0x100 + ($l >> 16 & 0xff)]') . ' ^
                       $sb[0x200 + ($l >>  8 & 0xff)]) +
-                      $sb[0x300 + ($l       & 0xff)]);
+                      $sb[0x300 + ($l       & 0xff)]') . ';
 
                 $r^= ' . $p[$i + 1] . ';
-                $l^= intval((intval($sb[$r >> 24 & 0xff] + $sb[0x100 + ($r >> 16 & 0xff)])  ^
+                $l^= ' . sprintf($safeint, '(' . sprintf($safeint, '$sb[$r >> 24 & 0xff] + $sb[0x100 + ($r >> 16 & 0xff)]') . '  ^
                       $sb[0x200 + ($r >>  8 & 0xff)]) +
-                      $sb[0x300 + ($r       & 0xff)]);
+                      $sb[0x300 + ($r       & 0xff)]') . ';
             ';
         }
         $encrypt_block .= '
@@ -759,14 +761,14 @@ class Blowfish extends BlockCipher
         for ($i = 17; $i > 2; $i -= 2) {
             $decrypt_block .= '
                 $l^= ' . $p[$i] . ';
-                $r^= intval((intval($sb[$l >> 24 & 0xff] + $sb[$l >> 16 & 0xff]) ^
+                $r^= ' . sprintf($safeint, '(' . sprintf($safeint, '$sb[$l >> 24 & 0xff] + $sb[0x100 + ($l >> 16 & 0xff)]') . ' ^
                       $sb[0x200 + ($l >>  8 & 0xff)]) +
-                      $sb[0x300 + ($l       & 0xff)]);
+                      $sb[0x300 + ($l       & 0xff)]') . ';
 
                 $r^= ' . $p[$i - 1] . ';
-                $l^= intval((intval($sb[$r >> 24 & 0xff] + $sb[$r >> 16 & 0xff]) ^
+                $l^= ' . sprintf($safeint, '(' . sprintf($safeint, '$sb[$r >> 24 & 0xff] + $sb[0x100 + ($r >> 16 & 0xff)]') . ' ^
                       $sb[0x200 + ($r >>  8 & 0xff)]) +
-                      $sb[0x300 + ($r       & 0xff)]);
+                      $sb[0x300 + ($r       & 0xff)]') . ';
             ';
         }
 
