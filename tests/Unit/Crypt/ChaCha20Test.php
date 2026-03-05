@@ -129,9 +129,11 @@ class ChaCha20Test extends PhpseclibTestCase
 
         $r = new \ReflectionClass($c::class);
         $m = $r->getMethod('createPoly1305Key');
+
         $result = $m->invoke($c);
 
         $p = $r->getProperty('poly1305Key');
+
         $actual = $p->getValue($c);
 
         $this->assertSame($expected, $actual, 'Failed asserting that the poly1305 key is what it ought to be');
