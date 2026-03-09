@@ -18,6 +18,8 @@ use phpseclib3\Math\BigInteger;
 
 class Curve448 extends Montgomery
 {
+    const SIZE = 56;
+
     public function __construct()
     {
         // 2^448 - 2^224 - 1

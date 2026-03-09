@@ -2,5 +2,8 @@
 
 HOME			= .
 RANDFILE		= $ENV::HOME/.rnd
+# without this line you'll get this error with openssl_pkey_new():
+# Warning: openssl_pkey_new(): Private key length must be at least 384 bits, configured to 0
+default_bits = 384
 
 [ v3_ca ]

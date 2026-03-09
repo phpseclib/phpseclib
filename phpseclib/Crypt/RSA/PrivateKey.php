@@ -288,6 +288,11 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      */
     public function sign($message)
     {
+        $result = $this->handleOpenSSL('openssl_sign', $message);
+        if ($result !== null) {
+            return $result;
+        }
+
         switch ($this->signaturePadding) {
             case self::SIGNATURE_PKCS1:
             case self::SIGNATURE_RELAXED_PKCS1:
@@ -434,6 +439,11 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      */
     public function decrypt($ciphertext)
     {
+        $result = $this->handleOpenSSL('openssl_private_decrypt', $ciphertext);
+        if ($result !== null) {
+            return $result;
+        }
+
         switch ($this->encryptionPadding) {
             case self::ENCRYPTION_NONE:
                 return $this->raw_encrypt($ciphertext);
