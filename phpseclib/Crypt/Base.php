@@ -2003,7 +2003,7 @@ class Crypt_Base
 
         $length = ord($text[strlen($text) - 1]);
 
-        if (!$length || $length > $this->block_size) {
+        if (!$length | ($length > $this->block_size)) {
             return false;
         }
 
