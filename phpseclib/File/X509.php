@@ -1321,6 +1321,7 @@ class X509
             '2.5.4.45' => 'id-at-uniqueIdentifier',
             '2.5.4.72' => 'id-at-role',
             '2.5.4.16' => 'id-at-postalAddress',
+            '2.5.4.97' => 'id-at-organizationIdentifier',
             '1.3.6.1.4.1.311.60.2.1.3' => 'jurisdictionOfIncorporationCountryName',
             '1.3.6.1.4.1.311.60.2.1.2' => 'jurisdictionOfIncorporationStateOrProvinceName',
             '1.3.6.1.4.1.311.60.2.1.1' => 'jurisdictionLocalityName',
@@ -2653,6 +2654,9 @@ class X509
             case 'organizationalunitname':
             case 'ou':
                 return 'id-at-organizationalUnitName';
+            case 'id-at-organizationidentifier':
+            case 'organizationIdentifier':
+                return 'id-at-organizationIdentifier';
             case 'id-at-pseudonym':
             case 'pseudonym':
                 return 'id-at-pseudonym';
