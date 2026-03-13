@@ -3,3 +3,4 @@
 composer.lock
 .gitignore
 .idea
+.phpunit.result.cache
