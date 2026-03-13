@@ -4,3 +4,4 @@
 /composer.phar
 /vendor/
 .gitignore
+.phpunit.result.cache
