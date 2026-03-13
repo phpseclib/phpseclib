@@ -2074,7 +2074,7 @@ abstract class Base
 
         $length = ord($text[strlen($text) - 1]);
 
-        if (!$length || $length > $this->block_size) {
+        if (!$length | ($length > $this->block_size)) {
             return false;
         }
 
