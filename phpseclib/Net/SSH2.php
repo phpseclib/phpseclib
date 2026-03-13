@@ -4593,7 +4593,7 @@ class SSH2
     function _send_channel_packet($client_channel, $data)
     {
         while (strlen($data)) {
-            if (!$this->window_size_client_to_server[$client_channel]) {
+            if (!isset($this->window_size_client_to_server[$client_channel])) {
                 $this->bitmap^= self::MASK_WINDOW_ADJUST;
                 // using an invalid channel will let the buffers be built up for the valid channels
                 $this->_get_channel_packet(-1);
