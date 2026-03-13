@@ -247,6 +247,9 @@ trait DN
             case 'organizationalunitname':
             case 'ou':
                 return 'id-at-organizationalUnitName';
+            case 'id-at-organizationidentifier':
+            case 'organizationIdentifier':
+                return 'id-at-organizationIdentifier';
             case 'id-at-pseudonym':
             case 'pseudonym':
                 return 'id-at-pseudonym';

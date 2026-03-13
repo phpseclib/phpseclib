@@ -58,6 +58,7 @@ abstract class X509
         'id-at-uniqueIdentifier' => '2.5.4.45',
         'id-at-role' => '2.5.4.72',
         'id-at-postalAddress' => '2.5.4.16',
+        'id-at-organizationIdentifier' => '2.5.4.97',
         'jurisdictionOfIncorporationCountryName' => '1.3.6.1.4.1.311.60.2.1.3',
         'jurisdictionOfIncorporationStateOrProvinceName' => '1.3.6.1.4.1.311.60.2.1.2',
         'jurisdictionLocalityName' => '1.3.6.1.4.1.311.60.2.1.1',
