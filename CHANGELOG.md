@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.27 - 2026-03-18
+
+- fix for PHP 8.5 BC breaking changes on 32-bit machines (#2126)
+- make unpadding in CBC mode constant time (CVE-2026-32935)
+- X509: add support for organizationIdentifier (#2128)
+
 ## 1.0.26 - 2026-01-27
 
 - more PHP 8.5 deprecations (#2113)
