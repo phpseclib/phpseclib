@@ -47,7 +47,7 @@ class CreateKeyTest extends PhpseclibTestCase
 
     public function testMultiPrime(): void
     {
-        RSA::useInternalEngine();
+        RSA::forceEngine('PHP');
         RSA::setSmallestPrime(256);
         $privatekey = RSA::createKey(1024);
         $publickey = $privatekey->getPublicKey();
@@ -70,7 +70,7 @@ class CreateKeyTest extends PhpseclibTestCase
         $rsa = RSA::load($rsa->getPublicKey()->toString('PKCS1'));
         $this->assertTrue($rsa->verify('zzz', $signature));
 
-        RSA::useBestEngine();
+        RSA::forceEngine();
     }
 
     public function test3DESPKCS8Encryption(): void

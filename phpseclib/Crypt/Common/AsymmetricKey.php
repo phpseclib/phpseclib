@@ -79,11 +79,12 @@ abstract class AsymmetricKey
     private static $invisiblePlugins = [];
 
     /**
-     * Available Engines
+     * Forced Engine
      *
-     * @var boolean[]
+     * @see self::forceEngine()
+     * @var null|string
      */
-    protected static $engines = [];
+    protected static $forcedEngine;
 
     /**
      * Key Comment
@@ -91,6 +92,13 @@ abstract class AsymmetricKey
      * @var null|string
      */
     private $comment;
+
+    /**
+     * OpenSSL configuration file name.
+     *
+     * @see self::createKey()
+     */
+    protected static ?string $configFile;
 
     abstract public function toString(string $type, array $options = []): array|string;
 
@@ -113,6 +121,10 @@ abstract class AsymmetricKey
         if (!isset(self::$zero)) {
             self::$zero = new BigInteger(0);
             self::$one = new BigInteger(1);
+        }
+
+        if (!isset(self::$configFile)) {
+            self::$configFile = dirname(__FILE__) . '/../../openssl.cnf';
         }
 
         self::loadPlugins('Keys');
@@ -332,6 +344,18 @@ abstract class AsymmetricKey
     }
 
     /**
+     * Sets the OpenSSL config file path
+     *
+     * Set to the empty string to use the default config file
+     *
+     * @param string $val
+     */
+    public static function setOpenSSLConfigPath($val)
+    {
+        self::$configFile = $val;
+    }
+
+    /**
      * Add a fileformat plugin
      *
      * The plugin needs to either already be loaded or be auto-loadable.
@@ -382,32 +406,28 @@ abstract class AsymmetricKey
     }
 
     /**
-     * Tests engine validity
+     * Force engine (useful for unit testing)
      */
-    public static function useBestEngine(): array
+    public static function forceEngine(?string $engine = null): void
     {
-        static::$engines = [
-            'PHP' => true,
-            'OpenSSL' => extension_loaded('openssl'),
-            // this test can be satisfied by either of the following:
-            // http://php.net/manual/en/book.sodium.php
-            // https://github.com/paragonie/sodium_compat
-            'libsodium' => function_exists('sodium_crypto_sign_keypair'),
-        ];
-
-        return static::$engines;
+        if (!isset($engine)) {
+            self::$forcedEngine = null;
+            return;
+        }
+        switch ($engine) {
+            case 'PHP':
+            case 'OpenSSL':
+            case 'libsodium':
+                self::$forcedEngine = $engine;
+                break;
+            default:
+                throw new \InvalidArgumentException('Valid engines are null, PHP, OpenSSL or libsodium');
+        }
     }
 
-    /**
-     * Flag to use internal engine only (useful for unit testing)
-     */
-    public static function useInternalEngine(): void
+    public static function getForcedEngine(): ?string
     {
-        static::$engines = [
-            'PHP' => true,
-            'OpenSSL' => false,
-            'libsodium' => false,
-        ];
+        return self::$forcedEngine;
     }
 
     /**

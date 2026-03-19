@@ -35,8 +35,8 @@ use phpseclib4\Crypt\Common\AsymmetricKey;
 use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -86,6 +86,18 @@ abstract class DSA extends AsymmetricKey
     protected string $shortFormat;
 
     /**
+     * Initialize static variables
+     */
+    protected static function initialize_static_variables()
+    {
+        if (self::$forcedEngine == 'libsodium') {
+            throw new BadConfigurationException('Engine ' . self::$forcedEngine . ' is forced but unsupported for DSA');
+        }
+
+        parent::initialize_static_variables();
+    }
+
+    /**
      * Create DSA parameters
      *
      * @return DSA|bool
@@ -97,10 +109,6 @@ abstract class DSA extends AsymmetricKey
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
             throw new \RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
-        }
-
-        if (!isset(self::$engines['PHP'])) {
-            self::useBestEngine();
         }
 
         switch (true) {
@@ -171,13 +179,13 @@ abstract class DSA extends AsymmetricKey
     {
         self::initialize_static_variables();
 
+        if (self::$forcedEngine == 'OpenSSL' && !defined('OPENSSL_KEYTYPE_DSA')) {
+            throw new BadConfigurationException("Engine OpenSSL is forced but unsupported for DSA");
+        }
+
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
             throw new \RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
-        }
-
-        if (!isset(self::$engines['PHP'])) {
-            self::useBestEngine();
         }
 
         if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {
@@ -188,6 +196,33 @@ abstract class DSA extends AsymmetricKey
             $params = self::createParameters();
         } else {
             throw new InsufficientSetupException('Valid parameters are either two integers (L and N), a single DSA object or no parameters at all.');
+        }
+
+        // at this point the only two supported values for self::$forcedEngine are OpenSSL, PHP and null
+        // if it's either OpenSSL or null we'll use OpenSSL (if it's available)
+        if (self::$forcedEngine !== 'PHP' && defined('OPENSSL_KEYTYPE_DSA')) {
+            $config = [];
+            if (self::$configFile) {
+                $config['config'] = self::$configFile;
+            }
+            $dsa = openssl_pkey_new($config + [
+                'private_key_type' => OPENSSL_KEYTYPE_DSA,
+                'p' => $params->p,
+                'q' => $params->q,
+                'g' => $params->g,
+            ]);
+            if ($dsa && openssl_pkey_export($dsa, $privatekeystr, null, $config)) {
+                // clear the buffer of error strings stemming from a minimalistic openssl.cnf
+                // https://github.com/php/php-src/issues/11054 talks about other errors this'll pick up
+                while (openssl_error_string() !== false) {
+                }
+
+                return DSA::load($privatekeystr)
+                    ->withHash($params->hash->getHash())
+                    ->withSignatureFormat($params->shortFormat);
+            } elseif (isset(self::$forcedEngine)) {
+                throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
+            }
         }
 
         $private = new PrivateKey();
@@ -211,10 +246,6 @@ abstract class DSA extends AsymmetricKey
      */
     protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {
-        if (!isset(self::$engines['PHP'])) {
-            self::useBestEngine();
-        }
-
         if (!isset($components['x']) && !isset($components['y'])) {
             $new = new Parameters();
         } elseif (isset($components['x'])) {
@@ -256,21 +287,6 @@ abstract class DSA extends AsymmetricKey
     public function getLength(): array
     {
         return ['L' => $this->p->getLength(), 'N' => $this->q->getLength()];
-    }
-
-    /**
-     * Returns the current engine being used
-     *
-     * @see self::useInternalEngine()
-     * @see self::useBestEngine()
-     */
-    public function getEngine(): string
-    {
-        if (!isset(self::$engines['PHP'])) {
-            self::useBestEngine();
-        }
-        return self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods()) ?
-            'OpenSSL' : 'PHP';
     }
 
     /**

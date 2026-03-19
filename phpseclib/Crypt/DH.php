@@ -30,9 +30,13 @@ use phpseclib4\Crypt\Common\AsymmetricKey;
 use phpseclib4\Crypt\DH\Parameters;
 use phpseclib4\Crypt\DH\PrivateKey;
 use phpseclib4\Crypt\DH\PublicKey;
-use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Crypt\EC\Curves\Curve25519;
+use phpseclib4\Crypt\EC\Curves\Curve448;
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Exception\UnsupportedOperationException;
+use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -284,11 +288,51 @@ abstract class DH extends AsymmetricKey
         }
 
         if ($private instanceof EC\PrivateKey) {
+            $privateCurve = $private->getCurve();
             switch (true) {
                 case $public instanceof EC\PublicKey:
+                    if ($privateCurve !== $public->getCurve()) {
+                        throw new \InvalidArgumentException('The public key curve and private keys need to use the same curve');
+                    }
+                    $orig = $public;
                     $public = $public->getEncodedCoordinates();
                     // fall-through
                 case is_string($public):
+                    $forcedEngine = EC::getForcedEngine();
+                    if ($forcedEngine === 'libsodium' && $privateCurve !== 'Curve25519') {
+                        throw new BadConfigurationException('Engine libsodium is forced but can only used with Curve25519 for ECDH');
+                    }
+                    if (!isset($forcedEngine) || $forcedEngine === 'OpenSSL') {
+                        // PHP 7.3.0 introduced the openssl_pkey_derive() function
+                        // openssl_dh_computee_key() has been around since PHP 5.3.0+ BUT it did not support ECDH
+                        // until PHP 8.1.0 / OpenSSL 3.0.0
+                        if ($forcedEngine === 'OpenSSL' && !function_exists('openssl_pkey_derive')) {
+                            throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for ECDH');
+                        }
+                        if (function_exists('openssl_pkey_derive')) {
+                            if (isset($orig)) {
+                                $privateStr = (string) $private->withPassword();
+                                $publicStr = (string) $orig;
+                            } else {
+                                // create the key as a binary one so that the parameters can be extracted, if necessary
+                                $privateStr = $private->withPassword()->toString('PKCS8');
+                                $publicStr = "-----BEGIN PUBLIC KEY-----\n" .
+                                        chunk_split(base64_encode($public), 64) .
+                                        "-----END PUBLIC KEY-----";
+                            }
+                            $result = openssl_pkey_derive($publicStr, $privateStr);
+                            if ($result) {
+                                return $result;
+                            }
+                            if ($forcedEngine === 'OpenSSL') {
+                                // i suppose we _could_ try openssl_dh_compute_key() at this point
+                                // quoting https://www.php.net/openssl-dh-compute-key "ECDH is only supported as of PHP 8.1.0 and OpenSSL 3.0.0". ie.
+                                // PHP_VERSION_ID >= 80100 && OPENSSL_VERSION_NUMBER >= 0x3000000f
+                                // but i think that's overkill. if openssl_pkey_derive() doesn't work it seems doubtful to me that openssl_dh_compute_key() would
+                                throw new BadConfigurationException('Engine OpenSSL is forced but was unable to perform ECDH because of ' . openssl_error_string());
+                            }
+                        }
+                    }
                     $point = $private->multiply($public);
                     switch ($private->getCurve()) {
                         case 'Curve25519':

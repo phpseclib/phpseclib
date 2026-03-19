@@ -21,6 +21,8 @@ use phpseclib4\Math\BigInteger;
 
 class Curve25519 extends Montgomery
 {
+    const SIZE = 32;
+
     public function __construct()
     {
         // 2^255 - 19

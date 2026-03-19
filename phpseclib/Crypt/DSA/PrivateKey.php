@@ -19,6 +19,7 @@ use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib4\File\Common\Signable;
 use phpseclib4\File\CSR;
 use phpseclib4\Math\BigInteger;
+use phpseclib4\Exception\BadConfigurationException;
 
 /**
  * DSA Private Key
@@ -78,37 +79,41 @@ final class PrivateKey extends DSA implements Common\PrivateKey
     {
         $format = $this->sigFormat;
 
-        if ($source instanceof Signable) {
-            if ($source instanceof CSR && !$source->hasPublicKey()) {
-                $source->setPublicKey($this->getPublicKey());
-            }
-            $source->identifySignatureAlgorithm($this);
-            $message = $source->getSignableSection();
-        } else {
-            $message = $source;
+        if (self::$forcedEngine === 'libsodium') {
+            throw new BadConfigurationException('Engine libsodium is forced but unsupported for DSA');
         }
 
-        if (self::$engines['OpenSSL'] && in_array($this->hash->getHash(), openssl_get_md_methods())) {
-            $signature = '';
-            $result = openssl_sign($message, $signature, $this->toString('PKCS8'), $this->hash->getHash());
+        if (self::$forcedEngine === 'OpenSSL' && !function_exists('openssl_get_md_methods')) {
+            throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
+        }
 
-            if ($result) {
-                if ($this->shortFormat == 'ASN1') {
+        if (function_exists('openssl_get_md_methods') && self::$forcedEngine !== 'PHP') {
+            if (in_array($this->hash->getHash(), openssl_get_md_methods())) {
+                $signature = '';
+                $result = openssl_sign($message, $signature, $this->toString('PKCS8'), $this->hash->getHash());
+
+                if ($result) {
+                    if ($this->shortFormat == 'ASN1') {
+                        if ($source instanceof Signable) {
+                            $source->setSignature($signature);
+                        }
+                        return $signature;
+                    }
+
+                    $loaded = ASN1Signature::load($signature);
+                    $r = $loaded['r'];
+                    $s = $loaded['s'];
+
                     if ($source instanceof Signable) {
                         $source->setSignature($signature);
                     }
-                    return $signature;
+
+                    return $format::save($r, $s);
+                } elseif (self::$forcedEngine === 'OpenSSL') {
+                    throw new BadConfigurationException('Engine OpenSSL is forced but was unable to create signature because of ' . openssl_error_string());
                 }
-
-                ['r' => $r, 's' => $s] = ASN1Signature::load($signature);
-
-                $signature = $format::save($r, $s);
-
-                if ($source instanceof Signable) {
-                    $source->setSignature($signature);
-                }
-
-                return $signature;
+            } elseif (self::$forcedEngine === 'OpenSSL') {
+                throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA / ' . $this->hash->getHash());
             }
         }
 

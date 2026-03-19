@@ -12,6 +12,7 @@ namespace phpseclib4\Tests\Unit\Crypt\DSA;
 
 use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class SignatureTest extends PhpseclibTestCase
@@ -20,7 +21,13 @@ class SignatureTest extends PhpseclibTestCase
     {
         $message = 'hello, world!';
 
-        $dsa = PublicKeyLoader::load('-----BEGIN DSA PRIVATE KEY-----
+        // libsodium doesn't support DSA but it still ought not result in any errors outside of the BadConfigurationException being thrown
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        foreach ($engines as $engine) {
+            try {
+                DSA::forceEngine($engine);
+
+                $dsa = PublicKeyLoader::load('-----BEGIN DSA PRIVATE KEY-----
 MIIBvAIBAAKBgQDsGAHAM16bsPlwl7jaec4QMynYa0YLiLiOZC4mvH4UW/tRJxTz
 aV7eH1EtnP9D9J78x/07wKYs8zJEWCXmuq0UluQfjA47+pb68b/ucQTNeZHboNN9
 5oEi+8BCSK0y8G3uf3Y89qHvqa9Si6rP374MinEMrbVFm+UpsGflFcd83wIVALtJ
@@ -32,10 +39,10 @@ pQFV8eVJfk91ERQ4Dn6ePLUv2dRIt4a0S0qHqadgzyoFyqkmmUi1kNLyixtRqh+m
 2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9MTzUkQjFI9UY7kZeKAhQXiJgI
 kBniZHdFBAZBTE14YJUBkw==
 -----END DSA PRIVATE KEY-----')
-            ->withSignatureFormat('ASN1');
-        $signature = $dsa->sign($message);
+                    ->withSignatureFormat('ASN1');
+                $signature = $dsa->sign($message);
 
-        $dsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
+                $dsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MIIBuDCCASwGByqGSM44BAEwggEfAoGBAOwYAcAzXpuw+XCXuNp5zhAzKdhrRguI
 uI5kLia8fhRb+1EnFPNpXt4fUS2c/0P0nvzH/TvApizzMkRYJea6rRSW5B+MDjv6
 lvrxv+5xBM15kdug033mgSL7wEJIrTLwbe5/djz2oe+pr1KLqs/fvgyKcQyttUWb
@@ -47,33 +54,40 @@ jhGOrO+kJcZBxUSxINgIIEYFAlEDgYUAAoGBALnHTAZlpoLJZuSBVtnMuRM3cSX4
 zyoFyqkmmUi1kNLyixtRqh+m2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9M
 TzUkQjFI9UY7kZeK
 -----END PUBLIC KEY-----')
-            ->withSignatureFormat('ASN1');
+                    ->withSignatureFormat('ASN1');
 
-        $this->assertTrue($dsa->verify($message, $signature));
-        $this->assertFalse($dsa->verify('foozbar', $signature));
+                $this->assertTrue($dsa->verify($message, $signature));
+                $this->assertFalse($dsa->verify('foozbar', $signature));
 
-        // openssl dgst -dss1 -sign dsa_priv.pem foo.txt > sigfile.bin
-        $signature = '302c021456d7e7da10d1538a6cd45dcb2b0ce15c28bac03402147e973a4de1e92e8a87ed5218c797952a3f854df5';
-        $signature = pack('H*', $signature);
+                // openssl dgst -dss1 -sign dsa_priv.pem foo.txt > sigfile.bin
+                $signature = '302c021456d7e7da10d1538a6cd45dcb2b0ce15c28bac03402147e973a4de1e92e8a87ed5218c797952a3f854df5';
+                $signature = pack('H*', $signature);
 
-        $dsa = $dsa->withHash('sha1');
+                $dsa = $dsa->withHash('sha1');
 
-        $this->assertTrue($dsa->verify("foobar\n", $signature));
-        $this->assertFalse($dsa->verify('foozbar', $signature));
+                $this->assertTrue($dsa->verify("foobar\n", $signature));
+                $this->assertFalse($dsa->verify('foozbar', $signature));
 
-        // openssl dgst -sha256 -sign dsa_priv.pem foo.txt > sigfile.bin
-        $signature = '302e021500b131ec2682c4c0be13e6558ba3d64929ebc0ac420215009946300a03561cef50c0a51d0cd0a2c835e798fc';
-        $signature = pack('H*', $signature);
+                // openssl dgst -sha256 -sign dsa_priv.pem foo.txt > sigfile.bin
+                $signature = '302e021500b131ec2682c4c0be13e6558ba3d64929ebc0ac420215009946300a03561cef50c0a51d0cd0a2c835e798fc';
+                $signature = pack('H*', $signature);
 
-        $dsa = $dsa->withHash('sha256');
+                $dsa = $dsa->withHash('sha256');
 
-        $this->assertTrue($dsa->verify('abcdefghijklmnopqrstuvwxyz', $signature));
-        $this->assertFalse($dsa->verify('zzzz', $signature));
+                $this->assertTrue($dsa->verify('abcdefghijklmnopqrstuvwxyz', $signature));
+                $this->assertFalse($dsa->verify('zzzz', $signature));
+            } catch (BadConfigurationException $e) {
+            }
+        }
+        // reset
+        DSA::forceEngine();
     }
 
     public function testRandomSignature(): void
     {
         $message = 'hello, world!';
+
+        DSA::forceEngine('PHP');
 
         $dsa = PublicKeyLoader::load('-----BEGIN DSA PRIVATE KEY-----
 MIIBvAIBAAKBgQDsGAHAM16bsPlwl7jaec4QMynYa0YLiLiOZC4mvH4UW/tRJxTz
@@ -108,6 +122,9 @@ kBniZHdFBAZBTE14YJUBkw==
         $signature = $dsa->sign($message);
 
         $this->assertTrue($public->verify($message, $signature));
+
+        // reset
+        DSA::forceEngine();
     }
 
     public function testSSHSignature(): void
@@ -124,6 +141,15 @@ kBniZHdFBAZBTE14YJUBkw==
         $message = pack('H*', '8bfc69a222c12ddf6bc6bf33c9cadc106af04feb');
         $signature = pack('H*', '000000077373682d64737300000028a7a2e55dc43e5e6145aa94daa0552ea479d1139d6d6ba50650b489e24e976593e73f76557813d6bc');
 
-        $this->assertTrue($dsa->verify($message, $signature));
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        foreach ($engines as $engine) {
+            try {
+                DSA::forceEngine($engine);
+                $this->assertTrue($dsa->verify($message, $signature));
+            } catch (BadConfigurationException $e) {
+            }
+        }
+        // reset
+        DSA::forceEngine();
     }
 }
