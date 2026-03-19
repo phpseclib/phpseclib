@@ -87,6 +87,16 @@ final class PrivateKey extends DSA implements Common\PrivateKey
             throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
         }
 
+        if ($source instanceof Signable) {
+            if ($source instanceof CSR && !$source->hasPublicKey()) {
+                $source->setPublicKey($this->getPublicKey());
+            }
+            $source->identifySignatureAlgorithm($this);
+            $message = $source->getSignableSection();
+        } else {
+            $message = $source;
+        }
+
         if (function_exists('openssl_get_md_methods') && self::$forcedEngine !== 'PHP') {
             if (in_array($this->hash->getHash(), openssl_get_md_methods())) {
                 $signature = '';

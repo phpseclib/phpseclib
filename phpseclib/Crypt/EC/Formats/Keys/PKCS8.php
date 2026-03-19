@@ -241,10 +241,9 @@ abstract class PKCS8 extends Progenitor
         self::initialize_static_variables();
         if ($curve instanceof MontgomeryCurve) {
             return self::wrapPublicKey(
-                chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . str_pad($publicKey[0]->toBytes(), $curve::SIZE, "\0", STR_PAD_LEFT),
-                null,
-                $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448',
-                $options
+                key: chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . str_pad($publicKey[0]->toBytes(), $curve::SIZE, "\0", STR_PAD_LEFT),
+                oid: $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448',
+                options: $options
             );
         }
 
@@ -279,11 +278,9 @@ abstract class PKCS8 extends Progenitor
 
         if ($curve instanceof MontgomeryCurve) {
             return self::wrapPrivateKey(
-                chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . str_pad($privateKey->toBytes(), $curve::SIZE, "\0", STR_PAD_LEFT),
-                [],
-                null,
-                $password,
-                $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448'
+                key: chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . str_pad($privateKey->toBytes(), $curve::SIZE, "\0", STR_PAD_LEFT),
+                password: $password,
+                oid: $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448'
             );
         }
 

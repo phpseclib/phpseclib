@@ -37,6 +37,8 @@ use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -88,7 +90,7 @@ abstract class DSA extends AsymmetricKey
     /**
      * Initialize static variables
      */
-    protected static function initialize_static_variables()
+    protected static function initialize_static_variables(): void
     {
         if (self::$forcedEngine == 'libsodium') {
             throw new BadConfigurationException('Engine ' . self::$forcedEngine . ' is forced but unsupported for DSA');
@@ -108,7 +110,7 @@ abstract class DSA extends AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
+            throw new RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
         }
 
         switch (true) {
@@ -185,7 +187,7 @@ abstract class DSA extends AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+            throw new RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
         }
 
         if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {

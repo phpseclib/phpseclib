@@ -33,7 +33,9 @@ use phpseclib4\Crypt\DH\PublicKey;
 use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Crypt\EC\Curves\Curve448;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Exception\UnsupportedOperationException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
@@ -82,13 +84,13 @@ abstract class DH extends AsymmetricKey
     {
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
+            throw new RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
         }
 
         $params = new Parameters();
         if (count($args) == 2 && $args[0] instanceof BigInteger && $args[1] instanceof BigInteger) {
             //if (!$args[0]->isPrime()) {
-            //    throw new \phpseclib4\Exception\InvalidArgumentException('The first parameter should be a prime number');
+            //    throw new InvalidArgumentException('The first parameter should be a prime number');
             //}
             $params->prime = $args[0];
             $params->base = $args[1];
@@ -246,7 +248,7 @@ abstract class DH extends AsymmetricKey
     {
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+            throw new RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
         }
 
         $one = new BigInteger(1);
@@ -292,7 +294,7 @@ abstract class DH extends AsymmetricKey
             switch (true) {
                 case $public instanceof EC\PublicKey:
                     if ($privateCurve !== $public->getCurve()) {
-                        throw new \InvalidArgumentException('The public key curve and private keys need to use the same curve');
+                        throw new InvalidArgumentException('The public key curve and private keys need to use the same curve');
                     }
                     $orig = $public;
                     $public = $public->getEncodedCoordinates();

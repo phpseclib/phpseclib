@@ -904,7 +904,9 @@ abstract class RSA extends AsymmetricKey
                 switch (true) {
                     case $this->signaturePadding === self::SIGNATURE_PSS && defined('OPENSSL_PKCS1_PSS_PADDING'):
                     case $this->signaturePadding !== self::SIGNATURE_PSS && function_exists($func):
-                        $key = $this->toString('PKCS8');
+                        $key = $this instanceof PrivateKey ?
+                            $this->withPassword()->toString('PKCS8') :
+                            $this->toString('PKCS8');
                         if ($func === 'openssl_sign' && strpos($key, 'PUBLIC') !== false) {
                             if (self::$forcedEngine === 'OpenSSL') {
                                 throw new BadConfigurationException('Engine OpenSSL is forced but cannot be used because the private key does not have the prime components within it');
@@ -913,23 +915,9 @@ abstract class RSA extends AsymmetricKey
                         }
                         $hash = $this->hash->getHash();
 
-                        // on github actions, php 7.0 and 7.1 on windows emit the following warning:
-                        // openssl_sign(): supplied key param cannot be coerced into a private key
-                        set_error_handler(function ($errno, $errstr, $errfile, $errline, $errcontext) {
-                            throw new BadConfigurationException("Engine OpenSSL is forced but got error: $errstr");
-                        });
-                        try {
-                            $result = $this->signaturePadding === self::SIGNATURE_PSS ?
-                                $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) :
-                                $func($message, $signature, $key, $hash);
-                        } catch (BadConfigurationException $e) {
-                            if (self::$forcedEngine === 'OpenSSL') {
-                                throw $e;
-                            }
-                            $result = false;
-                        } finally {
-                            restore_error_handler();
-                        }
+                        $result = $this->signaturePadding === self::SIGNATURE_PSS ?
+                            $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) :
+                            $func($message, $signature, $key, $hash);
 
                         if ($func === 'openssl_verify' && $result !== -1 && $result !== false) {
                             return (bool) $result;

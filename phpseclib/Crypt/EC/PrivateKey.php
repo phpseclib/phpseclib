@@ -244,6 +244,9 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
                 if ($result) {
                     if ($shortFormat == 'ASN1') {
+                        if ($source instanceof Signable) {
+                            $source->setSignature($signature);
+                        }
                         return $signature;
                     }
 
