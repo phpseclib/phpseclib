@@ -14,6 +14,7 @@ use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 /**
@@ -45,16 +46,27 @@ class CreateKeyTest extends PhpseclibTestCase
      */
     public function testCreateKey($params): void
     {
-        $privatekey = DSA::createKey();
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+        // libsodium doesn't support DSA but it still ought not result in any errors outside of the BadConfigurationException being thrown
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        foreach ($engines as $engine) {
+            try {
+                DSA::forceEngine($engine);
 
-        $privatekey = DSA::createKey($params);
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+                $privatekey = DSA::createKey();
+                $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
 
-        $privatekey = DSA::createKey(512, 160);
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+                $privatekey = DSA::createKey($params);
+                $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+
+                $privatekey = DSA::createKey(512, 160);
+                $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+            } catch (BadConfigurationException $e) {
+            }
+        }
+        // reset
+        DSA::forceEngine();
     }
 }

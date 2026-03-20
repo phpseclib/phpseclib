@@ -60,7 +60,7 @@ abstract class PKCS1 extends Progenitor
             throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
-        if (strpos($key, 'BEGIN EC PARAMETERS') && strpos($key, 'BEGIN EC PRIVATE KEY')) {
+        if (str_contains($key, 'BEGIN EC PARAMETERS') && str_contains($key, 'BEGIN EC PRIVATE KEY')) {
             $components = [];
 
             preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
