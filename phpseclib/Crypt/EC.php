@@ -78,7 +78,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Curve
      */
-    protected Base $curve;
+    protected $curve;
 
     /**
      * Signature Format (Short)

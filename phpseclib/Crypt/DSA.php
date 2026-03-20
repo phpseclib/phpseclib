@@ -88,18 +88,6 @@ abstract class DSA extends AsymmetricKey
     protected string $shortFormat;
 
     /**
-     * Initialize static variables
-     */
-    protected static function initialize_static_variables(): void
-    {
-        if (self::$forcedEngine == 'libsodium') {
-            throw new BadConfigurationException('Engine ' . self::$forcedEngine . ' is forced but unsupported for DSA');
-        }
-
-        parent::initialize_static_variables();
-    }
-
-    /**
      * Create DSA parameters
      *
      * @return DSA|bool
@@ -180,6 +168,10 @@ abstract class DSA extends AsymmetricKey
     public static function createKey(int|Parameters ...$args): PrivateKey
     {
         self::initialize_static_variables();
+
+        if (self::$forcedEngine == 'libsodium') {
+            throw new BadConfigurationException('Engine ' . self::$forcedEngine . ' is forced but unsupported for DSA');
+        }
 
         if (self::$forcedEngine == 'OpenSSL' && !defined('OPENSSL_KEYTYPE_DSA')) {
             throw new BadConfigurationException("Engine OpenSSL is forced but unsupported for DSA");
