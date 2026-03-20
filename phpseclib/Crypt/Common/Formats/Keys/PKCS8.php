@@ -87,8 +87,8 @@ abstract class PKCS8 extends PKCS
      */
     protected static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
-        $isPublic = strpos($key, 'PUBLIC') !== false;
-        $isPrivate = strpos($key, 'PRIVATE') !== false;
+        $isPublic = str_contains($key, 'PUBLIC');
+        $isPrivate = str_contains($key, 'PRIVATE');
 
         $decoded = self::preParse($key);
 

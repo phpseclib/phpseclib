@@ -216,10 +216,8 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      * RSASSA-PSS-SIGN
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.1.1 RFC3447#section-8.1.1}.
-     *
-     * @return bool|string
      */
-    private function rsassa_pss_sign(string $m)
+    private function rsassa_pss_sign(string $m): string
     {
         // EMSA-PSS encoding
 
@@ -293,15 +291,12 @@ final class PrivateKey extends RSA implements Common\PrivateKey
             return $signature;
         }
 
-        switch ($this->signaturePadding) {
-            case self::SIGNATURE_PKCS1:
-            case self::SIGNATURE_RELAXED_PKCS1:
-                $signature = $this->rsassa_pkcs1_v1_5_sign($message);
-                break;
-            //case self::SIGNATURE_PSS:
-            default:
-                $signature = $this->rsassa_pss_sign($message);
-        }
+        $signature = match ($this->signaturePadding) {
+            self::SIGNATURE_PKCS1, self::SIGNATURE_RELAXED_PKCS1 => $this->rsassa_pkcs1_v1_5_sign($message),
+            // self::SIGNATURE_PSS
+            default => $this->rsassa_pss_sign($message)
+        };
+
         if ($source instanceof Signable) {
             $source->setSignature($signature);
         }
@@ -439,15 +434,12 @@ final class PrivateKey extends RSA implements Common\PrivateKey
             return $result;
         }
 
-        switch ($this->encryptionPadding) {
-            case self::ENCRYPTION_NONE:
-                return $this->raw_encrypt($ciphertext);
-            case self::ENCRYPTION_PKCS1:
-                return $this->rsaes_pkcs1_v1_5_decrypt($ciphertext);
-            //case self::ENCRYPTION_OAEP:
-            default:
-                return $this->rsaes_oaep_decrypt($ciphertext);
-        }
+        return match ($this->encryptionPadding) {
+            self::ENCRYPTION_NONE => $this->raw_encrypt($ciphertext),
+            self::ENCRYPTION_PKCS1 => $this->rsaes_pkcs1_v1_5_decrypt($ciphertext),
+            // self::ENCRYPTION_OAEP
+            default => $this->rsaes_oaep_decrypt($ciphertext)
+        };
     }
 
     /**

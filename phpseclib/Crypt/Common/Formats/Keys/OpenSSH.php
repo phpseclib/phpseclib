@@ -123,12 +123,12 @@ abstract class OpenSSH
 
         if (!isset($parts[1])) {
             $key = base64_decode($parts[0]);
-            $comment = false;
+            $comment = null;
         } else {
             $asciiType = $parts[0];
             self::checkType($parts[0]);
             $key = base64_decode($parts[1]);
-            $comment = $parts[2] ?? false;
+            $comment = $parts[2] ?? null;
         }
         if ($key === false) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));

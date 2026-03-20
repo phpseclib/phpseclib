@@ -301,14 +301,14 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
         $h1 = $this->hash->hash($message);
         $k = $this->computek($h1);
-        list($x, $y) = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
+        [x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
         $x = $x->toBigInteger();
-        list(, $r) = $x->divide($this->q);
+        [, $r] = $x->divide($this->q);
         $kinv = $k->modInverse($this->q);
         $h1 = $this->bits2int($h1);
         $temp = $h1->add($dA->multiply($r));
         $temp = $kinv->multiply($temp);
-        list(, $s) = $temp->divide($this->q);
+        [, $s] = $temp->divide($this->q);
         */
 
         $signature = $this->formatSignature($r, $s);

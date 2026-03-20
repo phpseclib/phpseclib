@@ -58,7 +58,7 @@ class Ed25519 extends TwistedEdwards
             $className = $this->className;
 
             if (count($parts) > 2) {
-                list(, $r) = $x->divide($className::$modulo);
+                [, $r] = $x->divide($className::$modulo);
                 return $r;
             }
 
@@ -67,11 +67,11 @@ class Ed25519 extends TwistedEdwards
 
             switch (count($parts)) {
                 case 2:
-                    list($qi, $ri) = $parts;
+                    [$qi, $ri] = $parts;
                     break;
                 case 1:
                     $qi = $zero;
-                    list($ri) = $parts;
+                    [$ri] = $parts;
                     break;
                 case 0:
                     return $zero;
@@ -81,10 +81,10 @@ class Ed25519 extends TwistedEdwards
             while ($qi->compare($zero) > 0) {
                 $temp = $qi->multiply($c)->bitwise_split(255);
                 if (count($temp) == 2) {
-                    list($qi, $ri) = $temp;
+                    [$qi, $ri] = $temp;
                 } else {
                     $qi = $zero;
-                    list($ri) = $temp;
+                    [$ri] = $temp;
                 }
                 $r = $r->add($ri);
             }

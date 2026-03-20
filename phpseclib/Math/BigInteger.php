@@ -274,7 +274,7 @@ class BigInteger implements \JsonSerializable
      *    $a = new \phpseclib4\Math\BigInteger('10');
      *    $b = new \phpseclib4\Math\BigInteger('20');
      *
-     *    list($quotient, $remainder) = $a->divide($b);
+     *    [$quotient, $remainder] = $a->divide($b);
      *
      *    echo $quotient->toString(); // outputs 0
      *    echo "\r\n";

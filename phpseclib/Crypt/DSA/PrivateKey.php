@@ -154,12 +154,12 @@ final class PrivateKey extends DSA implements Common\PrivateKey
         $h1 = $this->hash->hash($message);
         $k = $this->computek($h1);
         $r = $this->g->powMod($k, $this->p);
-        list(, $r) = $r->divide($this->q);
+        [, $r] = $r->divide($this->q);
         $kinv = $k->modInverse($this->q);
         $h1 = $this->bits2int($h1);
         $temp = $h1->add($this->x->multiply($r));
         $temp = $kinv->multiply($temp);
-        list(, $s) = $temp->divide($this->q);
+        [, $s] = $temp->divide($this->q);
         */
 
         $signature = $format::save($r, $s);

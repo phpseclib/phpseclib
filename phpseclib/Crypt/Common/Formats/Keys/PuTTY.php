@@ -194,13 +194,10 @@ abstract class PuTTY
 
         $components['public'] = $public;
 
-        switch ($version) {
-            case 3:
-                $hashkey = '';
-                break;
-            case 2:
-                $hashkey = 'putty-private-key-file-mac-key';
-        }
+        $hashkey = match ($version) {
+            3 => '',
+            2 => 'putty-private-key-file-mac-key'
+        };
 
         $offset = $publicLength + 4;
         switch ($encryption) {

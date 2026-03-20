@@ -29,69 +29,54 @@ abstract class AsymmetricKey
 {
     /**
      * Precomputed Zero
-     *
-     * @var BigInteger
      */
-    protected static $zero;
+    protected static BigInteger $zero;
 
     /**
      * Precomputed One
-     *
-     * @var BigInteger
      */
-    protected static $one;
+    protected static BigInteger $one;
 
     /**
      * Format of the loaded key
-     *
-     * @var string
      */
-    protected $format;
+    protected string $format;
 
     /**
      * Hash function
-     *
-     * @var Hash
      */
-    protected $hash;
+    protected Hash $hash;
 
     /**
      * HMAC function
-     *
-     * @var Hash
      */
-    private $hmac;
+    private Hash $hmac;
 
     /**
      * Supported plugins (lower case)
      *
      * @see self::initialize_static_variables()
-     * @var array
      */
-    private static $plugins = [];
+    private static array $plugins = [];
 
     /**
      * Invisible plugins
      *
      * @see self::initialize_static_variables()
-     * @var array
      */
-    private static $invisiblePlugins = [];
+    private static array $invisiblePlugins = [];
 
     /**
      * Forced Engine
      *
      * @see self::forceEngine()
-     * @var null|string
      */
-    protected static $forcedEngine;
+    protected static ?string $forcedEngine = null;
 
     /**
      * Key Comment
-     *
-     * @var null|string
      */
-    private $comment;
+    private ?string $comment;
 
     /**
      * OpenSSL configuration file name.
@@ -177,11 +162,8 @@ abstract class AsymmetricKey
 
     /**
      * Loads a private key
-     *
-     * @param string|array $key
-     * @param string $password optional
      */
-    public static function loadPrivateKey($key, #[SensitiveParameter] string $password = ''): PrivateKey
+    public static function loadPrivateKey(string|array $key, #[SensitiveParameter] string $password = ''): PrivateKey
     {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
@@ -192,10 +174,8 @@ abstract class AsymmetricKey
 
     /**
      * Loads a public key
-     *
-     * @param string|array $key
      */
-    public static function loadPublicKey($key): PublicKey
+    public static function loadPublicKey(string|array $key): PublicKey
     {
         $key = self::load($key);
         if (!$key instanceof PublicKey) {
@@ -206,10 +186,8 @@ abstract class AsymmetricKey
 
     /**
      * Loads parameters
-     *
-     * @param string|array $key
      */
-    public static function loadParameters($key): AsymmetricKey
+    public static function loadParameters(string|array $key): AsymmetricKey
     {
         $key = self::load($key);
         if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
@@ -220,8 +198,6 @@ abstract class AsymmetricKey
 
     /**
      * Load the key, assuming a specific format
-     *
-     * @return static
      */
     public static function loadFormat(string $type, string $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
     {
@@ -274,10 +250,8 @@ abstract class AsymmetricKey
 
     /**
      * Loads parameters
-     *
-     * @param string|array $key
      */
-    public static function loadParametersFormat(string $type, $key): AsymmetricKey
+    public static function loadParametersFormat(string $type, string|array $key): AsymmetricKey
     {
         $key = self::loadFormat($type, $key);
         if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
@@ -288,8 +262,6 @@ abstract class AsymmetricKey
 
     /**
      * Validate Plugin
-     *
-     * @param string|null $method optional
      */
     protected static function validatePlugin(string $format, string $type, ?string $method = null)
     {
@@ -347,10 +319,8 @@ abstract class AsymmetricKey
      * Sets the OpenSSL config file path
      *
      * Set to the empty string to use the default config file
-     *
-     * @param string $val
      */
-    public static function setOpenSSLConfigPath($val)
+    public static function setOpenSSLConfigPath(string $val): void
     {
         self::$configFile = $val;
     }
@@ -432,10 +402,8 @@ abstract class AsymmetricKey
 
     /**
      * __toString() magic method
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toString('PKCS8');
     }
@@ -472,10 +440,8 @@ abstract class AsymmetricKey
     /**
      * Compute the pseudorandom k for signature generation,
      * using the process specified for deterministic DSA.
-     *
-     * @return string
      */
-    protected function computek(string $h1)
+    protected function computek(string $h1): string
     {
         $v = str_repeat("\1", strlen($h1));
 

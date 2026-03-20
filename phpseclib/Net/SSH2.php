@@ -3917,7 +3917,7 @@ class SSH2
 
                                 continue 3;
                             default:
-                                list($want_reply) = Strings::unpackSSH2('b', $response);
+                                [$want_reply] = Strings::unpackSSH2('b', $response);
                                 if ($want_reply) {
                                     // "If the request is not recognized or is not supported for the channel,
                                     //  SSH_MSG_CHANNEL_FAILURE is returned."

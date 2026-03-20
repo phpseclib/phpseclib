@@ -73,44 +73,29 @@ abstract class EC extends AsymmetricKey
      *
      * @var object[]
      */
-    protected $QA;
+    protected array $QA;
 
     /**
      * Curve
-     *
-     * @var Base
      */
-    protected $curve;
-
-    /**
-     * Signature Format
-     *
-     * @var string
-     */
-    protected $format;
+    protected Base $curve;
 
     /**
      * Signature Format (Short)
-     *
-     * @var string
      */
-    protected $shortFormat;
+    protected string $shortFormat;
 
     /**
      * Curve Name
-     *
-     * @var string
      */
-    private $curveName;
+    private string $curveName;
 
     /**
      * Curve Order
      *
      * Used for deterministic ECDSA
-     *
-     * @var BigInteger
      */
-    protected $q;
+    protected BigInteger $q;
 
     /**
      * Alias for the private key
@@ -119,24 +104,18 @@ abstract class EC extends AsymmetricKey
      * with x you have x * the base point yielding an (x, y)-coordinate that is the
      * public key. But the x is different depending on which side of the equal sign
      * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     *
-     * @var BigInteger
      */
-    protected $x;
+    protected BigInteger $x;
 
     /**
      * Context
-     *
-     * @var string
      */
-    protected $context;
+    protected ?string $context = null;
 
     /**
      * Signature Format
-     *
-     * @var string
      */
-    protected $sigFormat;
+    protected string $sigFormat;
 
     /**
      * Create public / private key pair.
@@ -163,22 +142,17 @@ abstract class EC extends AsymmetricKey
             $reflect->getShortName();
         $curveEngineName = self::getOpenSSLCurveName(strtolower($curveName));
 
-        switch ($curveName) {
-            case 'Ed25519':
-                $providers = [
+        $providers = match ($curveName) {
+            'Ed25519' => [
                     'libsodium' => function_exists('sodium_crypto_sign_keypair'),
                     // OPENSSL_KEYTYPE_ED25519 introduced in PHP 8.4.0
                     'OpenSSL'   => defined('OPENSSL_KEYTYPE_ED25519'),
-                ];
-                break;
-            case 'Ed448':
-                // OPENSSL_KEYTYPE_ED448 introduced in PHP 8.4.0
-                $providers = ['OpenSSL' => defined('OPENSSL_KEYTYPE_ED448')];
-                break;
-            default:
-                // openssl_get_curve_names() was introduced in PHP 7.1.0
-                // exclude curve25519 and curve448 from testing
-                $providers = ['OpenSSL' => function_exists('openssl_get_curve_names') && substr($curveEngineName, 0, 5) != 'curve' && in_array($curveEngineName, openssl_get_curve_names())];
+                ],
+            // OPENSSL_KEYTYPE_ED448 introduced in PHP 8.4.0
+            'Ed448' => ['OpenSSL' => defined('OPENSSL_KEYTYPE_ED448')],
+            // openssl_get_curve_names() was introduced in PHP 7.1.0
+            // exclude curve25519 and curve448 from testing
+            default => ['OpenSSL' => function_exists('openssl_get_curve_names') && substr($curveEngineName, 0, 5) != 'curve' && in_array($curveEngineName, openssl_get_curve_names())]
         };
 
         foreach ($providers as $engine => $isSupported) {
@@ -250,11 +224,8 @@ abstract class EC extends AsymmetricKey
      * Create a Curve22519 or Curve448 key
      *
      * Sets $privatekey to the newly generatedkey
-     *
-     * @param string $type
-     * @return void
      */
-    private static function createCurveXKey($type, PrivateKey $privatekey)
+    private static function createCurveXKey(string $type, PrivateKey $privatekey): void
     {
         // according to https://www.php.net/manual/en/openssl.key-types.php PHP 8.4.0+ support OPENSSL_KEYTYPE_X25519
         if (self::$forcedEngine == 'OpenSSL' && !defined("OPENSSL_KEYTYPE_X$type")) {
@@ -282,11 +253,8 @@ abstract class EC extends AsymmetricKey
      * Returns the actual case of the curve
      *
      * Useful for initializing the curve class
-     *
-     * @param string $curveName
-     * @return string
      */
-    private static function getCurveCase($curveName)
+    private static function getCurveCase(string $curveName): string
     {
         $curveName = strtolower($curveName);
         if (preg_match('#(?:^curve|^ed)\d+$#', $curveName)) {
@@ -300,29 +268,20 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Return the OpenSSL name for a curve
-     *
-     * @param string $curve
-     * @return string
      */
-    private static function getOpenSSLCurveName($curve)
+    private static function getOpenSSLCurveName(string $curve): string
     {
-        switch ($curve) {
-            case 'secp256r1':
-                return 'prime256v1';
-            case 'secp192r1':
-                return 'prime192v1';
-        }
-        return $curve;
+        return match ($curve) {
+            'secp256r1' => 'prime256v1',
+            'secp192r1' => 'prime192v1',
+            default => $curve
+        };
     }
 
     /**
      * Generate the key for a given curve / engine combo
-     *
-     * @param string $engine
-     * @param string $curve
-     * @return ?PrivateKey
      */
-    private static function generateWithEngine($engine, $curve)
+    private static function generateWithEngine(string $engine, string $curve): ?PrivateKey
     {
         if ($curve == 'ed25519') {
             if ($engine == 'libsodium') {
@@ -366,12 +325,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Generate the key for a given curve / engine combo
-     *
-     * @param string $engine
-     * @param string $curve
-     * @return ?PrivateKey
      */
-    private static function createKeyOpenSSL(array $params, string $curveName)
+    private static function createKeyOpenSSL(array $params, string $curveName): ?PrivateKey
     {
         $config = [];
         if (self::$configFile) {
@@ -389,23 +344,18 @@ abstract class EC extends AsymmetricKey
         }
         // some versions of OpenSSL / PHP return PKCS1 keys, others return PKCS8 keys
         $privatekey = EC::load($privateKeyStr);
-        switch ($curveName) {
-            case 'prime256v1':
-                $curveName = 'secp256r1';
-                break;
-            case 'prime192v1':
-                $curveName = 'secp192r1';
-        }
-        $privatekey->curveName = $curveName;
+        $privatekey->curveName = match ($curveName) {
+            'prime256v1' => 'secp256r1',
+            'prime192v1' => 'secp192r1',
+            default => $curveName
+        };
         return $privatekey;
     }
 
     /**
      * OnLoad Handler
-     *
-     * @return AsymmetricKey|Parameters|PrivateKey|PublicKey
      */
-    protected static function onLoad(array $components)
+    protected static function onLoad(array $components): EC
     {
         if (!isset($components['dA']) && !isset($components['QA'])) {
             $new = new Parameters();
@@ -448,12 +398,10 @@ abstract class EC extends AsymmetricKey
      * Returns the curve
      *
      * Returns a string if it's a named curve, an array if not
-     *
-     * @return string|array
      */
     public function getCurve(): string|array
     {
-        if ($this->curveName) {
+        if (isset($this->curveName)) {
             return $this->curveName;
         }
 
@@ -521,10 +469,9 @@ abstract class EC extends AsymmetricKey
     /**
      * Returns the parameters
      *
-     * @param string $type optional
      * @see self::getPublicKey()
      */
-    public function getParameters(string $type = 'PKCS1')
+    public function getParameters(string $type = 'PKCS1'): ?Parameters
     {
         $type = self::validatePlugin('Keys', $type, 'saveParameters');
 

@@ -45,7 +45,7 @@ class secp192r1 extends Prime
             $className = $this->className;
 
             if (strlen($cBytes) > 2 * $m_length) {
-                list(, $r) = $c->divide($className::$modulo);
+                [], $r] = $c->divide($className::$modulo);
                 return $r;
             }
 

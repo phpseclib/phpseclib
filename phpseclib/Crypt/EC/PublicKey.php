@@ -69,7 +69,7 @@ final class PublicKey extends EC implements Common\PublicKey
             }
             if (function_exists('sodium_crypto_sign_verify_detached') && !isset($this->context)) {
                 if ($shortFormat == 'SSH2') {
-                    list(, $signature) = Strings::unpackSSH2('ss', $signature);
+                    [, $signature] = Strings::unpackSSH2('ss', $signature);
                 }
 
                 return sodium_crypto_sign_verify_detached($signature, $message, $this->toString('libsodium'));

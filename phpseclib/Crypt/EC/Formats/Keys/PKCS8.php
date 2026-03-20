@@ -192,7 +192,7 @@ abstract class PKCS8 extends Progenitor
         return $components;
     }
 
-    private static function loadECDH(array $key)
+    private static function loadECDH(array $key): array
     {
         $components = [];
 
