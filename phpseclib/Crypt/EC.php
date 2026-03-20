@@ -77,13 +77,6 @@ abstract class EC extends AsymmetricKey
     protected $curve;
 
     /**
-     * Signature Format
-     *
-     * @var string
-     */
-    protected $format;
-
-    /**
      * Signature Format (Short)
      *
      * @var string
@@ -364,11 +357,10 @@ abstract class EC extends AsymmetricKey
     /**
      * Generate the key for a given curve / engine combo
      *
-     * @param string $engine
      * @param string $curve
      * @return ?PrivateKey
      */
-    private static function createKeyOpenSSL(array $params, string $curveName)
+    private static function createKeyOpenSSL(array $params, $curveName)
     {
         $config = [];
         if (self::$configFile) {
