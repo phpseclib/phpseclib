@@ -111,8 +111,6 @@ class BitString extends BaseString implements \ArrayAccess, \Countable, \Iterato
 
     public function __debugInfo(): array
     {
-        return isset($this->mappedValue) ?
-            $this->mappedValue :
-            ['value' => bin2hex($this->value)];
+        return $this->mappedValue ?? ['value' => bin2hex($this->value)];
     }
 }

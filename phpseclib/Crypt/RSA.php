@@ -676,7 +676,7 @@ abstract class RSA extends AsymmetricKey
      */
     public function getSaltLength(): int
     {
-        return $this->sLen !== null ? $this->sLen : $this->hLen;
+        return $this->sLen ?? $this->hLen;
     }
 
     /**

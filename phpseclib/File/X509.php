@@ -1323,7 +1323,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $result = $signatureResult && $dateResult;
         if ($result) {
             $this->issuer = $signingCert;
-            $this->issuer->caSeq = $this->issuer->caSeq ?? 0;
+            $this->issuer->caSeq ??= 0;
             $this->caSeq = $this->issuer->caSeq + 1;
         }
         return $result;
@@ -1445,7 +1445,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $data = '';
         switch ($parts['scheme']) {
             case 'http':
-                $fsock = @fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80);
+                $fsock = @fsockopen($parts['host'], $parts['port'] ?? 80);
                 if (!$fsock) {
                     return null;
                 }

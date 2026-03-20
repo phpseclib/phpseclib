@@ -269,7 +269,7 @@ class SCP extends SSH2
         }
 
         // if $content isn't set that means a file was written to
-        return isset($content) ? $content : true;
+        return $content ?? true;
     }
 
     /**

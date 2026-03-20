@@ -39,8 +39,6 @@ class Integer extends BigInteger implements BaseType
 
     public function __toString(): string
     {
-        return isset($this->mappedValue) ?
-            $this->mappedValue :
-            parent::__toString();
+        return $this->mappedValue ?? parent::__toString();
     }
 }

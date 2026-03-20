@@ -207,7 +207,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         // be output.
 
         $emLen = ($emBits + 7) >> 3; // ie. ceil($emBits / 8);
-        $sLen = $this->sLen !== null ? $this->sLen : $this->hLen;
+        $sLen = $this->sLen ?? $this->hLen;
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
