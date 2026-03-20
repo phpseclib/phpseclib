@@ -12,6 +12,7 @@ use phpseclib3\Crypt\DSA;
 use phpseclib3\Crypt\DSA\Parameters;
 use phpseclib3\Crypt\DSA\PrivateKey;
 use phpseclib3\Crypt\DSA\PublicKey;
+use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 /**
@@ -41,16 +42,27 @@ class CreateKeyTest extends PhpseclibTestCase
     /** @depends testCreateParameters */
     public function testCreateKey($params)
     {
-        $privatekey = DSA::createKey();
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+        // libsodium doesn't support DSA but it still ought not result in any errors outside of the BadConfigurationException being thrown
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        foreach ($engines as $engine) {
+            try {
+                DSA::forceEngine($engine);
 
-        $privatekey = DSA::createKey($params);
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+                $privatekey = DSA::createKey();
+                $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
 
-        $privatekey = DSA::createKey(512, 160);
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+                $privatekey = DSA::createKey($params);
+                $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+
+                $privatekey = DSA::createKey(512, 160);
+                $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
+            } catch (BadConfigurationException $e) {
+            }
+        }
+        // reset
+        DSA::forceEngine();
     }
 }

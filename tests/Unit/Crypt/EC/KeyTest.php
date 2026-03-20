@@ -17,6 +17,7 @@ use phpseclib3\Crypt\EC\Formats\Keys\XML;
 use phpseclib3\Crypt\EC\PrivateKey;
 use phpseclib3\Crypt\EC\PublicKey;
 use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class KeyTest extends PhpseclibTestCase
