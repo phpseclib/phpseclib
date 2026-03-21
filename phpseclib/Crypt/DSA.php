@@ -291,7 +291,7 @@ abstract class DSA extends AsymmetricKey
      *
      * @see self::getPublicKey()
      */
-    public function getParameters()
+    public function getParameters(): ?Parameters
     {
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 

@@ -69,65 +69,55 @@ class Hash
      * Padding Type
      *
      * Only used by SHA3
-     *
-     * @var int
      */
-    private $paddingType = 0;
+    private int $paddingType = 0;
 
     /**
      * Hash Parameter
      *
      * @see self::setHash()
-     * @var int
      */
-    private $hashParam;
+    private string $hashParam;
 
     /**
      * Byte-length of hash output (Internal HMAC)
      *
      * @see self::setHash()
-     * @var int
      */
-    private $length;
+    private int $length;
 
     /**
      * Hash Algorithm
      *
      * @see self::setHash()
-     * @var string
      */
-    private $algo;
+    private string|array $algo;
 
     /**
      * Key
      *
      * @see self::setKey()
-     * @var string
      */
-    private $key = false;
+    private ?string $key = null;
 
     /**
      * Nonce
      *
      * @see self::setNonce()
-     * @var string
      */
-    private $nonce = false;
+    private ?string $nonce = null;
 
     /**
      * Hash Parameters
-     *
-     * @var array
      */
-    private $parameters = [];
+    private array $parameters = [];
 
     /**
      * Computed Key
      *
      * @see self::_computeKey()
-     * @var string
      */
-    private $computedKey = false;
+    private ?string $computedKey = null;
 
     /**
      * Outer XOR (Internal HMAC)
@@ -135,9 +125,8 @@ class Hash
      * Used only for sha512
      *
      * @see self::hash()
-     * @var string
      */
-    private $opad;
+    private string $opad;
 
     /**
      * Inner XOR (Internal HMAC)
@@ -145,9 +134,8 @@ class Hash
      * Used only for sha512
      *
      * @see self::hash()
-     * @var string
      */
-    private $ipad;
+    private string $ipad;
 
     /**
      * Recompute AES Key
@@ -155,56 +143,47 @@ class Hash
      * Used only for umac
      *
      * @see self::hash()
-     * @var boolean
      */
-    private $recomputeAESKey;
+    private bool $recomputeAESKey;
 
     /**
      * umac cipher object
      *
      * @see self::hash()
-     * @var AES
      */
-    private $c;
+    private AES $c;
 
     /**
      * umac pad
      *
      * @see self::hash()
-     * @var string
      */
-    private $pad;
+    private string $pad;
 
     /**
      * Block Size
-     *
-     * @var int
      */
-    private $blockSize;
+    private int $blockSize;
 
     /**#@+
      * UMAC variables
-     *
-     * @var PrimeField
      */
-    private static $factory36;
-    private static $factory64;
-    private static $factory128;
-    private static $offset64;
-    private static $offset128;
-    private static $marker64;
-    private static $marker128;
-    private static $maxwordrange64;
-    private static $maxwordrange128;
+    private static PrimeField $factory36;
+    private static PrimeField $factory64;
+    private static PrimeField $factory128;
+    private static PrimeField\Integer $offset64;
+    private static PrimeField\Integer $offset128;
+    private static PrimeField\Integer $marker64;
+    private static PrimeField\Integer $marker128;
+    private static PrimeField\Integer $maxwordrange64;
+    private static PrimeField\Integer $maxwordrange128;
     /**#@-*/
 
     /**#@+
      * AES_CMAC variables
-     *
-     * @var string
      */
-    private $k1;
-    private $k2;
+    private string $k1;
+    private string $k2;
     /**#@-*/
 
     /**
@@ -219,10 +198,8 @@ class Hash
      * Sets the key for HMACs
      *
      * Keys can be of any length.
-     *
-     * @param string $key
      */
-    public function setKey($key = false): void
+    public function setKey(?string $key = null): void
     {
         $this->key = $key;
         $this->computeKey();
@@ -233,10 +210,8 @@ class Hash
      * Sets the nonce for UMACs
      *
      * Keys can be of any length.
-     *
-     * @param string $nonce
      */
-    public function setNonce($nonce = false): void
+    public function setNonce(?string $nonce = null): void
     {
         switch (true) {
             case !is_string($nonce):
@@ -261,8 +236,8 @@ class Hash
      */
     private function computeKey(): void
     {
-        if ($this->key === false) {
-            $this->computedKey = false;
+        if (!isset($this->key)) {
+            $this->computedKey = null;
             return;
         }
 
@@ -272,7 +247,7 @@ class Hash
         }
 
         $this->computedKey = is_array($this->algo) ?
-            call_user_func($this->algo, $this->key) :
+            ($this->algo)($this->key) :
             hash($this->algo, $this->key, true);
     }
 
@@ -280,10 +255,8 @@ class Hash
      * Gets the hash function.
      *
      * As set by the constructor or by the setHash() method.
-     *
-     * @return string
      */
-    public function getHash()
+    public function getHash(): string
     {
         return $this->hashParam;
     }
@@ -293,7 +266,7 @@ class Hash
      */
     public function setHash(string $hash): void
     {
-        $oldHash = $this->hashParam;
+        $oldHash = $this->hashParam ?? null;
         $this->hashParam = $hash = strtolower($hash);
         switch ($hash) {
             case 'umac-32':
@@ -367,41 +340,16 @@ class Hash
                 }
         }
 
-        switch ($hash) {
-            case 'md2':
-            case 'md2-96':
-                $this->blockSize = 128;
-                break;
-            case 'md5-96':
-            case 'sha1-96':
-            case 'sha224-96':
-            case 'sha256-96':
-            case 'md5':
-            case 'sha1':
-            case 'sha224':
-            case 'sha256':
-                $this->blockSize = 512;
-                break;
-            case 'sha3-224':
-                $this->blockSize = 1152; // 1600 - 2*224
-                break;
-            case 'sha3-256':
-            case 'shake256':
-            case 'keccak256':
-                $this->blockSize = 1088; // 1600 - 2*256
-                break;
-            case 'sha3-384':
-                $this->blockSize = 832; // 1600 - 2*384
-                break;
-            case 'sha3-512':
-                $this->blockSize = 576; // 1600 - 2*512
-                break;
-            case 'shake128':
-                $this->blockSize = 1344; // 1600 - 2*128
-                break;
-            default:
-                $this->blockSize = 1024;
-        }
+        $this->blockSize = match ($hash) {
+            'md2', 'md2-96' => 128,
+            'md5-96', 'sha1-96', 'sha224-96', 'sha256-96', 'md5', 'sha1', 'sha224', 'sha256' => 512,
+            'sha3-224' => 1152, // 1600 - 2*224
+            'sha3-256', 'shake256', 'keccak256' => 1088, // 1600 - 2*256
+            'sha3-384' => 832, // 1600 - 2*384
+            'sha3-512' => 576, // 1600 - 2*512
+            'shake128' => 1344, // 1600 - 2*128
+            default => 1024
+        };
 
         if (in_array(substr($hash, 0, 5), ['shake', 'kecca'])) {
             //preg_match('#(\d+)$#', $hash, $matches);
@@ -585,11 +533,9 @@ class Hash
     /**
      * 32-bit safe 64-bit Multiply with 2x 32-bit ints
      *
-     * @param int $x
-     * @param int $y
      * @return string $x * $y
      */
-    private static function mul32_64($x, $y)
+    private static function mul32_64(int $x, int $y): string
     {
         // see mul64() for a more detailed explanation of how this works
 
@@ -618,11 +564,9 @@ class Hash
     /**
      * 32-bit safe 64-bit Addition with 2x 64-bit strings
      *
-     * @param int $x
-     * @param int $y
      * @return int $x * $y
      */
-    private static function add32_64($x, $y)
+    private static function add32_64(string $x, string $y): string
     {
         [, $x1, $x2, $x3, $x4] = unpack('n4', $x);
         [, $y1, $y2, $y3, $y4] = unpack('n4', $y);
@@ -636,11 +580,9 @@ class Hash
     /**
      * 32-bit safe 32-bit Addition with 2x 32-bit strings
      *
-     * @param int $x
-     * @param int $y
      * @return int $x * $y
      */
-    private static function add32($x, $y)
+    private static function add32(int $x, int $y): int
     {
         // see add64() for a more detailed explanation of how this works
 
@@ -781,7 +723,7 @@ class Hash
      * @param string $m string with length divisible by 32 bytes.
      * @return string string of length 8 bytes.
      */
-    private static function nh64($k, $m, $length)
+    private static function nh64(string $k, string $m, int $length): string
     {
         //
         // Break M and K into 4-byte chunks
@@ -1047,10 +989,10 @@ class Hash
                     $prime128 = new BigInteger("\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x61", 256);
                     self::$factory128 = new PrimeField($prime128);
 
-                    self::$offset64 = new BigInteger("\1\0\0\0\0\0\0\0\0", 256);
-                    self::$offset64 = self::$factory64->newInteger(self::$offset64->subtract($prime64));
-                    self::$offset128 = new BigInteger("\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 256);
-                    self::$offset128 = self::$factory128->newInteger(self::$offset128->subtract($prime128));
+                    $temp = new BigInteger("\1\0\0\0\0\0\0\0\0", 256);
+                    self::$offset64 = self::$factory64->newInteger($temp->subtract($prime64));
+                    $temp = new BigInteger("\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 256);
+                    self::$offset128 = self::$factory128->newInteger($temp->subtract($prime128));
 
                     self::$marker64 = self::$factory64->newInteger($prime64->subtract($one));
                     self::$marker128 = self::$factory128->newInteger($prime128->subtract($one));
@@ -1517,7 +1459,7 @@ class Hash
      *
      * @link https://www.rfc-editor.org/rfc/rfc4493.html#section-2.4
      */
-    private static function OMAC_padding($m, $length)
+    private static function OMAC_padding(string $m, int $length): string
     {
         $count = $length - strlen($m) - 1;
         return "$m\x80" . str_repeat("\0", $count);

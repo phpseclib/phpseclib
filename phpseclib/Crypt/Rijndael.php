@@ -74,17 +74,15 @@ class Rijndael extends BlockCipher
      * The Key Schedule
      *
      * @see self::setup()
-     * @var array
      */
-    private $w;
+    private array $w;
 
     /**
      * The Inverse Key Schedule
      *
      * @see self::setup()
-     * @var array
      */
-    private $dw;
+    private array $dw;
 
     /**
      * The Block Length divided by 32
@@ -95,9 +93,8 @@ class Rijndael extends BlockCipher
      *    of that, we'll just precompute it once.}
      *
      * @see self::setBlockLength()
-     * @var int
      */
-    private $Nb = 4;
+    private int $Nb = 4;
 
     /**
      * The Key Length (in bytes)
@@ -108,41 +105,33 @@ class Rijndael extends BlockCipher
      *    of that, we'll just precompute it once.}
      *
      * @see self::setKeyLength()
-     * @var int
      */
-    protected $key_length = 16;
+    protected int $key_length = 16;
 
     /**
      * The Key Length divided by 32
      *
      * @see self::setKeyLength()
-     * @var int
      * @internal The max value is 256 / 32 = 8, the min value is 128 / 32 = 4
      */
-    private $Nk = 4;
+    private int $Nk = 4;
 
     /**
      * The Number of Rounds
      *
      * {@internal The max value is 14, the min value is 10.}
-     *
-     * @var int
      */
-    private $Nr;
+    private int $Nr;
 
     /**
      * Shift offsets
-     *
-     * @var array
      */
-    private $c;
+    private array $c;
 
     /**
      * Holds the last used key- and block_size information
-     *
-     * @var array
      */
-    private $kl;
+    private array $kl;
 
     /**
      * Default Constructor.
@@ -511,18 +500,11 @@ class Rijndael extends BlockCipher
         //     "Table 8: Shift offsets in Shiftrow for the alternative block lengths"
         // shift offsets for Nb = 4, 6, 8 are defined in Rijndael-ammended.pdf#page=14,
         //     "Table 2: Shift offsets for different block lengths"
-        switch ($this->Nb) {
-            case 4:
-            case 5:
-            case 6:
-                $this->c = [0, 1, 2, 3];
-                break;
-            case 7:
-                $this->c = [0, 1, 2, 4];
-                break;
-            case 8:
-                $this->c = [0, 1, 3, 4];
-        }
+        $this->c = match ($this->Nb) {
+            4, 5, 6 => [0, 1, 2, 3],
+            7 => [0, 1, 2, 4],
+            8 => [0, 1, 3, 4]
+        };
 
         $w = array_values(unpack('N*words', $this->key));
 
@@ -595,10 +577,8 @@ class Rijndael extends BlockCipher
 
     /**
      * Performs S-Box substitutions
-     *
-     * @return array
      */
-    private function subWord(int $word)
+    private function subWord(int $word): int
     {
         static $sbox;
         if (empty($sbox)) {
@@ -970,7 +950,7 @@ class Rijndael extends BlockCipher
 
         switch ($this->engine) {
             case self::ENGINE_LIBSODIUM:
-                if ($this->oldtag === false) {
+                if (!isset($this->oldtag)) {
                     throw new InsufficientSetupException('Authentication Tag has not been set');
                 }
                 if (strlen($this->oldtag) != 16) {
@@ -978,12 +958,12 @@ class Rijndael extends BlockCipher
                 }
                 $plaintext = sodium_crypto_aead_aes256gcm_decrypt($ciphertext . $this->oldtag, $this->aad, $this->nonce, $this->key);
                 if ($plaintext === false) {
-                    $this->oldtag = false;
+                    $this->oldtag = null;
                     throw new BadDecryptionException('Error decrypting ciphertext with libsodium');
                 }
                 return $plaintext;
             case self::ENGINE_OPENSSL_GCM:
-                if ($this->oldtag === false) {
+                if (!isset($this->oldtag)) {
                     throw new InsufficientSetupException('Authentication Tag has not been set');
                 }
                 $plaintext = openssl_decrypt(
@@ -996,7 +976,7 @@ class Rijndael extends BlockCipher
                     $this->aad
                 );
                 if ($plaintext === false) {
-                    $this->oldtag = false;
+                    $this->oldtag = null;
                     throw new BadDecryptionException('Error decrypting ciphertext with OpenSSL');
                 }
                 return $plaintext;

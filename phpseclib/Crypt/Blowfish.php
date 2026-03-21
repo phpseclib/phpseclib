@@ -130,18 +130,17 @@ class Blowfish extends BlockCipher
      * Block Length of the cipher
      *
      * @see Common\SymmetricKey::block_size
-     * @var int
      */
-    protected $block_size = 8;
+    protected int $block_size = 8;
 
     /**
      * The fixed subkeys boxes ($sbox0 - $sbox3) with 256 entries each
      *
      * S-Box
      *
-     * @var    array
+     * @var int[]
      */
-    private static $sbox = [
+    private static array $sbox = [
         0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
         0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16, 0x636920d8, 0x71574e69, 0xa458fea3, 0xf4933d7e,
         0x0d95748f, 0x728eb658, 0x718bcd58, 0x82154aee, 0x7b54a41d, 0xc25a59b5, 0x9c30d539, 0x2af26013,
@@ -278,9 +277,9 @@ class Blowfish extends BlockCipher
     /**
      * P-Array consists of 18 32-bit subkeys
      *
-     * @var array
+     * @var int[]
      */
-    private static $parray = [
+    private static array $parray = [
         0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
         0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
         0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b,
@@ -291,16 +290,16 @@ class Blowfish extends BlockCipher
      *
      * Holds the expanded key [p] and the key-depended s-boxes [sb]
      *
-     * @var array
+     * @var int[]
      */
-    private $bctx;
+    private array $bctx;
 
     /**
      * Holds the last used key
      *
-     * @var array
+     * @var int[]
      */
-    private $kl;
+    private array $kl;
 
     /**
      * The Key Length (in bytes)
@@ -310,9 +309,8 @@ class Blowfish extends BlockCipher
      *    of that, we'll just precompute it once.}
      *
      * @see Common\SymmetricKey::setKeyLength()
-     * @var int
      */
-    protected $key_length = 16;
+    protected int $key_length = 16;
 
     /**
      * Default Constructor.
@@ -498,7 +496,6 @@ class Blowfish extends BlockCipher
     /**
      * Key expansion without salt
      *
-     * @access private
      * @param int[] $key
      * @param int[] $sbox
      * @param int[] $p
@@ -552,7 +549,6 @@ class Blowfish extends BlockCipher
     /**
      * Key expansion with salt
      *
-     * @access private
      * @param int[] $data
      * @param int[] $key
      * @param int[] $sbox

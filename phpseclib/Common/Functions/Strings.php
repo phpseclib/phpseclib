@@ -387,7 +387,7 @@ abstract class Strings
      *
      * @psalm-assert-if-true string|\Stringable $var
      */
-    public static function is_stringable($var): bool
+    public static function is_stringable(mixed $var): bool
     {
         return is_string($var) || (is_object($var) && method_exists($var, '__toString'));
     }

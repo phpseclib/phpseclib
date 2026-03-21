@@ -68,25 +68,15 @@ class RC4 extends StreamCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC4::setKeyLength()
-     * @var int
      */
-    protected $key_length = 128; // = 1024 bits
-
-    /**
-     * The Key
-     *
-     * @see self::setKey()
-     * @var string
-     */
-    protected $key;
+    protected int $key_length = 128; // = 1024 bits
 
     /**
      * The Key Stream for decryption and encryption
      *
      * @see self::setKey()
-     * @var array
      */
-    private $stream;
+    private array $stream;
 
     /**
      * Test for engine validity

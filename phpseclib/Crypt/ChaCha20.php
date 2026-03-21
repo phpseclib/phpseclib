@@ -29,10 +29,8 @@ class ChaCha20 extends Salsa20
 {
     /**
      * The OpenSSL specific name of the cipher
-     *
-     * @var string
      */
-    protected $cipher_name_openssl = 'chacha20';
+    protected string $cipher_name_openssl = 'chacha20';
 
     /**
      * Test for engine validity
@@ -147,12 +145,12 @@ class ChaCha20 extends Salsa20
         $params = [$ciphertext, $this->aad, $this->nonce, $this->key];
 
         if (isset($this->poly1305Key)) {
-            if ($this->oldtag === false) {
+            if (!isset($this->oldtag)) {
                 throw new InsufficientSetupException('Authentication Tag has not been set');
             }
             if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
                 $plaintext = sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
-                $this->oldtag = false;
+                $this->oldtag = null;
                 if ($plaintext === false) {
                     throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
                 }
@@ -160,10 +158,10 @@ class ChaCha20 extends Salsa20
             }
             $newtag = $this->poly1305($ciphertext);
             if ($this->oldtag != substr($newtag, 0, strlen($this->oldtag))) {
-                $this->oldtag = false;
+                $this->oldtag = null;
                 throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
             }
-            $this->oldtag = false;
+            $this->oldtag = null;
         }
 
         $plaintext = strlen($this->nonce) == 8 ?
@@ -279,23 +277,6 @@ class ChaCha20 extends Salsa20
 
     /**
      * The doubleround function
-     *
-     * @param int $x0 (by reference)
-     * @param int $x1 (by reference)
-     * @param int $x2 (by reference)
-     * @param int $x3 (by reference)
-     * @param int $x4 (by reference)
-     * @param int $x5 (by reference)
-     * @param int $x6 (by reference)
-     * @param int $x7 (by reference)
-     * @param int $x8 (by reference)
-     * @param int $x9 (by reference)
-     * @param int $x10 (by reference)
-     * @param int $x11 (by reference)
-     * @param int $x12 (by reference)
-     * @param int $x13 (by reference)
-     * @param int $x14 (by reference)
-     * @param int $x15 (by reference)
      */
     protected static function doubleRound(int &$x0, int &$x1, int &$x2, int &$x3, int &$x4, int &$x5, int &$x6, int &$x7, int &$x8, int &$x9, int &$x10, int &$x11, int &$x12, int &$x13, int &$x14, int &$x15): void
     {
@@ -324,7 +305,7 @@ class ChaCha20 extends Salsa20
      * AES in CTR mode with the PHP engine takes 1.19s. Salsa20 / ChaCha20 do not benefit as much from the Eval
      * approach due to the fact that there are a lot less variables to de-reference, fewer loops to unroll, etc
      */
-    protected static function salsa20(string $x)
+    protected static function salsa20(string $x): string
     {
         [, $x0, $x1, $x2, $x3, $x4, $x5, $x6, $x7, $x8, $x9, $x10, $x11, $x12, $x13, $x14, $x15] = unpack('V*', $x);
         $z0 = $x0;

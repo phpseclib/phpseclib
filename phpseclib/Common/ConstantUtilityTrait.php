@@ -12,12 +12,9 @@ use phpseclib4\Exception\InvalidArgumentException;
 trait ConstantUtilityTrait
 {
     /** @var string[]|null */
-    private static $valueToConstantNameMap = null;
+    private static ?array $valueToConstantNameMap = null;
 
-    /**
-     * @param string|int $value
-     */
-    public static function findConstantNameByValue($value): ?string
+    public static function findConstantNameByValue(string|int $value): ?string
     {
         if (!self::$valueToConstantNameMap) {
             $reflectionClass = new \ReflectionClass(static::class);
@@ -30,10 +27,7 @@ trait ConstantUtilityTrait
         return null;
     }
 
-    /**
-     * @param string|int $value
-     */
-    public static function getConstantNameByValue($value): string
+    public static function getConstantNameByValue(string|int $value): string
     {
         $constantName = static::findConstantNameByValue($value);
         if ($constantName === null) {
