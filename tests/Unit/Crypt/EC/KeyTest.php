@@ -84,6 +84,7 @@ E5w=
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
+        PKCS8::useNamedCurve();
     }
 
     // openssl ecparam -name secp256k1 -genkey -noout -out secp256k1.pem
@@ -128,6 +129,7 @@ AFLpken6rN6lOEIeyNLdD097
 -----END PRIVATE KEY-----';
         PKCS8::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS8'));
+        PKCS8::useNamedCurve();
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
@@ -178,6 +180,7 @@ IgMgAAQBQu3OdMu7sPorh3jArVsAqSjQVHFXoh5nutPQ7/4=
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
+        PKCS8::useNamedCurve();
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
@@ -228,6 +231,7 @@ mR4Zrg==
 -----END PRIVATE KEY-----';
         PKCS8::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS8'));
+        PKCS8::useNamedCurve();
     }
 
     // openssl ecparam -name sect131r1 -genkey -noout -out sect131r1.pem -param_enc explicit
@@ -255,6 +259,7 @@ BjoJZJZQztmlj7Qep/sf1l8=
 -----END EC PRIVATE KEY-----';
         PKCS1::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
+        PKCS8::useNamedCurve();
     }
 
     // from https://tools.ietf.org/html/draft-ietf-curdle-pkix-07#section-10.1

@@ -244,7 +244,7 @@ ybcPA9iklr0wAwYBAAMBAA==
             encoding: OPENSSL_ENCODING_PEM
         );
 
-        $this->assertTrue($result, 'openssl_cms_verify() was unable to verify signature: ' . openssl_error_string());
+        $this->assertTrue($result, 'openssl_cms_verify() was unable to verify signature: ' . openssl_error_string() . "\n$cms\n" . $ca->getCertificates()[0] . "\n");
 
         X509::clearCAStore();
     }
