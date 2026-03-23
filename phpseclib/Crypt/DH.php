@@ -334,11 +334,10 @@ abstract class DH extends AsymmetricKey
                         $public = EC::convertPointToPublicKey($curveName, $public, false);
                     }
                     $point = $private->multiply($public);
-                    $secret = match ($curveName) {
-                        'Curve25519', 'Curve448' => $point,
+                    $secret = $isMontgomeryCurve ?
+                        $point :
                         // according to https://www.secg.org/sec1-v2.pdf#page=33 only X is returned
-                        default => substr($point, 1, (strlen($point) - 1) >> 1)
-                    };
+                        substr($point, 1, (strlen($point) - 1) >> 1);
                     /*
                     if (($secret[0] & "\x80") === "\x80") {
                         $secret = "\0$secret";
