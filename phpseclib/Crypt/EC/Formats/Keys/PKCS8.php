@@ -171,14 +171,15 @@ abstract class PKCS8 extends Progenitor
         if (isset($key['privateKey'])) {
             $components['curve'] = $key['privateKeyAlgorithm']['algorithm'] == 'id-X25519' ? new Curve25519() : new Curve448();
             $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
-            if (substr($key['privateKey'], 0, 2) != $expected) {
+            $privateKey = (string) $key['privateKey'];
+            if (substr($privateKey, 0, 2) != $expected) {
                 throw new \RuntimeException(
                     'The first two bytes of the ' .
                     $key['privateKeyAlgorithm']['algorithm'] .
                     ' private key field should be 0x' . bin2hex($expected)
                 );
             }
-            $components['dA'] = new BigInteger(substr($key['privateKey'], 2), 256);
+            $components['dA'] = new BigInteger(substr($privateKey, 2), 256);
         }
 
         if (isset($key['publicKey'])) {
@@ -216,7 +217,7 @@ abstract class PKCS8 extends Progenitor
         self::initialize_static_variables();
         if ($curve instanceof MontgomeryCurve) {
             return self::wrapPublicKey(
-                chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($curve::SIZE) . str_pad($publicKey[0]->toBytes(), $curve::SIZE, "\0", STR_PAD_LEFT),
+                str_pad(strrev($publicKey[0]->toBytes()), $curve::SIZE, "\0", STR_PAD_LEFT),
                 null,
                 $curve instanceof Curve25519 ? 'id-X25519' : 'id-X448',
                 $options

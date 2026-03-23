@@ -565,7 +565,7 @@ abstract class PKCS8 extends PKCS
              ],
             'privateKey' => $key
         ];
-        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448') {
+        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448' && $oid != 'id-X25519' && $oid != 'id-X448') {
             $key['privateKeyAlgorithm']['parameters'] = $params;
         }
         if (!empty($attr)) {
@@ -682,7 +682,7 @@ abstract class PKCS8 extends PKCS
             'publicKey' => "\0" . $key
         ];
 
-        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448') {
+        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448' && $oid != 'id-X25519' && $oid != 'id-X448') {
             $key['publicKeyAlgorithm']['parameters'] = $params;
         }
 
