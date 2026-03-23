@@ -32,6 +32,7 @@ use phpseclib4\Crypt\DH\PrivateKey;
 use phpseclib4\Crypt\DH\PublicKey;
 use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Crypt\EC\Curves\Curve448;
+use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\NoKeyLoadedException;
@@ -312,16 +313,8 @@ abstract class DH extends AsymmetricKey
                             throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for ECDH');
                         }
                         if (function_exists('openssl_pkey_derive')) {
-                            if (isset($orig)) {
-                                $privateStr = (string) $private->withPassword();
-                                $publicStr = (string) $orig;
-                            } else {
-                                // create the key as a binary one so that the parameters can be extracted, if necessary
-                                $privateStr = $private->withPassword()->toString('PKCS8');
-                                $publicStr = "-----BEGIN PUBLIC KEY-----\n" .
-                                        chunk_split(base64_encode($public), 64) .
-                                        "-----END PUBLIC KEY-----";
-                            }
+                            $privateStr = (string) $private->withPassword();
+                            $publicStr = (string) ($orig ?? EC::convertPointToPublicKey($private->getCurve(), $public));
                             $result = openssl_pkey_derive($publicStr, $privateStr);
                             if ($result) {
                                 return $result;
@@ -335,16 +328,17 @@ abstract class DH extends AsymmetricKey
                             }
                         }
                     }
-                    $point = $private->multiply($public);
-                    switch ($private->getCurve()) {
-                        case 'Curve25519':
-                        case 'Curve448':
-                            $secret = $point;
-                            break;
-                        default:
-                            // according to https://www.secg.org/sec1-v2.pdf#page=33 only X is returned
-                            $secret = substr($point, 1, (strlen($point) - 1) >> 1);
+                    $curveName = $private->getCurve();
+                    $isMontgomeryCurve = $curveName == 'Curve25519' || $curveName == 'Curve448';
+                    if (!$isMontgomeryCurve) {
+                        $public = EC::convertPointToPublicKey($curveName, $public, false);
                     }
+                    $point = $private->multiply($public);
+                    $secret = match ($curveName) {
+                        'Curve25519', 'Curve448' => $point,
+                        // according to https://www.secg.org/sec1-v2.pdf#page=33 only X is returned
+                        default => substr($point, 1, (strlen($point) - 1) >> 1)
+                    };
                     /*
                     if (($secret[0] & "\x80") === "\x80") {
                         $secret = "\0$secret";

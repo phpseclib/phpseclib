@@ -18,6 +18,7 @@ namespace phpseclib4\Crypt\EC\Formats\Keys;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib4\Crypt\EC\BaseCurves\Binary as BinaryCurve;
+use phpseclib4\Crypt\EC\BaseCurves\Montgomery;
 use phpseclib4\Crypt\EC\BaseCurves\Prime as PrimeCurve;
 use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
 use phpseclib4\Exception\RuntimeException;
@@ -151,6 +152,9 @@ trait Common
      */
     public static function extractPoint(string $str, BaseCurve $curve): array
     {
+        if ($curve instanceof Montgomery) {
+            return [new BigInteger($str, 256)];
+        }
         if ($curve instanceof TwistedEdwardsCurve) {
             // first step of point deciding as discussed at the following URL's:
             // https://tools.ietf.org/html/rfc8032#section-5.1.3

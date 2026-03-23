@@ -40,7 +40,7 @@ use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Crypt\EC\Curves\Curve448;
 use phpseclib4\Crypt\EC\Curves\Ed25519;
 use phpseclib4\Crypt\EC\Curves\Ed448;
-use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
+use phpseclib4\Crypt\EC\Formats\Keys\PKCS8;
 use phpseclib4\Crypt\EC\Parameters;
 use phpseclib4\Crypt\EC\PrivateKey;
 use phpseclib4\Crypt\EC\PublicKey;
@@ -464,6 +464,37 @@ abstract class EC extends AsymmetricKey
             return $this->curve->encodePoint($this->QA);
         }
         return "\4" . $this->QA[0]->toBytes(true) . $this->QA[1]->toBytes(true);
+    }
+
+    // for Weierstrass curves, if only the x coordinate is present (as is the case after doing a round of ECDH)
+    // then we'll guess at the y coordinate. there are only two possible y values and, atleast in-so-far as
+    // multiplication is concerned, neither value affects the resultant x value
+    public static function convertPointToPublicKey(string $curveName, string $secret, bool $toPublicKey = true): PublicKey|string
+    {
+        $curveName = self::getCurveCase($curveName);
+        $curve = '\phpseclib4\Crypt\EC\Curves\\' . $curveName;
+
+        if (!class_exists($curve)) {
+            throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
+        }
+
+        $curve = new $curve;
+        if (!$curve instanceof TwistedEdwardsCurve) {
+            if ($curve instanceof MontgomeryCurve) {
+                $secret = strrev($secret);
+            } elseif ($curve->getLengthInBytes() == strlen($secret)) {
+                $secret = "\3$secret";
+            }
+            if (!$toPublicKey) {
+                return $secret;
+            }
+            $secret = "\0$secret";
+        } elseif (!$toPublicKey) {
+            return $secret;
+        }
+        $QA = PKCS8::extractPoint($secret, $curve);
+        $key = PKCS8::savePublicKey($curve, $QA);
+        return EC::loadFormat('PKCS8', $key);
     }
 
     /**
