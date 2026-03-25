@@ -668,14 +668,14 @@ class SSH2
      * @see self::_send_binary_packet()
      * @see self::_get_binary_packet()
      */
-    private int $log_size;
+    private int $log_size = 0;
 
     /**
      * Timeout
      *
      * @see SSH2::setTimeout()
      */
-    protected int|null $timeout = null;
+    protected ?int $timeout = null;
 
     /**
      * Current Timeout
@@ -704,7 +704,7 @@ class SSH2
      *
      * @see self::_append_log()
      */
-    private int $realtime_log_size;
+    private int $realtime_log_size = 0;
 
     /**
      * Has the signature been validated?
@@ -718,7 +718,7 @@ class SSH2
      *
      * @see self::_append_log()
      */
-    private bool $realtime_log_wrap;
+    private bool $realtime_log_wrap = false;
 
     /**
      * Flag to suppress stderr from output
