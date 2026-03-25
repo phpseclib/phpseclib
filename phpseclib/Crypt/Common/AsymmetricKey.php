@@ -67,13 +67,6 @@ abstract class AsymmetricKey
     private static array $invisiblePlugins = [];
 
     /**
-     * Forced Engine
-     *
-     * @see self::forceEngine()
-     */
-    protected static ?string $forcedEngine = null;
-
-    /**
      * Key Comment
      */
     private ?string $comment;
@@ -381,14 +374,14 @@ abstract class AsymmetricKey
     public static function forceEngine(?string $engine = null): void
     {
         if (!isset($engine)) {
-            self::$forcedEngine = null;
+            static::$forcedEngine = null;
             return;
         }
         switch ($engine) {
             case 'PHP':
             case 'OpenSSL':
             case 'libsodium':
-                self::$forcedEngine = $engine;
+                static::$forcedEngine = $engine;
                 break;
             default:
                 throw new \InvalidArgumentException('Valid engines are null, PHP, OpenSSL or libsodium');
@@ -397,7 +390,7 @@ abstract class AsymmetricKey
 
     public static function getForcedEngine(): ?string
     {
-        return self::$forcedEngine;
+        return static::$forcedEngine;
     }
 
     /**

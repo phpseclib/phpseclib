@@ -82,12 +82,18 @@ abstract class MontgomeryPrivate
      *
      * @param Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, MontgomeryCurve $curve, array $publicKey, #[SensitiveParameter] ?string $password = null): string
+    public static function savePrivateKey(
+        BigInteger $privateKey,
+        MontgomeryCurve $curve,
+        array $publicKey,
+        ?string $secret = null,
+        #[SensitiveParameter] ?string $password = null
+    ): string
     {
-        if (!empty($password) && is_string($password)) {
+        if (isset($password)) {
             throw new UnsupportedFormatException('MontgomeryPrivate private keys do not support encryption');
         }
 
-        return $privateKey->toBytes();
+        return str_pad($privateKey->toBytes(), $curve::SIZE, "\0", STR_PAD_RIGHT);
     }
 }

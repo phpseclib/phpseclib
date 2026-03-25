@@ -118,6 +118,13 @@ abstract class EC extends AsymmetricKey
     protected string $sigFormat;
 
     /**
+     * Forced Engine
+     *
+     * @see parent::forceEngine()
+     */
+    protected static ?string $forcedEngine = null;
+
+    /**
      * Create public / private key pair.
      */
     public static function createKey(string $curve): PrivateKey
@@ -150,6 +157,13 @@ abstract class EC extends AsymmetricKey
                 ],
             // OPENSSL_KEYTYPE_ED448 introduced in PHP 8.4.0
             'Ed448' => ['OpenSSL' => defined('OPENSSL_KEYTYPE_ED448')],
+            'Curve25519' => [
+                'libsodium' => function_exists('sodium_crypto_box_publickey_from_secretkey'),
+                // OPENSSL_KEYTYPE_X25519 introduced in PHP 8.4.0
+                'OpenSSL'   => defined('OPENSSL_KEYTYPE_X25519'),
+            ],
+            // OPENSSL_KEYTYPE_X448 introduced in PHP 8.4.0
+            'Curve448' => ['OpenSSL' => defined('OPENSSL_KEYTYPE_X448')],
             // openssl_get_curve_names() was introduced in PHP 7.1.0
             // exclude curve25519 and curve448 from testing
             default => ['OpenSSL' => function_exists('openssl_get_curve_names') && substr($curveEngineName, 0, 5) != 'curve' && in_array($curveEngineName, openssl_get_curve_names())]
@@ -183,29 +197,7 @@ abstract class EC extends AsymmetricKey
         }
         $privatekey->curve = $curve;
         $privatekey->curveName = $curveName;
-
-        // phpseclib doesn't support saving Curve25519 keys so we can't employ the same tricks that we do above
-        if ($curve instanceof Curve25519) {
-            if (self::$forcedEngine == 'libsodium' && !function_exists('sodium_crypto_box_publickey_from_secretkey')) {
-                throw new BadConfigurationException('Engine libsodium is forced but unsupported for curve25519');
-            }
-            if ((!isset(self::$forcedEngine) || self::$forcedEngine == 'libsodium') && function_exists('sodium_crypto_box_publickey_from_secretkey')) {
-                //$r = pack('H*', '0900000000000000000000000000000000000000000000000000000000000000');
-                //$QA = sodium_crypto_scalarmult($dA->toBytes(), $r);
-                $QA = sodium_crypto_box_publickey_from_secretkey($dA->toBytes());
-                $privatekey->QA = [$curve->convertInteger(new BigInteger(strrev($QA), 256))];
-            }
-            self::createCurveXKey('25519', $privatekey);
-        }
-        if ($curve instanceof Curve448) {
-            if (self::$forcedEngine == 'libsodium') {
-                throw new BadConfigurationException('Engine libsodium is forced but unsupported for curve448');
-            }
-            self::createCurveXKey('448', $privatekey);
-        }
-        if (!isset($privatekey->QA)) {
-            $privatekey->QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);
-        }
+        $privatekey->QA = $curve->multiplyPoint($curve->getBasePoint(), $dA);
 
         //$publickey = clone $privatekey;
         //unset($publickey->dA);
@@ -218,35 +210,6 @@ abstract class EC extends AsymmetricKey
         }
 
         return $privatekey;
-    }
-
-    /**
-     * Create a Curve22519 or Curve448 key
-     *
-     * Sets $privatekey to the newly generatedkey
-     */
-    private static function createCurveXKey(string $type, PrivateKey $privatekey): void
-    {
-        // according to https://www.php.net/manual/en/openssl.key-types.php PHP 8.4.0+ support OPENSSL_KEYTYPE_X25519
-        if (self::$forcedEngine == 'OpenSSL' && !defined("OPENSSL_KEYTYPE_X$type")) {
-            throw new BadConfigurationException("Engine OpenSSL is forced but unsupported for curve$type");
-        }
-        if ((!isset(self::$forcedEngine) || self::$forcedEngine == 'OpenSSL') && defined("OPENSSL_KEYTYPE_X$type")) {
-            $config = [];
-            if (self::$configFile) {
-                $config['config'] = self::$configFile;
-            }
-            $temp = openssl_pkey_new(['private_key_type' => constant("OPENSSL_KEYTYPE_X$type")] + $config);
-            if ($temp) {
-                // OpenSSL's PHP bindings don't support the extraction of a public key from a private key - all it can do is
-                // generate a new public / private key pair so we'll just reassign the private key
-                $details = openssl_pkey_get_details($temp);
-                $privatekey->dA = new BigInteger($details["x$type"]['priv_key'], 256);
-                $privatekey->QA = [$privatekey->curve->convertInteger(new BigInteger(strrev($details["x$type"]['pub_key']), 256))];
-            } elseif (self::$forcedEngine == 'OpenSSL') {
-                throw new BadConfigurationException("Engine OpenSSL is forced but unsupported for curve$type");
-            }
-        }
     }
 
     /**
@@ -283,8 +246,8 @@ abstract class EC extends AsymmetricKey
      */
     private static function generateWithEngine(string $engine, string $curve): ?PrivateKey
     {
-        if ($curve == 'ed25519') {
-            if ($engine == 'libsodium') {
+        if ($engine == 'libsodium') {
+            if ($curve == 'ed25519') {
                 $kp = sodium_crypto_sign_keypair();
 
                 $privatekey = EC::loadFormat('libsodium', sodium_crypto_sign_secretkey($kp));
@@ -294,48 +257,45 @@ abstract class EC extends AsymmetricKey
                 //$publickey->curveName = $curve;
 
                 return $privatekey;
+            } else { // $curve == 'curve25519
+                $privatekey = new PrivateKey();
+                $privatekey->curve = new Curve25519();
+                $privatekey->curveName = 'Curve25519';
+                $privatekey->dA = $privatekey->curve->createRandomMultiplier();
+                $dA = str_pad($privatekey->dA->toBytes(), 32, "\0", STR_PAD_LEFT);
+                //$r = pack('H*', '0900000000000000000000000000000000000000000000000000000000000000');
+                //$QA = sodium_crypto_scalarmult($dA, $r);
+                $QA = sodium_crypto_box_publickey_from_secretkey($dA);
+                $privatekey->QA = [$privatekey->curve->convertInteger(new BigInteger(strrev($QA), 256))];
+                return $privatekey;
             }
-
-            if ($engine == 'OpenSSL') {
-                return self::createKeyOpenSSL(
-                    ['private_key_type' => OPENSSL_KEYTYPE_ED25519],
-                    'Ed25519'
-                );
-            }
         }
 
-        if ($curve == 'ed448' && $engine == 'OpenSSL') {
-            return self::createKeyOpenSSL(
-                ['private_key_type' => OPENSSL_KEYTYPE_ED448],
-                'Ed448'
-            );
-        }
+        // at this point $engine == 'OpenSSL'
 
-        if ($curve != 'curve25519' && $curve != 'curve448' && $engine == 'OpenSSL') {
-            $curveName = self::getCurveCase($curve);
-            return self::createKeyOpenSSL(
-                [
-                    'private_key_type' => OPENSSL_KEYTYPE_EC,
-                    'curve_name' => $curveName,
-                ],
-                $curveName
-            );
-        }
-    }
+        $curveName = self::getCurveCase($curve);
 
-    /**
-     * Generate the key for a given curve / engine combo
-     */
-    private static function createKeyOpenSSL(array $params, string $curveName): ?PrivateKey
-    {
         $config = [];
         if (self::$configFile) {
             $config['config'] = self::$configFile;
         }
-        $key = openssl_pkey_new($params + $config);
+        $params = $config;
+        $params['private_key_type'] = match ($curve) {
+            'ed25519' => OPENSSL_KEYTYPE_ED25519,
+            'ed448' => OPENSSL_KEYTYPE_ED448,
+            'curve25519' => OPENSSL_KEYTYPE_X25519,
+            'curve448' => OPENSSL_KEYTYPE_X448,
+            default => OPENSSL_KEYTYPE_EC
+        };
+        if ($params['private_key_type'] == OPENSSL_KEYTYPE_EC) {
+            $params['curve_name'] = $curveName;
+        }
+
+        $key = openssl_pkey_new($params);
         if (!$key) {
             return null;
         }
+        $privateKeyStr = '';
         if (!openssl_pkey_export($key, $privateKeyStr, null, $config)) {
             return null;
         }

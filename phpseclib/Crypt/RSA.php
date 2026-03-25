@@ -227,6 +227,13 @@ abstract class RSA extends AsymmetricKey
     protected BigInteger $publicExponent;
 
     /**
+     * Forced Engine
+     *
+     * @see self::forceEngine()
+     */
+    protected static ?string $forcedEngine = null;
+
+    /**
      * Sets the public exponent for key generation
      *
      * This will be 65537 unless changed.

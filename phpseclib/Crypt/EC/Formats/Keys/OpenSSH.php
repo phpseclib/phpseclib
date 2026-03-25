@@ -111,7 +111,9 @@ abstract class OpenSSH extends Progenitor
 
         $reflect = new \ReflectionClass($curve);
         $name = $reflect->getShortName();
-
+        if (!isset(Curves::OIDs[$name])) {
+            throw new UnsupportedCurveException($name . ' is not a curve that the OpenSSH plugin supports');
+        }
         $oid = Curves::OIDs[$name];
         $aliases = array_filter(Curves::OIDs, fn ($v) => $v == $oid);
         $aliases = array_keys($aliases);

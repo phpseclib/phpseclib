@@ -83,6 +83,13 @@ abstract class DSA extends AsymmetricKey
     protected string $sigFormat;
 
     /**
+     * Forced Engine
+     *
+     * @see parent::forceEngine()
+     */
+    protected static ?string $forcedEngine = null;
+
+    /**
      * Signature Format (Short)
      */
     protected string $shortFormat;

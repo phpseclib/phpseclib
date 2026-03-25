@@ -22,10 +22,7 @@ namespace phpseclib4\Crypt\Common\Traits;
  */
 trait PasswordProtected
 {
-    /**
-     * @var string|null
-     */
-    private $password = null;
+    private ?string $password = null;
 
     /**
      * Sets the password
