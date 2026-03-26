@@ -305,7 +305,7 @@ abstract class DH extends AsymmetricKey
             switch (true) {
                 case $public instanceof EC\PublicKey:
                     if ($privateCurve !== $public->getCurve()) {
-                        throw new \InvalidArgumentException('The public key curve and private keys need to use the same curve');
+                        throw new \InvalidArgumentException("The public key curve (" . $public->getCurve() . ") and private key curve ($privateCurve) need to match");
                     }
                     $orig = $public;
                     $public = $public->getEncodedCoordinates();

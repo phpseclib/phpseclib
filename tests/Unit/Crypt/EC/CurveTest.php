@@ -8,6 +8,7 @@
 
 namespace phpseclib3\Tests\Unit\Crypt\EC;
 
+use phpseclib3\Crypt\DH;
 use phpseclib3\Crypt\EC;
 use phpseclib3\Crypt\EC\Curves\Ed448;
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -563,6 +564,28 @@ hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
         $this->assertFalse($public->verify($message, $signature));
 
         // reset engine
+        EC::forceEngine();
+    }
+
+    public function testShortCurve25519()
+    {
+        // strlen((new BigInteger($private, 256))->toBytes()) == 31 vs 32
+        $private = hex2bin('006f88c07302c7f28db7fa89e34f92650d2647642e66f828741db9406acaed5d');
+        $public = hex2bin('024f5670bbc1ade282c08400b979af965521c5d3be0b95cb6be2cdfc48b01600');
+        $private = EC::loadFormat('MontgomeryPrivate', $private);
+
+        $expected = hex2bin('af7faf0997a924bb476a90c2f945c293f4d6b7f24fbbb05ba4c7e09182584017');
+
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        foreach ($engines as $engine) {
+            try {
+                EC::forceEngine($engine);
+                $secret = DH::computeSecret($private, $public);
+                $this->assertSame($expected, $secret);
+            } catch (BadConfigurationException $e) {
+            }
+        }
+
         EC::forceEngine();
     }
 }

@@ -14,6 +14,7 @@ use phpseclib3\Crypt\DH\Parameters;
 use phpseclib3\Crypt\DH\PrivateKey;
 use phpseclib3\Crypt\DH\PublicKey;
 use phpseclib3\Crypt\EC;
+use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Math\BigInteger;
 use phpseclib3\Tests\PhpseclibTestCase;
 
@@ -131,11 +132,19 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         // Ed25519 isn't normally used for DH (that honor goes to Curve25519) but that's not to say it can't
         // be used
         $curves = ['nistp256', 'curve25519', 'Ed25519'];
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
         foreach ($curves as $curve) {
-            $ourPriv = EC::createKey($curve);
-            $theirPub = EC::createKey($curve)->getPublicKey();
-            $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
+            foreach ($engines as $engine) {
+                try {
+                    EC::forceEngine($engine);
+                    $ourPriv = EC::createKey($curve);
+                    $theirPub = EC::createKey($curve)->getPublicKey();
+                    $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
+                } catch (BadConfigurationException $e) {
+                }
+            }
         }
+        EC::forceEngine();
     }
 
     public function testEphemeralECDH()
@@ -182,26 +191,35 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
 
         $numParties = 4;
 
-        // create private keys
-        $parties = [];
-        for ($i = 0; $i < $numParties; $i++) {
-            $parties[] = EC::createKey('Curve25519');
-        }
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        $curves = ['Curve25519', 'nistp256'];
+        foreach ($engines as $engine) {
+            foreach ($curves as $curve) {
+                try {
+                    // create private keys
+                    $parties = [];
+                    for ($i = 0; $i < $numParties; $i++) {
+                        $parties[] = EC::createKey('Curve25519');
+                    }
 
-        // create shared secrets
-        $secrets = [];
-        for ($i = 0; $i < $numParties; $i++) {
-            $secrets[$i] = $parties[$i]->getPublicKey();
-            for ($j = 0; $j < $numParties; $j++) {
-                if ($i == $j) {
-                    continue;
+                    // create shared secrets
+                    $secrets = [];
+                    for ($i = 0; $i < $numParties; $i++) {
+                        $secrets[$i] = $parties[$i]->getPublicKey();
+                        for ($j = 0; $j < $numParties; $j++) {
+                            if ($i == $j) {
+                                continue;
+                            }
+                            $secrets[$i] = DH::computeSecret($parties[$j], $secrets[$i]);
+                        }
+                    }
+
+                    for ($i = 1; $i < $numParties; $i++) {
+                        $this->assertSame($secrets[0], $secrets[$i]);
+                    }
+                } catch (BadConfigurationException $e) {
                 }
-                $secrets[$i] = DH::computeSecret($parties[$j], $secrets[$i]);
             }
-        }
-
-        for ($i = 1; $i < $numParties; $i++) {
-            $this->assertSame($secrets[0], $secrets[$i]);
         }
     }
 

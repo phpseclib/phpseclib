@@ -250,6 +250,14 @@ abstract class RSA extends AsymmetricKey
     protected $publicExponent;
 
     /**
+     * Forced Engine
+     *
+     * @var ?string
+     * @see parent::forceEngine()
+     */
+    protected static $forcedEngine = null;
+
+    /**
      * Sets the public exponent for key generation
      *
      * This will be 65537 unless changed.
