@@ -501,7 +501,7 @@ abstract class EC extends AsymmetricKey
             throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported');
         }
 
-        $curve = new $curve;
+        $curve = new $curve();
         if (!$curve instanceof TwistedEdwardsCurve) {
             if ($curve instanceof MontgomeryCurve) {
                 $secret = strrev($secret);
