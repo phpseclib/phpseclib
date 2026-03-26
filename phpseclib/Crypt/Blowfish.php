@@ -334,7 +334,7 @@ class Blowfish extends BlockCipher
     public function setKeyLength(int $length): void
     {
         if ($length < 32 || $length > 448) {
-                throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
+            throw new LengthException('Key size of ' . $length . ' bits is not supported by this algorithm. Only keys of sizes between 32 and 448 bits are supported');
         }
 
         $this->key_length = $length >> 3;
