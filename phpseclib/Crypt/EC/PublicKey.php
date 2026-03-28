@@ -119,7 +119,7 @@ final class PublicKey extends EC implements Common\PublicKey
             try {
                 $R = PKCS1::extractPoint($R, $curve);
                 $R = $this->curve->convertToInternal($R);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 return false;
             }
 

@@ -45,14 +45,9 @@ final class PrivateKey extends EC implements Common\PrivateKey
      * sign() converts this to a BigInteger so one might wonder why this is a FiniteFieldInteger instead of
      * a BigInteger. That's because a FiniteFieldInteger, when converted to a byte string, is null padded by
      * a certain amount whereas a BigInteger isn't.
-     *
-     * @var object
      */
-    protected $dA;
+    protected BigInteger $dA;
 
-    /**
-     * @var string
-     */
     protected ?string $secret = null;
 
     /**
@@ -370,15 +365,11 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $temp = new \ReflectionMethod($format, 'save');
         $paramCount = $temp->getNumberOfRequiredParameters();
 
-        // @codingStandardsIgnoreStart
-        switch ($paramCount) {
-            case 2: return $format::save($r, $s);
-            case 3: return $format::save($r, $s, $this->getCurve());
-            case 4: return $format::save($r, $s, $this->getCurve(), $this->getLength());
-        }
-        // @codingStandardsIgnoreEnd
-
-        // presumably the only way you could get to this is if you were using a custom plugin
-        throw new UnsupportedOperationException("$format::save() has $paramCount parameters - the only valid parameter counts are 2 or 3");
+        return match ($paramCount) {
+            2 => $format::save($r, $s),
+            3 => $format::save($r, $s, $this->getCurve()),
+            4 => $format::save($r, $s, $this->getCurve(), $this->getLength()),
+            default => throw new UnsupportedOperationException("$format::save() has $paramCount parameters - the only valid parameter counts are 2, 3 or 4")
+        };
     }
 }

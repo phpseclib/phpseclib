@@ -249,7 +249,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
         // too short" and stop.
         try {
             $em = $this->emsa_pkcs1_v1_5_encode($m, $this->k);
-        } catch (\LengthException $e) {
+        } catch (LengthException $e) {
             throw new LengthException('RSA modulus too short');
         }
 
@@ -324,7 +324,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
 
         // EME-PKCS1-v1_5 decoding
 
-        if (ord($em[0]) != 0 || ord($em[1]) > 2) {
+        if ((ord($em[0]) != 0) | (ord($em[1]) > 2)) {
             throw new RuntimeException('Decryption error');
         }
 

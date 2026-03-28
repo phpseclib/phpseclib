@@ -256,19 +256,12 @@ trait ASN1AlgorithmIdentifier
                     $temp = ASN1::decodeBER((string) $encryptionScheme['parameters']);
                     extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray());
 
-                    $effectiveKeyLength = (int) $rc2ParametersVersion->toString();
-                    switch ($effectiveKeyLength) {
-                        case 160:
-                            $effectiveKeyLength = 40;
-                            break;
-                        case 120:
-                            $effectiveKeyLength = 64;
-                            break;
-                        case 58:
-                            $effectiveKeyLength = 128;
-                            break;
-                        //default: // should be >= 256
-                    }
+                    $effectiveKeyLength = match ((int) $rc2ParametersVersion->toString()) {
+                        160 => 40,
+                        120 => 64,
+                        58 => 128,
+                        default => throw new UnsupportedAlgorithmException('The only effective key lengths that phpseclib supports for RC2 encrypted keys are 40, 64 an 128')
+                    };
                     $cipher->setIV((string) $iv);
                     $cipher->setKeyLength($effectiveKeyLength);
                 }

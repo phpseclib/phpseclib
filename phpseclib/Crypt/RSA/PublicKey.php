@@ -53,13 +53,11 @@ final class PublicKey extends RSA implements Common\PublicKey
      * RSAVP1
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.2.2 RFC3447#section-5.2.2}.
-     *
-     * @return bool|BigInteger
      */
-    private function rsavp1(BigInteger $s)
+    private function rsavp1(BigInteger $s): BigInteger
     {
         if ($s->compare(self::$zero) < 0 || $s->compare($this->modulus) > 0) {
-            return false;
+            throw new OutOfRangeException('Signature representative out of range');
         }
         return $this->exponentiate($s);
     }
@@ -81,13 +79,11 @@ final class PublicKey extends RSA implements Common\PublicKey
 
         // RSA verification
 
-        $s = $this->os2ip($s);
-        $m2 = $this->rsavp1($s);
-        if ($m2 === false) {
-            return false;
-        }
-        $em = $this->i2osp($m2, $this->k);
-        if ($em === false) {
+        try {
+            $s = $this->os2ip($s);
+            $m2 = $this->rsavp1($s);
+            $em = $this->i2osp($m2, $this->k);
+        } catch (\Exception) {
             return false;
         }
 
@@ -100,14 +96,14 @@ final class PublicKey extends RSA implements Common\PublicKey
         try {
             $em2 = $this->emsa_pkcs1_v1_5_encode($m, $this->k);
             $r1 = hash_equals($em, $em2);
-        } catch (\LengthException $e) {
+        } catch (LengthException $e) {
             $exception = true;
         }
 
         try {
             $em3 = $this->emsa_pkcs1_v1_5_encode_without_null($m, $this->k);
             $r2 = hash_equals($em, $em3);
-        } catch (\LengthException $e) {
+        } catch (LengthException $e) {
             $exception = true;
         } catch (UnsupportedAlgorithmException $e) {
             $r2 = false;
@@ -144,13 +140,11 @@ final class PublicKey extends RSA implements Common\PublicKey
 
         // RSA verification
 
-        $s = $this->os2ip($s);
-        $m2 = $this->rsavp1($s);
-        if ($m2 === false) {
-            return false;
-        }
-        $em = $this->i2osp($m2, $this->k);
-        if ($em === false) {
+        try {
+            $s = $this->os2ip($s);
+            $m2 = $this->rsavp1($s);
+            $em = $this->i2osp($m2, $this->k);
+        } catch (\Exception) {
             return false;
         }
 
@@ -198,10 +192,8 @@ final class PublicKey extends RSA implements Common\PublicKey
      * EMSA-PSS-VERIFY
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.2 RFC3447#section-9.1.2}.
-     *
-     * @return string
      */
-    private function emsa_pss_verify(string $m, string $em, int $emBits)
+    private function emsa_pss_verify(string $m, string $em, int $emBits): bool
     {
         // if $m is larger than two million terrabytes and you're using sha1, PKCS#1 suggests a "Label too long" error
         // be output.
@@ -241,8 +233,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      * RSASSA-PSS-VERIFY
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.1.2 RFC3447#section-8.1.2}.
-     *
-     * @return bool|string
      */
     private function rsassa_pss_verify(string $m, string $s): bool
     {
@@ -256,10 +246,11 @@ final class PublicKey extends RSA implements Common\PublicKey
 
         $modBits = strlen($this->modulus->toBits());
 
-        $s2 = $this->os2ip($s);
-        $m2 = $this->rsavp1($s2);
-        $em = $this->i2osp($m2, $this->k);
-        if ($em === false) {
+        try {
+            $s2 = $this->os2ip($s);
+            $m2 = $this->rsavp1($s2);
+            $em = $this->i2osp($m2, $this->k);
+        } catch (\Exception) {
             return false;
         }
 
@@ -334,8 +325,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
      *
-     * @param bool $pkcs15_compat optional
-     * @return bool|string
      * @throws LengthException if strlen($m) > $this->k - 11
      */
     private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false): string
@@ -418,8 +407,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      * RSAEP
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-5.1.1 RFC3447#section-5.1.1}.
-     *
-     * @return bool|BigInteger
      */
     private function rsaep(BigInteger $m): BigInteger
     {
@@ -434,10 +421,9 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * Doesn't use padding and is not recommended.
      *
-     * @return bool|string
      * @throws LengthException if strlen($m) > $this->k
      */
-    private function raw_encrypt(string $m)
+    private function raw_encrypt(string $m): string
     {
         if (strlen($m) > $this->k) {
             throw new LengthException('Message too long');
@@ -455,11 +441,10 @@ final class PublicKey extends RSA implements Common\PublicKey
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
-     * @return bool|string
      * @throws LengthException if the RSA modulus is too short
      * @see self::decrypt()
      */
-    public function encrypt(string $plaintext)
+    public function encrypt(string $plaintext): string
     {
         $result = $this->handleOpenSSL('openssl_public_encrypt', $plaintext);
         if ($result !== null) {

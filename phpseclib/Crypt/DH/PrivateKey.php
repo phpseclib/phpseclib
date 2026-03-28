@@ -43,9 +43,7 @@ final class PrivateKey extends DH
     {
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
 
-        if (!isset($this->publicKey)) {
-            $this->publicKey = $this->base->powMod($this->privateKey, $this->prime);
-        }
+        $this->publicKey ??= $this->base->powMod($this->privateKey, $this->prime);
 
         $key = $type::savePublicKey($this->prime, $this->base, $this->publicKey);
 
@@ -53,15 +51,13 @@ final class PrivateKey extends DH
     }
 
     /**
-     * Returns the private key
+     * Returns the private key as a string
      */
-    public function toString(string $type, array $options = []): string|array
+    public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
-        if (!isset($this->publicKey)) {
-            $this->publicKey = $this->base->powMod($this->privateKey, $this->prime);
-        }
+        $this->publicKey ??= $this->base->powMod($this->privateKey, $this->prime);
 
         return $type::savePrivateKey($this->prime, $this->base, $this->privateKey, $this->publicKey, $this->password, $options);
     }
