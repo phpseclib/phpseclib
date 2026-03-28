@@ -34,6 +34,7 @@ use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Crypt\EC\Curves\Curve448;
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Exception\RuntimeException;
@@ -85,7 +86,7 @@ abstract class DH extends AsymmetricKey
     {
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
+            throw new BadMethodCallException('createParameters() should not be called from final classes (' . static::class . ')');
         }
 
         $params = new Parameters();
@@ -241,7 +242,7 @@ abstract class DH extends AsymmetricKey
     {
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+            throw new BadMethodCallException('createKey() should not be called from final classes (' . static::class . ')');
         }
 
         $one = new BigInteger(1);

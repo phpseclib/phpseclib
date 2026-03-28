@@ -51,10 +51,8 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Child OIDs loaded
-     *
-     * @var bool
      */
-    protected static $childOIDsLoaded = false;
+    protected static bool $childOIDsLoaded = false;
 
     /**
      * Break a public or private key down into its constituent components
@@ -79,17 +77,11 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->value);
-        if (empty($decoded)) {
-            throw new RuntimeException('Unable to decode BER of parameters');
-        }
         $components = ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
 
         $decoded = ASN1::decodeBER((string) $key[$type]);
-        switch (true) {
-            case !isset($decoded):
-            case !isset($decoded['content']):
-            case !$decoded['content'] instanceof BigInteger:
-                throw new RuntimeException('Unable to decode BER of parameters');
+        if (!$decoded['content'] instanceof BigInteger) {
+            throw new RuntimeException('Unable to decode BER of parameters');
         }
         $components[$type] = $decoded['content'];
 

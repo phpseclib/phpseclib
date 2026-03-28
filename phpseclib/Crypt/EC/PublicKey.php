@@ -156,11 +156,11 @@ final class PublicKey extends EC implements Common\PublicKey
             return $lhs[0]->equals($rhs[0]) && $lhs[1]->equals($rhs[1]);
         }
 
-        $params = $format::load($signature);
-        if ($params === false || count($params) != 2) {
+        try {
+            ['r' => $r, 's' => $s] = $format::load($signature);
+        } catch (\Exception) {
             return false;
         }
-        ['r' => $r, 's' => $s] = $params;
 
         if (self::$forcedEngine === 'OpenSSL' && !function_exists('openssl_get_md_methods')) {
             throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for ECDSA');
@@ -218,8 +218,6 @@ final class PublicKey extends EC implements Common\PublicKey
 
     /**
      * Returns the public key
-     *
-     * @param array $options optional
      */
     public function toString(string $type, array $options = []): string
     {

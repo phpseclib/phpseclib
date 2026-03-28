@@ -44,9 +44,6 @@ abstract class PKCS1 extends Progenitor
         $key = parent::loadHelper($key, $password);
 
         $decoded = ASN1::decodeBER($key);
-        if (!$decoded) {
-            throw new RuntimeException('Unable to decode BER');
-        }
 
         return ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
     }

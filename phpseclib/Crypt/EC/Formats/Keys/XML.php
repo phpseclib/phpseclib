@@ -44,24 +44,18 @@ abstract class XML
 
     /**
      * Default namespace
-     *
-     * @var string
      */
-    private static $namespace;
+    private static string $namespace;
 
     /**
      * Flag for using RFC4050 syntax
-     *
-     * @var bool
      */
-    private static $rfc4050 = false;
+    private static bool $rfc4050 = false;
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         self::initialize_static_variables();
 
@@ -112,12 +106,8 @@ abstract class XML
 
     /**
      * Case-insensitive xpath query
-     *
-     * @param string|null $error optional
-     * @param bool $decode optional
-     * @return \DOMNodeList|string
      */
-    private static function query(\DOMXPath $xpath, string $name, ?string $error = null, bool $decode = true)
+    private static function query(\DOMXPath $xpath, string $name, ?string $error = null, bool $decode = true): \DOMNodeList|string
     {
         $query = '/';
         $names = explode('/', $name);
@@ -138,16 +128,16 @@ abstract class XML
     /**
      * Finds the first element in the relevant namespace, strips the namespacing and returns the XML for that element.
      */
-    private static function isolateNamespace(string $xml, string $ns)
+    private static function isolateNamespace(string $xml, string $ns): ?string
     {
         $dom = new \DOMDocument();
         if (!$dom->loadXML($xml)) {
-            return false;
+            return null;
         }
         $xpath = new \DOMXPath($dom);
         $nodes = $xpath->query("//*[namespace::*[.='$ns'] and not(../namespace::*[.='$ns'])]");
         if (!$nodes->length) {
-            return false;
+            return null;
         }
         $node = $nodes->item(0);
         $ns_name = $node->lookupPrefix($ns);
@@ -193,10 +183,8 @@ abstract class XML
     /**
      * Returns an instance of \phpseclib4\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
-     *
-     * @return BaseCurve|false
      */
-    private static function loadCurveByParam(\DOMXPath $xpath)
+    private static function loadCurveByParam(\DOMXPath $xpath): BaseCurve
     {
         $namedCurve = self::query($xpath, 'namedcurve');
         if ($namedCurve->length == 1) {
@@ -272,10 +260,8 @@ abstract class XML
     /**
      * Returns an instance of \phpseclib4\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
-     *
-     * @return BaseCurve|false
      */
-    private static function loadCurveByParamRFC4050(\DOMXPath $xpath)
+    private static function loadCurveByParamRFC4050(\DOMXPath $xpath): BaseCurve
     {
         $fieldTypes = [
             'prime-field' => ['primefieldparamstype/p'],
@@ -359,7 +345,6 @@ abstract class XML
      * Convert a public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @param array $options optional
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
     {
@@ -396,11 +381,8 @@ abstract class XML
 
     /**
      * Encode Parameters
-     *
-     * @param array $options optional
-     * @return string|false
      */
-    private static function encodeXMLParameters(BaseCurve $curve, string $pre, array $options = [])
+    private static function encodeXMLParameters(BaseCurve $curve, string $pre, array $options = []): string
     {
         $result = self::encodeParameters($curve, true, $options);
 

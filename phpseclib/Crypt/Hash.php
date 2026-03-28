@@ -900,7 +900,7 @@ class Hash
         // https://en.wikipedia.org/wiki/One-key_MAC
         if ($algo == 'aes_cmac') {
             if (is_resource($text)) {
-                throw new RuntimeException('aes_cmac only works with strings');
+                throw new UnexpectedValueException('aes_cmac only works with strings');
             }
             $constZero = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
             if ($this->recomputeAESKey) {
@@ -964,7 +964,7 @@ class Hash
         }
         if ($algo == 'umac') {
             if (is_resource($text)) {
-                throw new RuntimeException('umac only works with strings');
+                throw new UnexpectedValueException('umac only works with strings');
             }
             if ($this->recomputeAESKey) {
                 if (!is_string($this->nonce)) {
@@ -1019,7 +1019,7 @@ class Hash
 
         if (is_array($algo)) {
             if (is_resource($algo)) {
-                throw new RuntimeException($this->hashParam . ' only works with strings');
+                throw new UnexpectedValueException($this->hashParam . ' only works with strings');
             }
             if (empty($this->key) || !is_string($this->key)) {
                 return substr($algo($text, ...array_values($this->parameters)), 0, $this->length);

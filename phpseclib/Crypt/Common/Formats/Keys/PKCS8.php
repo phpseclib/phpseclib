@@ -49,17 +49,13 @@ abstract class PKCS8 extends PKCS
 
     /**
      * OIDs loaded
-     *
-     * @var bool
      */
-    private static $oidsLoaded = false;
+    private static bool $oidsLoaded = false;
 
     /**
      * Binary key flag
-     *
-     * @var bool
      */
-    private static $binary = false;
+    private static bool $binary = false;
 
     /**
      * Initialize static variables
@@ -107,11 +103,7 @@ abstract class PKCS8 extends PKCS
             $cipher = self::getCryptoObjectFromAlgorithmIdentifier($decrypted['encryptionAlgorithm'], $password);
             $meta = $cipher->getMetaData('meta');
             $key = $cipher->decrypt((string) $decrypted['encryptedData']);
-            try {
-                $decoded = ASN1::decodeBER($key);
-            } catch (\Exception $e) {
-                throw new RuntimeException('Unable to decode BER', 0, $e);
-            }
+            $decoded = ASN1::decodeBER($key);
         }
 
         try {
@@ -121,7 +113,7 @@ abstract class PKCS8 extends PKCS
         }
         if (is_array($private)) {
             if ($isPublic) {
-                throw new \UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
+                throw new UnexpectedValueException('Human readable string claims public key but DER encoded string claims private key');
             }
 
             if (isset($private['privateKeyAlgorithm']['parameters']) && !$private['privateKeyAlgorithm']['parameters'] instanceof ASN1\Element) {
@@ -158,7 +150,7 @@ abstract class PKCS8 extends PKCS
 
         if (is_array($public)) {
             if ($isPrivate) {
-                throw new \UnexpectedValueException('Human readable string claims private key but DER encoded string claims public key');
+                throw new UnexpectedValueException('Human readable string claims private key but DER encoded string claims public key');
             }
 
             if ("$public[publicKey]"[0] != "\0") {
@@ -298,11 +290,7 @@ abstract class PKCS8 extends PKCS
             }
         }
 
-        try {
-            $decoded = ASN1::decodeBER($key);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode BER', 0, $e);
-        }
+        $decoded = ASN1::decodeBER($key);
 
         return $decoded;
     }

@@ -37,23 +37,17 @@ abstract class PuTTY extends Progenitor
      *
      * @var string
      */
-    public const PUBLIC_HANDLER = 'phpseclib4\Crypt\DSA\Formats\Keys\OpenSSH';
+    public const PUBLIC_HANDLER = OpenSSH::class;
 
     /**
      * Algorithm Identifier
-     *
-     * @var array
      */
-    protected static $types = ['ssh-dss'];
+    protected static array $types = ['ssh-dss'];
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param array|string $key
-     * @param string|false $password
-     * @return array|false
      */
-    public static function load($key, $password)
+    public static function load(array|string $key, ?string $password): array
     {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {

@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DSA\Formats\Signature;
 
 use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -30,19 +32,12 @@ abstract class SSH2
     /**
      * Loads a signature
      */
-    public static function load(string $sig)
+    public static function load(string $sig): array
     {
-        if (!is_string($sig)) {
-            return false;
-        }
-
         $result = Strings::unpackSSH2('ss', $sig);
-        if ($result === false) {
-            return false;
-        }
         [$type, $blob] = $result;
         if ($type != 'ssh-dss' || strlen($blob) != 40) {
-            return false;
+            throw new UnexpectedValueException('Both R and S must be less than or equal to 20 bytes in length');
         }
 
         return [
@@ -53,13 +48,11 @@ abstract class SSH2
 
     /**
      * Returns a signature in the appropriate format
-     *
-     * @return string
      */
-    public static function save(BigInteger $r, BigInteger $s)
+    public static function save(BigInteger $r, BigInteger $s): string
     {
         if ($r->getLength() > 160 || $s->getLength() > 160) {
-            return false;
+            throw new LengthException('Both R and S must be less than or equal to 20 bytes in length');
         }
         return Strings::packSSH2(
             'ss',

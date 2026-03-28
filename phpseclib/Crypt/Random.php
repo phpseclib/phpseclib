@@ -196,7 +196,7 @@ abstract class Random
      *
      * If a class has a private __sleep() it'll emit a warning
      */
-    private static function safe_serialize(&$arr): string
+    private static function safe_serialize(mixed &$arr): string
     {
         if (is_object($arr)) {
             return '';

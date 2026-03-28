@@ -579,4 +579,14 @@ hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
 
         EC::forceEngine();
     }
+
+    public function testMalformedSignature(): void
+    {
+        EC::forceEngine('PHP');
+
+        $key = EC::createKey('nistp256')->getPublicKey();
+        $this->assertFalse($key->verify('zzz', 'zzz'));
+
+        EC::forceEngine();
+    }
 }

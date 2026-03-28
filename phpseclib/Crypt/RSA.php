@@ -60,6 +60,7 @@ use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib4\Crypt\RSA\PrivateKey;
 use phpseclib4\Crypt\RSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\InconsistentSetupException;
 use phpseclib4\Exception\LengthException;
 use phpseclib4\Exception\OutOfRangeException;
@@ -264,7 +265,7 @@ abstract class RSA extends AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+            throw new BadMethodCallException('createKey() should not be called from final classes (' . static::class . ')');
         }
 
         if (self::$forcedEngine == 'libsodium' || (self::$forcedEngine == 'OpenSSL' && !function_exists('openssl_pkey_new'))) {
@@ -814,28 +815,26 @@ abstract class RSA extends AsymmetricKey
                 throw new BadConfigurationException('Engine OpenSSL is forced but unavailable for RSA');
             }
             if ($this->$paddingType === self::SIGNATURE_PSS) {
-                switch (true) {
-                    case !defined('OPENSSL_PKCS1_PSS_PADDING'):
-                        $error = 'Engine OpenSSL is forced but PSS encryption requires PHP >= 8.5.0';
-                        break;
-                    case $this->hash->getHash() !== $this->mgfHash->getHash():
-                        $error = 'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match';
-                        break;
-                    case $this->getSaltLength() !== $this->hLen:
-                        $error = 'Engine OpenSSL is forced but can\'t be used because the salt length doesn\'t match the hash length';
-                }
+                $error = match (true) {
+                    !defined('OPENSSL_PKCS1_PSS_PADDING') =>
+                        'Engine OpenSSL is forced but PSS encryption requires PHP >= 8.5.0',
+                    $this->hash->getHash() !== $this->mgfHash->getHash() =>
+                        'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match',
+                    $this->getSaltLength() !== $this->hLen =>
+                        'Engine OpenSSL is forced but can\'t be used because the salt length doesn\'t match the hash length',
+                    default => null
+                };
             }
             if ($this->$paddingType === self::ENCRYPTION_OAEP) {
-                switch (true) {
-                    case $this->hash->getHash() !== $this->mgfHash->getHash():
-                        $error = 'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match';
-                        break;
-                    case $this->hash->getHash() !== 'sha1' && PHP_VERSION_ID < 80500:
-                        $error = 'Engine OpenSSL is forced but non-sha1 hashes are only supported on PHP 8.5.0+';
-                        break;
-                    case strlen($this->label):
-                        $error = 'Engine OpenSSL is forced but can\'t be used because the label is not the empty string';
-                }
+                $error = match (true) {
+                    $this->hash->getHash() !== $this->mgfHash->getHash() =>
+                        'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match',
+                    $this->hash->getHash() !== 'sha1' && PHP_VERSION_ID < 80500 =>
+                        'Engine OpenSSL is forced but non-sha1 hashes are only supported on PHP 8.5.0+',
+                    strlen($this->label) =>
+                        'Engine OpenSSL is forced but can\'t be used because the label is not the empty string',
+                    default => null
+                };
             }
             if (isset($error)) {
                 if (self::$forcedEngine === 'OpenSSL') {
@@ -903,5 +902,81 @@ abstract class RSA extends AsymmetricKey
         }
 
         return null;
+    }
+
+    /**
+     * Returns the public or private key as a string
+     */
+    public function toString(string $type, array $options = []): string
+    {
+        $type = self::validatePlugin(
+            'Keys',
+            $type,
+            empty($this->primes) ? 'savePublicKey' : 'savePrivateKey'
+        );
+
+        if ($type == PSS::class) {
+            if ($this->signaturePadding == self::SIGNATURE_PSS) {
+                $options += [
+                    'hash' => $this->hash->getHash(),
+                    'MGFHash' => $this->mgfHash->getHash(),
+                    'saltLength' => $this->getSaltLength(),
+                ];
+            } else {
+                throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
+            }
+        }
+
+        if (!isset($this->primes) || empty($this->primes)) {
+            return $type::savePublicKey($this->modulus, $this->exponent, $options);
+        }
+
+        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
+
+        /*
+        $key = $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
+        if ($key !== false || count($this->primes) == 2) {
+            return $key;
+        }
+
+        $nSize = $this->getSize() >> 1;
+
+        $primes = [1 => clone self::$one, clone self::$one];
+        $i = 1;
+        foreach ($this->primes as $prime) {
+            $primes[$i] = $primes[$i]->multiply($prime);
+            if ($primes[$i]->getLength() >= $nSize) {
+                $i++;
+            }
+        }
+
+        $exponents = [];
+        $coefficients = [2 => $primes[2]->modInverse($primes[1])];
+
+        foreach ($primes as $i => $prime) {
+            $temp = $prime->subtract(self::$one);
+            $exponents[$i] = $this->modulus->modInverse($temp);
+        }
+
+        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $primes, $exponents, $coefficients, $this->password, $options);
+        */
+    }
+
+    public function toArray(): array
+    {
+        if (!isset($this->primes) || empty($this->primes)) {
+            return [
+                'e' => clone $this->publicExponent,
+                'n' => clone $this->modulus,
+            ];
+        }
+        return [
+            'e' => clone $this->publicExponent,
+            'n' => clone $this->modulus,
+            'd' => clone $this->exponent,
+            'primes' => array_map(fn(BigInteger $var): BigInteger => clone $var, $this->primes),
+            'exponents' => array_map(fn(BigInteger $var): BigInteger => clone $var, $this->exponents),
+            'coefficients' => array_map(fn(BigInteger $var): BigInteger => clone $var, $this->coefficients),
+        ];
     }
 }

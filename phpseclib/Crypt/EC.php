@@ -45,6 +45,7 @@ use phpseclib4\Crypt\EC\Parameters;
 use phpseclib4\Crypt\EC\PrivateKey;
 use phpseclib4\Crypt\EC\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\LengthException;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
@@ -133,7 +134,7 @@ abstract class EC extends AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+            throw new BadMethodCallException('createKey() should not be called from final classes (' . static::class . ')');
         }
 
         $curveName = self::getCurveCase($curve);

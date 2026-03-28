@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Miccrosoft BLOB Formatted RSA Key Handler
+ * Microsoft BLOB Formatted RSA Key Handler
  *
  * More info:
  *
@@ -35,38 +35,36 @@ abstract class MSBLOB
     /**
      * Public/Private Key Pair
      */
-    public const PRIVATEKEYBLOB = 0x7;
+    private const PRIVATEKEYBLOB = 0x7;
     /**
      * Public Key
      */
-    public const PUBLICKEYBLOB = 0x6;
+    private const PUBLICKEYBLOB = 0x6;
     /**
      * Public Key
      */
-    public const PUBLICKEYBLOBEX = 0xA;
+    private const PUBLICKEYBLOBEX = 0xA;
     /**
      * RSA public key exchange algorithm
      */
-    public const CALG_RSA_KEYX = 0x0000A400;
+    private const CALG_RSA_KEYX = 0x0000A400;
     /**
      * RSA public key exchange algorithm
      */
-    public const CALG_RSA_SIGN = 0x00002400;
+    private const CALG_RSA_SIGN = 0x00002400;
     /**
      * Public Key
      */
-    public const RSA1 = 0x31415352;
+    private const RSA1 = 0x31415352;
     /**
      * Private Key
      */
-    public const RSA2 = 0x32415352;
+    private const RSA2 = 0x32415352;
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -89,17 +87,11 @@ abstract class MSBLOB
             'reserved' => $reserved,
             'algo' => $algo
         ] = unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8));
-        switch (ord($type)) {
-            case self::PUBLICKEYBLOB:
-            case self::PUBLICKEYBLOBEX:
-                $publickey = true;
-                break;
-            case self::PRIVATEKEYBLOB:
-                $publickey = false;
-                break;
-            default:
-                throw new UnexpectedValueException('Key appears to be malformed');
-        }
+        $publickey = match (ord($type)) {
+            self::PUBLICKEYBLOB, self::PUBLICKEYBLOBEX => true,
+            self::PRIVATEKEYBLOB => false,
+            default => throw new UnexpectedValueException('Key appears to be malformed')
+        };
 
         $components = ['isPublicKey' => $publickey];
 

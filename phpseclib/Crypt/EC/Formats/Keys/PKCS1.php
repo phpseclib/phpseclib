@@ -65,17 +65,8 @@ abstract class PKCS1 extends Progenitor
 
             preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
             $decoded = parent::loadHelper($matches[0], $password);
-            try {
-                $decoded = ASN1::decodeBER($decoded);
-            } catch (\Exception $e) {
-                throw new RuntimeException('Unable to decode BER', 0, $e);
-            }
-
-            try {
-                $ecPrivate = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
-            } catch (\Exeption $e) {
-                throw new RuntimeException('Unable to perform ASN1 mapping', 0, $e);
-            }
+            $decoded = ASN1::decodeBER($decoded);
+            $ecPrivate = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
 
             if (isset($ecPrivate['parameters'])) {
                 $components['curve'] = self::loadCurveByParam($ecPrivate['parameters']);
@@ -83,17 +74,8 @@ abstract class PKCS1 extends Progenitor
 
             preg_match('#-*BEGIN EC PARAMETERS-*[^-]*-*END EC PARAMETERS-*#s', $key, $matches);
             $decoded = parent::loadHelper($matches[0], '');
-            try {
-                $decoded = ASN1::decodeBER($decoded);
-            } catch (\Exception $e) {
-                throw new RuntimeException('Unable to decode BER', 0, $e);
-            }
-
-            try {
-                $ecParams = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
-            } catch (\Exception $e) {
-                throw new RuntimeException('Unable to perform ASN1 mapping', 0, $e);
-            }
+            $decoded = ASN1::decodeBER($decoded);
+            $ecParams = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
             $ecParams = self::loadCurveByParam($ecParams);
 
             // comparing $ecParams and $components['curve'] directly won't work because they'll have different Math\Common\FiniteField classes
@@ -116,28 +98,19 @@ abstract class PKCS1 extends Progenitor
         }
 
         $key = parent::loadHelper($key, $password);
-
-        try {
-            $decoded = ASN1::decodeBER($key);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode BER', 0, $e);
-        }
+        $decoded = ASN1::decodeBER($key);
 
         try {
             $key = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
-        } catch (\Exception $e) {
-            $key = false;
+        } catch (\Exception) {
+            $key = null;
         }
 
         if (is_array($key)) {
             return ['curve' => self::loadCurveByParam($key)];
         }
 
-        try {
-            $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to perform ASN1 mapping', 0, $e);
-        }
+        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
         if (!isset($key['parameters'])) {
             throw new RuntimeException('Key cannot be loaded without parameters');
         }
@@ -179,7 +152,7 @@ abstract class PKCS1 extends Progenitor
     {
         self::initialize_static_variables();
 
-        if ($curve instanceof TwistedEdwardsCurve  || $curve instanceof MontgomeryCurve) {
+        if ($curve instanceof TwistedEdwardsCurve || $curve instanceof MontgomeryCurve) {
             throw new UnsupportedCurveException('TwistedEdwards Curves are not supported');
         }
 

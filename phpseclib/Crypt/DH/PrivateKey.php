@@ -55,7 +55,7 @@ final class PrivateKey extends DH
     /**
      * Returns the private key
      */
-    public function toString(string $type, array $options = []): string
+    public function toString(string $type, array $options = []): string|array
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 

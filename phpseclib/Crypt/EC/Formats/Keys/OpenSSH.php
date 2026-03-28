@@ -38,10 +38,8 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Supported Key Types
-     *
-     * @var array
      */
-    protected static $types = [
+    protected static array $types = [
         'ecdsa-sha2-nistp256',
         'ecdsa-sha2-nistp384',
         'ecdsa-sha2-nistp521',
@@ -50,10 +48,8 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         $parsed = parent::load($key, $password);
 
@@ -136,7 +132,6 @@ abstract class OpenSSH extends Progenitor
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @param array $options optional
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
     {
@@ -170,16 +165,14 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      *
-     * @param Ed25519 $curve
      * @param Integer[] $publicKey
-     * @param string|false $password
-     * @param array $options optional
      */
     public static function savePrivateKey(
         BigInteger $privateKey,
         BaseCurve $curve,
         array $publicKey,
         ?string $secret = null,
+        #[SensitiveParameter]
         ?string $password = null,
         array $options = []
     ): string {

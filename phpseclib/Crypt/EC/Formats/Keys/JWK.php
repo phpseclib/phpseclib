@@ -24,6 +24,7 @@ use phpseclib4\Crypt\EC\Curves\secp256k1;
 use phpseclib4\Crypt\EC\Curves\secp256r1;
 use phpseclib4\Crypt\EC\Curves\secp384r1;
 use phpseclib4\Crypt\EC\Curves\secp521r1;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedCurveException;
 use phpseclib4\Math\BigInteger;
 
@@ -38,10 +39,8 @@ abstract class JWK extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::loadHelper($key);
 
@@ -67,7 +66,7 @@ abstract class JWK extends Progenitor
                 }
                 break;
             default:
-                throw new \Exception('Only EC and OKP JWK keys are supported');
+                throw new UnexpectedValueException('Only EC and OKP JWK keys are supported');
         }
 
         $curve = '\phpseclib4\Crypt\EC\Curves\\' . str_replace('P-', 'nistp', $key->crv);
@@ -104,10 +103,8 @@ abstract class JWK extends Progenitor
 
     /**
      * Returns the alias that corresponds to a curve
-     *
-     * @return string
      */
-    private static function getAlias(BaseCurve $curve)
+    private static function getAlias(BaseCurve $curve): string
     {
         switch (true) {
             case $curve instanceof secp256r1:

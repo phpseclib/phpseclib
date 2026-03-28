@@ -32,17 +32,13 @@ abstract class OpenSSH extends Progenitor
 {
     /**
      * Supported Key Types
-     *
-     * @var array
      */
-    protected static $types = ['ssh-dss'];
+    protected static array $types = ['ssh-dss'];
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         $parsed = parent::load($key, $password);
 
@@ -66,8 +62,6 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param array $options optional
      */
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = []): string
     {

@@ -59,9 +59,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
     {
         $type = self::validatePlugin('Keys', 'PKCS8', 'savePublicKey');
 
-        if (!isset($this->y)) {
-            $this->y = $this->g->powMod($this->x, $this->p);
-        }
+        $this->y ??= $this->g->powMod($this->x, $this->p);
 
         $key = $type::savePublicKey($this->p, $this->q, $this->g, $this->y);
 
@@ -170,18 +168,27 @@ final class PrivateKey extends DSA implements Common\PrivateKey
     }
 
     /**
-     * Returns the private key
-     *
-     * @param array $options optional
+     * Returns the private key as a string
      */
     public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePrivateKey');
 
-        if (!isset($this->y)) {
-            $this->y = $this->g->powMod($this->x, $this->p);
-        }
+        $this->y ??= $this->g->powMod($this->x, $this->p);
 
         return $type::savePrivateKey($this->p, $this->q, $this->g, $this->y, $this->x, $this->password, $options);
+    }
+
+    public function toArray(): array
+    {
+        $this->y ??= $this->g->powMod($this->x, $this->p);
+
+        return [
+            'p' => clone $this->p,
+            'q' => clone $this->q,
+            'g' => clone $this->g,
+            'y' => clone $this->y,
+            'x' => clone $this->x,
+        ];
     }
 }

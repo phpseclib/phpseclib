@@ -34,10 +34,8 @@ abstract class PKCS1 extends PKCS
 {
     /**
      * Default encryption algorithm
-     *
-     * @var string
      */
-    private static $defaultEncryptionAlgorithm = 'AES-128-CBC';
+    private static string $defaultEncryptionAlgorithm = 'AES-128-CBC';
 
     /**
      * Sets the default encryption algorithm
@@ -50,7 +48,6 @@ abstract class PKCS1 extends PKCS
     /**
      * Returns the mode constant corresponding to the mode string
      *
-     * @return int
      * @throws UnexpectedValueException if the block cipher mode is unsupported
      */
     private static function getEncryptionMode(string $mode): string
@@ -69,10 +66,9 @@ abstract class PKCS1 extends PKCS
     /**
      * Returns a cipher object corresponding to a string
      *
-     * @return AES|DES|TripleDES
      * @throws UnexpectedValueException if the encryption algorithm is unsupported
      */
-    private static function getEncryptionObject(string $algo)
+    private static function getEncryptionObject(string $algo): AES|DES|TripleDES
     {
         $modes = '(CBC|ECB|CFB|OFB|CTR)';
         switch (true) {

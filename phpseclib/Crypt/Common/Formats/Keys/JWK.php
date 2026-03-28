@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\UnexpectedValueException;
 
 /**
  * JSON Web Key Formatted Key Handler
@@ -26,13 +27,11 @@ abstract class JWK
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    protected static function loadHelper($key): \stdClass
+    protected static function loadHelper(string|array $key): \stdClass
     {
         if (!Strings::is_stringable($key)) {
-            throw new \UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
         }
 
         $key = preg_replace('#\s#', '', $key); // remove whitespace
@@ -44,15 +43,15 @@ abstract class JWK
         }
 
         if (!is_object($key)) {
-            throw new \RuntimeException('invalid JWK: not an object');
+            throw new UnexpectedValueException('Invalid JWK: not an object');
         }
 
         if (!isset($key->keys)) {
-            throw new \RuntimeException('invalid JWK: object has no property "keys"');
+            throw new UnexpectedValueException('invalid JWK: object has no property "keys"');
         }
 
         if (count($key->keys) != 1) {
-            throw new \RuntimeException('Although the JWK key format supports multiple keys phpseclib does not');
+            throw new UnexpectedValueException('Although the JWK key format supports multiple keys phpseclib does not');
         }
 
         return $key->keys[0];

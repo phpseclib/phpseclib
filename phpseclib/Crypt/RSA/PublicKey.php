@@ -466,43 +466,12 @@ final class PublicKey extends RSA implements Common\PublicKey
             return $result;
         }
 
-        switch ($this->encryptionPadding) {
-            case self::ENCRYPTION_NONE:
-                return $this->raw_encrypt($plaintext);
-            case self::ENCRYPTION_PKCS1:
-                return $this->rsaes_pkcs1_v1_5_encrypt($plaintext);
-            //case self::ENCRYPTION_OAEP:
-            default:
-                return $this->rsaes_oaep_encrypt($plaintext);
-        }
-    }
-
-    /**
-     * Returns the public key
-     *
-     * The public key is only returned under two circumstances - if the private key had the public key embedded within it
-     * or if the public key was set via setPublicKey().  If the currently loaded key is supposed to be the public key this
-     * function won't return it since this library, for the most part, doesn't distinguish between public and private keys.
-     *
-     * @param array $options optional
-     */
-    public function toString(string $type, array $options = []): string
-    {
-        $type = self::validatePlugin('Keys', $type, 'savePublicKey');
-
-        if ($type == PSS::class) {
-            if ($this->signaturePadding == self::SIGNATURE_PSS) {
-                $options += [
-                    'hash' => $this->hash->getHash(),
-                    'MGFHash' => $this->mgfHash->getHash(),
-                    'saltLength' => $this->getSaltLength(),
-                ];
-            } else {
-                throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
-            }
-        }
-
-        return $type::savePublicKey($this->modulus, $this->publicExponent, $options);
+        return match ($this->encryptionPadding) {
+            self::ENCRYPTION_NONE => $this->raw_encrypt($plaintext),
+            self::ENCRYPTION_PKCS1 => $this->rsaes_pkcs1_v1_5_encrypt($plaintext),
+            // self::ENCRYPTION_OAEP
+            default => $this->rsaes_oaep_encrypt($plaintext)
+        };
     }
 
     /**

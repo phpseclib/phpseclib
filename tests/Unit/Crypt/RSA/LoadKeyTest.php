@@ -1175,7 +1175,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
     {
         $key = RSA::createKey(512);
         $str1 = "$key";
-        $key = unserialize($key->toString('Raw'));
+        $key = $key->toArray();
         $key = [
             'e' => $key['e'],
             'n' => $key['n'],

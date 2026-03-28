@@ -81,11 +81,11 @@ abstract class PKCS8 extends Progenitor
             throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
-        if (str_contains($key, 'PUBLIC')) {
-            $isPublic = true;
-        } elseif (str_contains($key, 'PRIVATE')) {
-            $isPublic = false;
-        }
+        $isPublic = match (true) {
+            str_contains($key, 'PUBLIC') => true,
+            str_contains($key, 'PRIVATE') => false,
+            default => null
+        };
 
         $key = parent::load($key, $password);
 
@@ -111,16 +111,8 @@ abstract class PKCS8 extends Progenitor
                 return self::loadECDH($key);
         }
 
-        try {
-            $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode BER', 0, $e);
-        }
-        try {
-            $params = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode the parameters using Maps\ECParameters', 0, $e);
-        }
+        $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
+        $params = ASN1::map($decoded, Maps\ECParameters::MAP)->toArray();
 
         $components = [];
         $components['curve'] = self::loadCurveByParam($params);
@@ -131,16 +123,9 @@ abstract class PKCS8 extends Progenitor
             return $components;
         }
 
-        try {
-            $decoded = ASN1::decodeBER((string) $key['privateKey']);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode BER', 0, $e);
-        }
-        try {
-            $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
-        } catch (\Exception $e) {
-            throw new RunimeException('Unable to decode the private key using Maps\ECPrivateKey', 0, $e);
-        }
+        $decoded = ASN1::decodeBER((string) $key['privateKey']);
+        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+
         if (isset($key['parameters']) && $params != $key['parameters']) {
             throw new RuntimeException('The PKCS8 parameter field does not match the private key parameter field');
         }
@@ -201,7 +186,7 @@ abstract class PKCS8 extends Progenitor
             $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
             $privateKey = (string) $key['privateKey'];
             if (substr($privateKey, 0, 2) != $expected) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     'The first two bytes of the ' .
                     $key['privateKeyAlgorithm']['algorithm'] .
                     ' private key field should be 0x' . bin2hex($expected)

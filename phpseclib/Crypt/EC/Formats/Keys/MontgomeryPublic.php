@@ -39,16 +39,11 @@ abstract class MontgomeryPublic
      */
     public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        switch (strlen($key)) {
-            case 32:
-                $curve = new Curve25519();
-                break;
-            case 56:
-                $curve = new Curve448();
-                break;
-            default:
-                throw new LengthException('The only supported lengths are 32 and 56');
-        }
+        $curve = match (strlen($key)) {
+            32 => new Curve25519(),
+            56 => new Curve448(),
+            default => throw new LengthException('The only supported lengths are 32 and 56')
+        };
 
         $components = ['curve' => $curve];
         $components['QA'] = [$components['curve']->convertInteger(new BigInteger(strrev($key), 256))];

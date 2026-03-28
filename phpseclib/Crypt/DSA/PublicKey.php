@@ -31,10 +31,8 @@ final class PublicKey extends DSA implements Common\PublicKey
      * Verify a signature
      *
      * @see self::verify()
-     * @param string $message
-     * @param string $signature
      */
-    public function verify($message, $signature): bool
+    public function verify(string $message, string $signature): bool
     {
         if (self::$forcedEngine === 'libsodium') {
             throw new BadConfigurationException('Engine libsodium is forced but unsupported for DSA');
@@ -46,11 +44,11 @@ final class PublicKey extends DSA implements Common\PublicKey
 
         $format = $this->sigFormat;
 
-        $params = $format::load($signature);
-        if ($params === false || count($params) != 2) {
+        try {
+            ['r' => $r, 's' => $s] = $format::load($signature);
+        } catch (\Exception) {
             return false;
         }
-        ['r' => $r, 's' => $s] = $params;
 
         if (function_exists('openssl_get_md_methods') && self::$forcedEngine !== 'PHP') {
             if (in_array($this->hash->getHash(), openssl_get_md_methods())) {
@@ -86,13 +84,21 @@ final class PublicKey extends DSA implements Common\PublicKey
 
     /**
      * Returns the public key
-     *
-     * @param array $options optional
      */
     public function toString(string $type, array $options = []): string
     {
         $type = self::validatePlugin('Keys', $type, 'savePublicKey');
 
         return $type::savePublicKey($this->p, $this->q, $this->g, $this->y, $options);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'p' => clone $this->p,
+            'q' => clone $this->q,
+            'g' => clone $this->g,
+            'y' => clone $this->y,
+        ];
     }
 }

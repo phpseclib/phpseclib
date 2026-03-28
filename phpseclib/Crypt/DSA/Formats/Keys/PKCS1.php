@@ -50,20 +50,16 @@ abstract class PKCS1 extends Progenitor
     {
         $key = parent::loadHelper($key, $password);
 
-        try {
-            $decoded = ASN1::decodeBER($key);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode BER', 0, $e);
-        }
+        $decoded = ASN1::decodeBER($key);
 
         try {
             return ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         try {
             return ASN1::map($decoded, Maps\DSAPrivateKey::MAP)->toArray();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         // PKCS1 DSA public keys are not supported by phpseclib since they can't be used to do
@@ -89,7 +85,7 @@ abstract class PKCS1 extends Progenitor
             if (ASN1::map($decoded, Maps\DSAPublicKey::MAP) instanceof BigInteger) {
                 throw new RuntimeException('Key appears to be a DSAPublicKey, which is unsupported');
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         throw new RuntimeException('Unable to perform ASN1 mapping');

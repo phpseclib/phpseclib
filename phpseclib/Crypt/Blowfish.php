@@ -115,6 +115,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\BlockCipher;
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\LengthException;
 
@@ -467,7 +468,7 @@ class Blowfish extends BlockCipher
         self::initialize_static_variables();
 
         if (PHP_INT_SIZE == 4) {
-            throw new \RuntimeException('bcrypt is far too slow to be practical on 32-bit versions of PHP');
+            throw new BadConfigurationException('bcrypt is far too slow to be practical on 32-bit versions of PHP');
         }
 
         $sha2pass = hash('sha512', $pass, true);

@@ -33,17 +33,13 @@ abstract class OpenSSH
 {
     /**
      * Default comment
-     *
-     * @var string
      */
-    protected static $comment = 'phpseclib-generated-key';
+    protected static string $comment = 'phpseclib-generated-key';
 
     /**
      * Binary key flag
-     *
-     * @var bool
      */
-    protected static $binary = false;
+    protected static bool $binary = false;
 
     /**
      * Sets the default comment
@@ -57,10 +53,8 @@ abstract class OpenSSH
      * Break a public or private key down into its constituent components
      *
      * $type can be either ssh-dss or ssh-rsa
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -171,10 +165,8 @@ abstract class OpenSSH
 
     /**
      * Wrap a private key appropriately
-     *
-     * @param string|false $password
      */
-    protected static function wrapPrivateKey(string $publicKey, string $privateKey, #[SensitiveParameter] $password, array $options): string
+    protected static function wrapPrivateKey(string $publicKey, string $privateKey, #[SensitiveParameter] ?string $password, array $options): string
     {
         [, $checkint] = unpack('N', Random::string(4));
 
@@ -183,7 +175,7 @@ abstract class OpenSSH
                      $privateKey .
                      Strings::packSSH2('s', $comment);
 
-        $usesEncryption = !empty($password) && is_string($password);
+        $usesEncryption = isset($password);
 
         /*
            from http://tools.ietf.org/html/rfc4253#section-6 :

@@ -38,10 +38,8 @@ abstract class PKCS
 
     /**
      * Is the key a base-64 encoded PEM, DER or should it be auto-detected?
-     *
-     * @var int
      */
-    protected static $format = self::MODE_ANY;
+    protected static int $format = self::MODE_ANY;
 
     /**
      * Require base64-encoded PEM's be supplied

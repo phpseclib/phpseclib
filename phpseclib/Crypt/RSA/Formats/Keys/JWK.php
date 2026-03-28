@@ -17,6 +17,8 @@ namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\JWK as Progenitor;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -28,15 +30,13 @@ abstract class JWK extends Progenitor
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         $key = parent::loadHelper($key);
 
         if ($key->kty != 'RSA') {
-            throw new \RuntimeException('Only RSA JWK keys are supported');
+            throw new UnexpectedValueException('Only RSA JWK keys are supported');
         }
 
         $count = $publicCount = 0;
@@ -84,19 +84,16 @@ abstract class JWK extends Progenitor
             return $components + ['isPublicKey' => true];
         }
 
-        throw new \UnexpectedValueException('Key does not have an appropriate number of RSA parameters');
+        throw new UnexpectedValueException('Key does not have an appropriate number of RSA parameters');
     }
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string $password optional
-     * @param array $options optional
      */
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
         if (count($primes) != 2) {
-            throw new \InvalidArgumentException('JWK does not support multi-prime RSA keys');
+            throw new InvalidArgumentException('JWK does not support multi-prime RSA keys');
         }
 
         $key = [

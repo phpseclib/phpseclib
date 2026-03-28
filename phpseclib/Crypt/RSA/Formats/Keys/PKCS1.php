@@ -47,26 +47,20 @@ abstract class PKCS1 extends Progenitor
             throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
-        if (str_contains($key, 'PUBLIC')) {
-            $components = ['isPublicKey' => true];
-        } elseif (str_contains($key, 'PRIVATE')) {
-            $components = ['isPublicKey' => false];
-        } else {
-            $components = [];
-        }
+        $components = match (true) {
+            str_contains($key, 'PUBLIC') => ['isPublicKey' => true],
+            str_contains($key, 'PRIVATE') => ['isPrivateKey' => false],
+            default => []
+        };
 
         $key = parent::loadHelper($key, $password);
 
-        try {
-            $decoded = ASN1::decodeBER($key);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode BER', 0, $e);
-        }
+        $decoded = ASN1::decodeBER($key);
 
         try {
             $key = ASN1::map($decoded, Maps\RSAPrivateKey::MAP)->toArray();
-        } catch (\Exception $e) {
-            $key = false;
+        } catch (\Exception) {
+            $key = null;
         }
         if (is_array($key)) {
             $components += [
@@ -90,11 +84,7 @@ abstract class PKCS1 extends Progenitor
             return $components;
         }
 
-        try {
-            $key = ASN1::map($decoded, Maps\RSAPublicKey::MAP)->toArray();
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to perform ASN1 mapping');
-        }
+        $key = ASN1::map($decoded, Maps\RSAPublicKey::MAP)->toArray();
 
         if (!isset($components['isPublicKey'])) {
             $components['isPublicKey'] = true;
@@ -164,9 +154,6 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Negative numbers make no sense in RSA so convert them to positiveAdd commentMore actions
-     *
-     * @param BigInteger $x
-     * @return string
      */
     private static function makePositive(BigInteger $x): BigInteger
     {

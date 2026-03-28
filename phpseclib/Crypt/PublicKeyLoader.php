@@ -46,7 +46,7 @@ abstract class PublicKeyLoader
                 ASN1::enableBlobsOnBadDecodes();
             }
             return $key;
-        } catch (NoKeyLoadedException $e) {
+        } catch (NoKeyLoadedException) {
         }
 
         try {
@@ -55,7 +55,7 @@ abstract class PublicKeyLoader
                 ASN1::enableBlobsOnBadDecodes();
             }
             return $key;
-        } catch (NoKeyLoadedException $e) {
+        } catch (NoKeyLoadedException) {
         }
 
         try {
@@ -64,7 +64,7 @@ abstract class PublicKeyLoader
                 ASN1::enableBlobsOnBadDecodes();
             }
             return $key;
-        } catch (NoKeyLoadedException $e) {
+        } catch (NoKeyLoadedException) {
         }
 
         try {
@@ -73,7 +73,7 @@ abstract class PublicKeyLoader
                 ASN1::enableBlobsOnBadDecodes();
             }
             return $key;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         if ($reenable) {
@@ -85,10 +85,8 @@ abstract class PublicKeyLoader
 
     /**
      * Loads a private key
-     *
-     * @param string|array $key
      */
-    public static function loadPrivateKey($key, #[SensitiveParameter] ?string $password = null): PrivateKey
+    public static function loadPrivateKey(string|array $key, #[SensitiveParameter] ?string $password = null): PrivateKey
     {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
@@ -99,10 +97,8 @@ abstract class PublicKeyLoader
 
     /**
      * Loads a public key
-     *
-     * @param string|array $key
      */
-    public static function loadPublicKey($key): PublicKey
+    public static function loadPublicKey(string|array $key): PublicKey
     {
         $key = self::load($key);
         if (!$key instanceof PublicKey) {
@@ -113,10 +109,8 @@ abstract class PublicKeyLoader
 
     /**
      * Loads parameters
-     *
-     * @param string|array $key
      */
-    public static function loadParameters($key): AsymmetricKey
+    public static function loadParameters(string $key): AsymmetricKey
     {
         $key = self::load($key);
         if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {

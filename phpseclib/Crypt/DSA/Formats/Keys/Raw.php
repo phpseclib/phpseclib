@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
@@ -29,10 +30,8 @@ abstract class Raw
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!is_array($key)) {
             throw new UnexpectedValueException('Key should be a array - not a ' . gettype($key));
@@ -56,19 +55,17 @@ abstract class Raw
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string $password optional
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, string $password = ''): string
+    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, ?string $password = null): array
     {
-        return compact('p', 'q', 'g', 'y', 'x');
+        throw new BadMethodCallException('If you want to save Raw keys call ->toArray()');
     }
 
     /**
      * Convert a public key to the appropriate format
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): string
+    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): array
     {
-        return compact('p', 'q', 'g', 'y');
+        throw new BadMethodCallException('If you want to save Raw keys call ->toArray()');
     }
 }

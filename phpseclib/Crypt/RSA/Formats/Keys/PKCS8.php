@@ -55,10 +55,8 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Child OIDs loaded
-     *
-     * @var bool
      */
-    protected static $childOIDsLoaded = false;
+    protected static bool $childOIDsLoaded = false;
 
     /**
      * Break a public or private key down into its constituent components
@@ -69,25 +67,19 @@ abstract class PKCS8 extends Progenitor
             throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
-        if (str_contains($key, 'PUBLIC')) {
-            $components = ['isPublicKey' => true];
-        } elseif (str_contains($key, 'PRIVATE')) {
-            $components = ['isPublicKey' => false];
-        } else {
-            $components = [];
-        }
+        $components = match (true) {
+            str_contains($key, 'PUBLIC') => ['isPublicKey' => true],
+            str_contains($key, 'PRIVATE') => ['isPrivateKey' => false],
+            default => null
+        };
 
         $key = parent::load($key, $password);
 
         if (isset($key['privateKey'])) {
-            if (!isset($components['isPublicKey'])) {
-                $components['isPublicKey'] = false;
-            }
+            $components['isPublicKey'] ??= false;
             $type = 'private';
         } else {
-            if (!isset($components['isPublicKey'])) {
-                $components['isPublicKey'] = true;
-            }
+            $components['isPublicKey'] ??= true;
             $type = 'public';
         }
 

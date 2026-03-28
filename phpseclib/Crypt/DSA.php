@@ -36,6 +36,7 @@ use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\InsufficientSetupException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\RuntimeException;
@@ -105,7 +106,7 @@ abstract class DSA extends AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new RuntimeException('createParameters() should not be called from final classes (' . static::class . ')');
+            throw new BadMethodCallException('createParameters() should not be called from final classes (' . static::class . ')');
         }
 
         switch (true) {
@@ -186,7 +187,7 @@ abstract class DSA extends AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new RuntimeException('createKey() should not be called from final classes (' . static::class . ')');
+            throw new BadMethodCallException('createKey() should not be called from final classes (' . static::class . ')');
         }
 
         if (count($args) == 2 && is_int($args[0]) && is_int($args[1])) {

@@ -31,17 +31,13 @@ abstract class OpenSSH extends Progenitor
 {
     /**
      * Supported Key Types
-     *
-     * @var array
      */
-    protected static $types = ['ssh-rsa'];
+    protected static array $types = ['ssh-rsa'];
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         static $one;
         if (!isset($one)) {
@@ -90,8 +86,6 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @param array $options optional
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {

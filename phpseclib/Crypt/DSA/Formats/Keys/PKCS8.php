@@ -55,10 +55,8 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Child OIDs loaded
-     *
-     * @var bool
      */
-    protected static $childOIDsLoaded = false;
+    protected static bool $childOIDsLoaded = false;
 
     /**
      * Break a public or private key down into its constituent components
@@ -88,13 +86,9 @@ abstract class PKCS8 extends Progenitor
             }
         }
 
-        try {
-            $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
-            $components = ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
-            $decoded = ASN1::decodeBER((string) $key[$type]);
-        } catch (\Exception $e) {
-            throw new RuntimeException('Unable to decode DSA key', 0, $e);
-        }
+        $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
+        $components = ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
+        $decoded = ASN1::decodeBER((string) $key[$type]);
 
         $var = $type == 'privateKey' ? 'x' : 'y';
         $components[$var] = ASN1::map($decoded, Maps\DSAPublicKey::MAP);

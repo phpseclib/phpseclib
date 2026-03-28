@@ -28,17 +28,15 @@ abstract class Raw
 {
     /**
      * Loads a signature
-     *
-     * @return array|bool
      */
-    public static function load(array $sig)
+    public static function load(array $sig): array
     {
         switch (true) {
             case !is_array($sig):
             case !isset($sig['r']) || !isset($sig['s']):
             case !$sig['r'] instanceof BigInteger:
             case !$sig['s'] instanceof BigInteger:
-                return false;
+                return [];
         }
 
         return [

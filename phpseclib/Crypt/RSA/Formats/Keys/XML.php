@@ -38,10 +38,8 @@ abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key): array
+    public static function load(string|array $key): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -124,16 +122,14 @@ abstract class XML
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @param string $password optional
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, string $password = ''): string
+    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null): string
     {
         if (count($primes) != 2) {
             throw new InvalidArgumentException('XML does not support multi-prime RSA keys');
         }
 
-        if (!empty($password) && is_string($password)) {
+        if (isset($password)) {
             throw new UnsupportedFormatException('XML private keys do not support encryption');
         }
 

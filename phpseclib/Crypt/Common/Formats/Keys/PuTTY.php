@@ -21,7 +21,7 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\AES;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Crypt\Random;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
 
@@ -34,17 +34,13 @@ abstract class PuTTY
 {
     /**
      * Default comment
-     *
-     * @var string
      */
-    private static $comment = 'phpseclib-generated-key';
+    private static string $comment = 'phpseclib-generated-key';
 
     /**
      * Default version
-     *
-     * @var int
      */
-    private static $version = 2;
+    private static int $version = 2;
 
     /**
      * Sets the default comment
@@ -59,10 +55,10 @@ abstract class PuTTY
      */
     public static function setVersion(int $version): void
     {
-        if ($version != 2 && $version != 3) {
-            throw new RuntimeException('Only supported versions are 2 and 3');
-        }
-        self::$version = $version;
+        self::$version = match ($version) {
+            2, 3 => $version,
+            default => throw new UnexpectedValueException('Only supported versions are 2 and 3')
+        };
     }
 
     /**
@@ -85,19 +81,14 @@ abstract class PuTTY
     private static function generateV3Key(string $password, string $flavour, int $memory, int $passes, string $salt): array
     {
         if (!function_exists('sodium_crypto_pwhash')) {
-            throw new RuntimeException('sodium_crypto_pwhash needs to exist for Argon2 password hasing');
+            throw new BadConfigurationException('sodium_crypto_pwhash needs to exist for Argon2 password hasing');
         }
 
-        switch ($flavour) {
-            case 'Argon2i':
-                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13;
-                break;
-            case 'Argon2id':
-                $flavour = SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13;
-                break;
-            default:
-                throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported');
-        }
+        $flavour = match ($flavour) {
+            'Argon2i' => SODIUM_CRYPTO_PWHASH_ALG_ARGON2I13,
+            'Argon2id' => SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13,
+            default => throw new UnsupportedAlgorithmException('Only Argon2i and Argon2id are supported')
+        };
 
         $length = 80; // keylen + ivlen + mac_keylen
         $temp = sodium_crypto_pwhash($length, $password, $salt, $passes, $memory << 10, $flavour);
@@ -111,12 +102,8 @@ abstract class PuTTY
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param array|string $key
-     * @param string|false $password
-     * @return array|false
      */
-    public static function load($key, $password)
+    public static function load(array|string $key, ?string $password): array
     {
         if (!Strings::is_stringable($key)) {
             throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
@@ -151,11 +138,7 @@ abstract class PuTTY
                 }
             }
 
-            $components = call_user_func([static::PUBLIC_HANDLER, 'load'], $data);
-            if ($components === false) {
-                throw new UnexpectedValueException('Unable to decode public key');
-            }
-            $components += $values;
+            $components = ([static::PUBLIC_HANDLER, 'load'])($data) + $values;
             $components['comment'] = str_replace(['\\\\', '\"'], ['\\', '"'], $values['comment']);
 
             return $components;
@@ -165,11 +148,11 @@ abstract class PuTTY
 
         $key = preg_split('#\r\n|\r|\n#', trim($key));
         if (Strings::shift($key[0], strlen('PuTTY-User-Key-File-')) != 'PuTTY-User-Key-File-') {
-            return false;
+            throw new UnexpectedValueException('PuTTY private keys need to begin with "PuTTY-User-Key-File-"');
         }
         $version = (int) Strings::shift($key[0], 3); // should be either "2: " or "3: 0" prior to int casting
         if ($version != 2 && $version != 3) {
-            throw new RuntimeException('Only v2 and v3 PuTTY private keys are supported');
+            throw new UnexpectedValueException('Only v2 and v3 PuTTY private keys are supported');
         }
         $components['type'] = $type = rtrim($key[0]);
         if (!in_array($type, static::$types)) {
@@ -189,7 +172,7 @@ abstract class PuTTY
         ['length' => $length] = unpack('Nlength', Strings::shift($public, 4));
         $newtype = Strings::shift($public, $length);
         if ($newtype != $type) {
-            throw new RuntimeException('The binary type does not match the human readable type field');
+            throw new UnexpectedValueException('The binary type does not match the human readable type field');
         }
 
         $components['public'] = $public;
@@ -261,13 +244,10 @@ abstract class PuTTY
 
     /**
      * Wrap a private key appropriately
-     *
-     * @param string|false $password
-     * @param array $options optional
      */
-    protected static function wrapPrivateKey(string $public, string $private, string $type, $password, array $options = []): string
+    protected static function wrapPrivateKey(string $public, string $private, string $type, ?string $password, array $options = []): string
     {
-        $encryption = (!empty($password) || is_string($password)) ? 'aes256-cbc' : 'none';
+        $encryption = isset($password) ? 'aes256-cbc' : 'none';
         $comment = $options['comment'] ?? self::$comment;
         $version = $options['version'] ?? self::$version;
 
@@ -283,7 +263,7 @@ abstract class PuTTY
         $key .= "Public-Lines: " . ((strlen($public) + 63) >> 6) . "\r\n";
         $key .= chunk_split($public, 64);
 
-        if (empty($password) && !is_string($password)) {
+        if (!isset($password)) {
             $source .= Strings::packSSH2('s', $private);
             switch ($version) {
                 case 3:

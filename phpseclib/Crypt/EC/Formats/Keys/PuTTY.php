@@ -19,6 +19,7 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Exception\LengthException;
 use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\Common\FiniteField;
@@ -38,14 +39,12 @@ abstract class PuTTY extends Progenitor
      *
      * @var string
      */
-    public const PUBLIC_HANDLER = 'phpseclib4\Crypt\EC\Formats\Keys\OpenSSH';
+    public const PUBLIC_HANDLER = OpenSSH::class;
 
     /**
      * Supported Key Types
-     *
-     * @var array
      */
-    protected static $types = [
+    protected static array $types = [
         'ecdsa-sha2-nistp256',
         'ecdsa-sha2-nistp384',
         'ecdsa-sha2-nistp521',
@@ -54,12 +53,8 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
-     * @param string|false $password
-     * @return array|false
      */
-    public static function load($key, $password)
+    public static function load(array|string $key, ?string $password): array
     {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
@@ -73,7 +68,7 @@ abstract class PuTTY extends Progenitor
 
         if ($components['curve'] instanceof TwistedEdwardsCurve) {
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
-                throw new RuntimeException('Length of ssh-ed25519 key should be 32');
+                throw new LengthException('Length of ssh-ed25519 key should be 32');
             }
             $arr = $components['curve']->extractSecret($private);
             $components['dA'] = $arr['dA'];

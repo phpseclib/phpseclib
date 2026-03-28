@@ -55,17 +55,13 @@ abstract class PSS extends Progenitor
 
     /**
      * OIDs loaded
-     *
-     * @var bool
      */
-    private static $oidsLoaded = false;
+    private static bool $oidsLoaded = false;
 
     /**
      * Child OIDs loaded
-     *
-     * @var bool
      */
-    protected static $childOIDsLoaded = false;
+    protected static bool $childOIDsLoaded = false;
 
     /**
      * Initialize static variables
@@ -80,8 +76,6 @@ abstract class PSS extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
     public static function load(string|array $key, ?string $password = null): array
     {
@@ -91,13 +85,11 @@ abstract class PSS extends Progenitor
             throw new UnexpectedValueException('Key should be a string - not an array');
         }
 
-        if (str_contains($key, 'PUBLIC')) {
-            $components = ['isPublicKey' => true];
-        } elseif (str_contains($key, 'PRIVATE')) {
-            $components = ['isPublicKey' => false];
-        } else {
-            $components = [];
-        }
+        $components = match (true) {
+            str_contains($key, 'PUBLIC') => ['isPublicKey' => true],
+            str_contains($key, 'PRIVATE') => ['isPublicKey' => false],
+            default => []
+        };
 
         $key = parent::load($key, $password);
 
@@ -116,23 +108,15 @@ abstract class PSS extends Progenitor
         $result = $components + PKCS1::load((string) $key[$type . 'Key']);
 
         if (isset($key[$type . 'KeyAlgorithm']['parameters'])) {
-            try {
-                $decoded = ASN1::decodeBER((string) $key[$type . 'KeyAlgorithm']['parameters']);
-                $params = ASN1::map($decoded, Maps\RSASSA_PSS_params::MAP);
-            } catch (\Exception $e) {
-                throw new UnexpectedValueException('Unable to decode parameters', 0, $e);
-            }
+            $decoded = ASN1::decodeBER((string) $key[$type . 'KeyAlgorithm']['parameters']);
+            $params = ASN1::map($decoded, Maps\RSASSA_PSS_params::MAP);
         } else {
             $params = [];
         }
 
         if (isset($params['maskGenAlgorithm']['parameters'])) {
-            try {
-                $decoded = ASN1::decodeBER((string) $params['maskGenAlgorithm']['parameters']);
-                $params['maskGenAlgorithm']['parameters'] = ASN1::map($decoded, Maps\HashAlgorithm::MAP);
-            } catch (\Exception $e) {
-                throw new UnexpectedValueException('Unable to decode parameters', 0, $e);
-            }
+            $decoded = ASN1::decodeBER((string) $params['maskGenAlgorithm']['parameters']);
+            $params['maskGenAlgorithm']['parameters'] = ASN1::map($decoded, Maps\HashAlgorithm::MAP);
         } else {
             $params['maskGenAlgorithm'] = [
                 'algorithm' => 'id-mgf1',

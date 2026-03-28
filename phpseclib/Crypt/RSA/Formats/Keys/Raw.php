@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedFormatException;
 use phpseclib4\Math\BigInteger;
@@ -38,10 +39,8 @@ abstract class Raw
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @param string|array $key
      */
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!is_array($key)) {
             throw new UnexpectedValueException('Key should be a array - not a ' . gettype($key));
@@ -142,25 +141,14 @@ abstract class Raw
      */
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
-        if (!empty($password) && is_string($password)) {
-            throw new UnsupportedFormatException('Raw private keys do not support encryption');
-        }
-
-        return serialize([
-            'e' => $e,
-            'n' => $n,
-            'd' => $d,
-            'primes' => $primes,
-            'exponents' => $exponents,
-            'coefficients' => $coefficients,
-        ]);
+        throw new BadMethodCallException('If you want to save Raw keys call ->toArray()');
     }
 
     /**
      * Convert a public key to the appropriate format
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e): array
+    public static function savePublicKey(BigInteger $n, BigInteger $e): string
     {
-        return ['e' => clone $e, 'n' => clone $n];
+        throw new BadMethodCallException('If you want to save Raw keys call ->toArray()');
     }
 }
