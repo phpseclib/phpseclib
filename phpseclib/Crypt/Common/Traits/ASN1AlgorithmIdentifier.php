@@ -40,35 +40,27 @@ trait ASN1AlgorithmIdentifier
 {
     /**
      * Default encryption algorithm
-     *
-     * @var string
      */
-    private static $defaultEncryptionAlgorithm = 'id-PBES2';
+    private static string $defaultEncryptionAlgorithm = 'id-PBES2';
 
     /**
      * Default encryption scheme
      *
      * Only used when defaultEncryptionAlgorithm is id-PBES2
-     *
-     * @var string
      */
-    private static $defaultEncryptionScheme = 'aes128-CBC-PAD';
+    private static string $defaultEncryptionScheme = 'aes128-CBC-PAD';
 
     /**
      * Default PRF
      *
      * Only used when defaultEncryptionAlgorithm is id-PBES2
-     *
-     * @var string
      */
-    private static $defaultPRF = 'id-hmacWithSHA256';
+    private static string $defaultPRF = 'id-hmacWithSHA256';
 
     /**
      * Default Iteration Count
-     *
-     * @var int
      */
-    private static $defaultIterationCount = 2048;
+    private static int $defaultIterationCount = 2048;
 
     /**
      * Sets the default encryption algorithm
@@ -238,43 +230,32 @@ trait ASN1AlgorithmIdentifier
 
                 $meta['meta']['algorithm'] = $algorithm;
 
-                try {
-                    $temp = ASN1::decodeBER((string) $data['parameters']);
-                    extract(ASN1::map($temp, Maps\PBEParameter::MAP)->toArray());
-                    $iterationCount = (int) $iterationCount->toString();
-                    $cipher->setPassword($password, $kdf, $hash, "$salt", $iterationCount);
-                    $cipher->setMetaData('meta', $meta);
-                    return $cipher;
-                } catch (\Exception $e) {
-                    throw new RuntimeException('Unable to decode BER', 0, $e);
-                }
+                $temp = ASN1::decodeBER((string) $data['parameters']);
+                extract(ASN1::map($temp, Maps\PBEParameter::MAP)->toArray());
+                $iterationCount = (int) $iterationCount->toString();
+                $cipher->setPassword($password, $kdf, $hash, "$salt", $iterationCount);
+                $cipher->setMetaData('meta', $meta);
+                return $cipher;
             case 'id-PBES2':
                 $meta['meta']['algorithm'] = $algorithm;
 
-                try {
-                    $temp = ASN1::decodeBER((string) $data['parameters']);
-                    $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
-                    extract($temp);
+                $temp = ASN1::decodeBER((string) $data['parameters']);
+                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
+                extract($temp);
 
-                    $cipher = self::getPBES2EncryptionObject((string) $encryptionScheme['algorithm']);
-                    $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
+                $cipher = self::getPBES2EncryptionObject((string) $encryptionScheme['algorithm']);
+                $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
 
-                    $temp = ASN1::decodeBER((string) $data['parameters']);
-                    $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
-                    extract($temp);
-                } catch (\Exception $e) {
-                    throw new RuntimeException('Unable to decode BER', 0, $e);
-                }
+                $temp = ASN1::decodeBER((string) $data['parameters']);
+                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
+                extract($temp);
 
                 if (!$cipher instanceof RC2) {
                     $cipher->setIV((string) $encryptionScheme['parameters']);
                 } else {
-                    try {
-                        $temp = ASN1::decodeBER((string) $encryptionScheme['parameters']);
-                        extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray());
-                    } catch (\Exception $e) {
-                        throw new RuntimeException('Unable to decode BER', 0, $e);
-                    }
+                    $temp = ASN1::decodeBER((string) $encryptionScheme['parameters']);
+                    extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray());
+
                     $effectiveKeyLength = (int) $rc2ParametersVersion->toString();
                     switch ($effectiveKeyLength) {
                         case 160:
@@ -311,13 +292,10 @@ trait ASN1AlgorithmIdentifier
             case 'id-PBKDF2':
                 $meta = $cipher->hasMetaData('meta') ? $cipher->getMetaData('meta') : [];
                 $prf = ['algorithm' => 'id-hmacWithSHA1'];
-                try {
-                    $temp = ASN1::decodeBER((string) $keyDerivationFunc['parameters']);
-                    $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray();
-                    extract($params);
-                } catch (\Exception $e) {
-                    throw new RuntimeException('Unable to decode BER', 0, $e);
-                }
+                $temp = ASN1::decodeBER((string) $keyDerivationFunc['parameters']);
+                $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray();
+                extract($params);
+
                 $meta['meta']['prf'] = $prf['algorithm'];
                 $hash = str_replace('-', '/', substr((string) $prf['algorithm'], 11));
                 $params = [

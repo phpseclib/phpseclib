@@ -475,10 +475,6 @@ class RC2 extends BlockCipher
      */
     protected function setupKey(): void
     {
-        if (!isset($this->key)) {
-            $this->setKey('');
-        }
-
         // Key has already been expanded in \phpseclib4\Crypt\RC2::setKey():
         // Only the first value must be altered.
         $l = unpack('Ca/Cb/v*', $this->key);
