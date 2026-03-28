@@ -747,7 +747,7 @@ abstract class SymmetricKey
      * @throws RuntimeException if bcrypt is being used and a salt isn't provided
      * @see Crypt/Hash.php
      */
-    public function setPassword(string $password, string $method = 'pbkdf2', int|string ...$func_args): bool
+    public function setPassword(string $password, string $method = 'pbkdf2', int|string ...$func_args): void
     {
         $key = '';
 
@@ -768,7 +768,7 @@ abstract class SymmetricKey
                 $this->setKey(substr($key, 0, $keylen));
                 $this->setIV(substr($key, $keylen));
 
-                return true;
+                return;
             case 'pkcs12': // from https://tools.ietf.org/html/rfc7292#appendix-B.2
             case 'pbkdf1':
             case 'pbkdf2':
@@ -850,7 +850,7 @@ abstract class SymmetricKey
                             $this->setIV(self::pkcs12helper($this->block_size, $hashObj, $i, $d2, $count));
                         }
 
-                        return true;
+                        return;
                     case $method == 'pbkdf1':
                         if ($dkLen > $hashObj->getLengthInBytes()) {
                             throw new LengthException('Derived key length cannot be longer than the hash length');
@@ -866,7 +866,7 @@ abstract class SymmetricKey
                             $this->setIV(substr($key, $dkLen >> 1));
                         }
 
-                        return true;
+                        return;
                     case !in_array($hash, hash_algos()):
                         $i = 1;
                         $hashObj->setKey($password);
@@ -889,8 +889,6 @@ abstract class SymmetricKey
         }
 
         $this->setKey($key);
-
-        return true;
     }
 
     /**
@@ -1990,7 +1988,7 @@ abstract class SymmetricKey
      *
      * @see self::setup()
      */
-    abstract protected function setupKey();
+    abstract protected function setupKey(): void;
 
     /**
      * Setup the self::ENGINE_INTERNAL $engine

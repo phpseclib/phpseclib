@@ -123,22 +123,18 @@ abstract class AsymmetricKey
             throw new \RuntimeException('load() should not be called from final classes (' . static::class . ')');
         }
 
-        $components = false;
         foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
             if (isset(self::$invisiblePlugins[static::ALGORITHM]) && in_array($format, self::$invisiblePlugins[static::ALGORITHM])) {
                 continue;
             }
             try {
                 $components = $format::load($key, $password);
-            } catch (\Exception $e) {
-                $components = false;
-            }
-            if ($components !== false) {
                 break;
+            } catch (\Exception) {
             }
         }
 
-        if ($components === false) {
+        if (!isset($components)) {
             throw new NoKeyLoadedException('Unable to read key');
         }
 
@@ -201,10 +197,6 @@ abstract class AsymmetricKey
         if (isset(self::$plugins[static::ALGORITHM]['Keys'][$format])) {
             $format = self::$plugins[static::ALGORITHM]['Keys'][$format];
             $components = $format::load($key, $password);
-        }
-
-        if ($components === false) {
-            throw new NoKeyLoadedException('Unable to read key');
         }
 
         $components['format'] = $format;
