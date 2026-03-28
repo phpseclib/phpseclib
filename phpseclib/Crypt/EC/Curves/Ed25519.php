@@ -20,6 +20,7 @@ use phpseclib4\Crypt\Random;
 use phpseclib4\Exception\LengthException;
 use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
 class Ed25519 extends TwistedEdwards
 {
@@ -104,8 +105,7 @@ class Ed25519 extends TwistedEdwards
      *
      * Used by EC\Keys\Common.php
      *
-     * @param boolean $sign
-     * @return object[]
+     * @return PrimeInteger[]
      */
     public function recoverX(BigInteger $y, bool $sign): array
     {
@@ -157,10 +157,8 @@ class Ed25519 extends TwistedEdwards
      * Implements steps 1-3 at https://tools.ietf.org/html/rfc8032#section-5.1.5
      *
      * Used by the various key handlers
-     *
-     * @return array
      */
-    public function extractSecret(string $str)
+    public function extractSecret(string $str): array
     {
         if (strlen($str) != 32) {
             throw new LengthException('Private Key should be 32-bytes long');
@@ -219,7 +217,7 @@ class Ed25519 extends TwistedEdwards
      * A point (x,y) is represented in extended homogeneous coordinates (X, Y, Z, T),
      * with x = X/Z, y = Y/Z, x * y = T/Z.
      *
-     * @return Integer[]
+     * @return PrimeInteger[]
      */
     public function convertToInternal(array $p): array
     {
@@ -240,7 +238,7 @@ class Ed25519 extends TwistedEdwards
     /**
      * Doubles a point on a curve
      *
-     * @return FiniteField[]
+     * @return PrimeInteger[]
      */
     public function doublePoint(array $p): array
     {
@@ -280,7 +278,7 @@ class Ed25519 extends TwistedEdwards
     /**
      * Adds two points on the curve
      *
-     * @return FiniteField[]
+     * @return PrimeInteger[]
      */
     public function addPoint(array $p, array $q): array
     {

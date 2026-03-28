@@ -18,7 +18,7 @@ namespace phpseclib4\Crypt\EC\BaseCurves;
 use phpseclib4\Exception\RangeException;
 use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Math\BigInteger;
-use phpseclib4\Math\FiniteField\Integer;
+use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
  * Base
@@ -29,42 +29,27 @@ abstract class Base
 {
     /**
      * The Order
-     *
-     * @var BigInteger
      */
-    protected $order;
-
-    /**
-     * Finite Field Integer factory
-     *
-     * @var Integer
-     */
-    protected $factory;
+    protected BigInteger $order;
 
     /**
      * Returns a random integer
-     *
-     * @return object
      */
-    public function randomInteger()
+    public function randomInteger(): Integer
     {
         return $this->factory->randomInteger();
     }
 
     /**
      * Converts a BigInteger to a \phpseclib4\Math\FiniteField\Integer integer
-     *
-     * @return object
      */
-    public function convertInteger(BigInteger $x)
+    public function convertInteger(BigInteger $x): Integer
     {
         return $this->factory->newInteger($x);
     }
 
     /**
      * Returns the length, in bytes, of the modulo
-     *
-     * @return Integer
      */
     public function getLengthInBytes(): int
     {
@@ -73,8 +58,6 @@ abstract class Base
 
     /**
      * Returns the length, in bits, of the modulo
-     *
-     * @return Integer
      */
     public function getLength(): int
     {
@@ -155,18 +138,14 @@ abstract class Base
 
     /**
      * Use a custom defined modular reduction function
-     *
-     * @return object
      */
-    public function setReduction(callable $func)
+    public function setReduction(\Closure $func): void
     {
         $this->factory->setReduction($func);
     }
 
     /**
      * Returns the affine point
-     *
-     * @return object[]
      */
     public function convertToAffine(array $p): array
     {
@@ -175,8 +154,6 @@ abstract class Base
 
     /**
      * Converts an affine point to a jacobian coordinate
-     *
-     * @return object[]
      */
     public function convertToInternal(array $p): array
     {
@@ -185,8 +162,6 @@ abstract class Base
 
     /**
      * Negates a point
-     *
-     * @return object[]
      */
     public function negatePoint(array $p): array
     {
@@ -202,8 +177,6 @@ abstract class Base
 
     /**
      * Multiply and Add Points
-     *
-     * @return int[]
      */
     public function multiplyAddPoints(array $points, array $scalars): array
     {

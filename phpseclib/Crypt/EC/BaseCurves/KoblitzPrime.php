@@ -32,6 +32,7 @@ namespace phpseclib4\Crypt\EC\BaseCurves;
 
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField;
+use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
 /**
  * Curves over y^2 = x^3 + b
@@ -45,14 +46,12 @@ class KoblitzPrime extends Prime
      *
      * @var list<array{a: BigInteger, b: BigInteger}>
      */
-    public $basis;
+    public array $basis;
 
     /**
      * Beta
-     *
-     * @var PrimeField\Integer
      */
-    public $beta;
+    public PrimeInteger $beta;
 
     // don't overwrite setCoefficients() with one that only accepts one parameter so that
     // one might be able to switch between KoblitzPrime and Prime more easily (for benchmarking
@@ -66,11 +65,11 @@ class KoblitzPrime extends Prime
      * Adapted from:
      * https://github.com/indutny/elliptic/blob/725bd91/lib/elliptic/curve/short.js#L219
      *
-     * @return int[]
+     * @return PrimeInteger[]
      */
     public function multiplyAddPoints(array $points, array $scalars): array
     {
-        static $zero, $one, $two;
+        static $one, $two;
         if (!isset($two)) {
             $two = new BigInteger(2);
             $one = new BigInteger(1);
@@ -85,7 +84,6 @@ class KoblitzPrime extends Prime
                 $inv->subtract($s),
             ];
             $this->beta = $betas[0]->compare($betas[1]) < 0 ? $betas[0] : $betas[1];
-            //echo strtoupper($this->beta->toHex(true)) . "\n"; exit;
         }
 
         if (!isset($this->basis)) {
@@ -107,13 +105,6 @@ class KoblitzPrime extends Prime
             $lambda = $lhs->equals($rhs) ? $lambdas[0] : $lambdas[1];
 
             $this->basis = static::extendedGCD($lambda->toBigInteger(), $this->order);
-            ///*
-            foreach ($this->basis as $basis) {
-                echo strtoupper($basis['a']->toHex(true)) . "\n";
-                echo strtoupper($basis['b']->toHex(true)) . "\n\n";
-            }
-            exit;
-            //*/
         }
 
         $npoints = $nscalars = [];
@@ -152,13 +143,11 @@ class KoblitzPrime extends Prime
             ];
 
             if (isset($p['naf'])) {
-                $beta['naf'] = array_map(function ($p) {
-                    return [
-                        $p[0]->multiply($this->beta),
-                        $p[1],
-                        clone $this->one,
-                    ];
-                }, $p['naf']);
+                $beta['naf'] = array_map(fn(array $p): array => [
+                    $p[0]->multiply($this->beta),
+                    $p[1],
+                    clone $this->one
+                ], $p['naf']);
                 $beta['nafwidth'] = $p['nafwidth'];
             }
 
@@ -187,7 +176,7 @@ class KoblitzPrime extends Prime
     /**
      * Returns the numerator and denominator of the slope
      *
-     * @return FiniteField[]
+     * @return PrimeInteger[]
      */
     protected function doublePointHelper(array $p): array
     {
@@ -201,7 +190,7 @@ class KoblitzPrime extends Prime
      *
      * See http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
      *
-     * @return FiniteField[]
+     * @return PrimeInteger[]
      */
     protected function jacobianDoublePoint(array $p): array
     {
@@ -226,7 +215,7 @@ class KoblitzPrime extends Prime
      *
      * See http://hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-mdbl-2007-bl
      *
-     * @return FiniteField[]
+     * @return PrimeInteger[]
      */
     protected function jacobianDoublePointMixed(array $p): array
     {
@@ -247,8 +236,6 @@ class KoblitzPrime extends Prime
 
     /**
      * Tests whether or not the x / y values satisfy the equation
-     *
-     * @return boolean
      */
     public function verifyPoint(array $p): bool
     {

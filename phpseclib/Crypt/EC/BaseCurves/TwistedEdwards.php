@@ -43,52 +43,38 @@ class TwistedEdwards extends Base
 {
     /**
      * The modulo
-     *
-     * @var BigInteger
      */
-    protected $modulo;
+    protected BigInteger $modulo;
 
     /**
      * Cofficient for x^2
-     *
-     * @var object
      */
-    protected $a;
+    protected PrimeInteger $a;
 
     /**
      * Cofficient for x^2*y^2
-     *
-     * @var object
      */
-    protected $d;
+    protected PrimeInteger $d;
 
     /**
      * Base Point
-     *
-     * @var object[]
      */
-    protected $p;
+    protected array $p;
 
     /**
      * The number zero over the specified finite field
-     *
-     * @var object
      */
-    protected $zero;
+    protected PrimeInteger $zero;
 
     /**
      * The number one over the specified finite field
-     *
-     * @var object
      */
-    protected $one;
+    protected PrimeInteger $one;
 
     /**
      * The number two over the specified finite field
-     *
-     * @var object
      */
-    protected $two;
+    protected PrimeInteger $two;
 
     /**
      * Sets the modulo
@@ -117,14 +103,8 @@ class TwistedEdwards extends Base
     /**
      * Set x and y coordinates for the base point
      */
-    public function setBasePoint($x, $y): void
+    public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): void
     {
-        switch (true) {
-            case !$x instanceof BigInteger && !$x instanceof PrimeInteger:
-                throw new UnexpectedValueException('Argument 1 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
-            case !$y instanceof BigInteger && !$y instanceof PrimeInteger:
-                throw new UnexpectedValueException('Argument 2 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
-        }
         if (!isset($this->factory)) {
             throw new RuntimeException('setModulo needs to be called before this method');
         }
@@ -136,20 +116,16 @@ class TwistedEdwards extends Base
 
     /**
      * Returns the a coefficient
-     *
-     * @return PrimeInteger
      */
-    public function getA()
+    public function getA(): PrimeInteger
     {
         return $this->a;
     }
 
     /**
      * Returns the a coefficient
-     *
-     * @return PrimeInteger
      */
-    public function getD()
+    public function getD(): PrimeInteger
     {
         return $this->d;
     }
@@ -198,8 +174,6 @@ class TwistedEdwards extends Base
 
     /**
      * Tests whether or not the x / y values satisfy the equation
-     *
-     * @return boolean
      */
     public function verifyPoint(array $p): bool
     {

@@ -28,7 +28,6 @@ use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\BinaryField;
 use phpseclib4\Math\BinaryField\Integer as BinaryInteger;
-use phpseclib4\Math\PrimeField\Integer;
 
 /**
  * Curves over y^2 + x*y = x^3 + a*x^2 + b
@@ -39,52 +38,37 @@ class Binary extends Base
 {
     /**
      * Binary Field Integer factory
-     *
-     * @var BinaryField
      */
-    protected $factory;
+    protected BinaryField $factory;
 
     /**
      * Cofficient for x^1
-     *
-     * @var object
      */
-    protected $a;
+    protected BinaryInteger $a;
 
     /**
      * Cofficient for x^0
-     *
-     * @var object
      */
-    protected $b;
+    protected BinaryInteger $b;
 
     /**
      * Base Point
      *
-     * @var object
+     * @var BinaryInteger[]
      */
-    protected $p;
+    protected array $p;
 
     /**
      * The number one over the specified finite field
-     *
-     * @var object
      */
-    protected $one;
+    protected BinaryInteger $one;
 
     /**
      * The modulo
      *
-     * @var array
+     * @var int[]
      */
-    protected $modulo;
-
-    /**
-     * The Order
-     *
-     * @var BigInteger
-     */
-    protected $order;
+    protected array $modulo;
 
     /**
      * Sets the modulo
@@ -111,18 +95,9 @@ class Binary extends Base
 
     /**
      * Set x and y coordinates for the base point
-     *
-     * @param string|BinaryInteger $x
-     * @param string|BinaryInteger $y
      */
-    public function setBasePoint($x, $y): void
+    public function setBasePoint(string|BinaryInteger $x, string|BinaryInteger $y): void
     {
-        switch (true) {
-            case !is_string($x) && !$x instanceof BinaryInteger:
-                throw new UnexpectedValueException('Argument 1 passed to Binary::setBasePoint() must be a string or an instance of BinaryField\Integer');
-            case !is_string($y) && !$y instanceof BinaryInteger:
-                throw new UnexpectedValueException('Argument 2 passed to Binary::setBasePoint() must be a string or an instance of BinaryField\Integer');
-        }
         if (!isset($this->factory)) {
             throw new RuntimeException('setModulo needs to be called before this method');
         }
@@ -135,9 +110,9 @@ class Binary extends Base
     /**
      * Retrieve the base point as an array
      *
-     * @return array
+     * @return BinaryInteger[]
      */
-    public function getBasePoint()
+    public function getBasePoint(): array
     {
         if (!isset($this->factory)) {
             throw new RuntimeException('setModulo needs to be called before this method');
@@ -280,7 +255,7 @@ class Binary extends Base
      *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
      *  compile time."
      */
-    public function derivePoint($m): array
+    public function derivePoint(string $m): array
     {
         throw new RuntimeException('Point compression on binary finite field elliptic curves is not supported');
     }
@@ -312,20 +287,16 @@ class Binary extends Base
 
     /**
      * Returns the a coefficient
-     *
-     * @return Integer
      */
-    public function getA()
+    public function getA(): BinaryInteger
     {
         return $this->a;
     }
 
     /**
      * Returns the a coefficient
-     *
-     * @return Integer
      */
-    public function getB()
+    public function getB(): BinaryInteger
     {
         return $this->b;
     }
@@ -337,7 +308,7 @@ class Binary extends Base
      * To convert a Jacobian Coordinate to an Affine Point
      * you do (x / z^2, y / z^3)
      *
-     * @return Integer[]
+     * @return BinaryInteger[]
      */
     public function convertToAffine(array $p): array
     {
@@ -356,7 +327,7 @@ class Binary extends Base
     /**
      * Converts an affine point to a jacobian coordinate
      *
-     * @return Integer[]
+     * @return BinaryInteger[]
      */
     public function convertToInternal(array $p): array
     {

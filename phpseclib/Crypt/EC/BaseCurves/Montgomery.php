@@ -42,59 +42,43 @@ class Montgomery extends Base
 {
     /**
      * Prime Field Integer factory
-     *
-     * @var PrimeField
      */
-    protected $factory;
+    protected PrimeField $factory;
 
     /**
      * Cofficient for x
-     *
-     * @var object
      */
-    protected $a;
+    protected PrimeInteger $a;
 
     /**
      * Constant used for point doubling
-     *
-     * @var object
      */
-    protected $a24;
+    protected PrimeInteger $a24;
 
     /**
      * The Number Zero
-     *
-     * @var object
      */
-    protected $zero;
+    protected PrimeInteger $zero;
 
     /**
      * The Number One
-     *
-     * @var object
      */
-    protected $one;
+    protected PrimeInteger $one;
 
     /**
      * Base Point
-     *
-     * @var object
      */
-    protected $p;
+    protected array $p;
 
     /**
      * The modulo
-     *
-     * @var BigInteger
      */
-    protected $modulo;
+    protected BigInteger $modulo;
 
     /**
      * The Order
-     *
-     * @var BigInteger
      */
-    protected $order;
+    protected BigInteger $order;
 
     /**
      * Sets the modulo
@@ -124,18 +108,10 @@ class Montgomery extends Base
     /**
      * Set x and y coordinates for the base point
      *
-     * @param BigInteger|PrimeInteger $x
-     * @param BigInteger|PrimeInteger $y
      * @return PrimeInteger[]
      */
-    public function setBasePoint($x, $y): array
+    public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): array
     {
-        switch (true) {
-            case !$x instanceof BigInteger && !$x instanceof PrimeInteger:
-                throw new UnexpectedValueException('Argument 1 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
-            case !$y instanceof BigInteger && !$y instanceof PrimeInteger:
-                throw new UnexpectedValueException('Argument 2 passed to Prime::setBasePoint() must be an instance of either BigInteger or PrimeField\Integer');
-        }
         if (!isset($this->factory)) {
             throw new RuntimeException('setModulo needs to be called before this method');
         }
@@ -148,9 +124,9 @@ class Montgomery extends Base
     /**
      * Retrieve the base point as an array
      *
-     * @return array
+     * @return PrimeInteger[]
      */
-    public function getBasePoint()
+    public function getBasePoint(): array
     {
         if (!isset($this->factory)) {
             throw new RuntimeException('setModulo needs to be called before this method');
