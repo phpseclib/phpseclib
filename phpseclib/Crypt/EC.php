@@ -504,9 +504,8 @@ abstract class EC extends AsymmetricKey
      *
      * Used by Ed25519 / Ed448.
      *
-     * @param string|null $context optional
      * @see self::verify()
-          * @see self::sign()
+     * @see self::sign()
      */
     public function withContext(?string $context = null): EC
     {
