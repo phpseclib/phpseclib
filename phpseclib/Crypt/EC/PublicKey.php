@@ -71,6 +71,9 @@ final class PublicKey extends EC implements Common\PublicKey
                 if ($shortFormat == 'SSH2') {
                     [, $signature] = Strings::unpackSSH2('ss', $signature);
                 }
+                if (strlen($signature) != 64) {
+                    return false;
+                }
 
                 return sodium_crypto_sign_verify_detached($signature, $message, $this->toString('libsodium'));
             }
@@ -81,6 +84,9 @@ final class PublicKey extends EC implements Common\PublicKey
         if ($this->curve instanceof TwistedEdwardsCurve) {
             if ($shortFormat == 'SSH2') {
                 [, $signature] = Strings::unpackSSH2('ss', $signature);
+            }
+            if (strlen($signature) != 2 * $this->curve::SIZE) {
+                return false;
             }
 
             if (self::$forcedEngine !== 'PHP') {
