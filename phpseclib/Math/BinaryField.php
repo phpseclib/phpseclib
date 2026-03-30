@@ -30,25 +30,20 @@ class BinaryField extends FiniteField
 {
     /**
      * Instance Counter
-     *
-     * @var int
      */
-    private static $instanceCounter = 0;
+    private static int $instanceCounter = 0;
 
     /**
      * Keeps track of current instance
-     *
-     * @var int
      */
-    protected $instanceID;
+    protected int $instanceID;
 
-    /** @var BigInteger */
-    private $randomMax;
+    private BigInteger $randomMax;
 
     /**
      * Default constructor
      */
-    public function __construct(...$indices)
+    public function __construct(int ...$indices)
     {
         $m = array_shift($indices);
         if ($m > 571) {
@@ -85,7 +80,7 @@ class BinaryField extends FiniteField
 
         // implements algorithm 2.40 (in section 2.3.5) in "Guide to Elliptic Curve Cryptography"
         // with W = 8
-        $reduce = function ($c) use ($u, $mStart, $m, $t, $finalMask, $pad, $h) {
+        $reduce = function (string $c) use ($u, $mStart, $m, $t, $finalMask, $pad, $h): string {
             $c = str_pad($c, $pad, "\0", STR_PAD_LEFT);
             for ($i = $mStart; $i >= $m;) {
                 $g = $h >> 3;
@@ -122,10 +117,8 @@ class BinaryField extends FiniteField
 
     /**
      * Returns an instance of a dynamically generated PrimeFieldInteger class
-     *
-     * @param BigInteger|string $num
      */
-    public function newInteger($num): Integer
+    public function newInteger(BigInteger|string $num): Integer
     {
         return new Integer($this->instanceID, $num instanceof BigInteger ? $num->toBytes() : $num);
     }

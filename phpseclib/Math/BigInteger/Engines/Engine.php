@@ -964,10 +964,8 @@ abstract class Engine implements \JsonSerializable
      * Assuming the $t parameter is not set, this function has an error rate of 2**-80.  The main motivation for the
      * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
-     *
-     * @param int|bool $t
      */
-    public function isPrime($t = false): bool
+    public function isPrime(?int $t = null): bool
     {
         // OpenSSL limits RSA keys to 16384 bits. The length of an RSA key is equal to the length of the modulo, which is
         // produced by multiplying the primes p and q by one another. The largest number two 8196 bit primes can produce is
@@ -978,7 +976,7 @@ abstract class Engine implements \JsonSerializable
             throw new \RuntimeException("Primality testing is not supported for numbers larger than 8196 bits ($length)");
         }
 
-        if (!$t) {
+        if (!isset($t)) {
             $t = $this->setupIsPrime();
         }
         return $this->testPrimality($t);

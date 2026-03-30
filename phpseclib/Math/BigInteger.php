@@ -47,14 +47,14 @@ class BigInteger implements \JsonSerializable
      *
      * @var class-string<Engine>
      */
-    private static $mainEngine;
+    private static string $mainEngine;
 
     /**
      * Selected Engines
      *
      * @var list<string>
      */
-    private static $engines;
+    private static array $engines;
 
     /**
      * The actual BigInteger object
@@ -62,24 +62,6 @@ class BigInteger implements \JsonSerializable
      * @var object
      */
     private $value;
-
-    /**
-     * Mode independent value used for serialization.
-     *
-     * @see self::__sleep()
-     * @see self::__wakeup()
-     * @var string
-     */
-    protected $hex;
-
-    /**
-     * Precision (used only for serialization)
-     *
-     * @see self::__sleep()
-     * @see self::__wakeup()
-     * @var int
-     */
-    private $precision;
 
     /**
      * Sets engine type.
@@ -194,7 +176,7 @@ class BigInteger implements \JsonSerializable
     /**
      *  __toString() magic method
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->value;
     }
@@ -204,7 +186,7 @@ class BigInteger implements \JsonSerializable
      *
      * Will be called, automatically, when print_r() or var_dump() are called
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return $this->value->__debugInfo();
     }
@@ -352,63 +334,19 @@ class BigInteger implements \JsonSerializable
     /**
      * Get Precision
      *
-     * Returns the precision if it exists, false if it doesn't
-     *
-     * @return int|bool
+     * Returns the precision if it exists, -1 if it doesn't
      */
-    public function getPrecision()
+    public function getPrecision(): int
     {
         return $this->value->getPrecision();
-    }
-
-    /**
-     * Serialize
-     *
-     * Will be called, automatically, when serialize() is called on a BigInteger object.
-     *
-     * __sleep() / __wakeup() have been around since PHP 4.0 but were deprecated in PHP 8.5
-     *
-     * \Serializable was introduced in PHP 5.1 and deprecated in PHP 8.1:
-     * https://wiki.php.net/rfc/phase_out_serializable
-     *
-     * __serialize() / __unserialize() were introduced in PHP 7.4:
-     * https://wiki.php.net/rfc/custom_object_serialization
-     *
-     * @return array
-     */
-    public function __sleep()
-    {
-        $this->hex = $this->toHex(true);
-        $vars = ['hex'];
-        if ($this->getPrecision() > 0) {
-            $vars[] = 'precision';
-        }
-        return $vars;
-    }
-
-    /**
-     * Serialize
-     *
-     * Will be called, automatically, when unserialize() is called on a BigInteger object.
-     */
-    public function __wakeup(): void
-    {
-        $temp = new static($this->hex, -16);
-        $this->value = $temp->value;
-        if ($this->precision > 0) {
-            // recalculate $this->bitmask
-            $this->setPrecision($this->precision);
-        }
     }
 
     /**
      *  __serialize() magic method
      *
      * @see self::__unserialize()
-     * @return array
-     * @access public
      */
-    public function __serialize()
+    public function __serialize(): array
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->getPrecision() > 0) {
@@ -421,9 +359,8 @@ class BigInteger implements \JsonSerializable
      *  __unserialize() magic method
      *
      * @see self::__serialize()
-     * @access public
      */
-    public function __unserialize(array $data)
+    public function __unserialize(array $data): void
     {
         $temp = new static($data['hex'], -16);
         $this->value = $temp->value;
@@ -444,7 +381,7 @@ class BigInteger implements \JsonSerializable
     public function jsonSerialize(): array
     {
         $result = ['hex' => $this->toHex(true)];
-        if ($this->precision > 0) {
+        if ($this->getPrecision() > 0) {
             $result['precision'] = $this->getPrecision();
         }
         return $result;
@@ -633,10 +570,8 @@ class BigInteger implements \JsonSerializable
      * Generate a random prime number between a range
      *
      * If there's not a prime within the given range, false will be returned.
-     *
-     * @return false|BigInteger
      */
-    public static function randomRangePrime(BigInteger $min, BigInteger $max)
+    public static function randomRangePrime(BigInteger $min, BigInteger $max): BigInteger
     {
         $class = self::$mainEngine;
         return new static($class::randomRangePrime($min->value, $max->value));
@@ -663,10 +598,8 @@ class BigInteger implements \JsonSerializable
      * Assuming the $t parameter is not set, this function has an error rate of 2**-80.  The main motivation for the
      * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
      * on a website instead of just one.
-     *
-     * @param int|bool $t
      */
-    public function isPrime($t = false): bool
+    public function isPrime(?int $t = null): bool
     {
         return $this->value->isPrime($t);
     }
@@ -675,8 +608,6 @@ class BigInteger implements \JsonSerializable
      * Calculates the nth root of a biginteger.
      *
      * Returns the nth root of a positive biginteger, where n defaults to 2
-     *
-     * @param int $n optional
      */
     public function root(int $n = 2): BigInteger
     {
@@ -722,7 +653,7 @@ class BigInteger implements \JsonSerializable
     /**
      * Clone
      */
-    public function __clone()
+    public function __clone(): void
     {
         $this->value = clone $this->value;
     }
@@ -777,10 +708,8 @@ class BigInteger implements \JsonSerializable
      *
      * Sometimes it may be desirable to do repeated modulos with the same number outside of
      * modular exponentiation
-     *
-     * @return callable
      */
-    public function createRecurringModuloFunction()
+    public function createRecurringModuloFunction(): \Closure
     {
         $func = $this->value->createRecurringModuloFunction();
         return fn (BigInteger $x) => new static($func($x->value));
