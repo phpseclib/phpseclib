@@ -48,94 +48,86 @@ abstract class Engine implements \JsonSerializable
      *
      * @var array<class-string<static>, static>
      */
-    protected static $zero = [];
+    protected static array $zero = [];
 
     /**
      * BigInteger(1)
      *
      * @var array<class-string<static>, static>
      */
-    protected static $one  = [];
+    protected static array $one  = [];
 
     /**
      * BigInteger(2)
      *
      * @var array<class-string<static>, static>
      */
-    protected static $two = [];
+    protected static array $two = [];
 
     /**
      * Modular Exponentiation Engine
      *
      * @var array<class-string<static>, class-string<static>>
      */
-    protected static $modexpEngine;
+    protected static array $modexpEngine;
 
     /**
      * Engine Validity Flag
      *
      * @var array<class-string<static>, bool>
      */
-    protected static $isValidEngine;
+    protected static array $isValidEngine;
 
     /**
      * Holds the BigInteger's value
-     *
-     * @var \GMP|string|array|int
      */
-    protected $value;
+    protected \GMP|string|array $value;
 
     /**
      * Holds the BigInteger's sign
-     *
-     * @var bool
      */
-    protected $is_negative = false;
+    protected bool $is_negative = false;
 
     /**
      * Precision
      *
      * @see static::setPrecision()
-     * @var int
      */
-    protected $precision = -1;
+    protected int $precision = -1;
 
     /**
      * Precision Bitmask
      *
      * @see static::setPrecision()
-     * @var static|false
      */
-    protected $bitmask = false;
+    protected ?Engine $bitmask = null;
 
     /**
      * Recurring Modulo Function
-     *
-     * @var callable
      */
-    protected $reduce;
-
-    /**
-     * Mode independent value used for serialization.
-     *
-     * @see self::__sleep()
-     * @see self::__wakeup()
-     * @var string
-     */
-    protected $hex;
+    protected \Closure $reduce;
 
     /**
      * Default constructor
      *
-     * @param int|numeric-string $x integer Base-10 number or base-$base number if $base set.
+     * $base is ignored if $x is an int or an instance of \GMP
+     *
+     * @param int|numeric-string|\GMP $x integer Base-10 number or base-$base number if $base set.
      */
-    public function __construct($x = 0, int $base = 10)
+    public function __construct(int|string|\GMP $x = '0', int $base = 10)
     {
         if (!array_key_exists(static::class, static::$zero)) {
             static::$zero[static::class] = null; // Placeholder to prevent infinite loop.
             static::$zero[static::class] = new static(0);
             static::$one[static::class] = new static(1);
             static::$two[static::class] = new static(2);
+        }
+
+        if (is_int($x) || $x instanceof \GMP) {
+            $temp = new static("$x");
+            $this->value = $temp->value;
+            $this->is_negative = $temp->is_negative;
+            return;
         }
 
         // '0' counts as empty() but when the base is 256 '0' is equal to ord('0') or 48
@@ -297,10 +289,8 @@ abstract class Engine implements \JsonSerializable
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
      * {@internal See {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=21 HAC 14.64} for more information.}
-     *
-     * @return static|false
      */
-    protected function modInverseHelper(Engine $n)
+    protected function modInverseHelper(Engine $n): ?Engine
     {
         // $x mod -$n == $x mod $n.
         $n = $n->abs();
@@ -314,45 +304,12 @@ abstract class Engine implements \JsonSerializable
         ['gcd' => $gcd, 'x' => $x] = $this->extendedGCD($n);
 
         if (!$gcd->equals(static::$one[static::class])) {
-            return false;
+            return null;
         }
 
         $x = $x->compare(static::$zero[static::class]) < 0 ? $x->add($n) : $x;
 
         return $this->compare(static::$zero[static::class]) < 0 ? $this->normalize($n->subtract($x)) : $this->normalize($x);
-    }
-
-    /**
-     * Serialize
-     *
-     * Will be called, automatically, when serialize() is called on a BigInteger object.
-     *
-     * @return array
-     */
-    public function __sleep()
-    {
-        $this->hex = $this->toHex(true);
-        $vars = ['hex'];
-        if ($this->precision > 0) {
-            $vars[] = 'precision';
-        }
-        return $vars;
-    }
-
-    /**
-     * Serialize
-     *
-     * Will be called, automatically, when unserialize() is called on a BigInteger object.
-     */
-    public function __wakeup(): void
-    {
-        $temp = new static($this->hex, -16);
-        $this->value = $temp->value;
-        $this->is_negative = $temp->is_negative;
-        if ($this->precision > 0) {
-            // recalculate $this->bitmask
-            $this->setPrecision($this->precision);
-        }
     }
 
     /**
@@ -362,9 +319,8 @@ abstract class Engine implements \JsonSerializable
      * Will be called, automatically, when serialize() is called on a Math_BigInteger object.
      *
      * @see self::__unserialize()
-     * @access public
      */
-    public function __serialize()
+    public function __serialize(): array
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->precision > 0) {
@@ -380,9 +336,8 @@ abstract class Engine implements \JsonSerializable
      * Will be called, automatically, when unserialize() is called on a Math_BigInteger object.
      *
      * @see self::__serialize()
-     * @access public
      */
-    public function __unserialize(array $data)
+    public function __unserialize(array $data): void
     {
         $temp = new static($data['hex'], -16);
         $this->value = $temp->value;
@@ -412,10 +367,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Converts a BigInteger to a base-10 number.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toString();
     }
@@ -424,10 +377,8 @@ abstract class Engine implements \JsonSerializable
      *  __debugInfo() magic method
      *
      * Will be called, automatically, when print_r() or var_dump() are called
-     *
-     * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         $result = [
             'value' => '0x' . $this->toHex(true),
@@ -446,7 +397,7 @@ abstract class Engine implements \JsonSerializable
     {
         if ($bits < 1) {
             $this->precision = -1;
-            $this->bitmask = false;
+            $this->bitmask = null;
 
             return;
         }
@@ -480,10 +431,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical Not
-     *
-     * @return Engine|string
      */
-    public function bitwise_not()
+    public function bitwise_not(): Engine
     {
         // calculuate "not" without regard to $this->precision
         // (will always result in a smaller number.  ie. ~1 isn't 1111 1110 - it's 0)
@@ -632,19 +581,17 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Performs some pre-processing for powMod
-     *
-     * @return static|false
      */
-    protected function powModOuter(Engine $e, Engine $n)
+    protected function powModOuter(Engine $e, Engine $n): ?Engine
     {
-        $n = $this->bitmask !== false && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
+        $n = isset($this->bitmask) && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
 
         if ($e->compare(new static()) < 0) {
             $e = $e->abs();
 
             $temp = $this->modInverse($n);
-            if ($temp === false) {
-                return false;
+            if ($temp === null) {
+                return null;
             }
 
             return $this->normalize($temp->powModInner($e, $n));
@@ -670,7 +617,7 @@ abstract class Engine implements \JsonSerializable
      * @param class-string<T> $class
      * @return T
      */
-    protected static function slidingWindow(Engine $x, Engine $e, Engine $n, string $class)
+    protected static function slidingWindow(Engine $x, Engine $e, Engine $n, string $class): Engine
     {
         static $window_ranges = [7, 25, 81, 241, 673, 1793]; // from BigInteger.java's oddModPow function
         //static $window_ranges = [0, 7, 36, 140, 450, 1303, 3529]; // from MPM 7.3.1
@@ -757,10 +704,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Performs some pre-processing for randomRangePrime
-     *
-     * @return static|false
      */
-    protected static function randomRangePrimeOuter(Engine $min, Engine $max)
+    protected static function randomRangePrimeOuter(Engine $min, Engine $max): ?Engine
     {
         $compare = $max->compare($min);
 
@@ -850,10 +795,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Performs some post-processing for randomRangePrime
-     *
-     * @return static|false
      */
-    protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max)
+    protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max): ?Engine
     {
         if (!isset(static::$two[static::class])) {
             static::$two[static::class] = new static('2');
@@ -863,7 +806,7 @@ abstract class Engine implements \JsonSerializable
         if ($x->compare($max) > 0) {
             // if $x > $max then $max is even and if $min == $max then no prime number exists between the specified range
             if ($min->equals($max)) {
-                return false;
+                return null;
             }
             $x = clone $min;
             $x->make_odd();
@@ -887,7 +830,7 @@ abstract class Engine implements \JsonSerializable
             }
 
             if ($x->equals($initial_x)) {
-                return false;
+                return null;
             }
         }
     }

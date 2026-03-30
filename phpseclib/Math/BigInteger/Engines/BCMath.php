@@ -56,7 +56,7 @@ class BCMath extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @see parent::__construct()
      */
-    public function __construct($x = 0, int $base = 10)
+    public function __construct(int|string|\GMP $x = 0, int $base = 10)
     {
         if (!isset(static::$isValidEngine[static::class])) {
             static::$isValidEngine[static::class] = self::isValidEngine();
@@ -212,10 +212,8 @@ class BCMath extends Engine
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     *
-     * @return false|BCMath
      */
-    public function modInverse(BCMath $n)
+    public function modInverse(BCMath $n): ?BCMath
     {
         return $this->modInverseHelper($n);
     }
@@ -376,7 +374,7 @@ class BCMath extends Engine
     /**
      * Performs modular exponentiation.
      */
-    public function modPow(BCMath $e, BCMath $n): BCMath
+    public function modPow(BCMath $e, BCMath $n): ?BCMath
     {
         return $this->powModOuter($e, $n);
     }
@@ -386,7 +384,7 @@ class BCMath extends Engine
      *
      * Alias for modPow().
      */
-    public function powMod(BCMath $e, BCMath $n): BCMath
+    public function powMod(BCMath $e, BCMath $n): ?BCMath
     {
         return $this->powModOuter($e, $n);
     }
@@ -399,7 +397,7 @@ class BCMath extends Engine
         try {
             $class = static::$modexpEngine[static::class];
             return $class::powModHelper($this, $e, $n, static::class);
-        } catch (\Exception $err) {
+        } catch (\Exception) {
             return BCMath\DefaultEngine::powModHelper($this, $e, $n, static::class);
         }
     }
@@ -414,7 +412,7 @@ class BCMath extends Engine
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
-        if ($result->bitmask !== false) {
+        if (isset($result->bitmask)) {
             $result->value = bcmod($result->value, $result->bitmask->value, 0);
         }
 
@@ -424,11 +422,9 @@ class BCMath extends Engine
     /**
      * Generate a random prime number between a range
      *
-     * If there's not a prime within the given range, false will be returned.
-     *
-     * @return false|BCMath
+     * If there's not a prime within the given range, null will be returned.
      */
-    public static function randomRangePrime(BCMath $min, BCMath $max)
+    public static function randomRangePrime(BCMath $min, BCMath $max): ?BCMath
     {
         return self::randomRangePrimeOuter($min, $max);
     }
@@ -550,7 +546,7 @@ class BCMath extends Engine
      *
      * @see self::setPrecision()
      */
-    protected static function setBitmask(int $bits): Engine
+    protected static function setBitmask(int $bits): BCMath
     {
         $temp = parent::setBitmask($bits);
         return $temp->add(static::$one[static::class]);

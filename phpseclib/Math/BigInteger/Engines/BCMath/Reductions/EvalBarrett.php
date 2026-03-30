@@ -30,7 +30,7 @@ abstract class EvalBarrett extends Base
      *
      * @see self::generateCustomReduction
      */
-    private static $custom_reduction;
+    private static \Closure $custom_reduction;
 
     /**
      * Barrett Modular Reduction
@@ -46,10 +46,8 @@ abstract class EvalBarrett extends Base
 
     /**
      * Generate Custom Reduction
-     *
-     * @return callable|void
      */
-    protected static function generateCustomReduction(BCMath $m, string $class)
+    protected static function generateCustomReduction(BCMath $m, string $class): \Closure
     {
         $m_length = strlen($m);
 

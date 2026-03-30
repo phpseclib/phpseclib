@@ -156,9 +156,8 @@ class PHP64 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return false|PHP64
      */
-    public function modInverse(PHP64 $n)
+    public function modInverse(PHP64 $n): ?PHP64
     {
         return $this->modInverseHelper($n);
     }
@@ -243,7 +242,7 @@ class PHP64 extends PHP
     /**
      * Performs modular exponentiation.
      */
-    public function modPow(PHP64 $e, PHP64 $n): PHP64
+    public function modPow(PHP64 $e, PHP64 $n): ?PHP64
     {
         return $this->powModOuter($e, $n);
     }
@@ -252,10 +251,8 @@ class PHP64 extends PHP
      * Performs modular exponentiation.
      *
      * Alias for modPow().
-     *
-     * @return PHP64|false
      */
-    public function powMod(PHP64 $e, PHP64 $n)
+    public function powMod(PHP64 $e, PHP64 $n): ?PHP64
     {
         return $this->powModOuter($e, $n);
     }
@@ -264,10 +261,8 @@ class PHP64 extends PHP
      * Generate a random prime number between a range
      *
      * If there's not a prime within the given range, false will be returned.
-     *
-     * @return false|PHP64
      */
-    public static function randomRangePrime(PHP64 $min, PHP64 $max)
+    public static function randomRangePrime(PHP64 $min, PHP64 $max): ?PHP64
     {
         return self::randomRangePrimeOuter($min, $max);
     }

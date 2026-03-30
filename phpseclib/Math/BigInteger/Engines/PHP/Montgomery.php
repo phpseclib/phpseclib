@@ -41,7 +41,7 @@ abstract class Montgomery extends Base
      * @param class-string<T> $class
      * @return T
      */
-    protected static function slidingWindow(Engine $x, Engine $e, Engine $n, string $class)
+    protected static function slidingWindow(PHP $x, PHP $e, PHP $n, string $class): PHP
     {
         // is the modulo odd?
         if ($n->value[0] & 1) {

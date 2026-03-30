@@ -30,7 +30,7 @@ abstract class EvalBarrett extends Base
      *
      * @see self::generateCustomReduction
      */
-    private static $custom_reduction;
+    private static \Closure $custom_reduction;
 
     /**
      * Barrett Modular Reduction
@@ -47,7 +47,7 @@ abstract class EvalBarrett extends Base
     /**
      * Generate Custom Reduction
      */
-    protected static function generateCustomReduction(PHP $m, string $class): callable
+    protected static function generateCustomReduction(PHP $m, string $class): \Closure
     {
         $m_length = count($m->value);
 
@@ -436,10 +436,8 @@ abstract class EvalBarrett extends Base
      *
      * If you do echo floatval(pow(2, 52)) you'll get 4.6116860184274E+18. It /can/ be displayed without a loss of
      * precision but displayed in this way there will be precision loss, hence the need for this method.
-     *
-     * @param int|float $num
      */
-    private static function float2string($num): string
+    private static function float2string(int|float $num): string
     {
         if (!is_float($num)) {
             return (string) $num;

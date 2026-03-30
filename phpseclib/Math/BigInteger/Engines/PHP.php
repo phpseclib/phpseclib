@@ -72,7 +72,7 @@ abstract class PHP extends Engine
      * @return PHP
      * @see parent::__construct()
      */
-    public function __construct($x = 0, int $base = 10)
+    public function __construct(int|string|\GMP $x = 0, int $base = 10)
     {
         if (!isset(static::$isValidEngine[static::class])) {
             static::$isValidEngine[static::class] = static::isValidEngine();
@@ -149,7 +149,7 @@ abstract class PHP extends Engine
         }
 
         $temp = clone $this;
-        $temp->bitmask = false;
+        $temp->bitmask = null;
         $temp->is_negative = false;
 
         $divisor = new static();
@@ -715,7 +715,7 @@ abstract class PHP extends Engine
 
         $value = static::trim($value);
 
-        if (!empty($result->bitmask->value)) {
+        if (isset($result->bitmask->value)) {
             $length = min(count($value), count($result->bitmask->value));
             $value = array_slice($value, 0, $length);
 
@@ -910,7 +910,7 @@ abstract class PHP extends Engine
         try {
             $class = static::$modexpEngine[static::class];
             return $class::powModHelper($this, $e, $n, static::class);
-        } catch (\Exception $err) {
+        } catch (\Exception) {
             return PHP\DefaultEngine::powModHelper($this, $e, $n, static::class);
         }
     }
@@ -1043,10 +1043,9 @@ abstract class PHP extends Engine
      *
      * ie. $s = gmp_scan1($n, 0) and $r = gmp_div_q($n, gmp_pow(gmp_init('2'), $s));
      *
-     * @return int
      * @see self::isPrime()
      */
-    public static function scan1divide(PHP $r)
+    public static function scan1divide(PHP $r): int
     {
         $r_value = &$r->value;
         for ($i = 0, $r_length = count($r_value); $i < $r_length; ++$i) {
@@ -1085,13 +1084,13 @@ abstract class PHP extends Engine
      */
     public function isOdd(): bool
     {
-        return (bool)($this->value[0] & 1);
+        return (bool) ($this->value[0] & 1);
     }
 
     /**
      * Tests if a bit is set
      */
-    public function testBit($x): bool
+    public function testBit(int $x): bool
     {
         $digit = (int) floor($x / static::BASE);
         $bit = $x % static::BASE;
@@ -1100,7 +1099,7 @@ abstract class PHP extends Engine
             return false;
         }
 
-        return (bool)($this->value[$digit] & (1 << $bit));
+        return (bool) ($this->value[$digit] & (1 << $bit));
     }
 
     /**
@@ -1240,10 +1239,7 @@ abstract class PHP extends Engine
         return array_reverse($vals);
     }
 
-    /**
-     * @return bool
-     */
-    protected static function testJITOnWindows()
+    protected static function testJITOnWindows(): bool
     {
         // see https://github.com/php/php-src/issues/11917
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && function_exists('opcache_get_status') && PHP_VERSION_ID < 80213 && !defined('PHPSECLIB_ALLOW_JIT')) {

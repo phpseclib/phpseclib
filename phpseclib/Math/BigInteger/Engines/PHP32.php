@@ -155,9 +155,8 @@ class PHP32 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return false|PHP32
      */
-    public function modInverse(PHP32 $n)
+    public function modInverse(PHP32 $n): ?PHP32
     {
         return $this->modInverseHelper($n);
     }
@@ -242,7 +241,7 @@ class PHP32 extends PHP
     /**
      * Performs modular exponentiation.
      */
-    public function modPow(PHP32 $e, PHP32 $n): PHP32
+    public function modPow(PHP32 $e, PHP32 $n): ?PHP32
     {
         return $this->powModOuter($e, $n);
     }
@@ -252,7 +251,7 @@ class PHP32 extends PHP
      *
      * Alias for modPow().
      */
-    public function powMod(PHP32 $e, PHP32 $n): PHP32
+    public function powMod(PHP32 $e, PHP32 $n): ?PHP32
     {
         return $this->powModOuter($e, $n);
     }
@@ -261,10 +260,8 @@ class PHP32 extends PHP
      * Generate a random prime number between a range
      *
      * If there's not a prime within the given range, false will be returned.
-     *
-     * @return false|PHP32
      */
-    public static function randomRangePrime(PHP32 $min, PHP32 $max)
+    public static function randomRangePrime(PHP32 $min, PHP32 $max): ?PHP32
     {
         return self::randomRangePrimeOuter($min, $max);
     }

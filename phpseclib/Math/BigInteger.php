@@ -58,10 +58,8 @@ class BigInteger implements \JsonSerializable
 
     /**
      * The actual BigInteger object
-     *
-     * @var object
      */
-    private $value;
+    private Engine $value;
 
     /**
      * Sets engine type.
@@ -158,7 +156,7 @@ class BigInteger implements \JsonSerializable
         if ($x instanceof self::$mainEngine) {
             $this->value = clone $x;
         } elseif ($x instanceof Engine) {
-            $this->value = new static("$x");
+            $this->value = new self::$mainEngine("$x");
             $this->value->setPrecision($x->getPrecision());
         } else {
             $this->value = new self::$mainEngine($x, $base);
@@ -178,7 +176,7 @@ class BigInteger implements \JsonSerializable
      */
     public function __toString(): string
     {
-        return (string)$this->value;
+        return (string) $this->value;
     }
 
     /**
@@ -280,7 +278,7 @@ class BigInteger implements \JsonSerializable
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      */
-    public function modInverse(BigInteger $n): BigInteger
+    public function modInverse(BigInteger $n): ?BigInteger
     {
         return new static($this->value->modInverse($n->value));
     }
@@ -571,10 +569,14 @@ class BigInteger implements \JsonSerializable
      *
      * If there's not a prime within the given range, false will be returned.
      */
-    public static function randomRangePrime(BigInteger $min, BigInteger $max): BigInteger
+    public static function randomRangePrime(BigInteger $min, BigInteger $max): ?BigInteger
     {
         $class = self::$mainEngine;
-        return new static($class::randomRangePrime($min->value, $max->value));
+        $result = $class::randomRangePrime($min->value, $max->value);
+        if ($result === null) {
+            return null;
+        }
+        return new static($result);
     }
 
     /**

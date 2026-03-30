@@ -55,7 +55,7 @@ class GMP extends Engine
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
      * @see parent::__construct()
      */
-    public function __construct($x = 0, int $base = 10)
+    public function __construct(int|string|\GMP $x = 0, int $base = 10)
     {
         if (!isset(static::$isValidEngine[static::class])) {
             static::$isValidEngine[static::class] = self::isValidEngine();
@@ -102,7 +102,7 @@ class GMP extends Engine
      */
     public function toString(): string
     {
-        return (string)$this->value;
+        return (string) $this->value;
     }
 
     /**
@@ -224,14 +224,7 @@ class GMP extends Engine
      */
     public function compare(GMP $y): int
     {
-        $r = gmp_cmp($this->value, $y->value);
-        if ($r < -1) {
-            $r = -1;
-        }
-        if ($r > 1) {
-            $r = 1;
-        }
-        return $r;
+        return $this->value <=> $y->value;
     }
 
     /**
@@ -248,15 +241,13 @@ class GMP extends Engine
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     *
-     * @return false|GMP
      */
-    public function modInverse(GMP $n)
+    public function modInverse(GMP $n): ?GMP
     {
         $temp = new self();
         $temp->value = gmp_invert($this->value, $n->value);
 
-        return $temp->value === false ? false : $this->normalize($temp);
+        return $temp->value === false ? null : $this->normalize($temp);
     }
 
     /**
@@ -371,7 +362,7 @@ class GMP extends Engine
     /**
      * Performs modular exponentiation.
      */
-    public function modPow(GMP $e, GMP $n): GMP
+    public function modPow(GMP $e, GMP $n): ?GMP
     {
         return $this->powModOuter($e, $n);
     }
@@ -381,7 +372,7 @@ class GMP extends Engine
      *
      * Alias for modPow().
      */
-    public function powMod(GMP $e, GMP $n): GMP
+    public function powMod(GMP $e, GMP $n): ?GMP
     {
         return $this->powModOuter($e, $n);
     }
@@ -405,7 +396,7 @@ class GMP extends Engine
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
 
-        if ($result->bitmask !== false) {
+        if (isset($result->bitmask)) {
             $flip = $result->value < 0;
             if ($flip) {
                 $result->value = -$result->value;
@@ -421,10 +412,8 @@ class GMP extends Engine
 
     /**
      * Performs some post-processing for randomRangePrime
-     *
-     * @return GMP
      */
-    protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max)
+    protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max): ?GMP
     {
         $p = gmp_nextprime($x->value);
 
@@ -443,10 +432,8 @@ class GMP extends Engine
      * Generate a random prime number between a range
      *
      * If there's not a prime within the given range, false will be returned.
-     *
-     * @return false|GMP
      */
-    public static function randomRangePrime(GMP $min, GMP $max)
+    public static function randomRangePrime(GMP $min, GMP $max): ?GMP
     {
         return self::randomRangePrimeOuter($min, $max);
     }
