@@ -34,8 +34,8 @@ abstract class SFTPTestCase extends PhpseclibFunctionalTestCase
             $this->getEnv('SSH_USERNAME'),
             $this->getEnv('SSH_PASSWORD')
         ));
-        $this->assertTrue($this->sftp->mkdir($this->scratchDir));
-        $this->assertTrue($this->sftp->chdir($this->scratchDir));
+        $this->sftp->mkdir($this->scratchDir);
+        $this->sftp->chdir($this->scratchDir);
     }
 
     public function tearDown(): void

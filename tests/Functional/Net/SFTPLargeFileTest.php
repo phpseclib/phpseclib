@@ -33,10 +33,7 @@ class SFTPLargeFileTest extends SFTPTestCase
         $tmp_filename = $this->createTempFile(128, 1024 * 1024);
         $filename = 'file-large-from-local.txt';
 
-        $this->assertTrue(
-            $this->sftp->put($filename, $tmp_filename, SFTP::SOURCE_LOCAL_FILE),
-            'Failed asserting that local file could be successfully put().'
-        );
+        $this->sftp->put($filename, $tmp_filename, SFTP::SOURCE_LOCAL_FILE);
 
         $this->assertSame(
             128 * 1024 * 1024,

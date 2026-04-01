@@ -59,7 +59,7 @@ class Stream
     /**
      * Size
      */
-    private int|false $size;
+    private ?int $size;
 
     /**
      * Directory entries
@@ -85,7 +85,7 @@ class Stream
      *
      * @var callable
      */
-    private $notification;
+    private \Closure|string|array $notification;
 
     /**
      * Registers this class as a URL wrapper.
@@ -118,10 +118,8 @@ class Stream
      *
      * If "notification" is set as a context parameter the message code for successful login is
      * SSHMsg::USERAUTH_SUCCESS. For a failed login it's SSHMsg::USERAUTH_FAILURE.
-     *
-     * @return string
      */
-    protected function parse_path(string $path)
+    protected function parse_path(string $path): ?string
     {
         $orig = $path;
         $url = parse_url($path) + ['port' => 22];
@@ -145,7 +143,7 @@ class Stream
         }
 
         if (!isset($host)) {
-            return false;
+            return null;
         }
 
         if (isset($this->context)) {
@@ -158,7 +156,7 @@ class Stream
         if (preg_match('/^{[a-z0-9]+}$/i', $host)) {
             $host = SSH2::getConnectionByResourceId($host);
             if ($host === null) {
-                return false;
+                return null;
             }
             $this->sftp = $host;
         } else {
@@ -186,7 +184,7 @@ class Stream
             }
 
             if (!isset($user) || !isset($pass)) {
-                return false;
+                return null;
             }
 
             // casting $pass to a string is necessary in the event that it's a \phpseclib4\Crypt\RSA object
@@ -209,12 +207,12 @@ class Stream
                     call_user_func($this->notification, STREAM_NOTIFY_AUTH_REQUIRED, STREAM_NOTIFY_SEVERITY_INFO, '', 0, 0, 0);
                     if (!$this->sftp->login($user, $pass)) {
                         call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_ERR, 'Login Failure', SSH2MessageType::USERAUTH_FAILURE, 0, 0);
-                        return false;
+                        return null;
                     }
                     call_user_func($this->notification, STREAM_NOTIFY_AUTH_RESULT, STREAM_NOTIFY_SEVERITY_INFO, 'Login Success', SSH2MessageType::USERAUTH_SUCCESS, 0, 0);
                 } else {
                     if (!$this->sftp->login($user, $pass)) {
-                        return false;
+                        return null;
                     }
                 }
                 self::$instances[$host][$port][$user][(string) $pass] = $this->sftp;
@@ -231,20 +229,31 @@ class Stream
     {
         $path = $this->parse_path($path);
 
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
         $this->path = $path;
 
-        $this->size = $this->sftp->filesize($path);
+        try {
+            $this->size = $this->sftp->filesize($path);
+        } catch (\Exception) {
+            $this->size = null;
+        }
         $this->mode = preg_replace('#[bt]$#', '', $mode);
         $this->eof = false;
 
-        if ($this->size === false) {
+        if (!isset($this->size)) {
             if ($this->mode[0] == 'r') {
                 return false;
             } else {
-                $this->sftp->touch($path);
+                try {
+                    $this->sftp->touch($path);
+                } catch (\Exception $e) {
+                    if (isset($this->notification) && is_callable($this->notification)) {
+                        call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+                    }
+                    return false;
+                }
                 $this->size = 0;
             }
         } else {
@@ -252,7 +261,14 @@ class Stream
                 case 'x':
                     return false;
                 case 'w':
-                    $this->sftp->truncate($path, 0);
+                    try {
+                        $this->sftp->truncate($path, 0);
+                    } catch (\Exception $e) {
+                        if (isset($this->notification) && is_callable($this->notification)) {
+                            call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+                        }
+                        return false;
+                    }
                     $this->size = 0;
             }
         }
@@ -264,8 +280,10 @@ class Stream
 
     /**
      * Read from stream
+     *
+     * @return string|false
      */
-    private function _stream_read(int $count)
+    private function _stream_read(int $count): string|bool
     {
         switch ($this->mode) {
             case 'w':
@@ -281,20 +299,19 @@ class Stream
         //    return false;
         //}
 
-        $result = $this->sftp->get($this->path, false, $this->pos, $count);
-        if (isset($this->notification) && is_callable($this->notification)) {
-            if ($result === false) {
-                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $this->sftp->getLastSFTPError(), PacketType::OPEN, 0, 0);
-                return 0;
+        try {
+            $result = $this->sftp->get($this->path, false, $this->pos, $count);
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
+            return false;
+        }
+        if (isset($this->notification) && is_callable($this->notification)) {
             // seems that PHP calls stream_read in 8k chunks
             call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($result), $this->size);
         }
 
-        if (empty($result)) { // ie. false or empty string
-            $this->eof = true;
-            return false;
-        }
         $this->pos += strlen($result);
 
         return $result;
@@ -305,26 +322,26 @@ class Stream
      *
      * @return int|false
      */
-    private function _stream_write(string $data)
+    private function _stream_write(string $data): int|bool
     {
         switch ($this->mode) {
             case 'r':
                 return false;
         }
 
-        $result = $this->sftp->put($this->path, $data, SFTP::SOURCE_STRING, $this->pos);
-        if (isset($this->notification) && is_callable($this->notification)) {
-            if (!$result) {
-                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $this->sftp->getLastSFTPError(), PacketType::OPEN, 0, 0);
-                return 0;
+        try {
+            $result = $this->sftp->put($this->path, $data, SFTP::SOURCE_STRING, $this->pos);
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
+            return false;
+        }
+        if (isset($this->notification) && is_callable($this->notification)) {
             // seems that PHP splits up strings into 8k blocks before calling stream_write
             call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($data), strlen($data));
         }
 
-        if ($result === false) {
-            return false;
-        }
         $this->pos += strlen($data);
         if ($this->pos > $this->size) {
             $this->size = $this->pos;
@@ -382,30 +399,53 @@ class Stream
     /**
      * Change stream options
      */
-    private function _stream_metadata(string $path, int $option, $var): bool
+    private function _stream_metadata(string $path, int $option, int|string|array $var): bool
     {
         $path = $this->parse_path($path);
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
 
-        // stream_metadata was introduced in PHP 5.4.0 but as of 5.4.11 the constants haven't been defined
-        // see http://www.php.net/streamwrapper.stream-metadata and https://bugs.php.net/64246
-        //     and https://github.com/php/php-src/blob/master/main/php_streams.h#L592
-        switch ($option) {
-            case 1: // PHP_STREAM_META_TOUCH
-                $time = $var[0] ?? null;
-                $atime = $var[1] ?? null;
-                return $this->sftp->touch($path, $time, $atime);
-            case 2: // PHP_STREAM_OWNER_NAME
-            case 3: // PHP_STREAM_GROUP_NAME
-                return false;
-            case 4: // PHP_STREAM_META_OWNER
-                return $this->sftp->chown($path, $var);
-            case 5: // PHP_STREAM_META_GROUP
-                return $this->sftp->chgrp($path, $var);
-            case 6: // PHP_STREAM_META_ACCESS
-                return $this->sftp->chmod($path, $var) !== false;
+        try {
+            switch ($option) {
+                case PHP_STREAM_META_TOUCH:
+                    $time = $var[0] ?? null;
+                    $atime = $var[1] ?? null;
+                    $this->sftp->touch($path, $time, $atime);
+                    return true;
+                case PHP_STREAM_OWNER_NAME:
+                    if ($this->getNegotiatedVersion() >= 4) {
+                        $this->sftp->chown($path, $var);
+                        return true;
+                    }
+                    return false;
+                case PHP_STREAM_GROUP_NAME:
+                    if ($this->getNegotiatedVersion() >= 4) {
+                        $this->sftp->chgrp($path, $var);
+                        return true;
+                    }
+                    return false;
+                case PHP_STREAM_META_OWNER:
+                    if ($this->getNegotiatedVersion() < 4) {
+                        $this->sftp->chown($path, $var);
+                        return true;
+                    }
+                    return false;
+                case PHP_STREAM_META_GROUP:
+                    if ($this->getNegotiatedVersion() < 4) {
+                        $this->sftp->chgrp($path, $var);
+                        return true;
+                    }
+                    return false;
+                case PHP_STREAM_META_ACCESS:
+                    $this->sftp->chmod($path, $var);
+                    return true;
+            }
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
+            return false;
         }
     }
 
@@ -445,18 +485,31 @@ class Stream
 
         $path_from = $this->parse_path($path_from);
         $path_to = parse_url($path_to);
-        if ($path_from === false) {
+        if (!isset($path_from)) {
             return false;
         }
 
-        $path_to = $path_to['path']; // the $component part of parse_url() was added in PHP 5.1.2
+        $path_to = $path_to['path'];
         // "It is an error if there already exists a file with the name specified by newpath."
         //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02#section-6.5
-        if (!$this->sftp->rename($path_from, $path_to)) {
-            if ($this->sftp->stat($path_to)) {
-                return $this->sftp->delete($path_to, true) && $this->sftp->rename($path_from, $path_to);
+        try {
+            $this->sftp->rename($path_from, $path_to);
+        } catch (\Exception $e) {
+            if (!$this->sftp->file_exists($path_to)) {
+                if (isset($this->notification) && is_callable($this->notification)) {
+                    call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+                }
+                return false;
             }
-            return false;
+            try {
+                $this->sftp->delete($path_to, true);
+                $this->sftp->rename($path_from, $path_to);
+            } catch (\Exception $e) {
+                if (isset($this->notification) && is_callable($this->notification)) {
+                    call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+                }
+                return false;
+            }
         }
 
         return true;
@@ -465,11 +518,8 @@ class Stream
     /**
      * Open directory handle
      *
-     * The only $options is "whether or not to enforce safe_mode (0x04)". Since safe mode was deprecated in 5.3 and
-     * removed in 5.4 I'm just going to ignore it.
-     *
-     * Also, nlist() is the best that this function is realistically going to be able to do. When an SFTP client
-     * sends a SSH_FXP_READDIR packet you don't generally get info on just one file but on multiple files. Quoting
+     * nlist() is the best that this function is realistically going to be able to do. When an SFTP client sends 
+     * a SSH_FXP_READDIR packet you don't generally get info on just one file but on multiple files. Quoting
      * the SFTP specs:
      *
      *    The SSH_FXP_NAME response has the following format:
@@ -484,12 +534,19 @@ class Stream
     private function _dir_opendir(string $path, int $options): bool
     {
         $path = $this->parse_path($path);
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
         $this->pos = 0;
-        $this->entries = $this->sftp->nlist($path);
-        return $this->entries !== false;
+        try {
+            $this->entries = $this->sftp->nlist($path);
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -528,11 +585,19 @@ class Stream
     private function _mkdir(string $path, int $mode, int $options): bool
     {
         $path = $this->parse_path($path);
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
 
-        return $this->sftp->mkdir($path, $mode, $options & STREAM_MKDIR_RECURSIVE);
+        try {
+            $this->sftp->mkdir($path, $mode, boolval($options & STREAM_MKDIR_RECURSIVE));
+            return true;
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
+            return false;
+        }
     }
 
     /**
@@ -546,11 +611,19 @@ class Stream
     private function _rmdir(string $path, int $options): bool
     {
         $path = $this->parse_path($path);
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
 
-        return $this->sftp->rmdir($path);
+        try {
+            $this->sftp->rmdir($path);
+            return true;
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
+            return false;
+        }
     }
 
     /**
@@ -566,13 +639,16 @@ class Stream
     /**
      * Retrieve information about a file resource
      */
-    private function _stream_stat(): bool
+    private function _stream_stat(): array|bool
     {
-        $results = $this->sftp->stat($this->path);
-        if ($results === false) {
+        try {
+            return $this->sftp->stat($this->path);
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
             return false;
         }
-        return $results;
     }
 
     /**
@@ -581,11 +657,19 @@ class Stream
     private function _unlink(string $path): bool
     {
         $path = $this->parse_path($path);
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
 
-        return $this->sftp->delete($path, false);
+        try {
+            $this->sftp->delete($path, false);
+            return true;
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
+            return false;
+        }
     }
 
     /**
@@ -598,16 +682,18 @@ class Stream
     private function _url_stat(string $path, int $flags): bool
     {
         $path = $this->parse_path($path);
-        if ($path === false) {
+        if (!isset($path)) {
             return false;
         }
 
-        $results = $flags & STREAM_URL_STAT_LINK ? $this->sftp->lstat($path) : $this->sftp->stat($path);
-        if ($results === false) {
+        try {
+            return $flags & STREAM_URL_STAT_LINK ? $this->sftp->lstat($path) : $this->sftp->stat($path);
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
             return false;
         }
-
-        return $results;
     }
 
     /**
@@ -615,14 +701,16 @@ class Stream
      */
     private function _stream_truncate(int $new_size): bool
     {
-        if (!$this->sftp->truncate($this->path, $new_size)) {
+        try {
+            $this->sftp->truncate($this->path, $new_size);
+            $this->eof = false;
+            $this->size = $new_size;
+        } catch (\Exception $e) {
+            if (isset($this->notification) && is_callable($this->notification)) {
+                call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
+            }
             return false;
         }
-
-        $this->eof = false;
-        $this->size = $new_size;
-
-        return true;
     }
 
     /**
