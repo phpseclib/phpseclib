@@ -295,7 +295,7 @@ class Hash
     public function setHash($hash)
     {
         $oldHash = $this->hashParam;
-        $this->hashParam = $hash = strtolower($hash);
+        $this->hashParam = $hash = strtolower(str_replace('/', '-', $hash));
         switch ($hash) {
             case 'umac-32':
             case 'umac-64':
@@ -323,8 +323,8 @@ class Hash
             case 'sha256-96':
             case 'sha384-96':
             case 'sha512-96':
-            case 'sha512/224-96':
-            case 'sha512/256-96':
+            case 'sha512-224-96':
+            case 'sha512-256-96':
                 $hash = substr($hash, 0, -3);
                 $this->length = 12; // 96 / 8 = 12
                 break;
@@ -336,7 +336,7 @@ class Hash
                 $this->length = 20;
                 break;
             case 'sha224':
-            case 'sha512/224':
+            case 'sha512-224':
             case 'sha3-224':
                 $this->length = 28;
                 break;
@@ -344,7 +344,7 @@ class Hash
                 $this->paddingType = self::PADDING_KECCAK;
                 // fall-through
             case 'sha256':
-            case 'sha512/256':
+            case 'sha512-256':
             case 'sha3-256':
                 $this->length = 32;
                 break;
@@ -424,12 +424,12 @@ class Hash
             }
         }
 
-        if ($hash == 'sha512/224' || $hash == 'sha512/256') {
+        if ($hash == 'sha512-224' || $hash == 'sha512-256') {
             // PHP 7.1.0 introduced sha512/224 and sha512/256 support:
             // http://php.net/ChangeLog-7.php#7.1.0
             if (version_compare(PHP_VERSION, '7.1.0') < 0) {
                 // from http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf#page=24
-                $initial = $hash == 'sha512/256' ?
+                $initial = $hash == 'sha512-256' ?
                     [
                         '22312194FC2BF72C', '9F555FA3C84C64C2', '2393B86B6F53B151', '963877195940EABD',
                         '96283EE2A88EFFE3', 'BE5E1E2553863992', '2B0199FC2C85B8AA', '0EB72DDC81C52CA2'

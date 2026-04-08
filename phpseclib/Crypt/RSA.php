@@ -564,6 +564,22 @@ abstract class RSA extends AsymmetricKey
                 break;
             case 'sha512/256':
                 $t = "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x05\x00\x04\x20";
+                break;
+            // the following 3x algorithms are not specified in PKCS1 v2.2, however, some standards none-the-less do use them:
+            // https://sk-eid.github.io/smart-id-documentation/rp-api/changes.html#_security_enhancements
+            // the OIDs are from this URL:
+            // https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration#Hash
+            case 'sha3/224':
+                $t = "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x07\x05\x00\x04\x1c";
+                break;
+            case 'sha3/256':
+                $t = "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x05\x00\x04\x20";
+                break;
+            case 'sha3/384':
+                $t = "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x05\x00\x04\x30";
+                break;
+            case 'sha3/512':
+                $t = "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x05\x00\x04\x40";
         }
         $t .= $h;
         $tLen = strlen($t);
@@ -620,6 +636,22 @@ abstract class RSA extends AsymmetricKey
                 break;
             case 'sha512/256':
                 $t = "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x04\x20";
+                break;
+            // the following 3x algorithms are not specified in PKCS1 v2.2, however, some standards none-the-less do use them:
+            // https://sk-eid.github.io/smart-id-documentation/rp-api/changes.html#_security_enhancements
+            // the OIDs are from this URL:
+            // https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration#Hash
+            case 'sha3/224':
+                $t = "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x07\x04\x1c";
+                break;
+            case 'sha3/256':
+                $t = "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x04\x20";
+                break;
+            case 'sha3/384':
+                $t = "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x04\x30";
+                break;
+            case 'sha3/512':
+                $t = "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x04\x40";
                 break;
             default:
                 throw new UnsupportedAlgorithmException('md2 and md5 require NULLs');
@@ -696,11 +728,15 @@ abstract class RSA extends AsymmetricKey
             case 'sha224':
             case 'sha512/224':
             case 'sha512/256':
+            case 'sha3/224':
+            case 'sha3/256':
+            case 'sha3/384':
+            case 'sha3/512':
                 $new->hash = new Hash($hash);
                 break;
             default:
                 throw new UnsupportedAlgorithmException(
-                    'The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256'
+                    "The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256 - $hash provided"
                 );
         }
         $new->hLen = $new->hash->getLengthInBytes();
@@ -731,11 +767,15 @@ abstract class RSA extends AsymmetricKey
             case 'sha224':
             case 'sha512/224':
             case 'sha512/256':
+            case 'sha3/224':
+            case 'sha3/256':
+            case 'sha3/384':
+            case 'sha3/512':
                 $new->mgfHash = new Hash($hash);
                 break;
             default:
                 throw new UnsupportedAlgorithmException(
-                    'The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256'
+                    "The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256 - $hash provided"
                 );
         }
         $new->mgfHLen = $new->mgfHash->getLengthInBytes();
