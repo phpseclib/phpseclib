@@ -374,15 +374,11 @@ class Hash
         }
 
         // PHP's built in hash function does sha3-256 but sha512/256 so we'll update those accordingly
-        switch ($hash) {
-            case 'sha512-224':
-                $hash = 'sha512/224';
-                break;
-            case 'sha512-256':
-                $hash = 'sha512/256';
-        }
-
-        $this->algo = $hash;
+        $this->algo = match ($hash) {
+            'sha512-224' => 'sha512/224',
+            'sha512-256' => 'sha512/256',
+            default => $hash
+        };
 
         $this->computeKey();
     }
