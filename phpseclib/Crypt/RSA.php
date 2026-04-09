@@ -499,8 +499,17 @@ abstract class RSA extends AsymmetricKey
             // from https://www.emc.com/collateral/white-papers/h11300-pkcs-1v2-2-rsa-cryptography-standard-wp.pdf#page=40
             'sha224' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x04\x05\x00\x04\x1c",
             'sha512/224' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x05\x05\x00\x04\x1c",
-            'sha512/256' => "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x05\x00\x04\x20"
+            'sha512/256' => "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x05\x00\x04\x20",
+            // the following 3x algorithms are not specified in PKCS1 v2.2, however, some standards none-the-less do use them:
+            // https://sk-eid.github.io/smart-id-documentation/rp-api/changes.html#_security_enhancements
+            // the OIDs are from this URL:
+            // https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration#Hash
+            'sha3/224' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x07\x05\x00\x04\x1c",
+            'sha3/256' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x05\x00\x04\x20",
+            'sha3/384' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x05\x00\x04\x30",
+            'sha3/512' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x05\x00\x04\x40",
         };
+
         $t .= $h;
         $tLen = strlen($t);
 
@@ -543,7 +552,15 @@ abstract class RSA extends AsymmetricKey
             // from https://www.emc.com/collateral/white-papers/h11300-pkcs-1v2-2-rsa-cryptography-standard-wp.pdf#page=40
             'sha224' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x04\x04\x1c",
             'sha512/224' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x05\x04\x1c",
-            'sha512/256' => "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x04\x20"
+            'sha512/256' => "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x06\x04\x20",
+            // the following 3x algorithms are not specified in PKCS1 v2.2, however, some standards none-the-less do use them:
+            // https://sk-eid.github.io/smart-id-documentation/rp-api/changes.html#_security_enhancements
+            // the OIDs are from this URL:
+            // https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration#Hash
+            'sha3/224' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x07\x04\x1c",
+            'sha3/256' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x04\x20",
+            'sha3/384' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x04\x30",
+            'sha3/512' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x04\x40",
         };
         $t .= $h;
         $tLen = strlen($t);
@@ -598,7 +615,7 @@ abstract class RSA extends AsymmetricKey
     {
         $new = clone $this;
 
-        // \phpseclib4\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
+        // \phpseclib4\Crypt\Hash supports algorithms that PKCS#1 doesn't support. md5-96 and sha1-96, for example.
         switch (strtolower($hash)) {
             case 'md2':
             case 'md5':
@@ -609,11 +626,15 @@ abstract class RSA extends AsymmetricKey
             case 'sha224':
             case 'sha512/224':
             case 'sha512/256':
+            case 'sha3/224':
+            case 'sha3/256':
+            case 'sha3/384':
+            case 'sha3/512':
                 $new->hash = new Hash($hash);
                 break;
             default:
                 throw new UnsupportedAlgorithmException(
-                    'The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256'
+                    "The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256, sha3/224, sha3/256, sha3/384, sha3/512 - $hash provided"
                 );
         }
         $new->hLen = $new->hash->getLengthInBytes();
@@ -642,11 +663,15 @@ abstract class RSA extends AsymmetricKey
             case 'sha224':
             case 'sha512/224':
             case 'sha512/256':
+            case 'sha3/224':
+            case 'sha3/256':
+            case 'sha3/384':
+            case 'sha3/512':
                 $new->mgfHash = new Hash($hash);
                 break;
             default:
                 throw new UnsupportedAlgorithmException(
-                    'The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256'
+                    "The only supported hash algorithms are: md2, md5, sha1, sha256, sha384, sha512, sha224, sha512/224, sha512/256, sha3/224, sha3/256, sha3/384, sha3/512 - $hash provided"
                 );
         }
         $new->mgfHLen = $new->mgfHash->getLengthInBytes();

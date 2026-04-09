@@ -267,7 +267,7 @@ class Hash
     public function setHash(string $hash): void
     {
         $oldHash = $this->hashParam ?? null;
-        $this->hashParam = $hash = strtolower($hash);
+        $this->hashParam = $hash = strtolower(str_replace('/', '-', $hash));
         switch ($hash) {
             case 'umac-32':
             case 'umac-64':
@@ -295,8 +295,8 @@ class Hash
             case 'sha256-96':
             case 'sha384-96':
             case 'sha512-96':
-            case 'sha512/224-96':
-            case 'sha512/256-96':
+            case 'sha512-224-96':
+            case 'sha512-256-96':
                 $hash = substr($hash, 0, -3);
                 $this->length = 12; // 96 / 8 = 12
                 break;
@@ -308,7 +308,7 @@ class Hash
                 $this->length = 20;
                 break;
             case 'sha224':
-            case 'sha512/224':
+            case 'sha512-224':
             case 'sha3-224':
                 $this->length = 28;
                 break;
@@ -316,7 +316,7 @@ class Hash
                 $this->paddingType = self::PADDING_KECCAK;
                 // fall-through
             case 'sha256':
-            case 'sha512/256':
+            case 'sha512-256':
             case 'sha3-256':
                 $this->length = 32;
                 break;
