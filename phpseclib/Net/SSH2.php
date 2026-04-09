@@ -3807,7 +3807,7 @@ class Net_SSH2
                 $this->bitmap = 0;
                 user_error('Error reading socket');
                 return false;
-            } elseif ($hmac != $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding))) {
+            } elseif (!$this->_equals($hmac, $this->hmac_check->hash(pack('NNCa*', $this->get_seq_no, $packet_length, $padding_length, $payload . $padding)))) {
                 user_error('Invalid HMAC');
                 return false;
             }
@@ -5699,5 +5699,34 @@ class Net_SSH2
     function bytesUntilKeyReexchange($bytes)
     {
         $this->doKeyReexchangeAfterXBytes = $bytes;
+    }
+
+    /**
+     * Constant time equality testing
+     *
+     * Pretty much copy / pasted from Crypt/RSA.php
+     *
+     * @access private
+     * @param string $x
+     * @param string $y
+     * @return bool
+     */
+    function _equals($x, $y)
+    {
+        if (function_exists('hash_equals')) {
+            return hash_equals($x, $y);
+        }
+
+        if (strlen($x) != strlen($y)) {
+            return false;
+        }
+
+        $result = "\0";
+        $x^= $y;
+        for ($i = 0; $i < strlen($x); $i++) {
+            $result|= $x[$i];
+        }
+
+        return $result === "\0";
     }
 }
