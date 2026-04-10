@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.51 - 2026-04-09
+
+- SSH2: use constant time string comparison in get_binary_packet()
+- use new OpenSSL functionality (#2130)
+
 ## 3.0.50 - 2026-03-18
 
 - fix for PHP 8.5 BC breaking changes on 32-bit machines (#2126)
@@ -347,6 +352,10 @@
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
 
+## 2.0.53 - 2026-04-09
+
+- SSH2: use constant time string comparison in get_binary_packet()
+
 ## 2.0.52 - 2026-03-18
 
 - fix for PHP 8.5 BC breaking changes on 32-bit machines (#2126)
@@ -642,7 +651,7 @@
 ## 2.0.11 - 2018-04-15
 
 - X509: auto download intermediate certs
-- BigInteger: fix for (new BigInteger(48))->toString(true)) (#1264)
+- BigInteger: fix for (new BigInteger(48))->toString(true) (#1264)
 - ASN1: class is never set as key in _decode_ber
 - check if phpinfo() is available before using (#1256)
 - backport CFB8 support from master to 2.0 (#1257)
@@ -754,6 +763,10 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.28 - 2026-04-09
+
+- SSH2: use constant time string comparison in get_binary_packet()
 
 ## 1.0.27 - 2026-03-18
 
