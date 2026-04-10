@@ -3,6 +3,7 @@
 ## 3.0.51 - 2026-04-09
 
 - SSH2: use constant time string comparison in get_binary_packet()
+- RSA: add sha3 support (#2132)
 - use new OpenSSL functionality (#2130)
 
 ## 3.0.50 - 2026-03-18
