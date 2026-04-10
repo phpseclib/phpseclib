@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.28 - 2026-04-09
+
+- SSH2: use constant time string comparison in get_binary_packet()
+
 ## 1.0.27 - 2026-03-18
 
 - fix for PHP 8.5 BC breaking changes on 32-bit machines (#2126)
