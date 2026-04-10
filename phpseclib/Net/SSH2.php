@@ -3738,12 +3738,12 @@ class SSH2
                 substr($packet->raw, 0, -$this->hmac_size);
             if (($this->hmac_check->getHash() & "\xFF\xFF\xFF\xFF") == 'umac') {
                 $this->hmac_check->setNonce("\0\0\0\0" . pack('N', $this->get_seq_no));
-                if ($hmac != $this->hmac_check->hash($reconstructed)) {
+                if (!hash_equals($hmac, $this->hmac_check->hash($reconstructed))) {
                     $this->disconnect_helper(NET_SSH2_DISCONNECT_MAC_ERROR);
                     throw new ConnectionClosedException('Invalid UMAC');
                 }
             } else {
-                if ($hmac != $this->hmac_check->hash(pack('Na*', $this->get_seq_no, $reconstructed))) {
+                if (!hash_equals($hmac, $this->hmac_check->hash(pack('Na*', $this->get_seq_no, $reconstructed)))) {
                     $this->disconnect_helper(NET_SSH2_DISCONNECT_MAC_ERROR);
                     throw new ConnectionClosedException('Invalid HMAC');
                 }
