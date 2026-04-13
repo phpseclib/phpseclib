@@ -32,6 +32,7 @@
 namespace phpseclib4\Net;
 
 use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Exception\FileNotFoundException;
 
 /**
@@ -60,14 +61,6 @@ class SCP extends SSH2
     //const SOURCE_CALLBACK = 16;
 
     /**
-     * Error information
-     *
-     * @see self::getSCPErrors()
-     * @see self::getLastSCPError()
-     */
-    private array $scp_errors = [];
-
-    /**
      * Uploads a file to the SCP server.
      *
      * By default, \phpseclib\Net\SCP::put() does not read from the local filesystem.  $data is dumped directly into $remote_file.
@@ -83,25 +76,22 @@ class SCP extends SSH2
      * 
      * @param string|resource $data
      */
-    public function put(string $remote_file, mixed $data, int $mode = self::SOURCE_STRING, ?callable $callback = null): bool
+    public function put(string $remote_file, mixed $data, int $mode = self::SOURCE_STRING, ?\Closure $callback = null): void
     {
-        if (!($this->bitmap & self::MASK_LOGIN)) {
-            return false;
+        if (!$this->isAuthenticated()) {
+            throw new RuntimeException('Unable to upload file. Not connected.');
         }
 
         if (empty($remote_file)) {
-            // remote file cannot be blank
-            return false;
+            throw new RuntimeException('Remote Filename cannot be blank');
         }
 
-        if (!$this->exec('scp -t ' . escapeshellarg($remote_file), false)) { // -t = to
-            return false;
-        }
+        $this->initExec('scp -t ' . escapeshellarg($remote_file)); // -t = to
 
         $temp = $this->get_channel_packet(self::CHANNEL_EXEC, true);
         if ($temp !== chr(0)) {
             $this->close_channel(self::CHANNEL_EXEC, true);
-            return false;
+            throw new RuntimeException('Expected but did not receive a null packet');
         }
 
         $packet_size = $this->packet_size_client_to_server[self::CHANNEL_EXEC] - 4;
@@ -128,7 +118,7 @@ class SCP extends SSH2
                 $fp = @fopen($data, 'rb');
                 if (!$fp) {
                     $this->close_channel(self::CHANNEL_EXEC, true);
-                    return false;
+                    throw new RuntimeException("Error opening $data");
                 }
         }
 
@@ -148,7 +138,7 @@ class SCP extends SSH2
         $temp = $this->get_channel_packet(self::CHANNEL_EXEC, true);
         if ($temp !== chr(0)) {
             $this->close_channel(self::CHANNEL_EXEC, true);
-            return false;
+            throw new RuntimeException('Expected but did not receive a null packet');
         }
 
         $sent = 0;
@@ -157,8 +147,8 @@ class SCP extends SSH2
             $this->send_channel_packet(self::CHANNEL_EXEC, $temp);
             $sent += strlen($temp);
 
-            if (is_callable($callback)) {
-                call_user_func($callback, $sent);
+            if (isset($callback)) {
+                $callback($sent);
             }
         }
         $this->close_channel(self::CHANNEL_EXEC, true);
@@ -166,8 +156,6 @@ class SCP extends SSH2
         if ($mode != self::SOURCE_STRING) {
             fclose($fp);
         }
-
-        return true;
     }
 
     /**
@@ -179,15 +167,13 @@ class SCP extends SSH2
      *
      * @param string|resource|null $local_file
      */
-    public function get(string $remote_file, mixed $local_file = null, ?callable $progressCallback = null): bool|string
+    public function get(string $remote_file, mixed $local_file = null, ?\Closure $progressCallback = null): ?string
     {
-        if (!($this->bitmap & self::MASK_LOGIN)) {
-            return false;
+        if (!$this->isAuthenticated()) {
+            throw new RuntimeException('Unable to download file. Not connected.');
         }
 
-        if (!$this->exec('scp -f ' . escapeshellarg($remote_file), false)) { // -f = from
-            return false;
-        }
+        $this->initExec('scp -f ' . escapeshellarg($remote_file)); // -f = from
 
         $this->send_channel_packet(self::CHANNEL_EXEC, chr(0));
 
@@ -195,28 +181,28 @@ class SCP extends SSH2
         // per https://goteleport.com/blog/scp-familiar-simple-insecure-slow/ non-zero responses mean there are errors
         if ($info[0] === chr(1) || $info[0] == chr(2)) {
             $type = $info[0] === chr(1) ? 'warning' : 'error';
-            $this->scp_errors[] = "$type: " . substr($info, 1);
             $this->close_channel(self::CHANNEL_EXEC, true);
-            return false;
+            throw new RuntimeException("Received a $type from server: " . substr($info, 1));
         }
 
         $this->send_channel_packet(self::CHANNEL_EXEC, chr(0));
 
         if (!preg_match('#(?<perms>[^ ]+) (?<size>\d+) (?<name>.+)#', rtrim($info), $info)) {
             $this->close_channel(self::CHANNEL_EXEC, true);
-            return false;
+            throw new RuntimeException('Response did not meet expected format');
         }
 
         $fclose_check = false;
         if (is_resource($local_file)) {
             $fp = $local_file;
-        } elseif (!is_null($local_file)) {
+        } elseif (isset($local_file)) {
             $fp = @fopen($local_file, 'wb');
             if (!$fp) {
                 $this->close_channel(self::CHANNEL_EXEC, true);
-                return false;
+                throw new RuntimeException("Unable to open local_file ($local_file)");
             }
             $fclose_check = true;
+            $content = null;
         } else {
             $content = '';
         }
@@ -224,12 +210,6 @@ class SCP extends SSH2
         $size = 0;
         while (true) {
             $data = $this->get_channel_packet(self::CHANNEL_EXEC, true);
-            // Terminate the loop in case the server repeatedly sends an empty response
-            if ($data === false) {
-                $this->close_channel(self::CHANNEL_EXEC, true);
-                // no data received from server
-                return false;
-            }
             // SCP usually seems to split stuff out into 16k chunks
             $length = strlen($data);
             $size += $length;
@@ -241,9 +221,8 @@ class SCP extends SSH2
                     $data = substr($data, 0, -$diff);
                 } else {
                     $type = $data[$offset] === chr(1) ? 'warning' : 'error';
-                    $this->scp_errors[] = "$type: " . substr($data, 1);
                     $this->close_channel(self::CHANNEL_EXEC, true);
-                    return false;
+                    throw new RuntimeException("Received a $type from server: " . substr($info, 1));
                 }
             }
 
@@ -253,8 +232,8 @@ class SCP extends SSH2
                 fputs($fp, $data);
             }
 
-            if (is_callable($progressCallback)) {
-                call_user_func($progressCallback, $size);
+            if (isset($progressCallback)) {
+                $progressCallback($size);
             }
 
             if ($end) {
@@ -269,22 +248,6 @@ class SCP extends SSH2
         }
 
         // if $content isn't set that means a file was written to
-        return $content ?? true;
-    }
-
-    /**
-     * Returns all errors on the SCP layer
-     */
-    public function getSCPErrors(): array
-    {
-        return $this->scp_errors;
-    }
-
-    /**
-     * Returns the last error on the SCP layer
-     */
-    public function getLastSCPError(): string
-    {
-        return count($this->scp_errors) ? $this->scp_errors[count($this->scp_errors) - 1] : '';
+        return $content;
     }
 }

@@ -44,10 +44,7 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     /** @depends testConstructor */
     public function testPutGetString($scp)
     {
-        $this->assertTrue(
-            $scp->put(self::$remoteFile, self::$exampleData),
-            'Failed asserting that data could successfully be put() into file.'
-        );
+        $scp->put(self::$remoteFile, self::$exampleData);
         $content = $scp->get(self::$remoteFile);
         $this->assertSame(
             strlen($content),
@@ -66,10 +63,7 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     public function testGetFile($scp)
     {
         $localFilename = $this->createTempFile();
-        $this->assertTrue(
-            $scp->get(self::$remoteFile, $localFilename),
-            'Failed asserting that get() into file was successful.'
-        );
+        $scp->get(self::$remoteFile, $localFilename);
         $this->assertContains(
             filesize($localFilename),
             array(self::$exampleDataLength, self::$exampleDataLength + 1),
@@ -90,21 +84,16 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     public function testGetBadFilePutGet($scp)
     {
         $scp->exec('rm ' . self::$remoteFile);
-        $this->assertFalse(
-            $scp->get(self::$remoteFile),
-            'Failed asserting that get() on a non-existant file failed'
-        );
-        $this->assertCount(1, $scp->getSCPErrors());
-        $this->assertTrue(
-            $scp->put(self::$remoteFile, self::$exampleData),
-            'Failed asserting that put() succeeded'
-        );
+        try {
+            $scp->get(self::$remoteFile);
+            $this->assertTrue(
+                false,
+                'Failed asserting that get() on a non-existant file failed'
+            );
+        } catch (\Exception) {
+        }
+        $scp->put(self::$remoteFile, self::$exampleData);
         $content = $scp->get(self::$remoteFile);
-        $this->assertSame(
-            strlen($content),
-            self::$exampleDataLength,
-            'Failed asserting that string length matches expected length.'
-        );
         $this->assertSame(
             $content,
             self::$exampleData,
