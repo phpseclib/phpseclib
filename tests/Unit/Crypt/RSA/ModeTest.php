@@ -120,37 +120,6 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         RSA::forceEngine();
     }
 
-    public function testPKCS1LooseVerify(): void
-    {
-        $rsa = PublicKeyLoader::load('-----BEGIN RSA PUBLIC KEY-----
-MIGJAoGBAMuqkz8ij+ESAaNvgocVGmapjlrIldmhRo4h2NX4e6IXiCLTSxASQtY4
-iqRnmyxqQSfaan2okTfQ6sP95bl8Qz8lgneW3ClC6RXG/wpJgsx7TXQ2kodlcKBF
-m4k72G75QXhZ+I40ZG7cjBf1/9egakR0a0X0MpeOrKCzMBLv9+mpAgMBAAE=
------END RSA PUBLIC KEY-----')
-            ->withPadding(RSA::SIGNATURE_RELAXED_PKCS1);
-
-        $message = base64_decode('MYIBLjAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNDA1MTUxNDM4MzRaMC8GCSqGSIb3DQEJBDEiBCBLzLIBGdOf0L2WRrIY' .
-            '9KTwiHnReBW48S9C7LNRaPp5mDCBwgYLKoZIhvcNAQkQAi8xgbIwga8wgawwgakEIJDB9ZGwihf+TaiwrHQNkNHkqbN8Nuws0e77QNObkvFZMIGEMHCkbjBs' .
-            'MQswCQYDVQQGEwJJVDEYMBYGA1UECgwPQXJ1YmFQRUMgUy5wLkEuMSEwHwYDVQQLDBhDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eUMxIDAeBgNVBAMMF0FydWJh' .
-            'UEVDIFMucC5BLiBORyBDQSAzAhAv4L3QcFssQNLDYN/Vu40R');
-
-        $sig = base64_decode('XDSZWw6IcUj8ICxRJf04HzF8stzoiFAZSR2a0Rw3ziZxTOT0/NVUYJO5+9TaaREXEgxuCLpgmA+6W2SWrrGoxbbNfaI90ZoKeOAws4IX+9RfiWuooibjKcvt' .
-            'GJYVVOCcjvQYxUUNbQ4EjCUonk3h7ECXfCCmWqbeq2LsyXeeYGE=');
-
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
-        foreach ($engines as $engine) {
-            try {
-                RSA::forceEngine($engine);
-                $this->assertTrue($rsa->verify($message, $sig));
-                 // libsodium and OpenSSL should both return BadConfigurationException's - only the PHP engine should
-                 // actually verify this
-            } catch (BadConfigurationException $e) {
-            }
-        }
-        // reset
-        RSA::forceEngine();
-    }
-
     public function testZeroLengthSalt(): void
     {
         $plaintext = 'a';

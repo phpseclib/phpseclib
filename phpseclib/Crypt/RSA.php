@@ -131,22 +131,13 @@ abstract class RSA extends AsymmetricKey
     public const SIGNATURE_PSS = 16;
 
     /**
-     * Use a relaxed version of PKCS#1 padding for signature verification
-     *
-     * @see self::sign()
-     * @see self::verify()
-     * @see self::setHash()
-     */
-    public const SIGNATURE_RELAXED_PKCS1 = 32;
-
-    /**
      * Use PKCS#1 padding for signature verification
      *
      * @see self::sign()
      * @see self::verify()
      * @see self::setHash()
      */
-    public const SIGNATURE_PKCS1 = 64;
+    public const SIGNATURE_PKCS1 = 32;
 
     /**
      * Encryption padding mode
@@ -766,7 +757,6 @@ abstract class RSA extends AsymmetricKey
 
         $masks = [
             self::SIGNATURE_PSS,
-            self::SIGNATURE_RELAXED_PKCS1,
             self::SIGNATURE_PKCS1,
         ];
         $signatureCount = 0;
@@ -829,10 +819,6 @@ abstract class RSA extends AsymmetricKey
 
         if (self::$forcedEngine === 'libsodium') {
             throw new BadConfigurationException('Engine libsodium is not supported for RSA');
-        }
-
-        if ((isset(self::$forcedEngine) && self::$forcedEngine !== 'PHP') && $this->$paddingType === self::SIGNATURE_RELAXED_PKCS1) {
-            throw new BadConfigurationException('Only the PHP engine can be used with relaxed PKCS1 padding');
         }
 
         if (self::$forcedEngine !== 'PHP') {

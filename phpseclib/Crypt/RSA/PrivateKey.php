@@ -292,9 +292,8 @@ final class PrivateKey extends RSA implements Common\PrivateKey
         }
 
         $signature = match ($this->signaturePadding) {
-            self::SIGNATURE_PKCS1, self::SIGNATURE_RELAXED_PKCS1 => $this->rsassa_pkcs1_v1_5_sign($message),
-            // self::SIGNATURE_PSS
-            default => $this->rsassa_pss_sign($message)
+            self::SIGNATURE_PKCS1 => $this->rsassa_pkcs1_v1_5_sign($message),
+            self::SIGNATURE_PSS => $this->rsassa_pss_sign($message)
         };
 
         if ($source instanceof Signable) {

@@ -211,7 +211,7 @@ class Identity implements PrivateKey
         if (!$this->key instanceof RSA) {
             throw new UnsupportedAlgorithmException('Only RSA keys support padding');
         }
-        if ($padding != RSA::SIGNATURE_PKCS1 && $padding != RSA::SIGNATURE_RELAXED_PKCS1) {
+        if ($padding != RSA::SIGNATURE_PKCS1) {
             throw new UnsupportedAlgorithmException('ssh-agent can only create PKCS1 signatures');
         }
         return $this;

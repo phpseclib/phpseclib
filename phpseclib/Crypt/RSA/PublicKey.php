@@ -118,77 +118,6 @@ final class PublicKey extends RSA implements Common\PublicKey
     }
 
     /**
-     * RSASSA-PKCS1-V1_5-VERIFY (relaxed matching)
-     *
-     * Per {@link http://tools.ietf.org/html/rfc3447#page-43 RFC3447#page-43} PKCS1 v1.5
-     * specified the use BER encoding rather than DER encoding that PKCS1 v2.0 specified.
-     * This means that under rare conditions you can have a perfectly valid v1.5 signature
-     * that fails to validate with _rsassa_pkcs1_v1_5_verify(). PKCS1 v2.1 also recommends
-     * that if you're going to validate these types of signatures you "should indicate
-     * whether the underlying BER encoding is a DER encoding and hence whether the signature
-     * is valid with respect to the specification given in [PKCS1 v2.0+]". so if you do
-     * $rsa->getLastPadding() and get RSA::PADDING_RELAXED_PKCS1 back instead of
-     * RSA::PADDING_PKCS1... that means BER encoding was used.
-     */
-    private function rsassa_pkcs1_v1_5_relaxed_verify(string $m, string $s): bool
-    {
-        // Length checking
-
-        if (strlen($s) != $this->k) {
-            return false;
-        }
-
-        // RSA verification
-
-        try {
-            $s = $this->os2ip($s);
-            $m2 = $this->rsavp1($s);
-            $em = $this->i2osp($m2, $this->k);
-        } catch (\Exception) {
-            return false;
-        }
-
-        if (Strings::shift($em, 2) != "\0\1") {
-            return false;
-        }
-
-        $em = ltrim($em, "\xFF");
-        if (Strings::shift($em) != "\0") {
-            return false;
-        }
-
-        $decoded = ASN1::decodeBER($em);
-        if (strlen($em) > $decoded['length'] + $decoded['headerlength']) {
-            return false;
-        }
-
-        if (!self::$oidsLoaded) {
-            ASN1::loadOIDs('Hashes');
-            self::$oidsLoaded = true;
-        }
-
-        $decoded = ASN1::map($decoded, DigestInfo::MAP)->toArray();
-
-        $hash = (string) $decoded['digestAlgorithm']['algorithm'];
-        if (!isset(Hashes::OIDs[$hash])) {
-            return false;
-        }
-
-        if (isset($decoded['digestAlgorithm']['parameters']) && !$decoded['digestAlgorithm']['parameters'] instanceof ExplicitNull) {
-            return false;
-        }
-
-        $hash = substr($hash, 0, 3) == 'id-' ?
-            substr($hash, 3) :
-            $hash;
-        $hash = new Hash($hash);
-        $em = $hash->hash($m);
-        $em2 = $decoded['digest'];
-
-        return hash_equals($em, "$em2");
-    }
-
-    /**
      * EMSA-PSS-VERIFY
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.1.2 RFC3447#section-9.1.2}.
@@ -309,15 +238,10 @@ final class PublicKey extends RSA implements Common\PublicKey
             return $result;
         }
 
-        switch ($this->signaturePadding) {
-            case self::SIGNATURE_RELAXED_PKCS1:
-                return $this->rsassa_pkcs1_v1_5_relaxed_verify($message, $signature);
-            case self::SIGNATURE_PKCS1:
-                return $this->rsassa_pkcs1_v1_5_verify($message, $signature);
-            //case self::SIGNATURE_PSS:
-            default:
-                return $this->rsassa_pss_verify($message, $signature);
-        }
+        return match ($this->signaturePadding) {
+            self::SIGNATURE_PKCS1 => $this->rsassa_pkcs1_v1_5_verify($message, $signature),
+            self::SIGNATURE_PSS => $this->rsassa_pss_verify($message, $signature)
+        };
     }
 
     /**
