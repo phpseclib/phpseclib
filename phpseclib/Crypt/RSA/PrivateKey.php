@@ -274,10 +274,11 @@ final class PrivateKey extends RSA implements Common\PrivateKey
     public function sign(string|Signable $source): string
     {
         if ($source instanceof Signable) {
+            $public = $this->getPublicKey();
             if ($source instanceof CSR && !$source->hasPublicKey()) {
-                $source->setPublicKey($this->getPublicKey());
+                $source->setPublicKey($public);
             }
-            $source->identifySignatureAlgorithm($this);
+            $source->identifySignatureAlgorithm($public);
             $message = $source->getSignableSection();
         } else {
             $message = $source;

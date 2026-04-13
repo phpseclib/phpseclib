@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\Common;
 
-use phpseclib4\Crypt\Common\PrivateKey;
+use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\File\X509;
 
 /**
@@ -25,6 +25,6 @@ interface Signable
 {
     public function getSignableSection(): string;
     public function setSignature(string $signature): void;
-    public function identifySignatureAlgorithm(PrivateKey $key): void;
+    public function identifySignatureAlgorithm(PublicKey $key): void;
     public function copySigningX509Attributes(X509 $x509): void;
 }

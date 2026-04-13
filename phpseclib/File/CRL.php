@@ -22,7 +22,7 @@ namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common\PrivateKey;
+use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\RuntimeException;
 use phpseclib4\File\ASN1\Constructed;
@@ -424,7 +424,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public function identifySignatureAlgorithm(PrivateKey $key): void
+    public function identifySignatureAlgorithm(PublicKey $key): void
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->crl['tbsCertList']['signature'] = $algorithm;

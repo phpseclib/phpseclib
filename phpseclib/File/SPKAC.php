@@ -202,7 +202,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public function identifySignatureAlgorithm(PrivateKey $key): void
+    public function identifySignatureAlgorithm(PublicKey $key): void
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->spkac['publicKeyAndChallenge']['signature'] = $algorithm;
