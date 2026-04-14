@@ -15,8 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Math\BigInteger\Engines\PHP;
 
-use phpseclib4\Math\BigInteger\Engines\Engine;
-use phpseclib4\Math\BigInteger\Engines\PHP;
+use phpseclib4\Math\BigInteger\Engines\{Engine, PHP};
 use phpseclib4\Math\BigInteger\Engines\PHP\Reductions\PowerOfTwo;
 
 /**

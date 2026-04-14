@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BadModeException
+ * FileSystemException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * BadModeException
+ * FileSystemException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class BadModeException extends \RuntimeException implements ExceptionInterface
+class FileSystemException extends \RuntimeException implements ExceptionInterface
 {
 }

@@ -16,13 +16,8 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\AES;
-use phpseclib4\Crypt\DES;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Crypt\TripleDES;
-use phpseclib4\Exception\BadDecryptionException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Crypt\{AES, DES, Random, TripleDES};
+use phpseclib4\Exception\{InvalidArgumentException, PasswordNeededException, UnsupportedAlgorithmException, UnsupportedValueException};
 use phpseclib4\File\ASN1;
 
 /**
@@ -47,8 +42,6 @@ abstract class PKCS1 extends PKCS
 
     /**
      * Returns the mode constant corresponding to the mode string
-     *
-     * @throws UnexpectedValueException if the block cipher mode is unsupported
      */
     private static function getEncryptionMode(string $mode): string
     {
@@ -60,13 +53,11 @@ abstract class PKCS1 extends PKCS
             case 'CTR':
                 return $mode;
         }
-        throw new UnexpectedValueException('Unsupported block cipher mode of operation');
+        throw new UnsupportedValueException('Unsupported block cipher mode of operation');
     }
 
     /**
      * Returns a cipher object corresponding to a string
-     *
-     * @throws UnexpectedValueException if the encryption algorithm is unsupported
      */
     private static function getEncryptionObject(string $algo): AES|DES|TripleDES
     {
@@ -104,7 +95,7 @@ abstract class PKCS1 extends PKCS
     protected static function loadHelper(string|array $key, #[SensitiveParameter] ?string $password = null): string
     {
         if (!is_string($key)) {
-            throw new UnexpectedValueException('Key should be a string - not an array');
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
@@ -124,7 +115,7 @@ abstract class PKCS1 extends PKCS
            * OpenSSL is the de facto standard.  It's utilized by OpenSSH and other projects */
         if (preg_match('#DEK-Info: (.+),(.+)#', $key, $matches)) {
             if (!isset($password)) {
-                throw new BadDecryptionException('Unable to perform decryption without some sort of password');
+                throw new PasswordNeededException('Unable to perform decryption without some sort of password');
             }
             $iv = Strings::hex2bin(trim($matches[2]));
             // remove the Proc-Type / DEK-Info sections as they're no longer needed
@@ -140,11 +131,13 @@ abstract class PKCS1 extends PKCS
             $key = $crypto->decrypt($ciphertext);
         } else {
             if (self::$format != self::MODE_DER) {
-                $decoded = ASN1::extractBER($key);
-                if ($decoded !== false) {
+                try {
+                    $decoded = ASN1::extractBER($key);
                     $key = $decoded;
-                } elseif (self::$format == self::MODE_PEM) {
-                    throw new UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
+                } catch (\Exception $e) {
+                    if (self::$format == self::MODE_PEM) {
+                        throw $e;
+                    }
                 }
             }
         }

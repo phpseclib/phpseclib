@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / KeyTransRecipient Parser
  *
@@ -19,10 +20,8 @@ namespace phpseclib4\File\CMS\EnvelopedData;
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\X509;
+use phpseclib4\File\ASN1\{Constructed, Maps};
+use phpseclib4\File\{ASN1, X509};
 
 class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
 {

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Math;
 
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Math\Common\FiniteField;
 use phpseclib4\Math\PrimeField\Integer;
 
@@ -43,7 +44,7 @@ class PrimeField extends FiniteField
     public function __construct(BigInteger $modulo)
     {
         if (!$modulo->isPrime()) {
-            throw new \phpseclib4\Exception\UnexpectedValueException('PrimeField requires a prime number be passed to the constructor');
+            throw new InvalidArgumentException('PrimeField requires a prime number be passed to the constructor');
         }
 
         $this->instanceID = self::$instanceCounter++;

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NoValidTagFoundException
+ * ServiceUnavailableException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * NoValidTagFoundException
+ * ServiceUnavailableException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class NoValidTagFoundException extends \RuntimeException implements ExceptionInterface
+class ServiceUnavailableException extends \RuntimeException implements ExceptionInterface
 {
 }

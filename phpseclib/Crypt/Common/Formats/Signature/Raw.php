@@ -32,7 +32,6 @@ abstract class Raw
     public static function load(array $sig): array
     {
         switch (true) {
-            case !is_array($sig):
             case !isset($sig['r']) || !isset($sig['s']):
             case !$sig['r'] instanceof BigInteger:
             case !$sig['s'] instanceof BigInteger:

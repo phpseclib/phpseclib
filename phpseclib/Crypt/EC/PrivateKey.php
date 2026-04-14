@@ -14,18 +14,12 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common;
-use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib4\Crypt\EC\Curves\Curve25519;
-use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Crypt\{Common, EC, Hash};
+use phpseclib4\Crypt\EC\BaseCurves\{Montgomery as MontgomeryCurve, TwistedEdwards as TwistedEdwardsCurve};
+use phpseclib4\Crypt\EC\Curves\{Curve25519, Ed25519};
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib4\Crypt\Hash;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnsupportedOperationException;
+use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException, UnexpectedValueException};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\File\CSR;
 use phpseclib4\Math\BigInteger;
@@ -91,7 +85,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             return $this->curve->encodePoint($point);
         }
         if (empty($point)) {
-            throw new RuntimeException('The infinity point is invalid');
+            throw new UnexpectedValueException('The infinity point is invalid');
         }
         return "\4" . $point[0]->toBytes(true) . $point[1]->toBytes(true);
     }
@@ -104,7 +98,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
     public function sign(string|Signable $source): string
     {
         if ($this->curve instanceof MontgomeryCurve) {
-            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+            throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
         }
 
         if ($source instanceof Signable) {
@@ -123,9 +117,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
         $shortFormat = $this->shortFormat;
         $format = $this->sigFormat;
-        if ($format === false) {
-            throw new RuntimeException('No signature format has been specified');
-        }
 
         if (self::$forcedEngine === 'libsodium' && !$this->curve instanceof Ed25519) {
             throw new BadConfigurationException('Engine libsodium is only supported for Ed25519');
@@ -370,7 +361,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             2 => $format::save($r, $s),
             3 => $format::save($r, $s, $this->getCurve()),
             4 => $format::save($r, $s, $this->getCurve(), $this->getLength()),
-            default => throw new UnsupportedOperationException("$format::save() has $paramCount parameters - the only valid parameter counts are 2, 3 or 4")
+            default => throw new UnexpectedValueException("$format::save() has $paramCount parameters - the only valid parameter counts are 2, 3 or 4")
         };
     }
 }

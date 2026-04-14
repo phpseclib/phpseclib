@@ -263,10 +263,10 @@ abstract class EvalBarrett extends Base
                 $carry = $sum >= ' . self::float2string($class::MAX_DIGIT2) . ';
                 $sum = $carry ? $sum - ' . self::float2string($class::MAX_DIGIT2) . ' : $sum;';
 
-            $code .= $class::BASE === 26 ?
-                '$upper = intval($sum / 0x4000000); $' . $result . '[$i] = (int) ($sum - ' . $class::BASE_FULL . ' * $upper);' :
-                '$upper = $sum >> 31; $' . $result . '[$i] = $sum - ' . $class::BASE_FULL . ' * $upper;';
-            $code .= '
+        $code .= $class::BASE === 26 ?
+            '$upper = intval($sum / 0x4000000); $' . $result . '[$i] = (int) ($sum - ' . $class::BASE_FULL . ' * $upper);' :
+            '$upper = $sum >> 31; $' . $result . '[$i] = $sum - ' . $class::BASE_FULL . ' * $upper;';
+        $code .= '
                 $' . $result . '[$j] = $upper;
             }
             if ($j == $length) {
@@ -281,9 +281,9 @@ abstract class EvalBarrett extends Base
                 }
                 ++$' . $result . '[$i];
             }';
-            $code .= self::generateInlineTrim($result);
+        $code .= self::generateInlineTrim($result);
 
-            return $code;
+        return $code;
     }
 
     /**

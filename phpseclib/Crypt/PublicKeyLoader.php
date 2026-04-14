@@ -15,12 +15,9 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt;
 
-use phpseclib4\Crypt\Common\AsymmetricKey;
-use phpseclib4\Crypt\Common\PrivateKey;
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\{AsymmetricKey, PrivateKey, PublicKey};
 use phpseclib4\Exception\NoKeyLoadedException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\X509;
+use phpseclib4\File\{ASN1, X509};
 
 /**
  * PublicKeyLoader

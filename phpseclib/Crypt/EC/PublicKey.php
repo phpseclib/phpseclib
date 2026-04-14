@@ -14,16 +14,12 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common;
-use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
+use phpseclib4\Crypt\{Common, EC, Hash};
+use phpseclib4\Crypt\EC\BaseCurves\{Montgomery as MontgomeryCurve, TwistedEdwards as TwistedEdwardsCurve};
 use phpseclib4\Crypt\EC\Curves\Ed25519;
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib4\Crypt\Hash;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\UnsupportedOperationException;
+use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -43,7 +39,7 @@ final class PublicKey extends EC implements Common\PublicKey
     public function verify(string $message, string $signature): bool
     {
         if ($this->curve instanceof MontgomeryCurve) {
-            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+            throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
         }
 
         $shortFormat = $this->shortFormat;

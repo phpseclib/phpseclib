@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace phpseclib4\Math;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\OutOfBoundsException;
+use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Math\BinaryField\Integer;
 use phpseclib4\Math\Common\FiniteField;
 
@@ -53,7 +53,7 @@ class BinaryField extends FiniteField
                http://tools.ietf.org/html/rfc4253#section-6.1 (The Secure Shell (SSH) Transport Layer Protocol) says
                "implementations SHOULD check that the packet length is reasonable in order for the implementation to
                 avoid denial of service and/or buffer overflow attacks" */
-            throw new OutOfBoundsException('Degrees larger than 571 are not supported');
+            throw new ResourceLimitException('Degrees larger than 571 are not supported');
         }
         $val = str_repeat('0', $m) . '1';
         foreach ($indices as $index) {

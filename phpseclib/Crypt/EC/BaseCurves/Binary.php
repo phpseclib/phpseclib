@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\EC\BaseCurves;
 
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Math\BigInteger;
+use phpseclib4\Exception\{BadMethodCallException, InvalidStateException, UnsupportedValueException};
 use phpseclib4\Math\BinaryField;
 use phpseclib4\Math\BinaryField\Integer as BinaryInteger;
 
@@ -87,7 +85,7 @@ class Binary extends Base
     public function setCoefficients(string $a, string $b): void
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         $this->a = $this->factory->newInteger(pack('H*', $a));
         $this->b = $this->factory->newInteger(pack('H*', $b));
@@ -99,7 +97,7 @@ class Binary extends Base
     public function setBasePoint(string|BinaryInteger $x, string|BinaryInteger $y): void
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         $this->p = [
             is_string($x) ? $this->factory->newInteger(pack('H*', $x)) : $x,
@@ -115,7 +113,7 @@ class Binary extends Base
     public function getBasePoint(): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         /*
         if (!isset($this->p)) {
@@ -133,7 +131,7 @@ class Binary extends Base
     public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
 
         if (!count($p) || !count($q)) {
@@ -147,7 +145,7 @@ class Binary extends Base
         }
 
         if (!isset($p[2]) || !isset($q[2])) {
-            throw new RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
         }
 
         if ($p[0]->equals($q[0])) {
@@ -206,7 +204,7 @@ class Binary extends Base
     public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
 
         if (!count($p)) {
@@ -214,7 +212,7 @@ class Binary extends Base
         }
 
         if (!isset($p[2])) {
-            throw new RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
         }
 
         // formulas from http://hyperelliptic.org/EFD/g12o/auto-shortw-jacobian.html
@@ -257,7 +255,7 @@ class Binary extends Base
      */
     public function derivePoint(string $m): array
     {
-        throw new RuntimeException('Point compression on binary finite field elliptic curves is not supported');
+        throw new BadMethodCallException('Point compression on binary finite field elliptic curves is not supported');
     }
 
     /**

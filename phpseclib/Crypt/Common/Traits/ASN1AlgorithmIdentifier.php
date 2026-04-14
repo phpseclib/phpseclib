@@ -15,18 +15,11 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\Common\Traits;
 
-use phpseclib4\Crypt\AES;
+use phpseclib4\Crypt\{AES, DES, RC2, RC4, Random, TripleDES};
 use phpseclib4\Crypt\Common\SymmetricKey;
-use phpseclib4\Crypt\DES;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Crypt\RC2;
-use phpseclib4\Crypt\RC4;
-use phpseclib4\Crypt\TripleDES;
-use phpseclib4\Exception\RuntimeException;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\{Constructed, Maps};
 use phpseclib4\File\ASN1\Types\OctetString;
 
 /**
@@ -275,7 +268,6 @@ trait ASN1AlgorithmIdentifier
                 //$value = ASN1::map($temp[0], Maps\PBMAC1params::MAP)->toArray();
                 // since i can't find any implementation that does PBMAC1 it is unsupported
                 throw new UnsupportedAlgorithmException('Only PBES1 and PBES2 PKCS#8 keys are supported.');
-            // at this point we'll assume that the key conforms to PublicKeyInfo
         }
     }
 

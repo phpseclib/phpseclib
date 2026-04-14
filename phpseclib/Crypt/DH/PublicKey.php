@@ -13,8 +13,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\DH;
 
-use phpseclib4\Crypt\Common;
-use phpseclib4\Crypt\DH;
+use phpseclib4\Crypt\{Common, DH};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -28,8 +27,6 @@ final class PublicKey extends DH
 
     /**
      * Returns the public key
-     *
-     * @param array $options optional
      */
     public function toString(string $type, array $options = []): string
     {

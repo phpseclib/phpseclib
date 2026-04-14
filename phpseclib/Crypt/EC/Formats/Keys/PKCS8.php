@@ -26,19 +26,15 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Formats\Keys;
 
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib4\Crypt\EC\Curves\Curve25519;
-use phpseclib4\Crypt\EC\Curves\Curve448;
-use phpseclib4\Crypt\EC\Curves\Ed25519;
-use phpseclib4\Crypt\EC\Curves\Ed448;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\Crypt\EC\BaseCurves\{
+    Base as BaseCurve,
+    Montgomery as MontgomeryCurve,
+    TwistedEdwards as TwistedEdwardsCurve
+};
+use phpseclib4\Crypt\EC\Curves\{Curve25519, Curve448, Ed25519, Ed448};
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Types\ExplicitNull;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\Common\FiniteField\Integer;
 
@@ -78,7 +74,7 @@ abstract class PKCS8 extends Progenitor
         self::initialize_static_variables();
 
         if (!is_string($key)) {
-            throw new UnexpectedValueException('Key should be a string - not an array');
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         $isPublic = match (true) {
@@ -127,7 +123,7 @@ abstract class PKCS8 extends Progenitor
         $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
 
         if (isset($key['parameters']) && $params != $key['parameters']) {
-            throw new RuntimeException('The PKCS8 parameter field does not match the private key parameter field');
+            throw new UnexpectedValueException('The PKCS8 parameter field does not match the private key parameter field');
         }
 
         $components['dA'] = new BigInteger((string) $key['privateKey'], 256);
@@ -151,7 +147,7 @@ abstract class PKCS8 extends Progenitor
             $components['curve'] = $key['privateKeyAlgorithm']['algorithm'] == 'id-Ed25519' ? new Ed25519() : new Ed448();
             $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
             if (substr($key['privateKey'], 0, 2) != $expected) {
-                throw new RuntimeException(
+                throw new UnexpectedValueException(
                     'The first two bytes of the ' .
                     $key['privateKeyAlgorithm']['algorithm'] .
                     ' private key field should be 0x' . bin2hex($expected)
@@ -186,7 +182,7 @@ abstract class PKCS8 extends Progenitor
             $expected = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($components['curve']::SIZE);
             $privateKey = (string) $key['privateKey'];
             if (substr($privateKey, 0, 2) != $expected) {
-                throw new RuntimeException(
+                throw new UnexpectedValueException(
                     'The first two bytes of the ' .
                     $key['privateKeyAlgorithm']['algorithm'] .
                     ' private key field should be 0x' . bin2hex($expected)

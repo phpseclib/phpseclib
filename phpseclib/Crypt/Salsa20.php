@@ -17,9 +17,7 @@ namespace phpseclib4\Crypt;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\StreamCipher;
-use phpseclib4\Exception\BadDecryptionException;
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\{BadDecryptionException, InvalidStateException, LengthException};
 
 /**
  * Pure-PHP implementation of Salsa20.
@@ -129,12 +127,12 @@ class Salsa20 extends StreamCipher
      */
     protected function createPoly1305Key(): void
     {
-        if ($this->nonce === false) {
-            throw new InsufficientSetupException('No nonce has been defined');
+        if (!isset($this->nonce)) {
+            throw new InvalidStateException('No nonce has been defined - call setNonce() first');
         }
 
-        if ($this->key === false) {
-            throw new InsufficientSetupException('No key has been defined');
+        if (!isset($this->key)) {
+            throw new InvalidStateException('No key has been defined - call setKey() first');
         }
 
         $c = clone $this;
@@ -176,12 +174,12 @@ class Salsa20 extends StreamCipher
 
         $this->changed = $this->nonIVChanged = false;
 
-        if ($this->nonce === false) {
-            throw new InsufficientSetupException('No nonce has been defined');
+        if (!isset($this->nonce)) {
+            throw new InvalidStateException('No nonce has been defined - call setNonce() first');
         }
 
-        if ($this->key === false) {
-            throw new InsufficientSetupException('No key has been defined');
+        if (!isset($this->key)) {
+            throw new InvalidStateException('No key has been defined - call setKey() first');
         }
 
         if ($this->usePoly1305 && !isset($this->poly1305Key)) {
@@ -245,7 +243,7 @@ class Salsa20 extends StreamCipher
     {
         if (isset($this->poly1305Key)) {
             if (!isset($this->oldtag)) {
-                throw new InsufficientSetupException('Authentication Tag has not been set');
+                throw new InvalidStateException('Authentication Tag has not been set - call setTag() first');
             }
             $newtag = $this->poly1305($ciphertext);
             if ($this->oldtag != substr($newtag, 0, strlen($this->oldtag))) {

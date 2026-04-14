@@ -19,8 +19,7 @@ namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\{LengthException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -45,7 +44,7 @@ abstract class OpenSSH extends Progenitor
         if (isset($parsed['paddedKey'])) {
             [$type] = Strings::unpackSSH2('s', $parsed['paddedKey']);
             if ($type != $parsed['type']) {
-                throw new RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+                throw new UnexpectedValueException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
 
             [$p, $q, $g, $y, $x, $comment] = Strings::unpackSSH2('i5s', $parsed['paddedKey']);
@@ -66,7 +65,7 @@ abstract class OpenSSH extends Progenitor
     public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = []): string
     {
         if ($q->getLength() != 160) {
-            throw new InvalidArgumentException('SSH only supports keys with an N (length of Group Order q) of 160');
+            throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
 
         // from <http://tools.ietf.org/html/rfc4253#page-15>:

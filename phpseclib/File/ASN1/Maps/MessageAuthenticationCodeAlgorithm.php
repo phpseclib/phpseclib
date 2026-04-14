@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\ASN1\Maps;
 
-use phpseclib4\File\ASN1;
-
 /**
  * MessageAuthenticationCodeAlgorithm
  *

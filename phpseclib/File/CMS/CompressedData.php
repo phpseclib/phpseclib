@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / CompressedData Parser
  *
@@ -17,15 +18,9 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Types\OctetString;
-use phpseclib4\File\ASN1\Types\OID;
-use phpseclib4\File\CMS;
+use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\{ASN1, CMS};
 
 /**
  * Pure-PHP CMS / CompressedData Parser
@@ -43,7 +38,7 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
     public function __construct(string $data)
     {
         if (!function_exists('zlib_encode')) {
-            throw new InsufficientSetupException('zlib_encode() is not available');
+            throw new BadConfigurationException('zlib_encode() is not available');
         }
         $this->decompressed = $data;
         $this->cms = [
@@ -181,7 +176,7 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
     {
         if (!isset($this->decompressed)) {
             if (!function_exists('zlib_decode')) {
-                throw new InsufficientSetupException('zlib_decode() is not available');
+                throw new BadConfigurationException('zlib_decode() is not available');
             }
             $this->decompressed = zlib_decode((string) $this->cms['content']['encapContentInfo']['eContent']);
         }

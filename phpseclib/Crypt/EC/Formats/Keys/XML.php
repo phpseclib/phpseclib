@@ -21,14 +21,18 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\Prime as PrimeCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\Crypt\EC\BaseCurves\{
+    Base as BaseCurve,
+    Montgomery as MontgomeryCurve,
+    Prime as PrimeCurve,
+    TwistedEdwards as TwistedEdwardsCurve
+};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    InvalidArgumentException,
+    UnexpectedValueException,
+    UnsupportedCurveException
+};
 use phpseclib4\File\ASN1\OIDs\Curves;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\Common\FiniteField\Integer;
@@ -59,8 +63,8 @@ abstract class XML
     {
         self::initialize_static_variables();
 
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         if (!class_exists('DOMDocument')) {
@@ -86,8 +90,10 @@ abstract class XML
         $dom = new \DOMDocument();
 
         if (!$dom->loadXML($key)) {
+            $e = libxml_get_last_error();
+            $message = 'Error loading XML - ' . $e->message;
             libxml_use_internal_errors($use_errors);
-            throw new UnexpectedValueException('Key does not appear to contain XML');
+            throw new UnexpectedValueException($message, $e->code);
         }
         $xpath = new \DOMXPath($dom);
         libxml_use_internal_errors($use_errors);
@@ -120,7 +126,7 @@ abstract class XML
         }
 
         if (!$result->length) {
-            throw new RuntimeException($error);
+            throw new UnexpectedValueException($error);
         }
         return $decode ? self::decodeValue($result->item(0)->textContent) : $result->item(0)->textContent;
     }
@@ -165,17 +171,17 @@ abstract class XML
         $x = self::query($xpath, 'publickey/x');
         $y = self::query($xpath, 'publickey/y');
         if (!$x->length || !$x->item(0)->hasAttribute('Value')) {
-            throw new RuntimeException('Public Key / X coordinate not found');
+            throw new UnexpectedValueException('Public Key / X coordinate not found');
         }
         if (!$y->length || !$y->item(0)->hasAttribute('Value')) {
-            throw new RuntimeException('Public Key / Y coordinate not found');
+            throw new UnexpectedValueException('Public Key / Y coordinate not found');
         }
         $point = [
             $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))),
             $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))),
         ];
         if (!$curve->verifyPoint($point)) {
-            throw new RuntimeException('Unable to verify that point exists on curve');
+            throw new UnexpectedValueException('Unable to verify that point exists on curve');
         }
         return $point;
     }
@@ -207,10 +213,7 @@ abstract class XML
             return self::loadCurveByParamRFC4050($xpath);
         }
 
-        $params = self::query($xpath, 'ecparameters');
-        if (!$params->length) {
-            throw new RuntimeException('No parameters are present');
-        }
+        $params = self::query($xpath, 'ecparameters', 'No parameters are present');
 
         $fieldTypes = [
             'prime-field' => ['fieldid/prime/p'],

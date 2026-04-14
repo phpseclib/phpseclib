@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / KeyAgreeRecipient Parser
  *
@@ -16,11 +17,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS\EnvelopedData;
 
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class KeyAgreeRecipient extends Recipient
 {

@@ -16,13 +16,12 @@ declare(strict_types=1);
 namespace phpseclib4\File\ASN1\Types;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\File\ASN1;
+use phpseclib4\Exception\{BadMethodCallException, InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
 use phpseclib4\File\CMS\EnvelopedData\Recipient;
 use phpseclib4\File\CMS\SignedData\Signer;
-use phpseclib4\File\X509;
 
 /**
  * ASN.1 Choice
@@ -128,7 +127,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     public function &offsetGet(mixed $offset): mixed
     {
         if ($offset != $this->index) {
-            throw new RuntimeException("The requested offset '$offset' was not found - did you mean '{$this->index}'?");
+            throw new UnexpectedValueException("The requested offset '$offset' was not found - did you mean '{$this->index}'?");
             return $this->value;
         }
         if (($this->value instanceof Constructed || $this->value instanceof Choice) && !$this->value->parent) {
@@ -147,7 +146,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if (!Strings::is_stringable($offset)) {
-            throw new RuntimeException('Only offsets that can be cast to strings are supported');
+            throw new BadMethodCallException('Only offsets that can be cast to strings are supported');
         }
 
         $this->index = "$offset";
@@ -161,8 +160,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     public function offsetUnset(mixed $offset): void
     {
         if ($offset == $this->index) {
-            unset($this->index);
-            unset($this->value);
+            unset($this->index, $this->value);
         }
     }
 
@@ -170,7 +168,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     {
         if (!Strings::is_stringable($this->value)) {
             $reflect = new \ReflectionClass($this->value);
-            throw new RuntimeException($reflect->getShortName() . ' isn\'t stringable');
+            throw new InvalidArgumentException($reflect->getShortName() . ' isn\'t stringable');
         }
         return (string) $this->value;
     }

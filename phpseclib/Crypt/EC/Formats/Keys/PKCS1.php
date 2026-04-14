@@ -29,12 +29,12 @@ namespace phpseclib4\Crypt\EC\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
-use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\Crypt\EC\BaseCurves\{
+    Base as BaseCurve,
+    Montgomery as MontgomeryCurve,
+    TwistedEdwards as TwistedEdwardsCurve
+};
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException, UnsupportedCurveException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
@@ -57,7 +57,7 @@ abstract class PKCS1 extends Progenitor
         self::initialize_static_variables();
 
         if (!is_string($key)) {
-            throw new UnexpectedValueException('Key should be a string - not an array');
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         if (str_contains($key, 'BEGIN EC PARAMETERS') && str_contains($key, 'BEGIN EC PRIVATE KEY')) {
@@ -81,7 +81,7 @@ abstract class PKCS1 extends Progenitor
             // comparing $ecParams and $components['curve'] directly won't work because they'll have different Math\Common\FiniteField classes
             // even if the modulo is the same
             if (isset($components['curve']) && self::encodeParameters($ecParams, false, []) != self::encodeParameters($components['curve'], false, [])) {
-                throw new RuntimeException('EC PARAMETERS does not correspond to EC PRIVATE KEY');
+                throw new UnexpectedValueException('EC PARAMETERS does not correspond to EC PRIVATE KEY');
             }
 
             if (!isset($components['curve'])) {
@@ -112,7 +112,7 @@ abstract class PKCS1 extends Progenitor
 
         $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
         if (!isset($key['parameters'])) {
-            throw new RuntimeException('Key cannot be loaded without parameters');
+            throw new UnexpectedValueException('Key cannot be loaded without parameters');
         }
 
         $components = [];

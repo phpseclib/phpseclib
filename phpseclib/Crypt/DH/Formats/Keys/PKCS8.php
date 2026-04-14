@@ -22,8 +22,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DH\Formats\Keys;
 
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
@@ -60,7 +59,7 @@ abstract class PKCS8 extends Progenitor
     public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!is_string($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         $isPublic = str_contains($key, 'PUBLIC');
@@ -81,7 +80,7 @@ abstract class PKCS8 extends Progenitor
 
         $decoded = ASN1::decodeBER((string) $key[$type]);
         if (!$decoded['content'] instanceof BigInteger) {
-            throw new RuntimeException('Unable to decode BER of parameters');
+            throw new UnexpectedValueException('Unable to decode BER of parameters');
         }
         $components[$type] = $decoded['content'];
 

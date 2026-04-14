@@ -1,7 +1,7 @@
 <?php
 
 /**
- * InconsistentSetupException
+ * KeyConstraintException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * InconsistentSetupException
+ * KeyConstraintException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class InconsistentSetupException extends \RuntimeException implements ExceptionInterface
+class KeyConstraintException extends \RuntimeException implements ExceptionInterface
 {
 }

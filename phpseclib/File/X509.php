@@ -26,34 +26,18 @@ declare(strict_types=1);
 
 namespace phpseclib4\File;
 
-use phpseclib4\Common\Functions\Arrays;
-use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\PublicKey;
-use phpseclib4\Crypt\Hash;
-use phpseclib4\Crypt\PublicKeyLoader;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Crypt\RSA;
-use phpseclib4\Exception\BadMethodCallException;
-use phpseclib4\Exception\CharacterConversionException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\MethodOnlyAvailableForSelfSigned;
-use phpseclib4\Exception\NoKeyLoadedException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnsupportedFormatException;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Types\BaseString;
-use phpseclib4\File\ASN1\Types\BaseType;
-use phpseclib4\File\ASN1\Types\BitString;
-use phpseclib4\File\ASN1\Types\Boolean;
-use phpseclib4\File\ASN1\Types\Choice;
-use phpseclib4\File\ASN1\Types\ExplicitNull;
-use phpseclib4\File\ASN1\Types\GeneralizedTime;
-use phpseclib4\File\ASN1\Types\OctetString;
-use phpseclib4\File\ASN1\Types\OID;
-use phpseclib4\File\ASN1\Types\UTCTime;
-use phpseclib4\File\ASN1\Types\UTF8String;
+use phpseclib4\Crypt\{Hash, PublicKeyLoader, RSA, Random};
+use phpseclib4\Exception\{
+    BadMethodCallException,
+    InvalidArgumentException,
+    InvalidStateException,
+    NoKeyLoadedException,
+    UnexpectedValueException
+};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{BaseString, BitString, Boolean, Choice, OID, OctetString};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\Math\BigInteger;
 
@@ -109,7 +93,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             // of time, however, phpseclib, making no assumptions on the underlying filesystem, doesn't
             // really have a mechanism to do this. if you want to save CRLs to some sort of DB then you can
             // replace this function with one that'll cache to the DB and pull from the DB when appropriate
-            self::$inCRLFunction = function(string $url, BigInteger $serial) {
+            self::$inCRLFunction = function (string $url, BigInteger $serial) {
                 return false;
             };
         }
@@ -273,7 +257,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         if ($mode != ASN1::FORMAT_DER) {
             $newcert = ASN1::extractBER($cert);
             if ($mode == ASN1::FORMAT_PEM && $cert == $newcert) {
-                throw new RuntimeException('Unable to decode PEM');
+                throw new UnexpectedValueException('Unable to decode PEM');
             }
             $cert = $newcert;
         }
@@ -284,13 +268,13 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $rules['tbsCertificate']['extensions']['*'] = [self::class, 'mapInExtensions'];
         $rules['tbsCertificate']['subject']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
         $rules['tbsCertificate']['issuer']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
-        $rules['tbsCertificate']['subjectPublicKeyInfo'] = function(Constructed &$key) {
+        $rules['tbsCertificate']['subjectPublicKeyInfo'] = function (Constructed &$key) {
             try {
                 $key = PublicKeyLoader::load($key->getEncoded());
                 if ($key instanceof RSA && $key->getLoadedFormat() == 'PKCS8') {
                     $key = $key->withPadding(RSA::SIGNATURE_PKCS1);
                 }
-            } catch (NoKeyLoadedException $e) {
+            } catch (NoKeyLoadedException) {
             }
         };
 
@@ -408,7 +392,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public function getPublicKey(): PublicKey
     {
         if (!$this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey) {
-            throw new UnsupportedFormatException('Unable to decode subjectPublicKeyInfo');
+            throw new UnexpectedValueException('Unable to decode subjectPublicKeyInfo');
         }
 
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -694,7 +678,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         if (!$this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey) {
-            throw new UnsupportedFormatException('createSubjectKeyIdentifier only works if the public key is actually recognized by phpseclib as a public key');
+            throw new UnexpectedValueException('createSubjectKeyIdentifier only works if the public key is actually recognized by phpseclib as a public key');
         }
 
         $key = $this->cert['tbsCertificate']['subjectPublicKeyInfo']->toString('PKCS8', ['binary' => true]);
@@ -812,7 +796,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         if (!$this->isIssuerOf($this)) {
             self::$checkBasicConstraints = $oldBasicConstraints;
             self::$checkKeyUsage = $oldKeyUsage;
-            throw new MethodOnlyAvailableForSelfSigned('This method is only available for self signed certificates');
+            throw new BadMethodCallException('This method is only available for self signed certificates');
         }
         self::$checkBasicConstraints = $oldBasicConstraints;
         self::$checkKeyUsage = $oldKeyUsage;
@@ -980,7 +964,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public static function registerExtension(string $id, array $mapping): void
     {
         if (is_array(self::getMapping($id))) {
-            throw new RuntimeException(
+            throw new InvalidStateException(
                 "Extension $id has already been defined with a different mapping."
             );
         }
@@ -1023,8 +1007,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Identify signature algorithm from private key
-     *
-     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function identifySignatureAlgorithm(PublicKey $key): void
     {
@@ -1059,7 +1041,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $components = parse_url($url);
         if (!isset($components['host'])) {
-            throw new RuntimeException('Unable to parse URL');
+            throw new UnexpectedValueException('Unable to parse URL');
         }
 
         if ($names = $this->getExtension('id-ce-subjectAltName')) {
@@ -1268,7 +1250,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                 if ((self::$inCRLFunction)($url, $this->cert['tbsCertificate']['serialNumber'])) {
                     return false;
                 }
-            } catch (\Exception $e) {
+            } catch (UnexpectedValueException) {
                 // there's not a URI for us to get the CRL from so we just won't check it
             }
         }
@@ -1302,7 +1284,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                 try {
                     $this->testForSelfSigned();
                     $signingCert = $this;
-                } catch (MethodOnlyAvailableForSelfSigned $e) {
+                } catch (BadMethodCallException) {
                     return $this->testForIntermediate(true, $count) && $this->validateSignature(true);
                 }
             }

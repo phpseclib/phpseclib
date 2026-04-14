@@ -16,8 +16,7 @@ declare(strict_types=1);
 namespace phpseclib4\Math\BigInteger\Engines;
 
 use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
-use phpseclib4\Exception\OutOfRangeException;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\{ResourceLimitException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -41,7 +40,7 @@ abstract class OpenSSL
     public static function powModHelper(Engine $x, Engine $e, Engine $n): Engine
     {
         if ($n->getLengthInBytes() < 31 || $n->getLengthInBytes() > 16384) {
-            throw new OutOfRangeException('Only modulo between 31 and 16384 bits are accepted');
+            throw new ResourceLimitException('Only modulo between 31 and 16384 bits are accepted');
         }
 
         $key = PKCS8::savePublicKey(

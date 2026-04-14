@@ -31,7 +31,7 @@ namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS1 as Progenitor;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedValueException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
@@ -83,12 +83,12 @@ abstract class PKCS1 extends Progenitor
 
         try {
             if (ASN1::map($decoded, Maps\DSAPublicKey::MAP) instanceof BigInteger) {
-                throw new RuntimeException('Key appears to be a DSAPublicKey, which is unsupported');
+                throw new UnsupportedValueException('Key appears to be a DSAPublicKey, which is unsupported');
             }
         } catch (\Exception) {
         }
 
-        throw new RuntimeException('Unable to perform ASN1 mapping');
+        throw new UnexpectedValueException('Unable to perform ASN1 mapping');
     }
 
     /**

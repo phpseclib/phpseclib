@@ -1,7 +1,7 @@
 <?php
 
 /**
- * UnableToConnectException
+ * InvalidModeException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * UnableToConnectException
+ * InvalidModeException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class UnableToConnectException extends \RuntimeException implements ExceptionInterface
+class InvalidModeException extends \RuntimeException implements ExceptionInterface
 {
 }

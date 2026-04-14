@@ -24,10 +24,8 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\BaseCurves;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Math\BigInteger;
-use phpseclib4\Math\PrimeField;
+use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException, UnsupportedValueException};
+use phpseclib4\Math\{BigInteger, PrimeField};
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
 /**
@@ -108,7 +106,7 @@ class Prime extends Base
     public function setCoefficients(BigInteger $a, BigInteger $b): void
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         $this->a = $this->factory->newInteger($a);
         $this->b = $this->factory->newInteger($b);
@@ -120,7 +118,7 @@ class Prime extends Base
     public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): void
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         $this->p = [
             $x instanceof BigInteger ? $this->factory->newInteger($x) : $x,
@@ -136,7 +134,7 @@ class Prime extends Base
     public function getBasePoint(): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         /*
         if (!isset($this->p)) {
@@ -253,7 +251,7 @@ class Prime extends Base
     public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
 
         if (!count($p) || !count($q)) {
@@ -277,7 +275,7 @@ class Prime extends Base
         }
 
         if (isset($p[2]) || isset($q[2])) {
-            throw new RuntimeException('Affine coordinates need to be manually converted to Jacobi coordinates or vice versa');
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to Jacobi coordinates or vice versa');
         }
 
         if ($p[0]->equals($q[0])) {
@@ -361,7 +359,7 @@ class Prime extends Base
     public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
 
         if (!count($p)) {
@@ -394,14 +392,14 @@ class Prime extends Base
         $ypn = match ($y) {
             2 => false,
             3 => true,
-            default => throw new RuntimeException('Coordinate not in recognized format')
+            default => throw new UnexpectedValueException("Coordinate not in recognized format (found $y; expected 2 or 3)")
         };
         $temp = $xp->multiply($this->a);
         $temp = $xp->multiply($xp)->multiply($xp)->add($temp);
         $temp = $temp->add($this->b);
         $b = $temp->squareRoot();
         if (!$b) {
-            throw new RuntimeException('Unable to derive Y coordinate');
+            throw new UnexpectedValueException('Unable to derive Y coordinate');
         }
         $bn = $b->isOdd();
         $yp = $ypn == $bn ? $b : $b->negate();

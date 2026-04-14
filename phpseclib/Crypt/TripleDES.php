@@ -38,7 +38,6 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt;
 
-use phpseclib4\Exception\BadModeException;
 use phpseclib4\Exception\LengthException;
 
 /**
@@ -135,14 +134,10 @@ class TripleDES extends DES
                 break;
             case 'cbc3':
                 $mode = 'cbc';
-                // fall-through
+                // no break
             // If not 3CBC, we init as usual
             default:
                 parent::__construct($mode);
-
-                if ($this->mode == self::MODE_STREAM) {
-                    throw new BadModeException('Block ciphers cannot be ran in stream mode');
-                }
         }
     }
 
@@ -369,7 +364,6 @@ class TripleDES extends DES
             case strlen($this->key) <= 8:
                 $this->des_rounds = 1;
                 break;
-
             // otherwise, if $key > 64bits, we configure our engine to work as 3DES.
             default:
                 $this->des_rounds = 3;

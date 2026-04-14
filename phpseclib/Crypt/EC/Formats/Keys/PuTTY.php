@@ -17,10 +17,8 @@ namespace phpseclib4\Crypt\EC\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
-use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Crypt\EC\BaseCurves\{Base as BaseCurve, TwistedEdwards as TwistedEdwardsCurve};
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\Common\FiniteField;
 use phpseclib4\Math\Common\FiniteField\Integer;
@@ -68,7 +66,7 @@ abstract class PuTTY extends Progenitor
 
         if ($components['curve'] instanceof TwistedEdwardsCurve) {
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
-                throw new LengthException('Length of ssh-ed25519 key should be 32');
+                throw new UnexpectedValueException('Length of ssh-ed25519 key should be 32');
             }
             $arr = $components['curve']->extractSecret($private);
             $components['dA'] = $arr['dA'];

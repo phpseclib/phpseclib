@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\EC\Formats\Signature;
 
-use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -36,7 +36,7 @@ abstract class IEEE
     {
         $len = strlen($sig);
         if ($len & 1) {
-            throw new LengthException('String length should be an even number');
+            throw new UnexpectedValueException('String length should be an even number');
         }
 
         $r = new BigInteger(substr($sig, 0, $len >> 1), 256);

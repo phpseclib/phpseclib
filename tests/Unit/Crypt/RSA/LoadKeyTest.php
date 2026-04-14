@@ -20,7 +20,7 @@ use phpseclib4\Crypt\RSA\Formats\Keys\PuTTY;
 use phpseclib4\Crypt\RSA\PrivateKey;
 use phpseclib4\Crypt\RSA\PublicKey;
 use phpseclib4\Exception\NoKeyLoadedException;
-use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
 
@@ -1131,7 +1131,7 @@ YYFw8pfGesIFoEuVth4HKyF8k1y4mRUnYHP1XNMNMJl1JcEArC2asV8sHf6zSPVffozZ
 
     public function testSavePasswordXML(): void
     {
-        $this->expectException(UnsupportedFormatException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $key = '-----BEGIN RSA PRIVATE KEY-----
 MIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4WGeKLs1Pt8Qu

@@ -20,19 +20,16 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Crypt\Common\PrivateKey;
-use phpseclib4\Crypt\Hash;
-use phpseclib4\Crypt\PublicKeyLoader;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Exception\NoPasswordProvidedException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\Exception\UnsupportedOperationException;
+use phpseclib4\Crypt\{Hash, PublicKeyLoader, Random};
+use phpseclib4\Exception\{
+    InvalidArgumentException,
+    PasswordNeededException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
+};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{BaseString, OctetString};
 use phpseclib4\File\Common\Signable;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Types\BaseString;
-use phpseclib4\File\ASN1\Types\OctetString;
 
 /**
  * Pure-PHP PFX (PKCS#12) Parser
@@ -43,7 +40,13 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\Crypt\Common\Traits\ASN1AlgorithmIdentifier;
 
-    public Constructed|array $pfx;
+    public Constructed|array $pfx = [
+        'version' => 'v3',
+        'authSafe' => [
+            'contentType' => 'id-data',
+            'content' => []
+        ]
+    ];
     private ?string $password = null;
 
     // same as OpenSSL
@@ -63,14 +66,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     {
         ASN1::loadOIDs('CMS');
         ASN1::loadOIDs('PFX');
-
-        $this->pfx = [
-            'version' => 'v3',
-            'authSafe' => [
-                'contentType' => 'id-data',
-                'content' => []
-            ]
-        ];
     }
 
     public static function load(string|array|Constructed $pfx, ?string $password = null): self
@@ -91,13 +86,13 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         $decoded = ASN1::decodeBER($pfx['authSafe']['content']->value);
         $cms = ASN1::map($decoded, ASN1\Maps\AuthenticatedSafe::MAP);
 
-        foreach ($cms as $key=>$content) {
+        foreach ($cms as $key => $content) {
             switch ($content['contentType']) {
                 case 'id-data': // id-data from CMS specs
                     $decoded = ASN1::decodeBER((string) $content['content']);
                     $cms[$key]['content'] = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
                     $cms[$key]['content']->parent = $cms[$key];
-                    foreach ($cms[$key]['content'] as $subkey=>$value) {
+                    foreach ($cms[$key]['content'] as $subkey => $value) {
                         try {
                             $cms[$key]['content'][$subkey]['bagValue'] = match ("$value[bagId]") {
                                 'PKCS8ShroudedKeyBag' => PublicKeyLoader::load("$value[bagValue]", $password),
@@ -111,7 +106,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     break;
                 case 'id-encryptedData':
                     if (!isset($password)) {
-                        throw new NoPasswordProvidedException('Encrypted data was found, however, no password has been provided');
+                        throw new PasswordNeededException('Encrypted data was found, however, no password has been provided');
                     }
                     $decoded = ASN1::decodeBER((string) $content['content']);
                     $content = ASN1::map($decoded, ASN1\Maps\CMSEncryptedData::MAP);
@@ -149,8 +144,13 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             case 'sha224':
             case 'sha256':
             case 'sha384':
+            case 'sha224':
             case 'sha512/224':
             case 'sha512/256':
+            case 'sha3/224':
+            case 'sha3/256':
+            case 'sha3/384':
+            case 'sha3/512':
                 break;
             default:
                 throw new UnsupportedAlgorithmException("$algo is an unsupported hash algorithm");
@@ -183,11 +183,11 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             return;
         }
         if (isset($this->password)) { // there already is a password; simply changing the password is sufficient
-            foreach ($this->pfx['authSafe']['content'] as $key=>$value) {
+            foreach ($this->pfx['authSafe']['content'] as $key => $value) {
                 $value = &$this->pfx['authSafe']['content'][$key];
                 switch ($value['contentType']) {
                     case 'id-data':
-                        foreach ($value['content'] as $subkey=>$subvalue) {
+                        foreach ($value['content'] as $subkey => $subvalue) {
                             $subvalue = &$value['content'][$subkey];
                             if ($subvalue['bagId'] == 'PKCS8ShroudedKeyBag') {
                                 $subvalue['bagValue'] = $subvalue['bagValue']->withPassword($password);
@@ -199,7 +199,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             }
         } else { // there is no password but there will be; CertBag's need to be moved around
             $certs = $friendlyNames = $localKeyIDs = [];
-            foreach ($this->pfx['authSafe']['content'] as $key=>$value) {
+            foreach ($this->pfx['authSafe']['content'] as $key => $value) {
                 $value = &$this->pfx['authSafe']['content'][$key];
                 if ($value['contentType'] == 'id-encryptedData') {
                     throw new UnexpectedValueException('Found id-encryptedData in an unencrypted PFX file');
@@ -208,7 +208,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     throw new UnexpectedValueException("Found $value[contentType], expected id-data");
                 }
                 $numCertBags = 0;
-                foreach ($value['content'] as $subkey=>$subvalue) {
+                foreach ($value['content'] as $subkey => $subvalue) {
                     $subvalue = &$value['content'][$subkey];
                     switch ($subvalue['bagId']) {
                         case 'PKCS8ShroudedKeyBag':
@@ -226,7 +226,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     $value['contentType'] = 'id-encryptedData';
                     continue;
                 }
-                foreach ($value['content'] as $subkey=>$subvalue) {
+                foreach ($value['content'] as $subkey => $subvalue) {
                     $subvalue = $value['content'][$subkey];
                     if ($subvalue['bagId'] == 'CertBag') {
                         foreach ($subvalue['bagAttributes'] as $attr) {
@@ -257,7 +257,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 }
                 unset($value);
             }
-            foreach ($certs as $i=>$cert) {
+            foreach ($certs as $i => $cert) {
                 $this->add($cert, friendlyName: $friendlyNames[$i], localKeyID: $localKeyIDs[$i]);
             }
         }
@@ -272,11 +272,11 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
         $this->password = null;
 
-        foreach ($this->pfx['authSafe']['content'] as $key=>$value) {
+        foreach ($this->pfx['authSafe']['content'] as $key => $value) {
             $value = &$this->pfx['authSafe']['content'][$key];
             switch ($value['contentType']) {
                 case 'id-data':
-                    foreach ($value['content'] as $subkey=>$subvalue) {
+                    foreach ($value['content'] as $subkey => $subvalue) {
                         $subvalue = &$value['content'][$subkey];
                         if ($subvalue['bagId'] == 'PKCS8ShroudedKeyBag') {
                             $subvalue['bagId'] = 'KeyBag';
@@ -301,8 +301,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         X509|PrivateKey $obj,
         string|BaseString|array|null $friendlyName = null,
         string|BaseString|array|null $localKeyID = null
-    ): void
-    {
+    ): void {
         $extra = [];
         if (isset($friendlyName) || isset($localKeyID)) {
             if (isset($friendlyName)) {
@@ -375,11 +374,11 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     public function toString(array $options = []): string
     {
-        foreach ($this->pfx['authSafe']['content'] as $key=>$value) {
+        foreach ($this->pfx['authSafe']['content'] as $key => $value) {
             $value = &$this->pfx['authSafe']['content'][$key];
             switch ($value['contentType']) {
                 case 'id-data':
-                    foreach ($value['content'] as $subkey=>$subvalue) {
+                    foreach ($value['content'] as $subkey => $subvalue) {
                         $subvalue = &$value['content'][$subkey];
                         switch ($subvalue['bagId']) {
                             case 'CertBag':
@@ -397,7 +396,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     break;
                 case 'id-encryptedData':
                     $crypt = self::getCryptoObjectFromParams($this->password, $options);
-                    foreach ($value['content'] as $subkey=>$subvalue) {
+                    foreach ($value['content'] as $subkey => $subvalue) {
                         $subvalue = &$value['content'][$subkey];
                         if ($subvalue['bagId'] != 'CertBag') {
                             break;
@@ -563,9 +562,9 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     {
         $names = [];
 
-        foreach ($this->pfx['authSafe']['content'] as $key=>$value) {
+        foreach ($this->pfx['authSafe']['content'] as $key => $value) {
             $value = $this->pfx['authSafe']['content'][$key];
-            foreach ($value['content'] as $subkey=>$subvalue) {
+            foreach ($value['content'] as $subkey => $subvalue) {
                 $subvalue = $value['content'][$subkey];
                 if (isset($subvalue['bagAttributes'])) {
                     foreach ($subvalue['bagAttributes'] as $attr) {
@@ -596,9 +595,9 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     {
         $objects = [];
 
-        foreach ($this->pfx['authSafe']['content'] as $key=>$value) {
+        foreach ($this->pfx['authSafe']['content'] as $key => $value) {
             $value = $this->pfx['authSafe']['content'][$key];
-            foreach ($value['content'] as $subkey=>$subvalue) {
+            foreach ($value['content'] as $subkey => $subvalue) {
                 if (isset($type)) {
                     if (!isset($subvalue['bagAttributes'])) {
                         continue;
@@ -607,7 +606,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     foreach ($subvalue['bagAttributes'] as $attr) {
                         if ($attr['type'] == $type) {
                             foreach ($attr['value'] as $subattr) {
-                                if (is_string($search) || $search::CLASS == $subattr::CLASS) {
+                                if (is_string($search) || $search::class == $subattr::class) {
                                     if ($subattr instanceof BaseString) {
                                         if ($subattr->isConvertable()) {
                                             $subattr = $subattr->toUTF8String();
@@ -701,12 +700,12 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         $objects = $this->getAll();
         $message = 'Signatures can only be performed if there are *exactly* one private key and one matching X509 cert OR if there is just one private key, no more no less';
         if (count($objects) > 2 || !count($objects)) {
-            throw new UnsupportedOperationException("$message - x1");
+            throw new InvalidArgumentException("$message - x1");
         }
         if (count($objects) == 1) {
             $private = $objects[0];
             if (!$private instanceof PrivateKey) {
-                throw new UnsupportedOperationException("$message - x2");
+                throw new InvalidArgumentException("$message - x2");
             }
         } else {
             switch (true) {
@@ -719,12 +718,12 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     $private = $objects[1];
                     break;
                 default:
-                    throw new UnsupportedOperationException("$message - x3");
+                    throw new InvalidArgumentException("$message - x3");
             }
             $publicKey = (string) $public->getPublicKey();
             $privateKey = (string) $private->getPublicKey();
             if ($publicKey != $privateKey) {
-                throw new UnsupportedOperationException("$message - x4");
+                throw new InvalidArgumentException("$message - x4");
             }
         }
 

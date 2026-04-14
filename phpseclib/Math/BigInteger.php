@@ -30,8 +30,6 @@ declare(strict_types=1);
 namespace phpseclib4\Math;
 
 use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger\Engines\Engine;
 
 /**
@@ -74,7 +72,7 @@ class BigInteger implements \JsonSerializable
 
         $fqmain = 'phpseclib4\\Math\\BigInteger\\Engines\\' . $main;
         if (!class_exists($fqmain) || !method_exists($fqmain, 'isValidEngine')) {
-            throw new InvalidArgumentException("$main is not a valid engine");
+            throw new BadConfigurationException("$main is not a valid engine");
         }
         if (!$fqmain::isValidEngine()) {
             throw new BadConfigurationException("$main is not setup correctly on this system");
@@ -88,7 +86,7 @@ class BigInteger implements \JsonSerializable
                 $fqmain::setModExpEngine($modexp);
                 $found = true;
                 break;
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
 
@@ -139,7 +137,7 @@ class BigInteger implements \JsonSerializable
                 }
             }
 
-            throw new UnexpectedValueException('No valid BigInteger found. This is only possible when JIT is enabled on Windows and neither the GMP or BCMath extensions are available so either disable JIT or install GMP / BCMath');
+            throw new BadConfigurationException('No valid BigInteger mode found. This is only possible when JIT is enabled on Windows and neither the GMP or BCMath extensions are available, so either disable JIT or install GMP / BCMath');
         }
     }
 

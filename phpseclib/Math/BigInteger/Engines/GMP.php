@@ -52,7 +52,7 @@ class GMP extends Engine
     /**
      * Default constructor
      *
-     * @param mixed $x integer Base-10 number or base-$base number if $base set.
+     * @param int|string|\GMP $x integer Base-10 number or base-$base number if $base set.
      * @see parent::__construct()
      */
     public function __construct(int|string|\GMP $x = 0, int $base = 10)

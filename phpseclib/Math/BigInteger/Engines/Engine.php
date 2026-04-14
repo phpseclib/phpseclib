@@ -17,10 +17,7 @@ namespace phpseclib4\Math\BigInteger\Engines;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Random;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Math\BigInteger;
+use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, ResourceLimitException};
 
 /**
  * Base Engine.
@@ -220,7 +217,7 @@ abstract class Engine implements \JsonSerializable
     {
         $fqengine = '\\phpseclib4\\Math\\BigInteger\\Engines\\' . static::ENGINE_DIR . '\\' . $engine;
         if (!class_exists($fqengine) || !method_exists($fqengine, 'isValidEngine')) {
-            throw new InvalidArgumentException("$engine is not a valid engine");
+            throw new BadConfigurationException("$engine is not a valid engine");
         }
         if (!$fqengine::isValidEngine()) {
             throw new BadConfigurationException("$engine is not setup correctly on this system");
@@ -720,7 +717,7 @@ abstract class Engine implements \JsonSerializable
 
         $length = $max->getLength();
         if ($length > 8196) {
-            throw new \RuntimeException("Generation of random prime numbers larger than 8196 has been disabled ($length)");
+            throw new ResourceLimitException("Generation of random prime numbers larger than 8196 has been disabled ($length)");
         }
 
         $x = static::randomRange($min, $max);
@@ -916,7 +913,7 @@ abstract class Engine implements \JsonSerializable
         // that it'll generate it also stands to reason that that's the largest you'll be able to test primality on
         $length = $this->getLength();
         if ($length > 8196) {
-            throw new \RuntimeException("Primality testing is not supported for numbers larger than 8196 bits ($length)");
+            throw new ResourceLimitException("Primality testing is not supported for numbers larger than 8196 bits ($length)");
         }
 
         if (!isset($t)) {
@@ -1120,7 +1117,7 @@ abstract class Engine implements \JsonSerializable
     public function bitwise_split(int $split): array
     {
         if ($split < 1) {
-            throw new RuntimeException('Offset must be greater than 1');
+            throw new InvalidArgumentException('Offset must be greater than 1');
         }
 
         $mask = static::$one[static::class]->bitwise_leftShift($split)->subtract(static::$one[static::class]);

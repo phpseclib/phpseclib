@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\Common;
 
+use phpseclib4\Exception\InvalidArgumentException;
+
 /**
  * Base Class for all block cipher classes
  *
@@ -23,4 +25,15 @@ namespace phpseclib4\Crypt\Common;
  */
 abstract class BlockCipher extends SymmetricKey
 {
+    /**
+     * Default Constructor.
+     */
+    public function __construct(string $mode)
+    {
+        parent::__construct($mode);
+
+        if ($this->mode == self::MODE_STREAM) {
+            throw new InvalidArgumentException('Block ciphers cannot be ran in stream mode');
+        }
+    }
 }

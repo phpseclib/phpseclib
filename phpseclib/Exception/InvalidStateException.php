@@ -1,7 +1,7 @@
 <?php
 
 /**
- * UnsupportedOperationException
+ * InvalidStateException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * UnsupportedOperationException
+ * InvalidStateException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class UnsupportedOperationException extends \RuntimeException implements ExceptionInterface
+class InvalidStateException extends \RuntimeException implements ExceptionInterface
 {
 }

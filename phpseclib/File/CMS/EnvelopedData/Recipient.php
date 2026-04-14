@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / PasswordRecipient Parser
  *

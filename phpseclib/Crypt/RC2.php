@@ -36,8 +36,6 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\BlockCipher;
-use phpseclib4\Exception\BadModeException;
-use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\LengthException;
 
 /**
@@ -212,20 +210,6 @@ class RC2 extends BlockCipher
         0x38, 0x4E, 0x69, 0xF1, 0xAD, 0x23, 0x73, 0x87,
         0x70, 0x02, 0xC2, 0x1E, 0xB8, 0x0A, 0xFC, 0xE6,
     ];
-
-    /**
-     * Default Constructor.
-     *
-     * @throws InvalidArgumentException if an invalid / unsupported mode is provided
-     */
-    public function __construct(string $mode)
-    {
-        parent::__construct($mode);
-
-        if ($this->mode == self::MODE_STREAM) {
-            throw new BadModeException('Block ciphers cannot be ran in stream mode');
-        }
-    }
 
     /**
      * Test for engine validity

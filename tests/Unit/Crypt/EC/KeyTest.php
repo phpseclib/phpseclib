@@ -20,6 +20,8 @@ use phpseclib4\Crypt\EC\PrivateKey;
 use phpseclib4\Crypt\EC\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\ResourceLimitException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class KeyTest extends PhpseclibTestCase
@@ -561,7 +563,7 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
      */
     public function testKeyTooLarge(): void
     {
-        $this->expectException('RangeException');
+        $this->expectException('UnexpectedValueException');
 
         $key = '-----BEGIN PRIVATE KEY-----
 MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
@@ -742,7 +744,7 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
 
     public function testExcessivelyLargeBinaryField(): void
     {
-        $this->expectException('\OutOfBoundsException');
+        $this->expectException(ResourceLimitException::class);
 
         $key = '-----BEGIN PUBLIC KEY-----
 MIIBDDCB0wYHKoZIzj0CATCBxwIBATAgBgcqhkjOPQECMBUCBH////8GCSqGSM49

@@ -14,6 +14,7 @@ use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\KeyConstraintException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
 
@@ -96,7 +97,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
 
     public function testSmallModulo(): void
     {
-        $this->expectException('LengthException');
+        $this->expectException(KeyConstraintException::class);
 
         $plaintext = 'x';
 

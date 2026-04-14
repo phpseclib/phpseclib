@@ -19,7 +19,7 @@ namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -49,7 +49,7 @@ abstract class OpenSSH extends Progenitor
         if (isset($parsed['paddedKey'])) {
             [$type] = Strings::unpackSSH2('s', $parsed['paddedKey']);
             if ($type != $parsed['type']) {
-                throw new RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+                throw new UnexpectedValueException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
 
             $primes = $coefficients = [];

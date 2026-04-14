@@ -11,7 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\Net;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\TimeoutException;
 use phpseclib4\Net\SSH2;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -167,7 +167,7 @@ class SSH2UnitTest extends PhpseclibTestCase
      */
     public function testReadUnauthenticated(): void
     {
-        $this->expectException(InsufficientSetupException::class);
+        $this->expectException(InvalidStateException::class);
         $this->expectExceptionMessage('Operation disallowed prior to login()');
 
         $ssh = $this->createSSHMock();
@@ -180,7 +180,7 @@ class SSH2UnitTest extends PhpseclibTestCase
      */
     public function testWriteUnauthenticated(): void
     {
-        $this->expectException(InsufficientSetupException::class);
+        $this->expectException(InvalidStateException::class);
         $this->expectExceptionMessage('Operation disallowed prior to login()');
 
         $ssh = $this->createSSHMock();
@@ -219,7 +219,7 @@ class SSH2UnitTest extends PhpseclibTestCase
             ->setMethods(['__destruct'])
             ->getMock();
 
-        $this->expectException(InsufficientSetupException::class);
+        $this->expectException(InvalidStateException::class);
         $this->expectExceptionMessage('Operation disallowed prior to login()');
 
         $ssh->openShell();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / KEKRecipient Parser
  *
@@ -18,8 +19,7 @@ namespace phpseclib4\File\CMS\EnvelopedData;
 
 use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class KEKRecipient extends Recipient implements DerivableKey
 {

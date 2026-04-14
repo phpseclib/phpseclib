@@ -15,10 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt;
 
-use phpseclib4\Exception\BadDecryptionException;
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\{BadDecryptionException, InvalidStateException, LengthException};
 
 /**
  * Pure-PHP implementation of ChaCha20.
@@ -73,7 +70,6 @@ class ChaCha20 extends Salsa20
     /**
      * Encrypts a message.
      *
-     * @return string $ciphertext
      * @see \phpseclib4\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
@@ -94,7 +90,6 @@ class ChaCha20 extends Salsa20
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @return string $plaintext
      * @see \phpseclib4\Crypt\Common\SymmetricKey::encrypt()
      * @see self::crypt()
      */
@@ -112,7 +107,6 @@ class ChaCha20 extends Salsa20
     /**
      * Encrypts a message with libsodium
      *
-     * @return string $text
      * @see self::encrypt()
      */
     private function encrypt_with_libsodium(string $plaintext): string
@@ -137,7 +131,6 @@ class ChaCha20 extends Salsa20
     /**
      * Decrypts a message with libsodium
      *
-     * @return string $text
      * @see self::decrypt()
      */
     private function decrypt_with_libsodium(string $ciphertext): string
@@ -146,7 +139,7 @@ class ChaCha20 extends Salsa20
 
         if (isset($this->poly1305Key)) {
             if (!isset($this->oldtag)) {
-                throw new InsufficientSetupException('Authentication Tag has not been set');
+                throw new InvalidStateException('Authentication Tag has not been set - call setTag() first');
             }
             if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
                 $plaintext = sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
@@ -176,10 +169,6 @@ class ChaCha20 extends Salsa20
      */
     public function setNonce(string $nonce): void
     {
-        if (!is_string($nonce)) {
-            throw new UnexpectedValueException('The nonce should be a string');
-        }
-
         /*
           from https://tools.ietf.org/html/rfc7539#page-7
 
@@ -228,12 +217,12 @@ class ChaCha20 extends Salsa20
 
         $this->changed = $this->nonIVChanged = false;
 
-        if ($this->nonce === false) {
-            throw new InsufficientSetupException('No nonce has been defined');
+        if (!isset($this->nonce)) {
+            throw new InvalidStateException('No nonce has been defined - call setNonce() first');
         }
 
-        if ($this->key === false) {
-            throw new InsufficientSetupException('No key has been defined');
+        if (!isset($this->key)) {
+            throw new InvalidStateException('No key has been defined - call setKey() first');
         }
 
         if ($this->usePoly1305 && !isset($this->poly1305Key)) {

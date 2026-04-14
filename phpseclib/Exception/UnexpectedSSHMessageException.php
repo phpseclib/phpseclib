@@ -1,7 +1,7 @@
 <?php
 
 /**
- * UnsupportedFormatException
+ * UnexpectedSSHMessageException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * UnsupportedFormatException
+ * UnexpectedSSHMessageException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class UnsupportedFormatException extends \RuntimeException implements ExceptionInterface
+class UnexpectedSSHMessageException extends \RuntimeException implements ExceptionInterface
 {
 }

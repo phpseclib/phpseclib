@@ -20,9 +20,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -66,15 +64,11 @@ abstract class MSBLOB
      */
     public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         $key = Strings::base64_decode($key);
-
-        if (!is_string($key)) {
-            throw new UnexpectedValueException('Base64 decoding produced an error');
-        }
         if (strlen($key) < 20) {
             throw new UnexpectedValueException('Key appears to be malformed');
         }
@@ -115,7 +109,7 @@ abstract class MSBLOB
         switch ($magic) {
             case self::RSA2:
                 $components['isPublicKey'] = false;
-                // fall-through
+                // no break
             case self::RSA1:
                 break;
             default:
@@ -165,8 +159,8 @@ abstract class MSBLOB
             throw new InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
         }
 
-        if (!empty($password) && is_string($password)) {
-            throw new UnsupportedFormatException('MSBLOB private keys do not support encryption');
+        if (isset($password)) {
+            throw new InvalidArgumentException('MSBLOB private keys do not support encryption');
         }
 
         $n = strrev($n->toBytes());

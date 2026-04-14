@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Math\PrimeField;
 
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -12,7 +13,7 @@ abstract class TestCase extends PhpseclibTestCase
 {
     public function testPrimeFieldWithCompositeNumbers(): void
     {
-        $this->expectException('UnexpectedValueException');
+        $this->expectException('InvalidArgumentException');
 
         $a = new BigInteger('65', 10);
         $p = new BigInteger('126', 10); // 126 isn't a prime
@@ -31,7 +32,7 @@ abstract class TestCase extends PhpseclibTestCase
         $num = new PrimeField($p);
         $num2 = $num->newInteger($a);
 
-        $this->assertFalse($num2->squareRoot());
+        $this->assertNull($num2->squareRoot());
     }
 
     /**

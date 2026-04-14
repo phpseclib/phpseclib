@@ -28,15 +28,15 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Exception\{
+    InvalidArgumentException,
+    PasswordNeededException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Types\BaseType;
-use phpseclib4\File\ASN1\Types\ExplicitNull;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\{Element, Maps};
+use phpseclib4\File\ASN1\Types\{BaseType, ExplicitNull};
 
 /**
  * PKCS#8 Formatted Key Handler
@@ -83,6 +83,10 @@ abstract class PKCS8 extends PKCS
      */
     protected static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Key should be a string - not an array');
+        }
+
         $isPublic = str_contains($key, 'PUBLIC');
         $isPrivate = str_contains($key, 'PRIVATE');
 
@@ -98,7 +102,7 @@ abstract class PKCS8 extends PKCS
 
         if (is_array($decrypted)) {
             if (!isset($password)) {
-                throw new RuntimeException('Key is encrypted but no password has been provided');
+                throw new PasswordNeededException('Key is encrypted but no password has been provided');
             }
             $cipher = self::getCryptoObjectFromAlgorithmIdentifier($decrypted['encryptionAlgorithm'], $password);
             $meta = $cipher->getMetaData('meta');
@@ -172,7 +176,7 @@ abstract class PKCS8 extends PKCS
             return $public;
         }
 
-        throw new RuntimeException('Unable to parse using either OneAsymmetricKey or PublicKeyInfo ASN1 maps');
+        throw new UnexpectedValueException('Unable to parse using either OneAsymmetricKey or PublicKeyInfo ASN1 maps');
     }
 
     /**
@@ -277,16 +281,18 @@ abstract class PKCS8 extends PKCS
     /**
      * Perform some preliminary parsing of the key
      */
-    private static function preParse(string &$key): array
+    private static function preParse(string $key): array
     {
         self::initialize_static_variables();
 
         if (self::$format != self::MODE_DER) {
-            $decoded = ASN1::extractBER($key);
-            if ($decoded !== false) {
+            try {
+                $decoded = ASN1::extractBER($key);
                 $key = $decoded;
-            } elseif (self::$format == self::MODE_PEM) {
-                throw new UnexpectedValueException('Expected base64-encoded PEM format but was unable to decode base64 text');
+            } catch (\Exception $e) {
+                if (self::$format == self::MODE_PEM) {
+                    throw $e;
+                }
             }
         }
 

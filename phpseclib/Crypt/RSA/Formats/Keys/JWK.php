@@ -17,8 +17,7 @@ namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\JWK as Progenitor;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -92,6 +91,10 @@ abstract class JWK extends Progenitor
      */
     public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
     {
+        if (isset($password)) {
+            throw new InvalidArgumentException('JWK private keys do not support encryption');
+        }
+
         if (count($primes) != 2) {
             throw new InvalidArgumentException('JWK does not support multi-prime RSA keys');
         }

@@ -37,8 +37,12 @@ namespace phpseclib4\System\SSH;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    ConnectionClosedException,
+    ServiceUnavailableException,
+    UnexpectedValueException
+};
 use phpseclib4\Net\SSH2;
 use phpseclib4\System\SSH\Agent\Identity;
 
@@ -106,9 +110,6 @@ class Agent
 
     /**
      * Default Constructor
-     *
-     * @throws BadConfigurationException if SSH_AUTH_SOCK cannot be found
-     * @throws RuntimeException on connection errors
      */
     public function __construct(?string $address = null)
     {
@@ -119,16 +120,16 @@ class Agent
         if (in_array('unix', stream_get_transports())) {
             $this->fsock = fsockopen('unix://' . $address, 0, $errno, $errstr);
             if (!$this->fsock) {
-                throw new RuntimeException("Unable to connect to ssh-agent (Error $errno: $errstr)");
+                throw new ServiceUnavailableException("Unable to connect to ssh-agent (Error $errno: $errstr)");
             }
         } else {
             if (substr($address, 0, 9) != '\\\\.\\pipe\\' || str_contains(substr($address, 9), '\\')) {
-                throw new RuntimeException('Address is not formatted as a named pipe should be');
+                throw new UnexpectedValueException('Address is not formatted as a named pipe should be');
             }
 
             $this->fsock = fopen($address, 'r+b');
             if (!$this->fsock) {
-                throw new RuntimeException('Unable to open address');
+                throw new ServiceUnavailableException('Unable to open address');
             }
         }
     }
@@ -138,8 +139,6 @@ class Agent
      *
      * See "2.5.2 Requesting a list of protocol 2 keys"
      * Returns an array containing zero or more \phpseclib4\System\SSH\Agent\Identity objects
-     *
-     * @throws RuntimeException on receipt of unexpected packets
      */
     public function requestIdentities(): array
     {
@@ -149,7 +148,7 @@ class Agent
 
         $packet = pack('NC', 1, self::SSH_AGENTC_REQUEST_IDENTITIES);
         if (strlen($packet) != fwrite($this->fsock, $packet)) {
-            throw new RuntimeException('Connection closed while requesting identities');
+            throw new ConnectionClosedException('Connection closed while requesting identities');
         }
 
         $length = current(unpack('N', $this->readBytes(4)));
@@ -157,7 +156,7 @@ class Agent
 
         [$type, $keyCount] = Strings::unpackSSH2('CN', $packet);
         if ($type != self::SSH_AGENT_IDENTITIES_ANSWER) {
-            throw new RuntimeException('Unable to request identities');
+            throw new UnexpectedValueException('Unable to request identities');
         }
 
         $identities = [];
@@ -245,9 +244,6 @@ class Agent
 
     /**
      * Forward data to SSH Agent and return data reply
-     *
-     * @return string Data from SSH Agent
-     * @throws RuntimeException on connection errors
      */
     public function forwardData(string $data): ?string
     {
@@ -265,7 +261,7 @@ class Agent
         }
 
         if (strlen($this->socket_buffer) != fwrite($this->fsock, $this->socket_buffer)) {
-            throw new RuntimeException('Connection closed attempting to forward data to SSH agent');
+            throw new ConnectionClosedException('Connection closed attempting to forward data to SSH agent');
         }
 
         $this->socket_buffer = '';

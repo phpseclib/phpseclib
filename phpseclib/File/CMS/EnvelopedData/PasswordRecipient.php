@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / PasswordRecipient Parser
  *
@@ -16,13 +17,9 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS\EnvelopedData;
 
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Types\Choice;
-use phpseclib4\File\CMS\EnvelopedData;
+use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
 {

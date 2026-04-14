@@ -27,20 +27,14 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\AsymmetricKey;
-use phpseclib4\Crypt\DH\Parameters;
-use phpseclib4\Crypt\DH\PrivateKey;
-use phpseclib4\Crypt\DH\PublicKey;
-use phpseclib4\Crypt\EC\Curves\Curve25519;
-use phpseclib4\Crypt\EC\Curves\Curve448;
-use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\BadMethodCallException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\NoKeyLoadedException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnsupportedOperationException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Crypt\DH\{Parameters, PrivateKey, PublicKey};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    BadMethodCallException,
+    InvalidArgumentException,
+    NoKeyLoadedException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -214,7 +208,7 @@ abstract class DH extends AsymmetricKey
                 'F9AB48195DED7EA1B1D510BD7EE74D73FAF36BC31ECFA268359046F4EB879F92' .
                 '4009438B481C6CD7889A002ED5EE382BC9190DA6FC026E479558E4475677E9AA' .
                 '9E3050E2765694DFC81F56E880B96E7160C980DD98EDD3DFFFFFFFFFFFFFFFFF',
-            default => throw new InvalidArgumentException('Invalid named prime provided')
+            default => throw new UnsupportedAlgorithmException('Invalid named prime provided')
         };
 
         $params->prime = new BigInteger($prime, 16);
@@ -275,7 +269,7 @@ abstract class DH extends AsymmetricKey
                     return $public->publicKey->powMod($private->privateKey, $private->prime)->toBytes(true);
                 case is_string($public):
                     $public = new BigInteger($public, -256);
-                    // fall-through
+                    // no break
                 case $public instanceof BigInteger:
                     return $public->powMod($private->privateKey, $private->prime)->toBytes(true);
                 default:
@@ -292,7 +286,7 @@ abstract class DH extends AsymmetricKey
                     }
                     $orig = $public;
                     $public = $public->getEncodedCoordinates();
-                    // fall-through
+                    // no break
                 case is_string($public):
                     $forcedEngine = EC::getForcedEngine();
                     if ($forcedEngine === 'libsodium' && $privateCurve !== 'Curve25519') {
@@ -387,7 +381,7 @@ abstract class DH extends AsymmetricKey
      */
     public function withHash(string $hash): AsymmetricKey
     {
-        throw new UnsupportedOperationException('DH does not use a hash algorithm');
+        throw new BadMethodCallException('DH does not use a hash algorithm');
     }
 
     /**
@@ -395,7 +389,7 @@ abstract class DH extends AsymmetricKey
      */
     public function getHash(): Hash
     {
-        throw new UnsupportedOperationException('DH does not use a hash algorithm');
+        throw new BadMethodCallException('DH does not use a hash algorithm');
     }
 
     /**

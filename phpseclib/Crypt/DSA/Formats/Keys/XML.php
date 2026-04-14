@@ -22,8 +22,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -38,8 +37,8 @@ abstract class XML
      */
     public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         if (!class_exists('DOMDocument')) {
@@ -53,8 +52,10 @@ abstract class XML
             $key = '<xml>' . $key . '</xml>';
         }
         if (!$dom->loadXML($key)) {
+            $e = libxml_get_last_error();
+            $message = 'Error loading XML - ' . $e->message;
             libxml_use_internal_errors($use_errors);
-            throw new UnexpectedValueException('Key does not appear to contain XML');
+            throw new UnexpectedValueException($message, $e->code);
         }
         $xpath = new \DOMXPath($dom);
         $keys = ['p', 'q', 'g', 'y', 'j', 'seed', 'pgencounter'];
@@ -81,6 +82,7 @@ abstract class XML
                 case 'y': // G**X mod P (where X is part of the private key and not made public)
                     $components['y'] = $value;
                     // the remaining options do not do anything
+                    // no break
                 case 'j': // (P - 1) / Q
                     // Parameter J is available for inclusion solely for efficiency as it is calculatable from
                     // P and Q

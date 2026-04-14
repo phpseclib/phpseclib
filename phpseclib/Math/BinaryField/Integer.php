@@ -23,9 +23,8 @@ declare(strict_types=1);
 namespace phpseclib4\Math\BinaryField;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Math\BigInteger;
-use phpseclib4\Math\BinaryField;
+use phpseclib4\Exception\InvalidArgumentException;
+use phpseclib4\Math\{BigInteger, BinaryField};
 use phpseclib4\Math\Common\FiniteField\Integer as Base;
 
 /**
@@ -37,31 +36,27 @@ class Integer extends Base
 {
     /**
      * Holds the BinaryField's value
-     *
-     * @var string
      */
-    protected $value;
+    protected string $value;
 
     /**
      * Keeps track of current instance
-     *
-     * @var int
      */
-    protected $instanceID;
+    protected int $instanceID;
 
     /**
      * Holds the PrimeField's modulo
      *
      * @var array<int, string>
      */
-    protected static $modulo;
+    protected static array $modulo;
 
     /**
      * Holds a pre-generated function to perform modulo reductions
      *
      * @var callable[]
      */
-    protected static $reduce;
+    protected static array $reduce;
 
     /**
      * Default constructor
@@ -101,7 +96,7 @@ class Integer extends Base
     private static function checkInstance(self $x, self $y): void
     {
         if ($x->instanceID != $y->instanceID) {
-            throw new UnexpectedValueException('The instances of the two BinaryField\Integer objects do not match');
+            throw new InvalidArgumentException('The instances of the two BinaryField\Integer objects do not match');
         }
     }
 
@@ -328,10 +323,8 @@ class Integer extends Base
 
     /**
      * Adds two BinaryFieldIntegers.
-     *
-     * @return static
      */
-    public function add(self $y): Integer
+    public function add(self $y): self
     {
         static::checkInstance($this, $y);
 
@@ -345,20 +338,16 @@ class Integer extends Base
 
     /**
      * Subtracts two BinaryFieldIntegers.
-     *
-     * @return static
      */
-    public function subtract(self $x): Integer
+    public function subtract(self $x): self
     {
         return $this->add($x);
     }
 
     /**
      * Multiplies two BinaryFieldIntegers.
-     *
-     * @return static
      */
-    public function multiply(self $y): Integer
+    public function multiply(self $y): self
     {
         static::checkInstance($this, $y);
 
@@ -367,10 +356,8 @@ class Integer extends Base
 
     /**
      * Returns the modular inverse of a BinaryFieldInteger
-     *
-     * @return static
      */
-    public function modInverse(): Integer
+    public function modInverse(): self
     {
         $remainder0 = static::$modulo[$this->instanceID];
         $remainder1 = $this->value;
@@ -402,10 +389,8 @@ class Integer extends Base
 
     /**
      * Divides two PrimeFieldIntegers.
-     *
-     * @return static
      */
-    public function divide(self $x): Integer
+    public function divide(self $x): self
     {
         static::checkInstance($this, $x);
 
@@ -418,10 +403,8 @@ class Integer extends Base
      *
      * A negative number can be written as 0-12. With modulos, 0 is the same thing as the modulo
      * so 0-12 is the same thing as modulo-12
-     *
-     * @return object
      */
-    public function negate()
+    public function negate(): self
     {
         $x = str_pad($this->value, strlen(static::$modulo[$this->instanceID]), "\0", STR_PAD_LEFT);
 
@@ -466,7 +449,7 @@ class Integer extends Base
      *
      * @return string
      */
-    public function toBigInteger()
+    public function toBigInteger(): BigInteger
     {
         return new BigInteger($this->value, 256);
     }
@@ -474,7 +457,7 @@ class Integer extends Base
     /**
      *  __toString() magic method
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->toBigInteger();
     }
@@ -482,7 +465,7 @@ class Integer extends Base
     /**
      *  __debugInfo() magic method
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return ['value' => $this->toHex()];
     }

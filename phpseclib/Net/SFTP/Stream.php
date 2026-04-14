@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace phpseclib4\Net\SFTP;
 
 use phpseclib4\Crypt\Common\PrivateKey;
-use phpseclib4\Net\SFTP;
-use phpseclib4\Net\SSH2;
+use phpseclib4\Exception\FileSystemException;
+use phpseclib4\Net\{SFTP, SSH2};
 use phpseclib4\Net\SSH2\MessageType as SSH2MessageType;
 
 /**
@@ -494,7 +494,7 @@ class Stream
         //  -- http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02#section-6.5
         try {
             $this->sftp->rename($path_from, $path_to);
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (!$this->sftp->file_exists($path_to)) {
                 if (isset($this->notification) && is_callable($this->notification)) {
                     call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
@@ -504,7 +504,7 @@ class Stream
             try {
                 $this->sftp->delete($path_to, true);
                 $this->sftp->rename($path_from, $path_to);
-            } catch (\Exception $e) {
+            } catch (FileSystemException $e) {
                 if (isset($this->notification) && is_callable($this->notification)) {
                     call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
                 }
@@ -518,7 +518,7 @@ class Stream
     /**
      * Open directory handle
      *
-     * nlist() is the best that this function is realistically going to be able to do. When an SFTP client sends 
+     * nlist() is the best that this function is realistically going to be able to do. When an SFTP client sends
      * a SSH_FXP_READDIR packet you don't generally get info on just one file but on multiple files. Quoting
      * the SFTP specs:
      *
@@ -540,7 +540,7 @@ class Stream
         $this->pos = 0;
         try {
             $this->entries = $this->sftp->nlist($path);
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
@@ -592,7 +592,7 @@ class Stream
         try {
             $this->sftp->mkdir($path, $mode, boolval($options & STREAM_MKDIR_RECURSIVE));
             return true;
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
@@ -618,7 +618,7 @@ class Stream
         try {
             $this->sftp->rmdir($path);
             return true;
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
@@ -643,7 +643,7 @@ class Stream
     {
         try {
             return $this->sftp->stat($this->path);
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
@@ -664,7 +664,7 @@ class Stream
         try {
             $this->sftp->delete($path, false);
             return true;
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
@@ -688,7 +688,7 @@ class Stream
 
         try {
             return $flags & STREAM_URL_STAT_LINK ? $this->sftp->lstat($path) : $this->sftp->stat($path);
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }
@@ -705,7 +705,7 @@ class Stream
             $this->sftp->truncate($this->path, $new_size);
             $this->eof = false;
             $this->size = $new_size;
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
             }

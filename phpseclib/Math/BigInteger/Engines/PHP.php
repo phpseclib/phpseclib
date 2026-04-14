@@ -16,8 +16,7 @@ declare(strict_types=1);
 namespace phpseclib4\Math\BigInteger\Engines;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException};
 
 /**
  * Pure-PHP Engine.
@@ -947,13 +946,13 @@ abstract class PHP extends Engine
 
             $temp = $square_value[$i2] + $value[$i] * $value[$i];
             $carry = static::BASE === 26 ? intval($temp / 0x4000000) : ($temp >> 31);
-            $square_value[$i2] = (int)($temp - static::BASE_FULL * $carry);
+            $square_value[$i2] = (int) ($temp - static::BASE_FULL * $carry);
 
             // note how we start from $i+1 instead of 0 as we do in multiplication.
             for ($j = $i + 1, $k = $i2 + 1; $j <= $max_index; ++$j, ++$k) {
                 $temp = $square_value[$k] + 2 * $value[$j] * $value[$i] + $carry;
                 $carry = static::BASE === 26 ? intval($temp / 0x4000000) : ($temp >> 31);
-                $square_value[$k] = (int)($temp - static::BASE_FULL * $carry);
+                $square_value[$k] = (int) ($temp - static::BASE_FULL * $carry);
             }
 
             // the following line can yield values larger 2**15.  at this point, PHP should switch
@@ -1135,10 +1134,10 @@ abstract class PHP extends Engine
     public function bitwise_split(int $split): array
     {
         if ($split < 1) {
-            throw new RuntimeException('Offset must be greater than 1');
+            throw new InvalidArgumentException('Offset must be greater than 1');
         }
 
-        $width = (int)($split / static::BASE);
+        $width = (int) ($split / static::BASE);
         if (!$width) {
             $arr = $this->bitwise_small_split($split);
             return array_map(function ($digit) {

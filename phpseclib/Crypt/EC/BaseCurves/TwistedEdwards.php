@@ -28,10 +28,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\EC\BaseCurves;
 
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Math\BigInteger;
-use phpseclib4\Math\PrimeField;
+use phpseclib4\Exception\InvalidStateException;
+use phpseclib4\Math\{BigInteger, PrimeField};
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
 /**
@@ -94,7 +92,7 @@ class TwistedEdwards extends Base
     public function setCoefficients(BigInteger $a, BigInteger $d): void
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         $this->a = $this->factory->newInteger($a);
         $this->d = $this->factory->newInteger($d);
@@ -106,7 +104,7 @@ class TwistedEdwards extends Base
     public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): void
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         $this->p = [
             $x instanceof BigInteger ? $this->factory->newInteger($x) : $x,
@@ -136,11 +134,11 @@ class TwistedEdwards extends Base
     public function getBasePoint(): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
         /*
         if (!isset($this->p)) {
-            throw new \phpseclib4\Exception\RuntimeException('setBasePoint needs to be called before this method');
+            throw new InvalidStateException('setBasePoint needs to be called before this method');
         }
         */
         return $this->p;

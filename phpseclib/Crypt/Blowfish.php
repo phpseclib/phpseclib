@@ -115,9 +115,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\BlockCipher;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\{BadConfigurationException, LengthException};
 
 /**
  * Pure-PHP implementation of Blowfish.
@@ -312,20 +310,6 @@ class Blowfish extends BlockCipher
      * @see Common\SymmetricKey::setKeyLength()
      */
     protected int $key_length = 16;
-
-    /**
-     * Default Constructor.
-     *
-     * @throws InvalidArgumentException if an invalid / unsupported mode is provided
-     */
-    public function __construct(string $mode)
-    {
-        parent::__construct($mode);
-
-        if ($this->mode == self::MODE_STREAM) {
-            throw new InvalidArgumentException('Block ciphers cannot be ran in stream mode');
-        }
-    }
 
     /**
      * Sets the key length.
@@ -748,7 +732,7 @@ class Blowfish extends BlockCipher
             );
         ';
 
-         // Generating decrypt code:
+        // Generating decrypt code:
         $decrypt_block = '
             $in = unpack("N*", $in);
             $l = $in[1];

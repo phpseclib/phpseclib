@@ -142,28 +142,7 @@ abstract class Random
             // ciphers are used as per the nist.gov link below. also, see this link:
             //
             // http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator#Designs_based_on_cryptographic_primitives
-            switch (true) {
-                case class_exists('\phpseclib4\Crypt\AES'):
-                    $crypto = new AES('ctr');
-                    break;
-                case class_exists('\phpseclib4\Crypt\Twofish'):
-                    $crypto = new Twofish('ctr');
-                    break;
-                case class_exists('\phpseclib4\Crypt\Blowfish'):
-                    $crypto = new Blowfish('ctr');
-                    break;
-                case class_exists('\phpseclib4\Crypt\TripleDES'):
-                    $crypto = new TripleDES('ctr');
-                    break;
-                case class_exists('\phpseclib4\Crypt\DES'):
-                    $crypto = new DES('ctr');
-                    break;
-                case class_exists('\phpseclib4\Crypt\RC4'):
-                    $crypto = new RC4();
-                    break;
-                default:
-                    throw new RuntimeException(__CLASS__ . ' requires at least one symmetric cipher be loaded');
-            }
+            $crypto = new AES('ctr');
 
             $crypto->setKey(substr($key, 0, $crypto->getKeyLength() >> 3));
             $crypto->setIV(substr($iv, 0, $crypto->getBlockLength() >> 3));

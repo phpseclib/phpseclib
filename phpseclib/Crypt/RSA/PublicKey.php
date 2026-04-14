@@ -13,21 +13,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA;
 
-use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common;
-use phpseclib4\Crypt\Hash;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Crypt\RSA;
-use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\OutOfRangeException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\Exception\UnsupportedFormatException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Maps\DigestInfo;
-use phpseclib4\File\ASN1\OIDs\Hashes;
-use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\Crypt\{Common, RSA, Random};
+use phpseclib4\Exception\{BadConfigurationException, KeyConstraintException, LengthException, UnsupportedAlgorithmException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -57,7 +44,7 @@ final class PublicKey extends RSA implements Common\PublicKey
     private function rsavp1(BigInteger $s): BigInteger
     {
         if ($s->compare(self::$zero) < 0 || $s->compare($this->modulus) > 0) {
-            throw new OutOfRangeException('Signature representative out of range');
+            throw new LengthException('Signature representative out of range');
         }
         return $this->exponentiate($s);
     }
@@ -66,8 +53,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      * RSASSA-PKCS1-V1_5-VERIFY
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-8.2.2 RFC3447#section-8.2.2}.
-     *
-     * @throws LengthException if the RSA modulus is too short
      */
     private function rsassa_pkcs1_v1_5_verify(string $m, string $s): bool
     {
@@ -110,7 +95,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         }
 
         if ($exception) {
-            throw new LengthException('RSA modulus too short');
+            throw new KeyConstraintException('RSA modulus too short');
         }
 
         // Compare
@@ -248,8 +233,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      * RSAES-PKCS1-V1_5-ENCRYPT
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
-     *
-     * @throws LengthException if strlen($m) > $this->k - 11
      */
     private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false): string
     {
@@ -258,7 +241,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         // Length checking
 
         if ($mLen > $this->k - 11) {
-            throw new LengthException('Message too long');
+            throw new KeyConstraintException('Message too long');
         }
 
         // EME-PKCS1-v1_5 encoding
@@ -288,8 +271,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.1.1 RFC3447#section-7.1.1} and
      * {http://en.wikipedia.org/wiki/Optimal_Asymmetric_Encryption_Padding OAES}.
-     *
-     * @throws LengthException if strlen($m) > $this->k - 2 * $this->hLen - 2
      */
     private function rsaes_oaep_encrypt(string $m): string
     {
@@ -301,7 +282,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         // be output.
 
         if ($mLen > $this->k - 2 * $this->hLen - 2) {
-            throw new LengthException('Message too long');
+            throw new KeyConstraintException('Message too long');
         }
 
         // EME-OAEP encoding
@@ -335,7 +316,7 @@ final class PublicKey extends RSA implements Common\PublicKey
     private function rsaep(BigInteger $m): BigInteger
     {
         if ($m->compare(self::$zero) < 0 || $m->compare($this->modulus) > 0) {
-            throw new OutOfRangeException('Message representative out of range');
+            throw new LengthException('Message representative out of range');
         }
         return $this->exponentiate($m);
     }
@@ -344,13 +325,11 @@ final class PublicKey extends RSA implements Common\PublicKey
      * Raw Encryption / Decryption
      *
      * Doesn't use padding and is not recommended.
-     *
-     * @throws LengthException if strlen($m) > $this->k
      */
     private function raw_encrypt(string $m): string
     {
         if (strlen($m) > $this->k) {
-            throw new LengthException('Message too long');
+            throw new KeyConstraintException('Message too long');
         }
 
         $temp = $this->os2ip($m);
@@ -365,7 +344,6 @@ final class PublicKey extends RSA implements Common\PublicKey
      * If $plaintext exceeds those limits it will be broken up so that it does and the resultant ciphertext's will
      * be concatenated together.
      *
-     * @throws LengthException if the RSA modulus is too short
      * @see self::decrypt()
      */
     public function encrypt(string $plaintext): string

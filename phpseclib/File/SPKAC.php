@@ -18,15 +18,10 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Common\PublicKey;
-use phpseclib4\Crypt\PublicKeyLoader;
-use phpseclib4\Crypt\RSA;
-use phpseclib4\Exception\NoKeyLoadedException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Crypt\{PublicKeyLoader, RSA};
+use phpseclib4\Exception\{NoKeyLoadedException, UnexpectedValueException};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\BitString;
 use phpseclib4\File\Common\Signable;
 
@@ -39,7 +34,24 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 {
     use \phpseclib4\File\Common\Traits\ASN1Signature;
 
-    private Constructed|array $spkac;
+    private Constructed|array $spkac = [
+        'publicKeyAndChallenge' => [
+            'spki' => [
+                'algorithm' => ['algorithm' => '0.0'],
+                'subjectPublicKey' => "\0",
+            ],
+            // quoting <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen>,
+            // "A challenge string that is submitted along with the public key. Defaults to an empty string if not specified."
+            // both Firefox and OpenSSL ("openssl spkac -key private.key") behave this way
+            // we could alternatively do this instead if we ignored the specs:
+            // Random::string(8) & str_repeat("\x7F", 8)
+            'challenge' => '',
+        ],
+        'signatureAlgorithm' => [
+            'algorithm' => '0.0',
+        ],
+        'signature' => "\0",
+    ];
 
     /**
      * Binary key flag
@@ -49,25 +61,6 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
     public function __construct(?PublicKey $public = null)
     {
         ASN1::loadOIDs('X509');
-
-        $this->spkac = [
-            'publicKeyAndChallenge' => [
-                'spki' => [
-                    'algorithm' => ['algorithm' => '0.0'],
-                    'subjectPublicKey' => "\0",
-                ],
-                // quoting <https://developer.mozilla.org/en-US/docs/Web/HTML/Element/keygen>,
-                // "A challenge string that is submitted along with the public key. Defaults to an empty string if not specified."
-                // both Firefox and OpenSSL ("openssl spkac -key private.key") behave this way
-                // we could alternatively do this instead if we ignored the specs:
-                // Random::string(8) & str_repeat("\x7F", 8)
-                'challenge' => '',
-            ],
-            'signatureAlgorithm' => [
-                'algorithm' => '0.0',
-            ],
-            'signature' => "\0",
-        ];
 
         if ($public instanceof PublicKey) {
             $this->setPublicKey($public);
@@ -120,7 +113,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         if ($mode != ASN1::FORMAT_DER) {
             $newspkac = ASN1::extractBER($spkac);
             if ($mode == ASN1::FORMAT_PEM && $spkac == $newspkac) {
-                throw new RuntimeException('Unable to decode PEM');
+                throw new UnexpectedValueException('Unable to decode PEM');
             }
             $spkac = $newspkac;
         }
@@ -137,7 +130,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($spkac);
 
         $rules = [];
-        $rules['publicKeyAndChallenge']['spki'] = function(Constructed &$spkac) {
+        $rules['publicKeyAndChallenge']['spki'] = function (Constructed &$spkac) {
             try {
                 $spkac = PublicKeyLoader::load($spkac->getEncoded());
             } catch (NoKeyLoadedException $e) {
@@ -235,7 +228,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
     public function getPublicKey(): PublicKey
     {
         if (!$this->spkac['publicKeyAndChallenge']['spki'] instanceof PublicKey) {
-            throw new RuntimeException('Unable to decode spki');
+            throw new UnexpectedValueException('Unable to decode spki');
         }
 
         $publicKey = $this->spkac['publicKeyAndChallenge']['spki'];

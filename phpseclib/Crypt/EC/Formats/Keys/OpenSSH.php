@@ -21,8 +21,12 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\OpenSSH as Progenitor;
 use phpseclib4\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib4\Crypt\EC\Curves\Ed25519;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnsupportedCurveException;
+use phpseclib4\Exception\{
+    LengthException,
+    UnexpectedValueException,
+    UnsupportedCurveException,
+    UnsupportedValueException
+};
 use phpseclib4\File\ASN1\OIDs\Curves;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\Common\FiniteField\Integer;
@@ -57,7 +61,7 @@ abstract class OpenSSH extends Progenitor
             $paddedKey = $parsed['paddedKey'];
             [$type] = Strings::unpackSSH2('s', $paddedKey);
             if ($type != $parsed['type']) {
-                throw new RuntimeException("The public and private keys are not of the same type ($type vs $parsed[type])");
+                throw new UnexpectedValueException("The public and private keys are not of the same type ($type vs $parsed[type])");
             }
             if ($type == 'ssh-ed25519') {
                 [, $key, $comment] = Strings::unpackSSH2('sss', $paddedKey);
@@ -78,7 +82,7 @@ abstract class OpenSSH extends Progenitor
 
         if ($parsed['type'] == 'ssh-ed25519') {
             if (Strings::shift($parsed['publicKey'], 4) != "\0\0\0\x20") {
-                throw new RuntimeException('Length of ssh-ed25519 key should be 32');
+                throw new UnexpectedValueException('Length of ssh-ed25519 key should be 32');
             }
 
             $curve = new Ed25519();
@@ -178,10 +182,10 @@ abstract class OpenSSH extends Progenitor
     ): string {
         if ($curve instanceof Ed25519) {
             if (!isset($secret)) {
-                throw new RuntimeException('Private Key does not have a secret set');
+                throw new UnsupportedValueException('Private Key does not have a secret set');
             }
             if (strlen($secret) != 32) {
-                throw new RuntimeException('Private Key secret is not of the correct length');
+                throw new LengthException('Private Key secret is not of the correct length');
             }
 
             $pubKey = $curve->encodePoint($publicKey);

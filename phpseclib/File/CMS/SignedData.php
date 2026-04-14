@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / SignedData Parser
  *
@@ -16,26 +17,15 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS;
 
-use phpseclib4\Common\Functions\Arrays;
-use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Crypt\Hash;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Types\BaseType;
-use phpseclib4\File\ASN1\Types\BitString;
-use phpseclib4\File\ASN1\Types\OctetString;
-use phpseclib4\File\ASN1\Types\OID;
-use phpseclib4\File\CMS;
+use phpseclib4\Exception\{BadMethodCallException, UnexpectedValueException, UnsupportedAlgorithmException};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{OID, OctetString};
+use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\Common\Signable;
-use phpseclib4\File\CRL;
-use phpseclib4\File\X509;
 
 /**
  * Pure-PHP CMS / SignedData Parser
@@ -298,7 +288,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         } elseif (isset($this->fp)) {
             return $hash->hash($this->fp);
         } else {
-            throw new RuntimeException('There is nothing to hash');
+            throw new BadMethodCallException('There is nothing to hash');
         }
     }
 
@@ -571,16 +561,16 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
                 // living alongside the cert. this was intended for pre-v3 X509 certs where extensions were not
                 // included
                 //case isset($cert['extendedCertificate']): // obsolete
-                    //if ($this->isSignedBy($cert['extendedCertificate']['certificate'])) {
-                    //    $signingCert = $cert['extendedCertificiate']['certificate'];
-                    //}
-                    //break;
+                //    if ($this->isSignedBy($cert['extendedCertificate']['certificate'])) {
+                //        $signingCert = $cert['extendedCertificiate']['certificate'];
+                //    }
+                //    break;
                 //case isset($cert['v1AttrCert']): // obsolete
-                    // ['v1AttrCert']['acInfo'] = $AttributeCertificateInfoV1 ?
+                //    ['v1AttrCert']['acInfo'] = $AttributeCertificateInfoV1 ?
                 //case isset($cert['v2AttrCert']):
-                    // ['v2AttrCert']['acInfo'] = $AttributeCertificateInfo ?
+                //    ['v2AttrCert']['acInfo'] = $AttributeCertificateInfo ?
                 //case isset($cert['other']):
-                    // ['other']['otherCert'] = ???
+                //    ['other']['otherCert'] = ???
                 //    continue 2;
             }
         }

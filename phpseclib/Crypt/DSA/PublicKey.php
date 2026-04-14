@@ -13,8 +13,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\DSA;
 
-use phpseclib4\Crypt\Common;
-use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\{Common, DSA};
 use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib4\Exception\BadConfigurationException;
 

@@ -18,7 +18,6 @@ namespace phpseclib4\Crypt\RSA\Formats\Keys;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -43,7 +42,7 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(array|string $key, ?string $password): array
+    public static function load(string|array $key, ?string $password): array
     {
         static $one;
         if (!isset($one)) {

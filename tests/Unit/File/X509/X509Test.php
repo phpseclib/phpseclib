@@ -15,7 +15,8 @@ use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\EC;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\ResourceLimitException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedFormatException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Element;
@@ -1010,7 +1011,7 @@ B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
 +KlUM1ZXFrxtDxLWqp51myWDulWjnK6cl7b5AVgCIQCRdthTn8JlN5bRSnJ6qiCk
 A9bhRA0cVk7bAEU2c44CYg==
 -----END CERTIFICATE-----';
-        $this->expectException(RuntimeException::class);
+        $this->expectException(UnexpectedValueException::class);
         $x509 = X509::load($cert)->toArray();
     }
 
@@ -1043,7 +1044,7 @@ A9bhRA0cVk7bAEU2c44CYg==
         $cert = file_get_contents(__DIR__ . '/mal-cert-02.der');
 
         $x509 = X509::load($cert);
-        $this->expectException(RuntimeException::class);
+        $this->expectException(ResourceLimitException::class);
         $x509->toArray();
     }
 
@@ -1109,7 +1110,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $a = 'da7e705569d4196cd49cf3b3d92cd435ca34ccbe';
         $a = pack('H*', $a);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(UnexpectedValueException::class);
         $x509 = X509::load($a)->toArray();
     }
 
@@ -1436,7 +1437,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $cert = file_get_contents(__DIR__ . '/mal-cert-01.der');
 
         $x509 = X509::load($cert);
-        $this->expectException(UnsupportedFormatException::class);
+        $this->expectException(UnexpectedValueException::class);
         $x509->getPublicKey();
     }
 

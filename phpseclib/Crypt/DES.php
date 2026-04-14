@@ -43,7 +43,6 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\BlockCipher;
-use phpseclib4\Exception\BadModeException;
 use phpseclib4\Exception\LengthException;
 
 /**
@@ -545,20 +544,6 @@ class DES extends BlockCipher
         0x08020820, 0x00020800, 0x00020800, 0x00000820,
         0x00000820, 0x00020020, 0x08000000, 0x08020800,
     ];
-
-    /**
-     * Default Constructor.
-     *
-     * @throws BadModeException if an invalid / unsupported mode is provided
-     */
-    public function __construct(string $mode)
-    {
-        parent::__construct($mode);
-
-        if ($this->mode == self::MODE_STREAM) {
-            throw new BadModeException('Block ciphers cannot be ran in stream mode');
-        }
-    }
 
     /**
      * Test for engine validity
@@ -1192,7 +1177,7 @@ class DES extends BlockCipher
                    (self::$shuffle[$pc1map[($l >> 16) & 0xFF]] & "\x02\x02\x02\x02\x02\x02\x02\x00") |
                    (self::$shuffle[$pc1map[($l >> 24) & 0xFF]] & "\x01\x01\x01\x01\x01\x01\x01\x00");
             $key = unpack('Nc/Nd', $key);
-            $c = ( $key['c'] >> 4) & 0x0FFFFFFF;
+            $c = ($key['c'] >> 4) & 0x0FFFFFFF;
             $d = (($key['d'] >> 4) & 0x0FFFFFF0) | ($key['c'] & 0x0F);
 
             $keys[$des_round] = [
@@ -1212,10 +1197,10 @@ class DES extends BlockCipher
                       $pc2mapd3[($d >>  8) & 0xFF] | $pc2mapd4[ $d        & 0xFF];
 
                 // Reorder: odd bytes/even bytes. Push the result in key schedule.
-                $val1 = ( $cp        & self::safe_intval(0xFF000000)) | (($cp <<  8) & 0x00FF0000) |
+                $val1 = ($cp        & self::safe_intval(0xFF000000)) | (($cp <<  8) & 0x00FF0000) |
                         (($dp >> 16) & 0x0000FF00) | (($dp >>  8) & 0x000000FF);
                 $val2 = (($cp <<  8) & self::safe_intval(0xFF000000)) | (($cp << 16) & 0x00FF0000) |
-                        (($dp >>  8) & 0x0000FF00) | ( $dp        & 0x000000FF);
+                        (($dp >>  8) & 0x0000FF00) | ($dp        & 0x000000FF);
                 $keys[$des_round][self::ENCRYPT][       ] = $val1;
                 $keys[$des_round][self::DECRYPT][$ki - 1] = $val1;
                 $keys[$des_round][self::ENCRYPT][       ] = $val2;

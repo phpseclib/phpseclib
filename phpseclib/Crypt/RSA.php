@@ -57,14 +57,15 @@ namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\AsymmetricKey;
 use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib4\Crypt\RSA\PrivateKey;
-use phpseclib4\Crypt\RSA\PublicKey;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\BadMethodCallException;
-use phpseclib4\Exception\InconsistentSetupException;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\OutOfRangeException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Crypt\RSA\{PrivateKey, PublicKey};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    BadMethodCallException,
+    InvalidArgumentException,
+    InvalidStateException,
+    LengthException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -453,7 +454,7 @@ abstract class RSA extends AsymmetricKey
     {
         $x = $x->toBytes();
         if (strlen($x) > $xLen) {
-            throw new OutOfRangeException('Resultant string length out of range');
+            throw new LengthException('Resultant string length out of range');
         }
         return str_pad($x, $xLen, chr(0), STR_PAD_LEFT);
     }
@@ -472,8 +473,6 @@ abstract class RSA extends AsymmetricKey
      * EMSA-PKCS1-V1_5-ENCODE
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-9.2 RFC3447#section-9.2}.
-     *
-     * @throws LengthException if the intended encoded message length is too short
      */
     protected function emsa_pkcs1_v1_5_encode(string $m, int $emLen): string
     {
@@ -751,7 +750,7 @@ abstract class RSA extends AsymmetricKey
             }
         }
         if ($encryptedCount > 1) {
-            throw new InconsistentSetupException('Multiple encryption padding modes have been selected; at most only one should be selected');
+            throw new InvalidStateException('Multiple encryption padding modes have been selected; at most only one should be selected');
         }
         $encryptionPadding = $selected;
 
@@ -768,7 +767,7 @@ abstract class RSA extends AsymmetricKey
             }
         }
         if ($signatureCount > 1) {
-            throw new InconsistentSetupException('Multiple signature padding modes have been selected; at most only one should be selected');
+            throw new InvalidStateException('Multiple signature padding modes have been selected; at most only one should be selected');
         }
         $signaturePadding = $selected;
 
@@ -958,7 +957,7 @@ abstract class RSA extends AsymmetricKey
                     'saltLength' => $this->getSaltLength(),
                 ];
             } else {
-                throw new UnsupportedFormatException('The PSS format can only be used when the signature method has been explicitly set to PSS');
+                throw new InvalidArgumentException('The PSS format can only be used when the signature method has been explicitly set to PSS');
             }
         }
 
@@ -1009,9 +1008,9 @@ abstract class RSA extends AsymmetricKey
             'e' => clone $this->publicExponent,
             'n' => clone $this->modulus,
             'd' => clone $this->exponent,
-            'primes' => array_map(fn(BigInteger $var): BigInteger => clone $var, $this->primes),
-            'exponents' => array_map(fn(BigInteger $var): BigInteger => clone $var, $this->exponents),
-            'coefficients' => array_map(fn(BigInteger $var): BigInteger => clone $var, $this->coefficients),
+            'primes' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->primes),
+            'exponents' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->exponents),
+            'coefficients' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->coefficients),
         ];
     }
 }

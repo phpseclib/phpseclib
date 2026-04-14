@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MethodOnlyAvailableForSelfSigned
+ * PasswordNeededException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * MethodOnlyAvailableForSelfSigned
+ * PasswordNeededException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class MethodOnlyAvailableForSelfSigned extends \RuntimeException implements ExceptionInterface
+class PasswordNeededException extends \RuntimeException implements ExceptionInterface
 {
 }

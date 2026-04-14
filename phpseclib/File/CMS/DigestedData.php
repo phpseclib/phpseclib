@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / DigestedData Parser
  *
@@ -18,12 +19,9 @@ namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Hash;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\OctetString;
-use phpseclib4\File\CMS;
+use phpseclib4\File\{ASN1, CMS};
 
 /**
  * Pure-PHP CMS / DigestedData Parser

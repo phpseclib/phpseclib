@@ -16,14 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\File\Common\Traits;
 
 use phpseclib4\Crypt\Common\PublicKey;
-use phpseclib4\Crypt\DSA;
-use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\{DSA, EC, RSA};
 use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1\Types\BitString;
-use phpseclib4\File\ASN1\Types\ExplicitNull;
-use phpseclib4\File\ASN1\Types\OID;
+use phpseclib4\File\ASN1\Types\{BitString, ExplicitNull, OID};
 
 /**
  * Common methods for signature algorithm identification
@@ -54,6 +50,7 @@ trait ASN1Signature
                 case 'sha512/224':
                 case 'sha512/256':
                     $hash = str_replace('/', '-', $hash);
+                    // no break
                 case 'md2':
                 case 'md5':
                 case 'sha1':

@@ -16,8 +16,12 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common;
 
 use phpseclib4\Crypt\Hash;
-use phpseclib4\Exception\NoKeyLoadedException;
-use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    InvalidStateException,
+    NoKeyLoadedException,
+    UnsupportedValueException
+};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -120,7 +124,7 @@ abstract class AsymmetricKey
 
         $class = new \ReflectionClass(static::class);
         if ($class->isFinal()) {
-            throw new \RuntimeException('load() should not be called from final classes (' . static::class . ')');
+            throw new InvalidStateException('load() should not be called from final classes (' . static::class . ')');
         }
 
         foreach (self::$plugins[static::ALGORITHM]['Keys'] as $format) {
@@ -252,11 +256,11 @@ abstract class AsymmetricKey
     {
         $type = strtolower($type);
         if (!isset(self::$plugins[static::ALGORITHM][$format][$type])) {
-            throw new UnsupportedFormatException("$type is not a supported format");
+            throw new UnsupportedValueException("$type is not a supported format");
         }
         $type = self::$plugins[static::ALGORITHM][$format][$type];
         if (isset($method) && !method_exists($type, $method)) {
-            throw new UnsupportedFormatException("$type does not implement $method");
+            throw new UnsupportedValueException("$type does not implement $method");
         }
 
         return $type;
@@ -376,7 +380,7 @@ abstract class AsymmetricKey
                 static::$forcedEngine = $engine;
                 break;
             default:
-                throw new \InvalidArgumentException('Valid engines are null, PHP, OpenSSL or libsodium');
+                throw new BadConfigurationException('Valid engines are null, PHP, OpenSSL or libsodium');
         }
     }
 

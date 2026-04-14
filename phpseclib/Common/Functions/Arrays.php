@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Common\Functions;
 
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException};
 
 /**
  * Common Array Functions
@@ -35,10 +35,6 @@ abstract class Arrays
      */
     public static function isSubArrayValid(array|\ArrayAccess $root, string $path): bool
     {
-        if (!isset($root)) {
-            return false;
-        }
-
         foreach (explode('/', $path) as $i) {
             if (!isset($root)) {
                 return false;
@@ -122,27 +118,23 @@ abstract class Arrays
         return $root;
     }
 
-    public static function &subArrayWithWildcards(array|\ArrayAccess|null &$root, string $path, bool $create = false): mixed
+    public static function &subArrayWithWildcards(array|\ArrayAccess &$root, string $path, bool $create = false): mixed
     {
-        if (!isset($root)) {
-            throw new RuntimeException('root is not set');
-        }
-
         $parts = explode('/', $path);
-        foreach ($parts as $k=>$i) {
+        foreach ($parts as $k => $i) {
             if (!isset($root)) {
                 $loc = implode('/', array_slice($parts, 0, $k));
-                throw new RuntimeException("Unable to find node for $loc");
+                throw new UnexpectedValueException("Unable to find node for $loc");
             }
 
             if (!is_array($root) && !$root instanceof \ArrayAccess) {
                 $loc = implode('/', array_slice($parts, 0, $k));
-                throw new RuntimeException("$loc isn't an array or an instance of ArrayAccess");
+                throw new UnexpectedValueException("$loc isn't an array or an instance of ArrayAccess");
             }
 
             if ($i == '*') {
                 $path = implode('/', array_slice($parts, $k + 1));
-                foreach ($root as $key=>$val) {
+                foreach ($root as $key => $val) {
                     if (empty($path)) {
                         return $val;
                     } else {
@@ -151,13 +143,13 @@ abstract class Arrays
                     }
                 }
                 $loc = implode('/', array_slice($parts, 0, $k));
-                throw new RuntimeException("$loc wasn't found");
+                throw new UnexpectedValueException("$loc wasn't found");
             }
 
             if (!isset($root[$i])) {
                 if (!$create) {
                     $loc = implode('/', array_slice($parts, 0, $k));
-                    throw new RuntimeException("$loc wasn't found and the create flag wasn't set");
+                    throw new UnexpectedValueException("$loc wasn't found and the create flag wasn't set");
                 }
 
                 $root[$i] = [];
@@ -169,17 +161,17 @@ abstract class Arrays
         return $root;
     }
 
-    public static function subArrayMapWithWildcards(array|\ArrayAccess|null &$root, string $path, \Closure $func): void
+    public static function subArrayMapWithWildcards(array|\ArrayAccess &$root, string $path, \Closure $func): void
     {
         $parts = explode('/', $path);
-        foreach ($parts as $k=>$i) {
+        foreach ($parts as $k => $i) {
             if (!isset($root)) {
                 return;
             }
 
             if ($i == '*') {
                 $path = implode('/', array_slice($parts, $k + 1));
-                foreach ($root as $key=>$val) {
+                foreach ($root as $key => $val) {
                     if (empty($path)) {
                         $root[$key] = $func($val);
                     } else {
@@ -201,6 +193,6 @@ abstract class Arrays
             $root = &$root[$i];
         }
 
-        throw new RuntimeException('Reached supposedly unreachable section of code');
+        throw new InvalidStateException('Reached supposedly unreachable section of code');
     }
 }

@@ -17,9 +17,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\File;
 
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedValueException};
 use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
 
 /**
  * Pure-PHP CMS Parser
@@ -39,7 +38,7 @@ abstract class CMS
         if ($mode != ASN1::FORMAT_DER) {
             $newcms = ASN1::extractBER($cms);
             if ($mode == ASN1::FORMAT_PEM && $cms == $newcms) {
-                throw new RuntimeException('Unable to decode PEM');
+                throw new UnexpectedValueException('Unable to decode PEM');
             }
             $cms = $newcms;
         }
@@ -50,7 +49,7 @@ abstract class CMS
             case !$result['constructed']:
             case $result['tag'] !== ASN1::TYPE_SEQUENCE:
             case $result['class'] !== ASN1::CLASS_UNIVERSAL:
-                throw new RuntimeException('Invalid tag found (expected a universal SEQUENCE tag; found ' . ASN1::convertTypeConstantToString($result['tag']) . ')');
+                throw new UnexpectedValueException('Invalid tag found (expected a universal SEQUENCE tag; found ' . ASN1::convertTypeConstantToString($result['tag']) . ')');
         }
         ASN1::decodeLength($cms, $pos);
         $result = ASN1::decodeTag($cms, $pos);
@@ -58,7 +57,7 @@ abstract class CMS
             case $result['constructed']:
             case $result['tag'] !== ASN1::TYPE_OBJECT_IDENTIFIER:
             case $result['class'] !== ASN1::CLASS_UNIVERSAL:
-                throw new RuntimeException('Invalid tag found (expected a universal OID tag; found ' . ASN1::convertTypeConstantToString($result['tag']) . ')');
+                throw new UnexpectedValueException('Invalid tag found (expected a universal OID tag; found ' . ASN1::convertTypeConstantToString($result['tag']) . ')');
         }
         $length = ASN1::decodeLength($cms, $pos);
         $oid = substr($cms, $pos, $length);
@@ -75,7 +74,7 @@ abstract class CMS
                 ASN1::loadOIDs('Hashes');
                 return CMS\DigestedData::load($cms);
         }
-        throw new RuntimeException("$contentType is not a supported OID");
+        throw new UnsupportedValueException("$contentType is not a supported OID");
     }
 
     public static function createSIDRID(X509 $x509, int $type): array
@@ -91,7 +90,7 @@ abstract class CMS
             case CMS::KEY_ID:
                 $keyID = $x509->getExtension('id-ce-subjectKeyIdentifier');
                 if (!isset($keyID)) {
-                    throw new RuntimeException('id-ce-subjectKeyIdentifier is not present');
+                    throw new UnexpectedValueException('id-ce-subjectKeyIdentifier is not present');
                 }
                 return ['subjectKeyIdentifier' => $keyID['extnValue']];
             default:

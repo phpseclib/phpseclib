@@ -12,8 +12,8 @@ namespace phpseclib4\Tests\Unit\Crypt\AES;
 
 use phpseclib4\Crypt\AES;
 use phpseclib4\Crypt\Rijndael;
-use phpseclib4\Exception\InconsistentSetupException;
-use phpseclib4\Exception\InsufficientSetupException;
+use phpseclib4\Exception\InvalidStateException;
+use phpseclib4\Exception\LengthException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 abstract class TestCase extends PhpseclibTestCase
@@ -359,7 +359,7 @@ abstract class TestCase extends PhpseclibTestCase
 
     public function testSetKeyLengthWithLargerKey(): void
     {
-        $this->expectException(InconsistentSetupException::class);
+        $this->expectException(LengthException::class);
 
         $aes = new AES('cbc');
         $aes->setKeyLength(128);
@@ -373,7 +373,7 @@ abstract class TestCase extends PhpseclibTestCase
 
     public function testSetKeyLengthWithSmallerKey(): void
     {
-        $this->expectException(InconsistentSetupException::class);
+        $this->expectException(LengthException::class);
 
         $aes = new AES('cbc');
         $aes->setKeyLength(256);
@@ -418,7 +418,7 @@ abstract class TestCase extends PhpseclibTestCase
 
     public function testNoKey(): void
     {
-        $this->expectException(InsufficientSetupException::class);
+        $this->expectException(InvalidStateException::class);
 
         $aes = new AES('cbc');
         $aes->setPreferredEngine($this->engine);

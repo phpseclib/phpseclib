@@ -15,10 +15,8 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Curves;
 
 use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards;
-use phpseclib4\Crypt\Hash;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Crypt\{Hash, Random};
+use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException, UnsupportedValueException};
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
@@ -73,7 +71,7 @@ class Ed448 extends TwistedEdwards
         $x2 = $u->divide($v);
         if ($x2->equals($this->zero)) {
             if ($sign) {
-                throw new RuntimeException('Unable to recover X coordinate (x2 = 0)');
+                throw new UnexpectedValueException('Unable to recover X coordinate (x2 = 0)');
             }
             return clone $this->zero;
         }
@@ -83,7 +81,7 @@ class Ed448 extends TwistedEdwards
         $x = $x2->pow($exp);
 
         if (!$x->multiply($x)->subtract($x2)->equals($this->zero)) {
-            throw new RuntimeException('Unable to recover X coordinate');
+            throw new UnexpectedValueException('Unable to recover X coordinate');
         }
         if ($x->isOdd() != $sign) {
             $x = $x->negate();
@@ -102,7 +100,7 @@ class Ed448 extends TwistedEdwards
     public function extractSecret(string $str): array
     {
         if (strlen($str) != 57) {
-            throw new LengthException('Private Key should be 57-bytes long');
+            throw new UnexpectedValueException('Private Key should be 57-bytes long');
         }
         // 1.  Hash the 57-byte private key using SHAKE256(x, 114), storing the
         //     digest in a 114-octet large buffer, denoted h.  Only the lower 57
@@ -183,7 +181,7 @@ class Ed448 extends TwistedEdwards
     public function doublePoint(array $p): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
 
         if (!count($p)) {
@@ -191,7 +189,7 @@ class Ed448 extends TwistedEdwards
         }
 
         if (!isset($p[2])) {
-            throw new RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
         }
 
         // from https://tools.ietf.org/html/rfc8032#page-18
@@ -221,7 +219,7 @@ class Ed448 extends TwistedEdwards
     public function addPoint(array $p, array $q): array
     {
         if (!isset($this->factory)) {
-            throw new RuntimeException('setModulo needs to be called before this method');
+            throw new InvalidStateException('setModulo needs to be called before this method');
         }
 
         if (!count($p) || !count($q)) {
@@ -235,7 +233,7 @@ class Ed448 extends TwistedEdwards
         }
 
         if (!isset($p[2]) || !isset($q[2])) {
-            throw new RuntimeException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
+            throw new UnsupportedValueException('Affine coordinates need to be manually converted to "Jacobi" coordinates or vice versa');
         }
 
         if ($p[0]->equals($q[0])) {

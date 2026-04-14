@@ -28,52 +28,48 @@ class Integer extends Base
 {
     /**
      * Holds the PrimeField's value
-     *
-     * @var BigInteger
      */
-    protected $value;
+    protected BigInteger $value;
 
     /**
      * Keeps track of current instance
-     *
-     * @var int
      */
-    protected $instanceID;
+    protected int $instanceID;
 
     /**
      * Holds the PrimeField's modulo
      *
      * @var array<int, BigInteger>
      */
-    protected static $modulo;
+    protected static array $modulo;
 
     /**
      * Holds a pre-generated function to perform modulo reductions
      *
      * @var array<int, callable(BigInteger):BigInteger>
      */
-    protected static $reduce;
+    protected static array $reduce;
 
     /**
      * Zero
      *
      * @var BigInteger[]
      */
-    protected static $zero;
+    protected static array $zero;
 
     /**
      * One
      *
      * @var BigInteger[]
      */
-    protected static $one;
+    protected static array $one;
 
     /**
      * Two
      *
      * @var BigInteger[]
      */
-    protected static $two;
+    protected static array $two;
 
     /**
      * Default constructor
@@ -113,11 +109,13 @@ class Integer extends Base
      */
     public static function cleanupCache(int $instanceID): void
     {
-        unset(static::$modulo[$instanceID]);
-        unset(static::$reduce[$instanceID]);
-        unset(static::$zero[$instanceID]);
-        unset(static::$one[$instanceID]);
-        unset(static::$two[$instanceID]);
+        unset(
+            static::$modulo[$instanceID],
+            static::$reduce[$instanceID],
+            static::$zero[$instanceID],
+            static::$one[$instanceID],
+            static::$two[$instanceID]
+        );
     }
 
     /**
@@ -162,10 +160,8 @@ class Integer extends Base
 
     /**
      * Adds two PrimeFieldIntegers.
-     *
-     * @return static
      */
-    public function add(self $x): Integer
+    public function add(self $x): self
     {
         static::checkInstance($this, $x);
 
@@ -180,10 +176,8 @@ class Integer extends Base
 
     /**
      * Subtracts two PrimeFieldIntegers.
-     *
-     * @return static
      */
-    public function subtract(self $x): Integer
+    public function subtract(self $x): self
     {
         static::checkInstance($this, $x);
 
@@ -198,10 +192,8 @@ class Integer extends Base
 
     /**
      * Multiplies two PrimeFieldIntegers.
-     *
-     * @return static
      */
-    public function multiply(self $x): Integer
+    public function multiply(self $x): self
     {
         static::checkInstance($this, $x);
 
@@ -210,10 +202,8 @@ class Integer extends Base
 
     /**
      * Divides two PrimeFieldIntegers.
-     *
-     * @return static
      */
-    public function divide(self $x): Integer
+    public function divide(self $x): self
     {
         static::checkInstance($this, $x);
 
@@ -223,10 +213,8 @@ class Integer extends Base
 
     /**
      * Performs power operation on a PrimeFieldInteger.
-     *
-     * @return static
      */
-    public function pow(BigInteger $x): Integer
+    public function pow(BigInteger $x): self
     {
         $temp = new static($this->instanceID);
         $temp->value = $this->value->powMod($x, static::$modulo[$this->instanceID]);
@@ -238,9 +226,8 @@ class Integer extends Base
      * Calculates the square root
      *
      * @link https://en.wikipedia.org/wiki/Tonelli%E2%80%93Shanks_algorithm
-     * @return static|false
      */
-    public function squareRoot()
+    public function squareRoot(): ?self
     {
         if (!isset(static::$one[$this->instanceID])) {
             static::$one[$this->instanceID] = new BigInteger(1);
@@ -276,7 +263,7 @@ class Integer extends Base
             }
 
             if ($i->compare($m) == 0) {
-                return false;
+                return null;
             }
             $b = $c->powMod($two->pow($m->subtract($i)->subtract($one)), $modulo);
             $m = $i;
@@ -301,10 +288,8 @@ class Integer extends Base
      *
      * A negative number can be written as 0-12. With modulos, 0 is the same thing as the modulo
      * so 0-12 is the same thing as modulo-12
-     *
-     * @return static
      */
-    public function negate(): Integer
+    public function negate(): self
     {
         return new static($this->instanceID, static::$modulo[$this->instanceID]->subtract($this->value));
     }
@@ -397,20 +382,16 @@ class Integer extends Base
 
     /**
      *  __toString() magic method
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->value;
     }
 
     /**
      *  __debugInfo() magic method
-     *
-     * @return array
      */
-    public function __debugInfo()
+    public function __debugInfo(): array
     {
         return ['value' => $this->toHex()];
     }

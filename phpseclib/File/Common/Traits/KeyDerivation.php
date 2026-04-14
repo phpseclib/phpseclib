@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / PasswordRecipient Parser
  *
@@ -16,14 +17,10 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\Common\Traits;
 
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\RuntimeException;
+use phpseclib4\Crypt\{AES, TripleDES};
+use phpseclib4\Exception\{InvalidStateException, LengthException, UnexpectedValueException};
 use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
 use phpseclib4\File\CMS\EncryptedData;
-use phpseclib4\Crypt\AES;
-use phpseclib4\Crypt\TripleDES;
 
 trait KeyDerivation
 {
@@ -54,7 +51,7 @@ trait KeyDerivation
         }
 
         if ($a != $iv) {
-            throw new RuntimeException('Error with unwrapping');
+            throw new UnexpectedValueException('Error with unwrapping');
         }
         return implode('', $r);
     }
@@ -80,7 +77,7 @@ trait KeyDerivation
         $cek = substr($cekicv, 0, 24);
         $icv = substr($cekicv, -8);
         if ($icv != substr(sha1($cek, true), 0, 8)) {
-            throw new RuntimeException('Checksum validation failed');
+            throw new UnexpectedValueException('Checksum validation failed');
         }
         return $cek;
     }
@@ -95,7 +92,7 @@ trait KeyDerivation
             $cms = &$this->cms;
         }
         if (!isset($cek)) {
-            throw new InsufficientSetupException('Content encryption key not set');
+            throw new InvalidStateException('Content encryption key not set');
         }
 
         $cea = ASN1::decodeBER((string) $cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']);

@@ -18,13 +18,14 @@ declare(strict_types=1);
 namespace phpseclib4\System\SSH\Agent;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common\PrivateKey;
-use phpseclib4\Crypt\Common\PublicKey;
-use phpseclib4\Crypt\DSA;
-use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\RSA;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
+use phpseclib4\Crypt\{DSA, EC, RSA};
+use phpseclib4\Exception\{
+    BadMethodCallException,
+    ConnectionClosedException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\File\CSR;
 use phpseclib4\System\SSH\Agent;
@@ -233,9 +234,6 @@ class Identity implements PrivateKey
      * Create a signature
      *
      * See "2.6.2 Protocol 2 private key signature request"
-     *
-     * @throws RuntimeException on connection errors
-     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function sign(string|Signable $source): string
     {
@@ -259,7 +257,7 @@ class Identity implements PrivateKey
         );
         $packet = Strings::packSSH2('s', $packet);
         if (strlen($packet) != fwrite($this->fsock, $packet)) {
-            throw new RuntimeException('Connection closed during signing');
+            throw new ConnectionClosedException('Connection closed during signing');
         }
 
         $length = current(unpack('N', $this->readBytes(4)));
@@ -267,7 +265,7 @@ class Identity implements PrivateKey
 
         [$type, $signature_blob] = Strings::unpackSSH2('Cs', $packet);
         if ($type != Agent::SSH_AGENT_SIGN_RESPONSE) {
-            throw new RuntimeException('Unable to retrieve signature');
+            throw new UnexpectedValueException('Unable to retrieve signature');
         }
 
         if ($this->key instanceof RSA) {
@@ -283,22 +281,18 @@ class Identity implements PrivateKey
 
     /**
      * Returns the private key
-     *
-     * @param array $options optional
      */
     public function toString(string $type, array $options = []): string
     {
-        throw new RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+        throw new BadMethodCallException('ssh-agent does not provide a mechanism to get the private key');
     }
 
     /**
      * Sets the password
-     *
-     * @return never
      */
     public function withPassword(#[SensitiveParameter] ?string $password = null): PrivateKey
     {
-        throw new RuntimeException('ssh-agent does not provide a mechanism to get the private key');
+        throw new BadMethodCallException('ssh-agent does not provide a mechanism to get the private key');
     }
 
     /**

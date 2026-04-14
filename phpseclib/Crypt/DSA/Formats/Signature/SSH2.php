@@ -18,8 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DSA\Formats\Signature;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\{LengthException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**

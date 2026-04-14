@@ -23,10 +23,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -39,10 +36,10 @@ abstract class XML
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key): array
+    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         if (!class_exists('DOMDocument')) {
@@ -63,8 +60,10 @@ abstract class XML
             $key = '<xml>' . $key . '</xml>';
         }
         if (!$dom->loadXML($key)) {
+            $e = libxml_get_last_error();
+            $message = 'Error loading XML - ' . $e->message;
             libxml_use_internal_errors($use_errors);
-            throw new UnexpectedValueException('Key does not appear to contain XML');
+            throw new UnexpectedValueException($message, $e->code);
         }
         $xpath = new \DOMXPath($dom);
         $keys = ['modulus', 'exponent', 'p', 'q', 'dp', 'dq', 'inverseq', 'd'];
@@ -130,7 +129,7 @@ abstract class XML
         }
 
         if (isset($password)) {
-            throw new UnsupportedFormatException('XML private keys do not support encryption');
+            throw new InvalidArgumentException('XML private keys do not support encryption');
         }
 
         return "<RSAKeyPair>\r\n" .

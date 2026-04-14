@@ -25,9 +25,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
-use phpseclib4\Exception\BadMethodCallException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedFormatException;
+use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -43,7 +41,7 @@ abstract class Raw
     public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!is_array($key)) {
-            throw new UnexpectedValueException('Key should be a array - not a ' . gettype($key));
+            throw new InvalidArgumentException('Key should be an array - not a string');
         }
 
         $key = array_change_key_case($key, CASE_LOWER);
@@ -134,21 +132,5 @@ abstract class Raw
         }
 
         return $components;
-    }
-
-    /**
-     * Convert a private key to the appropriate format.
-     */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
-        throw new BadMethodCallException('If you want to save Raw keys call ->toArray()');
-    }
-
-    /**
-     * Convert a public key to the appropriate format
-     */
-    public static function savePublicKey(BigInteger $n, BigInteger $e): string
-    {
-        throw new BadMethodCallException('If you want to save Raw keys call ->toArray()');
     }
 }

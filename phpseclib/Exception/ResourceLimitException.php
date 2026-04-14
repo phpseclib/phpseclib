@@ -1,7 +1,7 @@
 <?php
 
 /**
- * InsufficientSetupException
+ * ResourceLimitException
  *
  * PHP version 5
  *
@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\Exception;
 
 /**
- * InsufficientSetupException
+ * ResourceLimitException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class InsufficientSetupException extends \RuntimeException implements ExceptionInterface
+class ResourceLimitException extends \RuntimeException implements ExceptionInterface
 {
 }

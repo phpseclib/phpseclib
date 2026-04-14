@@ -16,9 +16,8 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Formats\Keys;
 
 use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\Curves\Curve25519;
-use phpseclib4\Crypt\EC\Curves\Curve448;
-use phpseclib4\Exception\LengthException;
+use phpseclib4\Crypt\EC\Curves\{Curve25519, Curve448};
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\Common\FiniteField\Integer;
 
@@ -42,7 +41,7 @@ abstract class MontgomeryPublic
         $curve = match (strlen($key)) {
             32 => new Curve25519(),
             56 => new Curve448(),
-            default => throw new LengthException('The only supported lengths are 32 and 56')
+            default => throw new UnexpectedValueException('The only supported lengths are 32 and 56')
         };
 
         $components = ['curve' => $curve];

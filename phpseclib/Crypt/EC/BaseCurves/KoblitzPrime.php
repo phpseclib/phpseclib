@@ -30,8 +30,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\EC\BaseCurves;
 
-use phpseclib4\Math\BigInteger;
-use phpseclib4\Math\PrimeField;
+use phpseclib4\Math\{BigInteger, PrimeField};
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
 /**
@@ -143,7 +142,7 @@ class KoblitzPrime extends Prime
             ];
 
             if (isset($p['naf'])) {
-                $beta['naf'] = array_map(fn(array $p): array => [
+                $beta['naf'] = array_map(fn (array $p): array => [
                     $p[0]->multiply($this->beta),
                     $p[1],
                     clone $this->one

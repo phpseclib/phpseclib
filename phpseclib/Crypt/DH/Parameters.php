@@ -24,8 +24,6 @@ final class Parameters extends DH
 {
     /**
      * Returns the parameters
-     *
-     * @param array $options optional
      */
     public function toString(string $type = 'PKCS1', array $options = []): string
     {

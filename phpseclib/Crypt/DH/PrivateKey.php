@@ -13,8 +13,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\DH;
 
-use phpseclib4\Crypt\Common;
-use phpseclib4\Crypt\DH;
+use phpseclib4\Crypt\{Common, DH};
 use phpseclib4\Math\BigInteger;
 
 /**

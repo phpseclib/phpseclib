@@ -32,25 +32,20 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt;
 
 use phpseclib4\Crypt\Common\AsymmetricKey;
-use phpseclib4\Crypt\EC\BaseCurves\Base;
-use phpseclib4\Crypt\EC\BaseCurves\Binary as BinaryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
-use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards as TwistedEdwardsCurve;
-use phpseclib4\Crypt\EC\Curves\Curve25519;
-use phpseclib4\Crypt\EC\Curves\Curve448;
-use phpseclib4\Crypt\EC\Curves\Ed25519;
-use phpseclib4\Crypt\EC\Curves\Ed448;
+use phpseclib4\Crypt\EC\BaseCurves\{
+    Binary as BinaryCurve,
+    Montgomery as MontgomeryCurve,
+    TwistedEdwards as TwistedEdwardsCurve
+};
+use phpseclib4\Crypt\EC\Curves\{Curve25519, Ed25519, Ed448};
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS8;
-use phpseclib4\Crypt\EC\Parameters;
-use phpseclib4\Crypt\EC\PrivateKey;
-use phpseclib4\Crypt\EC\PublicKey;
-use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\Exception\BadMethodCallException;
-use phpseclib4\Exception\InvalidArgumentException;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\Exception\UnsupportedCurveException;
-use phpseclib4\Exception\UnsupportedOperationException;
+use phpseclib4\Crypt\EC\{Parameters, PrivateKey, PublicKey};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    BadMethodCallException,
+    LengthException,
+    UnsupportedCurveException
+};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps\ECParameters;
 use phpseclib4\Math\BigInteger;
@@ -84,7 +79,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Signature Format (Short)
      */
-    protected string $shortFormat;
+    protected string $shortFormat = 'ASN1';
 
     /**
      * Curve Name
@@ -350,7 +345,6 @@ abstract class EC extends AsymmetricKey
     protected function __construct()
     {
         $this->sigFormat = self::validatePlugin('Signature', 'ASN1');
-        $this->shortFormat = 'ASN1';
 
         parent::__construct();
     }
@@ -482,7 +476,7 @@ abstract class EC extends AsymmetricKey
     public function withSignatureFormat(string $format): EC
     {
         if ($this->curve instanceof MontgomeryCurve) {
-            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+            throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
         }
 
         $new = clone $this;
@@ -510,7 +504,7 @@ abstract class EC extends AsymmetricKey
     public function withContext(?string $context = null): EC
     {
         if (!$this->curve instanceof TwistedEdwardsCurve) {
-            throw new UnsupportedCurveException('Only Ed25519 and Ed448 support contexts');
+            throw new BadMethodCallException('Only Ed25519 and Ed448 support contexts');
         }
 
         $new = clone $this;
@@ -518,9 +512,7 @@ abstract class EC extends AsymmetricKey
             $new->context = null;
             return $new;
         }
-        if (!is_string($context)) {
-            throw new InvalidArgumentException('setContext expects a string');
-        }
+
         if (strlen($context) > 255) {
             throw new LengthException('The context is supposed to be, at most, 255 bytes long');
         }
@@ -542,13 +534,13 @@ abstract class EC extends AsymmetricKey
     public function withHash(string $hash): AsymmetricKey
     {
         if ($this->curve instanceof MontgomeryCurve) {
-            throw new UnsupportedOperationException('Montgomery Curves cannot be used to create signatures');
+            throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
         }
         if ($this->curve instanceof Ed25519 && $hash != 'sha512') {
-            throw new UnsupportedAlgorithmException('Ed25519 only supports sha512 as a hash');
+            throw new BadMethodCallException('Ed25519 only supports sha512 as a hash');
         }
         if ($this->curve instanceof Ed448 && $hash != 'shake256-912') {
-            throw new UnsupportedAlgorithmException('Ed448 only supports shake256 with a length of 114 bytes');
+            throw new BadMethodCallException('Ed448 only supports shake256 with a length of 114 bytes');
         }
 
         return parent::withHash($hash);

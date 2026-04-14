@@ -16,12 +16,12 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Curves;
 
 use phpseclib4\Crypt\EC\BaseCurves\Montgomery;
-use phpseclib4\Exception\RangeException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 class Curve448 extends Montgomery
 {
-    const SIZE = 56;
+    public const SIZE = 56;
 
     public function __construct()
     {
@@ -89,7 +89,7 @@ class Curve448 extends Montgomery
     public function rangeCheck(BigInteger $x): void
     {
         if ($x->getLength() > 448 || $x->isNegative()) {
-            throw new RangeException('x must be a positive integer less than 446 bytes in length');
+            throw new UnexpectedValueException('x must be a positive integer less than 446 bytes in length');
         }
     }
 }

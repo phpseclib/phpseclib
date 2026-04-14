@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\File\ASN1;
 use phpseclib4\Math\BigInteger;
 
@@ -64,7 +64,7 @@ abstract class PKCS8 extends Progenitor
     public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
     {
         if (!is_string($key)) {
-            throw new UnexpectedValueException('Key should be a string - not an array');
+            throw new InvalidArgumentException('Key should be a string - not an array');
         }
 
         $components = match (true) {

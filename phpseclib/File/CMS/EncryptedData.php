@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / EncryptedData Parser
  *
@@ -17,37 +18,26 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\Random;
-use phpseclib4\Crypt\AES;
-use phpseclib4\Crypt\RSA;
-use phpseclib4\Crypt\TripleDES;
-use phpseclib4\Exception\BadDecryptionException;
-use phpseclib4\Exception\BadMethodCallException;
-use phpseclib4\Exception\InsufficientSetupException;
-use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\RuntimeException;
-use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Element;
-use phpseclib4\File\ASN1\Maps;
-use phpseclib4\File\ASN1\Maps\RSAPublicKey;
-use phpseclib4\File\ASN1\Types\Choice;
-use phpseclib4\File\ASN1\Types\OctetString;
-use phpseclib4\File\ASN1\Types\OID;
-use phpseclib4\File\CMS;
-use phpseclib4\File\CMS\EnvelopedData\DerivableKey;
-use phpseclib4\File\CMS\EnvelopedData\KeyTransRecipient;
-use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient;
-use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
-use phpseclib4\File\CMS\EnvelopedData\KEKRecipient;
-use phpseclib4\File\CMS\EnvelopedData\PasswordRecipient;
-use phpseclib4\File\CMS\EnvelopedData\OtherRecipient;
-use phpseclib4\File\CMS\EnvelopedData\Recipient;
-use phpseclib4\File\CMS\EnvelopedData\SearchableKey;
-use phpseclib4\File\CRL;
-use phpseclib4\File\X509;
+use phpseclib4\Crypt\{AES, EC, RSA, Random, TripleDES};
+use phpseclib4\Exception\{
+    BadDecryptionException,
+    BadMethodCallException,
+    InvalidStateException,
+    LengthException,
+    UnexpectedValueException
+};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{Choice, OID, OctetString};
+use phpseclib4\File\{ASN1, CMS, CRL, X509};
+use phpseclib4\File\CMS\EnvelopedData\{
+    DerivableKey,
+    KEKRecipient,
+    KeyAgreeRecipient,
+    KeyTransRecipient,
+    PasswordRecipient,
+    Recipient,
+    SearchableKey
+};
 
 /**
 * Pure-PHP CMS / EncryptedData Parser
@@ -61,9 +51,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     private Constructed|array $cms;
     public string $cek; // content encryption key
 
-    /**
-     * @param string $data
-     */
     public function __construct(string $data, string $encryptionAlgorithm = 'aes128-CBC-PAD', #[\SensitiveParameter] ?string $key = null)
     {
         $cipher = self::getPBES2EncryptionObject($encryptionAlgorithm);
@@ -468,7 +455,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
                 try {
                     $recipient['pwri']->withPassword($password);
                     return $this;
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
         }
@@ -481,7 +468,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         // openssl cms -decrypt -inform PEM -in enveloped.pem -out plaintext.txt -pwri_password 'password'
 
         if (!isset($this->cek)) {
-            throw new InsufficientSetupException('A content encryption key is unavailable');
+            throw new InvalidStateException('A content encryption key is unavailable');
         }
         $params = [
             'encryptionAlgorithm' => 'id-PBES2',
@@ -527,7 +514,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         // openssl cms -decrypt -in enveloped.pem -secretkey <hex-kek> -secretkeyid <hex-key-id> -out plaintext.txt
 
         if (!isset($this->cek)) {
-            throw new InsufficientSetupException('A content encryption key is unavailable');
+            throw new InvalidStateException('A content encryption key is unavailable');
         }
 
         $keyLength = strlen($key);
@@ -704,8 +691,8 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         $counter = "\0\0\0\1";
         $hashlen = $hash->getLengthInBytes();
         $k = '';
-        for ($i = 1; $i <= ceil($keydatalen/$hashlen); $i++) {
-            $k.= $hash->hash($z . $counter . $sharedinfo);
+        for ($i = 1; $i <= ceil($keydatalen / $hashlen); $i++) {
+            $k .= $hash->hash($z . $counter . $sharedinfo);
             Strings::increment_str($counter);
         }
         return substr($k, 0, $keydatalen);
@@ -744,16 +731,16 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
                 // living alongside the cert. this was intended for pre-v3 X509 certs where extensions were not
                 // included
                 //case isset($cert['extendedCertificate']): // obsolete
-                //if ($this->isSignedBy($cert['extendedCertificate']['certificate'])) {
-                //    $signingCert = $cert['extendedCertificiate']['certificate'];
-                //}
-                //break;
+                //    if ($this->isSignedBy($cert['extendedCertificate']['certificate'])) {
+                //        $signingCert = $cert['extendedCertificiate']['certificate'];
+                //    }
+                //    break;
                 //case isset($cert['v1AttrCert']): // obsolete
-                // ['v1AttrCert']['acInfo'] = $AttributeCertificateInfoV1 ?
+                //    ['v1AttrCert']['acInfo'] = $AttributeCertificateInfoV1 ?
                 //case isset($cert['v2AttrCert']):
-                // ['v2AttrCert']['acInfo'] = $AttributeCertificateInfo ?
+                //    ['v2AttrCert']['acInfo'] = $AttributeCertificateInfo ?
                 //case isset($cert['other']):
-                // ['other']['otherCert'] = ???
+                //    ['other']['otherCert'] = ???
                 //    continue 2;
             }
         }

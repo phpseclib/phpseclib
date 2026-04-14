@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pure-PHP CMS / KeyAgreeRecipient / EncryptedKey Parser
  *
@@ -16,17 +17,12 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient;
 
-use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\PublicKeyLoader;
-use phpseclib4\File\ASN1;
-use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Maps;
+use phpseclib4\Crypt\{EC, PublicKeyLoader};
+use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\File\ASN1\{Constructed, Maps};
+use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EncryptedData;
-use phpseclib4\File\CMS\EnvelopedData\DerivableKey;
-use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient;
-use phpseclib4\File\CMS\EnvelopedData\SearchableKey;
-use phpseclib4\File\X509;
+use phpseclib4\File\CMS\EnvelopedData\{DerivableKey, KeyAgreeRecipient, SearchableKey};
 
 class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Countable, \Iterator
 {
