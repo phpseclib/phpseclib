@@ -9,6 +9,12 @@ phpseclib adheres to **RomVer** (Project.Major.Minor). Version increments are de
 * **MAJOR:** Incremented when intentional breaking changes (BC) are introduced to the existing API.
 * **MINOR:** Incremented for new features, bug fixes, and security patches that maintain full backward compatibility.
 
+## Long-Term Support (LTS) & Maintenance
+To provide stability for enterprise users, all **MAJOR** releases are treated as Long-Term Support (LTS) branches. 
+
+* **End-of-Life (EOL) Notice:** In the event that a Major version is slated for End-of-Life (cessation of security patches and bug fixes), notice will be posted prominently in the `README.md` and on the official website at least **one year (12 months) in advance**.
+* **Legacy Support:** This policy ensures that developers have a predictable window to plan and execute migrations before support for a legacy branch is withdrawn.
+
 ## Breaking Change Policy
 To ensure stability for enterprise integrations and mission-critical applications:
 1.  **Stability Guarantee:** Breaking changes are strictly prohibited within **Minor** version increments. Users may safely automate updates within a Major series (e.g., `^3.0`) without risk of API breakage.
