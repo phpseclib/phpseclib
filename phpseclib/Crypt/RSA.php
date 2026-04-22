@@ -1047,6 +1047,30 @@ abstract class RSA extends AsymmetricKey
                         }
                         $func = 'openssl_public_decrypt';
                     }
+                    if ($this->encryptionPadding === self::ENCRYPTION_PKCS1 && OPENSSL_VERSION_NUMBER >= 0x30200000) {
+                        // quoting https://docs.openssl.org/3.4/man3/RSA_public_encrypt/#return-values :
+                        //
+                        // "Since version 3.2.0, the default provider in OpenSSL does not return an error when padding checks fail.
+                        //  Instead it generates a random message"
+                        //
+                        // the idea is that even a perfect implementation of PKCS1 padding can be used to conduct a Bleichenbacher
+                        // padding oracle attack.
+                        //
+                        // so like if $rsa->decrypt() doesn't throw an exception it's liable to run additional code that'll take
+                        // longer to run than it'd take if an exception would be thrown and in theory, with PKCS1, in particular,
+                        // you can use that fact to guess at successive bits of the private key until you've figured it out. it's
+                        // why you should use OAEP padding vs PKCS1 padding BUT if you need PKCS1 padding for interoperability then
+                        // you're stuck with it.
+                        //
+                        // with the OpenSSL 3.2.0+ behavior they're making it harder to do the attack by making it harder to use PKCS1
+                        // in the real world. this isn't a design philosophy i agree with. like phpseclib lets you DES encryption. you
+                        // shouldn't use DES encryption but if you need to you need to and phpseclib isn't here to judge. that's a big
+                        // difference between phpseclib and stuff like libsodium.
+                        if (self::$forcedEngine === 'OpenSSL') {
+                            throw new BadConfigurationException('Engine OpenSSL is forced but cannot be used to decrypt PKCS1 encrypted strings with OpenSSL 3.2.0+');
+                        }
+                        return null;
+                    }
                     $hash = $this->hash->getHash();
                     $output = '';
                     switch ($this->encryptionPadding) {
