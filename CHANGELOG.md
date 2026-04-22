@@ -2,7 +2,7 @@
 
 ## 2.0.53 - 2026-04-09
 
-- SSH2: use constant time string comparison in get_binary_packet()
+- SSH2: use constant time string comparison in get_binary_packet() (CVE-2026-40194)
 
 ## 2.0.52 - 2026-03-18
 
