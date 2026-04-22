@@ -118,7 +118,7 @@ abstract class OpenSSH
             return compact('type', 'publicKey', 'paddedKey');
         }
 
-        $parts = preg_split("#[\t ]+#", $key);
+        $parts = preg_split("#[\t ]+#", $key, 3);
 
         if (!isset($parts[1])) {
             $key = base64_decode($parts[0]);
