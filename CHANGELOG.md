@@ -2,7 +2,7 @@
 
 ## 3.0.51 - 2026-04-09
 
-- SSH2: use constant time string comparison in get_binary_packet()
+- SSH2: use constant time string comparison in get_binary_packet() (CVE-2026-40194)
 - RSA: add sha3 support (#2132)
 - use new OpenSSL functionality (#2130)
 
