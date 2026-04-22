@@ -289,7 +289,7 @@ zUlir0ACPypC1Q==
         $engines = ['libsodium', 'OpenSSL', 'PHP'];
         foreach ($engines as $engine) {
             try {
-               RSA::forceEngine($engine);
+                RSA::forceEngine($engine);
 
                 $ciphertext = $publicKey->withLabel('whatever')->encrypt($data);
 
@@ -349,5 +349,46 @@ dMHAqhC117qQfr2KEJPJnTnJjkuWpiW2gRuBSdVE20oNAgMBAAE=
         $sig = 'XPvvcjPAuUq1Ev7BAG63nh+KmXXbY6j0kzBKV2eYgzmuHHL5DmQJDKaHzg3qPkKznxokpQ1c5YG8p1X13vXfGzMFHQ2EHKGrfz8cGRFv8rxU9O8PH1liIqzOQQltcwBdZGdkHC/BY1v0AV9YT6zKZcGgkYgJG5gFLhGdTEr9c5+V98QeP1E27CUYFrhbN13xvkdMt67pIOrVdL4nVSC1XpMOrtDSydsVIR86xITWPbPngjzLwMXuBQ463rdCR0avcYTHUtxego9jVMAn2uAEWTZTMuearQZ/3rdtZejY0SDQbdmBdelGQkWMEOloIne3U5FfS+PPzVu+m64m1joYPbXDel/aZN+vrgkgB+lI2XxT100uji0TDHQ50HmOIxMELGeCXNo93vggMcTC5pmAgCBCIQPXlJFftNUHCqZ2v1set+QJpXsnaeRkRVElPthbuEupUW7Kq0VDqbFOam5M3yD4UAmDoLKkJGJ0uG1YVsqjrRM2EHx/yACmd92/kJcVWBPD4esBqKKkOylbEA1ljE+5EOSq95V1Z09w030WV2p8xh4lBHQHtbuUFLbq1YkZmn6jj7LrBOXEWzspARPNUyaI2xRs3E+Nik2N+Czg1uESsLlo/n+mP+A7Ygtt4bjuL80GT2T6yl8YM/jMmlF78nosWKbDrQI2LPjS/YaZOBI23D2DJJvXex/V9C5+/RgWzX5rl1zFYrPxKP2BKl53HMfR7NP5Rg20hOtdZedRYJtQTNWLfVUYSrXiggHBAgW+EnbxtqWjhtyUFZoIkaupI5DXvy/aJYBKLZaJ19MWeXmJkKMl5O6ADHi8q/Ca5sPah/bH3pn2UsDT0AqEWpTGVzktPhpDEPACqjiHz8mEnU/DNtPHigLytpJFFECkYa4FnC2eCOc8b4AfFl7F/qgCg+lMVLE3fMZ1NWT52w7TYb1DwaqMKWirTfwBF/368/eOCuIdVma3xmD3IMK+y43qZS3qTCR8YfOaIwxrS6T855kH0Cas73fx3eHq2ekwm18s';
         $sig = base64_decode($sig);
         $this->assertTrue($key->withHash('sha3/512')->withMGFHash('sha3/512')->verify('hello world', $sig));
+    }
+
+    /**
+     * @group github2136
+     */
+    public function testEncryptOneKeyDecryptAnotherKey()
+    {
+        $keyA = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIl4g4CJxwv1jycznIBvWKqAZ5kMPMMw
+VGcFdSNBW9LUERIv+wyQH8gJjmf2LN17KyefbSm5LBIyuyD37nIJWRUCAwEAAQ==
+-----END PUBLIC KEY-----');
+
+        $keyB = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEA/GaZqSpvCYsgZ4lB
+x640dFZEiMgVK0jyvwtY79NPsV44TI2H/Z8ONWBoSw+ZJB1t2dPMKyPUVKwC8wA/
+ZGV/0wIDAQABAkA60oiGMcL99OQg7Q6dBD7qS/6d6A9y7oXQO0tHXTZp7cJDfRah
+5rhzmSOFMyfQ8wzl/RqmWm26nyiqQoitMSs1AiEAwwV6rgXimDmFGAU0BBIIOjFD
+rtx3RFgdiO/lApitgQcCIQFLUhAgMDcLmru1Z0a+bUG/MY81Ahdr0t+pkIqOnpVz
+1QIgXVKE5zuXuCJmRx1OS9hZKYejjMyhIgpMb9fkLb7j4AcCIQDTy0Ovr+KgMmun
+zLs2Y9VRiTbIZeve61A6rsFD5jAXeQIhAIEBdMO36Skglaotpfi+Jjm5mNhH2B6z
+B78AVyeOXhlI
+-----END PRIVATE KEY-----');
+
+        $ct = $keyA->withPadding(RSA::ENCRYPTION_PKCS1)->encrypt('helloworld');
+
+        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        foreach ($engines as $engine) {
+            try {
+                RSA::forceEngine($engine);
+
+                try {
+                    $keyB->withPadding(RSA::ENCRYPTION_PKCS1)->decrypt($ct);
+                    $this->fail('Ciphertext should not have decrypted');
+                } catch (\Exception $e) {
+                    $this->assertTrue(true);
+                }
+            } catch (BadConfigurationException $e) {
+            }
+        }
+        // reset
+        RSA::forceEngine();
     }
 }
