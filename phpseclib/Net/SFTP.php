@@ -773,7 +773,7 @@ class SFTP extends SSH2
             if (is_array($this->query_stat_cache($path))) {
                 try {
                     $temp = $this->nlist_helper($dir . '/' . $value, true, $relativeDir . $value . '/');
-                } catch (\Exception $e) {
+                } catch (FileSystemException $e) {
                     $this->logError($this->lastErrorResponse, $e->getCode(), "OPENDIR $path");
                     $temp = [];
                 }
@@ -796,7 +796,7 @@ class SFTP extends SSH2
     {
         try {
             $files = $this->readlist($dir, true, $onFile);
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             if (!$recursive) {
                 throw $e;
             }
@@ -1377,12 +1377,12 @@ class SFTP extends SSH2
         try {
             // try to open $path as a directory
             $entries = $this->readlist($path, true);
-        } catch (\Exception $e) {
+        } catch (FileSystemException $e) {
             $this->logError($this->lastErrorResponse, $e->getCode(), "OPENDIR $path");
             // if it can't be opened assume it's a file
             try {
                 $this->setstat($path, $attr, false);
-            } catch (\Exception $e) {
+            } catch (FileSystemException $e) {
                 $this->logError($this->lastErrorResponse, $e->getCode(), "SETSTAT $path");
             }
             return;
@@ -1967,25 +1967,17 @@ class SFTP extends SSH2
         // http://tools.ietf.org/html/draft-ietf-secsh-filexfer-13#section-8.3
         $this->send_sftp_packet(SFTPPacketType::REMOVE, pack('Na*', strlen($path), $path));
 
-        $response = $this->get_sftp_packet();
-        if ($this->packet_type != SFTPPacketType::STATUS) {
-            throw new UnexpectedValueException(
-                'Expected SSH_FXP_STATUS. ' .
-                'Got packet type: SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type)
-            );
-        }
-
-        // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
-        [$status] = Strings::unpackSSH2('N', $response);
-        if ($status != StatusCode::OK) {
+        try {
+            $this->get_sftp_packet_or_error([SFTPPacketType::STATUS], StatusCode::OK);
+        } catch (FileSystemException $e) {
             if ($recursive) {
                 // if you're trying to delete a directory you'll have 1x entry in getSFTPErrors() as it'll
                 // first try to delete it as a file. if the file you're deleting doesn't exist you'll have
                 // 2x entries - the first one being for your attempt to delete the "file" as a directory
                 // and the second attempting to delete the "file" as a file
-                $this->logError($response, $status, "REMOVE $path");
+                $this->logError($this->lastErrorResponse, $e->getCode(), "OPEN $path");
             } else {
-                throw $this->throwStatusError($response, $status);
+                throw $e;
             }
 
             $files = [];
@@ -2116,9 +2108,15 @@ class SFTP extends SSH2
         $packet = Strings::packSSH2('sNN', $this->realpath($path), OpenFlag::READ, 0);
         $this->send_sftp_packet(SFTPPacketType::OPEN, $packet);
 
-        $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
-        // if $this->packet_type is SFTPPacketType::STATUS it's presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
-        return $this->packet_type === SFTPPacketType::HANDLE;
+        try {
+            $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
+            $handle = substr($response, 4);
+            $this->close_handle($handle);
+            return true;
+        } catch (FileSystemException $e) {
+            $this->logError($this->lastErrorResponse, $e->getCode(), "OPEN $path");
+            return false;
+        }
     }
 
     /**
@@ -2131,9 +2129,15 @@ class SFTP extends SSH2
         $packet = Strings::packSSH2('sNN', $this->realpath($path), OpenFlag::WRITE, 0);
         $this->send_sftp_packet(SFTPPacketType::OPEN, $packet);
 
-        $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
-        // if $this->packet_type is SFTPPacketType::STATUS it's presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
-        return $this->packet_type === SFTPPacketType::HANDLE;
+        try {
+            $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
+            $handle = substr($response, 4);
+            $this->close_handle($handle);
+            return true;
+        } catch (FileSystemException $e) {
+            $this->logError($this->lastErrorResponse, $e->getCode(), "OPEN $path");
+            return false;
+        }
     }
 
     /**
