@@ -2859,21 +2859,19 @@ class SFTP extends SSH2
         $this->send_sftp_packet(SFTPPacketType::OPEN, $packet);
 
         $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
-        switch ($this->packet_type) {
-            case SFTPPacketType::HANDLE:
-                $newhandle = substr($response, 4);
-                break;
-            case SFTPPacketType::STATUS:
-                throw $this->throwStatusError($response);
-        }
+        $newhandle = substr($response, 4);
 
         $packet = Strings::packSSH2('ssQQsQ', 'copy-data', $oldhandle, 0, $size, $newhandle, 0);
         $this->send_sftp_packet(SFTPPacketType::EXTENDED, $packet);
 
-        $this->get_sftp_packet_or_error([SFTPPacketType::STATUS]);
-
-        $this->close_handle($oldhandle);
-        $this->close_handle($newhandle);
+        try {
+            $this->get_sftp_packet_or_error([SFTPPacketType::STATUS], StatusCode::OK);
+        } catch (FileSystemException $e) {
+            throw $e;
+        } finally {
+            $this->close_handle($oldhandle);
+            $this->close_handle($newhandle);
+        }
     }
 
     /**
