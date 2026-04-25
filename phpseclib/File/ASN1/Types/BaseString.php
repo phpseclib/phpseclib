@@ -49,7 +49,7 @@ abstract class BaseString implements BaseType
             throw new BadMethodCallException('Unable to convert - ' . static::class . ' doesn\'t have a size constant associated with it');
         }
         //if (!defined("$class::SIZE")) {
-        //    throw new \Exception("Unable to convert - $class doesn't have a size constant associated with it");
+        //    throw new BadMethodCallException("Unable to convert - $class doesn't have a size constant associated with it");
         //}
 
         $insize = static::SIZE;

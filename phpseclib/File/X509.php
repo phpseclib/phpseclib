@@ -600,7 +600,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public function toString(array $options = []): string
     {
         //if ($this->cert['tbsCertificate']['serialNumber']->isNegative()) {
-        //    throw new \phpseclib4\Exception\UnexpectedValueException('The serial number of an X.509 certificate must be positive');
+        //    throw new UnexpectedValueException('The serial number of an X.509 certificate must be positive');
         //}
 
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];

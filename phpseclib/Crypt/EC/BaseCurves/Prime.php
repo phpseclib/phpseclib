@@ -138,7 +138,7 @@ class Prime extends Base
         }
         /*
         if (!isset($this->p)) {
-            throw new \phpseclib4\Exception\RuntimeException('setBasePoint needs to be called before this method');
+            throw new InvalidStateException('setBasePoint needs to be called before this method');
         }
         */
         return $this->p;
