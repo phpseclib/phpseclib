@@ -20,6 +20,7 @@ use phpseclib4\Exception\{
     BadConfigurationException,
     InvalidStateException,
     NoKeyLoadedException,
+    PasswordNeededException ,
     UnsupportedValueException
 };
 use phpseclib4\Math\BigInteger;
@@ -134,6 +135,8 @@ abstract class AsymmetricKey
             try {
                 $components = $format::load($key, $password);
                 break;
+            } catch (PasswordNeededException $e) {
+                throw $e;
             } catch (\Throwable) {
             }
         }
@@ -170,7 +173,11 @@ abstract class AsymmetricKey
      */
     public static function loadPublicKey(string|array $key): PublicKey
     {
-        $key = self::load($key);
+        try {
+            $key = self::load($key);
+        } catch (PasswordNeededException) {
+            $key = null;
+        }
         if (!$key instanceof PublicKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a public key');
         }
@@ -182,8 +189,12 @@ abstract class AsymmetricKey
      */
     public static function loadParameters(string|array $key): AsymmetricKey
     {
-        $key = self::load($key);
-        if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
+        try {
+            $key = self::load($key);
+        } catch (PasswordNeededException) {
+            $key = null;
+        }
+        if (!isset($key) || $key instanceof PublicKey || $key instanceof PrivateKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a parameter');
         }
         return $key;
