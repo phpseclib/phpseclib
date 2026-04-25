@@ -17,7 +17,11 @@ namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\{AES, DES, Random, TripleDES};
-use phpseclib4\Exception\{InvalidArgumentException, PasswordNeededException, UnsupportedAlgorithmException, UnsupportedValueException};
+use phpseclib4\Exception\{
+    PasswordNeededException,
+    UnsupportedAlgorithmException,
+    UnsupportedValueException
+};
 use phpseclib4\File\ASN1;
 
 /**
@@ -92,12 +96,8 @@ abstract class PKCS1 extends PKCS
     /**
      * Break a public or private key down into its constituent components
      */
-    protected static function loadHelper(string|array $key, #[SensitiveParameter] ?string $password = null): string
+    protected static function loadHelper(string $key, #[SensitiveParameter] ?string $password = null): string
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
            "outside the scope" of PKCS#1.  PKCS#1 then refers you to PKCS#12 and PKCS#15 if you're wanting to
            protect private keys, however, that's not what OpenSSL* does.  OpenSSL protects private keys by adding

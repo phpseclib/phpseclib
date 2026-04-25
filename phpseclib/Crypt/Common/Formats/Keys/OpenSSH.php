@@ -21,7 +21,6 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\{AES, Random};
 use phpseclib4\Exception\{
     BadDecryptionException,
-    InvalidArgumentException,
     PasswordNeededException,
     UnexpectedValueException,
     UnsupportedAlgorithmException,
@@ -58,12 +57,8 @@ abstract class OpenSSH
      *
      * $type can be either ssh-dss or ssh-rsa
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         // key format is described here:
         // https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.key?annotate=HEAD
 

@@ -52,7 +52,7 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(array|string $key, ?string $password): array
+    public static function load(string $key, ?string $password): array
     {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {

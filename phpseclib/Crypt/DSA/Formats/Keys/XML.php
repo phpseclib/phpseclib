@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Exception\{BadConfigurationException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -37,10 +37,6 @@ abstract class XML
      */
     public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         if (!class_exists('DOMDocument')) {
             throw new BadConfigurationException('The dom extension is not setup correctly on this system');
         }

@@ -62,12 +62,8 @@ abstract class MSBLOB
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         $key = Strings::base64_decode($key);
         if (strlen($key) < 20) {
             throw new UnexpectedValueException('Key appears to be malformed');

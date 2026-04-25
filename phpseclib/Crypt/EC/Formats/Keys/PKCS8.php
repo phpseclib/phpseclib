@@ -32,7 +32,7 @@ use phpseclib4\Crypt\EC\BaseCurves\{
     TwistedEdwards as TwistedEdwardsCurve
 };
 use phpseclib4\Crypt\EC\Curves\{Curve25519, Curve448, Ed25519, Ed448};
-use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
@@ -64,7 +64,7 @@ abstract class PKCS8 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
         // initialize_static_variables() is defined in both the trait and the parent class
         // when it's defined in two places it's the traits one that's called
@@ -72,10 +72,6 @@ abstract class PKCS8 extends Progenitor
         // in the parent class as needed and in the context of the parent it's the parent
         // one that's called
         self::initialize_static_variables();
-
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
 
         $isPublic = match (true) {
             str_contains($key, 'PUBLIC') => true,

@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
-use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException, UnsupportedValueException};
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedValueException};
 
 /**
  * JSON Web Key Formatted Key Handler
@@ -27,12 +27,8 @@ abstract class JWK
     /**
      * Break a public or private key down into its constituent components
      */
-    protected static function loadHelper(string|array $key): \stdClass
+    protected static function loadHelper(string $key): \stdClass
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         $key = preg_replace('#\s#', '', $key); // remove whitespace
 
         $key = json_decode($key, null, 512, JSON_THROW_ON_ERROR);

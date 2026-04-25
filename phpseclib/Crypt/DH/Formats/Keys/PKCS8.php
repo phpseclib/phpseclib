@@ -56,12 +56,8 @@ abstract class PKCS8 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         $isPublic = str_contains($key, 'PUBLIC');
 
         $key = parent::load($key, $password);

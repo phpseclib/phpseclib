@@ -34,7 +34,7 @@ use phpseclib4\Crypt\EC\BaseCurves\{
     Montgomery as MontgomeryCurve,
     TwistedEdwards as TwistedEdwardsCurve
 };
-use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException, UnsupportedCurveException};
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedCurveException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
@@ -52,13 +52,9 @@ abstract class PKCS1 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
         self::initialize_static_variables();
-
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
 
         if (str_contains($key, 'BEGIN EC PARAMETERS') && str_contains($key, 'BEGIN EC PRIVATE KEY')) {
             $components = [];

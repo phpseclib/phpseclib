@@ -21,7 +21,6 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\{AES, Hash, Random};
 use phpseclib4\Exception\{
     BadConfigurationException,
-    InvalidArgumentException,
     PasswordNeededException,
     UnexpectedValueException,
     UnsupportedAlgorithmException,
@@ -106,11 +105,8 @@ abstract class PuTTY
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(array|string $key, ?string $password): array
+    public static function load(string $key, ?string $password): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
 
         if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
             $lines = preg_split('#[\r\n]+#', $key);

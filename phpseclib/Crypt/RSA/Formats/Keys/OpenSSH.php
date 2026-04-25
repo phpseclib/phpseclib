@@ -37,7 +37,7 @@ abstract class OpenSSH extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
         static $one;
         if (!isset($one)) {

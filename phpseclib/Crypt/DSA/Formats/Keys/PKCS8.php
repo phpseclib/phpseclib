@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;
@@ -60,12 +60,8 @@ abstract class PKCS8 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         if (str_contains($key, 'PUBLIC')) {
             $isPublic = true;
         } elseif (str_contains($key, 'PRIVATE')) {

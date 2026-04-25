@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
-use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -30,12 +30,8 @@ abstract class Raw
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    public static function load(array $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_array($key)) {
-            throw new InvalidArgumentException('Key should be a array - not a string');
-        }
-
         switch (true) {
             case !isset($key['p']) || !isset($key['q']) || !isset($key['g']):
             case !$key['p'] instanceof BigInteger:

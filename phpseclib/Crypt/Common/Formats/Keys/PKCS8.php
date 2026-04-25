@@ -29,7 +29,6 @@ namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\{
-    InvalidArgumentException,
     PasswordNeededException,
     UnexpectedValueException,
     UnsupportedAlgorithmException
@@ -81,12 +80,8 @@ abstract class PKCS8 extends PKCS
     /**
      * Break a public or private key down into its constituent components
      */
-    protected static function load(string|array $key, #[SensitiveParameter] ?string $password = null): array
+    protected static function load(string $key, #[SensitiveParameter] ?string $password = null): array
     {
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
-
         $isPublic = str_contains($key, 'PUBLIC');
         $isPrivate = str_contains($key, 'PRIVATE');
 

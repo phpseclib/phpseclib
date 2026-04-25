@@ -26,7 +26,6 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\RSA\Formats\Keys;
 
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\{Element, Maps};
 use phpseclib4\Math\BigInteger;
@@ -76,13 +75,9 @@ abstract class PSS extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string|array $key, ?string $password = null): array
+    public static function load(string $key, ?string $password = null): array
     {
         self::initialize_static_variables();
-
-        if (!is_string($key)) {
-            throw new InvalidArgumentException('Key should be a string - not an array');
-        }
 
         $components = match (true) {
             str_contains($key, 'PUBLIC') => ['isPublicKey' => true],
