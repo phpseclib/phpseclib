@@ -245,10 +245,6 @@ abstract class Strings
             throw new UnexpectedValueException('The only valid characters are 0 and 1');
         }
 
-        if (!defined('PHP_INT_MIN')) {
-            define('PHP_INT_MIN', ~PHP_INT_MAX);
-        }
-
         $length = strlen($x);
         if (!$length) {
             return '';
