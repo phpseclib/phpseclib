@@ -63,7 +63,7 @@ abstract class Barrett extends Base
         $m_length = strlen($m);
 
         if (strlen($n) > 2 * $m_length) {
-            return self::BCMOD_THREE_PARAMS ? bcmod($n, $m, 0) : bcmod($n, $m);
+            return bcmod($n, $m, 0);
         }
 
         // if (m.length >> 1) + 2 <= m.length then m is too small and n can't be reduced
@@ -156,7 +156,7 @@ abstract class Barrett extends Base
         $n_length = strlen($n);
 
         if (strlen($x) > 2 * $n_length) {
-            return self::BCMOD_THREE_PARAMS ? bcmod($x, $n, 0) : bcmod($x, $n);
+            return bcmod($x, $n, 0);
         }
 
         if (($key = array_search($n, $cache[self::VARIABLE])) === false) {

@@ -52,7 +52,7 @@ abstract class EvalBarrett extends Base
         $m_length = strlen($m);
 
         if ($m_length < 5) {
-            $code = 'return self::BCMOD_THREE_PARAMS ? bcmod($x, $n, 0) : bcmod($x, $n);';
+            $code = 'return bcmod($x, $n, 0);';
             eval('$func = function ($n) { ' . $code . '};');
             self::$custom_reduction = $func;
             return $func;
