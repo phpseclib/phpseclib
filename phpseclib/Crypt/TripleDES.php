@@ -183,7 +183,6 @@ class TripleDES extends DES
      *
      * If you want to use a 64-bit key use DES.php
      *
-     * @throws LengthException if the key length is invalid
      * @see Common\SymmetricKey:setKeyLength()
      */
     public function setKeyLength(int $length): void
@@ -206,11 +205,10 @@ class TripleDES extends DES
      *
      * DES also requires that every eighth bit be a parity bit, however, we'll ignore that.
      *
-     * @throws LengthException if the key length is invalid
      * @see DES::setKey()
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         if (isset($this->explicit_key_length) && strlen($key) != $this->explicit_key_length) {
             throw new LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');

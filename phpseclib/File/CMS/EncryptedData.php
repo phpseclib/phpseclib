@@ -51,8 +51,11 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     private Constructed|array $cms;
     public string $cek; // content encryption key
 
-    public function __construct(string $data, string $encryptionAlgorithm = 'aes128-CBC-PAD', #[\SensitiveParameter] ?string $key = null)
-    {
+    public function __construct(
+        #[SensitiveParameter] string $data,
+        string $encryptionAlgorithm = 'aes128-CBC-PAD',
+        #[\SensitiveParameter] ?string $key = null
+    ) {
         $cipher = self::getPBES2EncryptionObject($encryptionAlgorithm);
         $keyLength = $cipher->getKeyLength() >> 3;
         if (isset($key) && strlen($key) != $keyLength) {
@@ -508,8 +511,11 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
-    public function createNewRecipientFromKeyWithIdentifier(string $key, string $identifier, ?\DateTimeInterface $date = null): KEKRecipient
-    {
+    public function createNewRecipientFromKeyWithIdentifier(
+        #[SensitiveParameter] string $key,
+        string $identifier,
+        ?\DateTimeInterface $date = null
+    ): KEKRecipient {
         // to decrypt with openssl cli do this:
         // openssl cms -decrypt -in enveloped.pem -secretkey <hex-kek> -secretkeyid <hex-key-id> -out plaintext.txt
 

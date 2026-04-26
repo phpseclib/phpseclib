@@ -37,8 +37,10 @@ abstract class OpenSSH extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         static $one;
         if (!isset($one)) {
             $one = new BigInteger(1);
@@ -104,8 +106,16 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        BigInteger $n,
+        BigInteger $e,
+        #[SensitiveParameter] BigInteger $d,
+        #[SensitiveParameter] array $primes,
+        #[SensitiveParameter] array $exponents,
+        #[SensitiveParameter] array $coefficients,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         $publicKey = self::savePublicKey($n, $e, ['binary' => true]);
         $privateKey = Strings::packSSH2('si6', 'ssh-rsa', $n, $e, $d, $coefficients[2], $primes[1], $primes[2]);
 

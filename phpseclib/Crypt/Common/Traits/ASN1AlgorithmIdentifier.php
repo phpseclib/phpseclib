@@ -199,8 +199,10 @@ trait ASN1AlgorithmIdentifier
         return $cipher;
     }
 
-    private static function getCryptoObjectFromAlgorithmIdentifier(array|Constructed $data, string $password): SymmetricKey
-    {
+    private static function getCryptoObjectFromAlgorithmIdentifier(
+        array|Constructed $data,
+        #[SensitiveParameter] string $password
+    ): SymmetricKey {
         $meta = [];
         $algorithm = (string) $data['algorithm'];
         switch ($algorithm) {
@@ -271,8 +273,11 @@ trait ASN1AlgorithmIdentifier
         }
     }
 
-    protected static function setupPBKDF2(array|Constructed $keyDerivationFunc, string $password, SymmetricKey $cipher): void
-    {
+    protected static function setupPBKDF2(
+        array|Constructed $keyDerivationFunc,
+        #[SensitiveParameter] string $password,
+        SymmetricKey $cipher
+    ): void {
         switch ($keyDerivationFunc['algorithm']) {
             case 'id-PBKDF2':
                 $meta = $cipher->hasMetaData('meta') ? $cipher->getMetaData('meta') : [];

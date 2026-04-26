@@ -83,8 +83,11 @@ abstract class PKCS1 extends PKCS
     /**
      * Generate a symmetric key for PKCS#1 keys
      */
-    private static function generateSymmetricKey(#[SensitiveParameter] string $password, string $iv, int $length): string
-    {
+    private static function generateSymmetricKey(
+        #[SensitiveParameter] string $password,
+        string $iv,
+        int $length
+    ): string {
         $symkey = '';
         $iv = substr($iv, 0, 8);
         while (strlen($symkey) < $length) {
@@ -96,8 +99,10 @@ abstract class PKCS1 extends PKCS
     /**
      * Break a public or private key down into its constituent components
      */
-    protected static function loadHelper(string $key, #[SensitiveParameter] ?string $password = null): string
-    {
+    protected static function loadHelper(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): string {
         /* Although PKCS#1 proposes a format that public and private keys can use, encrypting them is
            "outside the scope" of PKCS#1.  PKCS#1 then refers you to PKCS#12 and PKCS#15 if you're wanting to
            protect private keys, however, that's not what OpenSSL* does.  OpenSSL protects private keys by adding
@@ -148,8 +153,12 @@ abstract class PKCS1 extends PKCS
     /**
      * Wrap a private key appropriately
      */
-    protected static function wrapPrivateKey(string $key, string $type, #[SensitiveParameter] ?string $password, array $options = []): string
-    {
+    protected static function wrapPrivateKey(
+        #[SensitiveParameter] string $key,
+        string $type,
+        #[SensitiveParameter] ?string $password,
+        array $options = []
+    ): string {
         if (!isset($password)) {
             return "-----BEGIN $type PRIVATE KEY-----\r\n" .
                    chunk_split(Strings::base64_encode($key), 64) .

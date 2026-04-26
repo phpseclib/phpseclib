@@ -98,7 +98,7 @@ class AES extends Rijndael
      * @see \phpseclib4\Crypt\Rijndael:setKey()
      * @see setKeyLength()
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         switch (strlen($key)) {
             case 16:

@@ -27,7 +27,7 @@ abstract class JWK
     /**
      * Break a public or private key down into its constituent components
      */
-    protected static function loadHelper(string $key): \stdClass
+    protected static function loadHelper(#[SensitiveParameter] string $key): \stdClass
     {
         $key = preg_replace('#\s#', '', $key); // remove whitespace
 

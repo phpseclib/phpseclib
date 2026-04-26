@@ -200,7 +200,7 @@ class Hash
      *
      * Keys can be of any length.
      */
-    public function setKey(?string $key = null): void
+    public function setKey(#[SensitiveParameter] ?string $key = null): void
     {
         $this->key = $key;
         $this->computeKey();
@@ -335,9 +335,7 @@ class Hash
                     $hash = $matches[1];
                     $this->length = $matches[2] >> 3;
                 } else {
-                    throw new UnsupportedAlgorithmException(
-                        "$hash is not a supported algorithm"
-                    );
+                    throw new UnsupportedAlgorithmException("$hash is not a supported algorithm");
                 }
         }
 
@@ -1481,8 +1479,11 @@ class Hash
 
     // from https://www.rfc-editor.org/rfc/rfc7292#appendix-B.2
     // this is mostly the same as SymmetricKey::setPassword()'s implementation of pkcs12
-    public function setPassword(string $password, string $salt, int $iterationCount): void
-    {
+    public function setPassword(
+        #[SensitiveParameter] string $password,
+        string $salt,
+        int $iterationCount
+    ): void {
         if (!isset($this->blockSize)) {
             throw new BadMethodCallException($this->hashParam . ' cannot be used with the PKCS#12 KDF');
         }

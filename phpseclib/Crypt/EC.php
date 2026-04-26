@@ -424,8 +424,11 @@ abstract class EC extends AsymmetricKey
     // for Weierstrass curves, if only the x coordinate is present (as is the case after doing a round of ECDH)
     // then we'll guess at the y coordinate. there are only two possible y values and, atleast in-so-far as
     // multiplication is concerned, neither value affects the resultant x value
-    public static function convertPointToPublicKey(string $curveName, string $secret, bool $toPublicKey = true): PublicKey|string
-    {
+    public static function convertPointToPublicKey(
+        string $curveName,
+        #[SensitiveParameter] string $secret,
+        bool $toPublicKey = true
+    ): PublicKey|string {
         $curveName = self::getCurveCase($curveName);
         $curve = '\phpseclib4\Crypt\EC\Curves\\' . $curveName;
 

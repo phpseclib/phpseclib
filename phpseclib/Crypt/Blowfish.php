@@ -447,8 +447,12 @@ class Blowfish extends BlockCipher
     /**
      * Performs OpenSSH-style bcrypt
      */
-    public static function bcrypt_pbkdf(string $pass, string $salt, int $keylen, int $rounds): string
-    {
+    public static function bcrypt_pbkdf(
+        #[SensitiveParameter] string $pass,
+        string $salt,
+        int $keylen,
+        int $rounds
+    ): string {
         self::initialize_static_variables();
 
         if (PHP_INT_SIZE == 4) {

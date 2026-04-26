@@ -35,8 +35,10 @@ abstract class XML
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         if (!class_exists('DOMDocument')) {
             throw new BadConfigurationException('The dom extension is not setup correctly on this system');
         }
@@ -111,8 +113,13 @@ abstract class XML
      *
      * See https://www.w3.org/TR/xmldsig-core/#sec-DSAKeyValue
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): string
-    {
+    public static function savePublicKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y,
+        array $options = []
+    ): string {
         return "<DSAKeyValue>\r\n" .
                '  <P>' . Strings::base64_encode($p->toBytes()) . "</P>\r\n" .
                '  <Q>' . Strings::base64_encode($q->toBytes()) . "</Q>\r\n" .

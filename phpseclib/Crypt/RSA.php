@@ -808,8 +808,11 @@ abstract class RSA extends AsymmetricKey
     /**
      * Handles OpenSSL encryption / decryption / signature creation / verification
      */
-    protected function handleOpenSSL(string $func, string $message, ?string $signature = null): bool|null|string
-    {
+    protected function handleOpenSSL(
+        #[SensitiveParameter] string $func,
+        string $message,
+        ?string $signature = null
+    ): bool|null|string {
         $paddingType = match ($func) {
             'openssl_verify', 'openssl_sign' => 'signaturePadding',
             // 'openssl_public_encrypt', 'openssl_private_decrypt'

@@ -364,8 +364,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Identify signature algorithm from private key
-     *
-     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function identifySignatureAlgorithm(PublicKey $key): void
     {

@@ -47,8 +47,10 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, ?string $password): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password
+    ): array{
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
             return $components;
@@ -70,8 +72,15 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, BigInteger $x, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y,
+        #[SensitiveParameter] BigInteger $x,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         if ($q->getLength() != 160) {
             throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
@@ -85,8 +94,13 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a public key to the appropriate format
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y): string
-    {
+    public static function savePublicKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y,
+        array $options = []
+    ): string {
         if ($q->getLength() != 160) {
             throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
         }

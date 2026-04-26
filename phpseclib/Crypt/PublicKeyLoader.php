@@ -31,8 +31,10 @@ abstract class PublicKeyLoader
      *
      * @throws NoKeyLoadedException if key is not valid
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
-    {
+    public static function load(
+        #[SensitiveParameter] string|array $key,
+        #[SensitiveParameter] ?string $password = null
+    ): AsymmetricKey {
         // use ASN1::EXCEPTIONS_EVERY_TIME here because without it a valid RSAPublicKey
         // will be recognized as an invalid RSAPrivateKey
         $reenable = ASN1::isBlobsOnBadDecodesEnabled();
@@ -83,8 +85,10 @@ abstract class PublicKeyLoader
     /**
      * Loads a private key
      */
-    public static function loadPrivateKey(string|array $key, #[SensitiveParameter] ?string $password = null): PrivateKey
-    {
+    public static function loadPrivateKey(
+        #[SensitiveParameter] string|array $key,
+        #[SensitiveParameter] ?string $password = null
+    ): PrivateKey {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a private key');

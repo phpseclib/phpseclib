@@ -58,8 +58,10 @@ abstract class XML
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         self::initialize_static_variables();
 
         if (!class_exists('DOMDocument')) {
@@ -108,8 +110,12 @@ abstract class XML
     /**
      * Case-insensitive xpath query
      */
-    private static function query(\DOMXPath $xpath, string $name, ?string $error = null, bool $decode = true): \DOMNodeList|string
-    {
+    private static function query(
+        \DOMXPath $xpath,
+        string $name,
+        ?string $error = null,
+        bool $decode = true
+    ): \DOMNodeList|string {
         $query = '/';
         $names = explode('/', $name);
         foreach ($names as $name) {

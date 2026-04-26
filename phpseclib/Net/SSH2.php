@@ -2013,8 +2013,10 @@ class SSH2
      * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.}
      */
-    private function login_helper(string $username, string|PrivateKey|array|Agent|null $password = null): bool
-    {
+    private function login_helper(
+        string $username,
+        #[SensitiveParameter] string|PrivateKey|array|Agent|null $password = null
+    ): bool {
         if (!($this->bitmap & self::MASK_LOGIN_REQ)) {
             $packet = Strings::packSSH2('Cs', MessageType::SERVICE_REQUEST, 'ssh-userauth');
             $this->send_binary_packet($packet);
@@ -2286,7 +2288,7 @@ class SSH2
      * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.}
      */
-    private function privatekey_login(string $username, PrivateKey $privatekey): bool
+    private function privatekey_login(string $username, #[SensitiveParameter] PrivateKey $privatekey): bool
     {
         $publickey = $privatekey->getPublicKey();
 
@@ -3903,8 +3905,10 @@ class SSH2
      *
      * @see self::_get_binary_packet()
      */
-    protected function send_binary_packet(string $data, ?string $logged = null): void
-    {
+    protected function send_binary_packet(
+        #[SensitiveParameter] string $data,
+        ?string $logged = null
+    ): void {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
             $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
             throw new ConnectionClosedException('Connection closed prematurely');
@@ -4176,8 +4180,10 @@ class SSH2
      *
      * Spans multiple SSH_MSG_CHANNEL_DATAs if appropriate
      */
-    protected function send_channel_packet(int $client_channel, string $data): void
-    {
+    protected function send_channel_packet(
+        int $client_channel,
+        #[SensitiveParameter] string $data
+    ): void {
         if (
             isset($this->channel_buffers_write[$client_channel])
             && str_starts_with($data, $this->channel_buffers_write[$client_channel])

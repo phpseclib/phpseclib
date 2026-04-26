@@ -42,8 +42,10 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, ?string $password): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password
+    ): array {
         static $one;
         if (!isset($one)) {
             $one = new BigInteger(1);
@@ -78,8 +80,16 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        BigInteger $n,
+        BigInteger $e,
+        #[SensitiveParameter] BigInteger $d,
+        #[SensitiveParameter] array $primes,
+        #[SensitiveParameter] array $exponents,
+        #[SensitiveParameter] array $coefficients,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         if (count($primes) != 2) {
             throw new InvalidArgumentException('PuTTY does not support multi-prime RSA keys');
         }
@@ -93,7 +103,7 @@ abstract class PuTTY extends Progenitor
     /**
      * Convert a public key to the appropriate format
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e): string
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {
         return self::wrapPublicKey(Strings::packSSH2('ii', $e, $n), 'ssh-rsa');
     }

@@ -165,7 +165,7 @@ class Rijndael extends BlockCipher
      * @throws LengthException if the key length isn't supported
      * @see setKeyLength()
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         switch (strlen($key)) {
             case 16:
@@ -894,7 +894,7 @@ class Rijndael extends BlockCipher
      * @see self::decrypt()
      * @see parent::encrypt()
      */
-    public function encrypt(string $plaintext): string
+    public function encrypt(#[SensitiveParameter] string $plaintext): string
     {
         $this->setup();
 

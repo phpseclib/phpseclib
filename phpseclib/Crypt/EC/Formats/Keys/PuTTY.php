@@ -52,8 +52,10 @@ abstract class PuTTY extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, ?string $password): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password
+    ): array {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
             return $components;
@@ -84,8 +86,14 @@ abstract class PuTTY extends Progenitor
      *
      * @param Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $secret = null, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        #[SensitiveParameter] BigInteger $privateKey,
+        BaseCurve $curve,
+        array $publicKey,
+        #[SensitiveParameter] ?string $secret = null,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         self::initialize_static_variables();
 
         $public = explode(' ', OpenSSH::savePublicKey($curve, $publicKey));
@@ -115,7 +123,7 @@ abstract class PuTTY extends Progenitor
      *
      * @param FiniteField[] $publicKey
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey): string
+    public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
     {
         $public = explode(' ', OpenSSH::savePublicKey($curve, $publicKey));
         $type = $public[0];

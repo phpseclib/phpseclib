@@ -74,10 +74,8 @@ trait Common
     /**
      * Returns an instance of \phpseclib4\Crypt\EC\BaseCurves\Base based
      * on the curve parameters
-     *
-     * @return BaseCurve|false
      */
-    protected static function loadCurveByParam(array $params)
+    protected static function loadCurveByParam(array $params): BaseCurve
     {
         if (count($params) > 1) {
             throw new UnexpectedValueException('No parameters are present');

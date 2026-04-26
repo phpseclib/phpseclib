@@ -30,8 +30,10 @@ abstract class Raw
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(array $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] array $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         switch (true) {
             case !isset($key['p']) || !isset($key['q']) || !isset($key['g']):
             case !$key['p'] instanceof BigInteger:

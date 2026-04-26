@@ -80,8 +80,13 @@ abstract class PuTTY
     /**
      * Generate a symmetric key for PuTTY v3 keys
      */
-    private static function generateV3Key(string $password, string $flavour, int $memory, int $passes, string $salt): array
-    {
+    private static function generateV3Key(
+        #[SensitiveParameter] string $password,
+        string $flavour,
+        int $memory,
+        int $passes,
+        string $salt
+    ): array {
         if (!function_exists('sodium_crypto_pwhash')) {
             throw new BadConfigurationException('sodium_crypto_pwhash needs to exist for Argon2 password hasing');
         }
@@ -105,8 +110,10 @@ abstract class PuTTY
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, ?string $password): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password
+    ): array {
 
         if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
             $lines = preg_split('#[\r\n]+#', $key);
@@ -248,8 +255,13 @@ abstract class PuTTY
     /**
      * Wrap a private key appropriately
      */
-    protected static function wrapPrivateKey(string $public, string $private, string $type, ?string $password, array $options = []): string
-    {
+    protected static function wrapPrivateKey(
+        string $public,
+        #[SensitiveParameter] string $private,
+        string $type,
+        #[SensitiveParameter] ?string $password,
+        array $options = []
+    ): string {
         $encryption = isset($password) ? 'aes256-cbc' : 'none';
         $comment = $options['comment'] ?? self::$comment;
         $version = $options['version'] ?? self::$version;

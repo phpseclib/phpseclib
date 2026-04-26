@@ -346,7 +346,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @see self::decrypt()
      */
-    public function encrypt(string $plaintext): string
+    public function encrypt(#[SensitiveParameter] string $plaintext): string
     {
         $result = $this->handleOpenSSL('openssl_public_encrypt', $plaintext);
         if ($result !== null) {

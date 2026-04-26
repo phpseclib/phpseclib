@@ -579,7 +579,7 @@ class DES extends BlockCipher
      *
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
             throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');

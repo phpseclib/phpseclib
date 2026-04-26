@@ -30,8 +30,10 @@ abstract class JWK extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         $key = parent::loadHelper($key);
 
         if ($key->kty != 'RSA') {
@@ -89,8 +91,16 @@ abstract class JWK extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        BigInteger $n,
+        BigInteger $e,
+        #[SensitiveParameter] BigInteger $d,
+        #[SensitiveParameter] array $primes,
+        #[SensitiveParameter] array $exponents,
+        #[SensitiveParameter] array $coefficients,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         if (isset($password)) {
             throw new InvalidArgumentException('JWK private keys do not support encryption');
         }

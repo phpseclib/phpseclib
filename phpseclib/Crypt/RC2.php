@@ -277,7 +277,7 @@ class RC2 extends BlockCipher
      * @throws LengthException if the key length isn't supported
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(string $key, ?int $t1 = null): void
+    public function setKey(#[SensitiveParameter] string $key, ?int $t1 = null): void
     {
         $this->orig_key = $key;
 
@@ -335,7 +335,7 @@ class RC2 extends BlockCipher
      *
      * @see self::decrypt()
      */
-    public function encrypt(string $plaintext): string
+    public function encrypt(#[SensitiveParameter] string $plaintext): string
     {
         if ($this->engine == self::ENGINE_OPENSSL) {
             $temp = $this->key;

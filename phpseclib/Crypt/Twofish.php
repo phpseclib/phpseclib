@@ -369,7 +369,7 @@ class Twofish extends BlockCipher
      * @throws LengthException if the key length isn't supported
      * @see self::setKeyLength()
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         switch (strlen($key)) {
             case 16:

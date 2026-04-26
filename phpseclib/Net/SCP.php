@@ -80,8 +80,12 @@ class SCP extends SSH2
      *
      * @param string|resource $data
      */
-    public function put(string $remote_file, mixed $data, int $mode = self::SOURCE_STRING, ?\Closure $callback = null): void
-    {
+    public function put(
+        string $remote_file,
+        #[SensitiveParameter] mixed $data,
+        int $mode = self::SOURCE_STRING,
+        ?\Closure $callback = null
+    ): void {
         if (!$this->isAuthenticated()) {
             throw new InvalidStateException('Unable to upload file. Not connected.');
         }

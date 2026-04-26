@@ -119,8 +119,10 @@ abstract class AsymmetricKey
     /**
      * Load the key
      */
-    public static function load(string|array $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
-    {
+    public static function load(
+        #[SensitiveParameter] string|array $key,
+        #[SensitiveParameter] ?string $password = null
+    ): AsymmetricKey {
         self::initialize_static_variables();
 
         $class = new \ReflectionClass(static::class);
@@ -159,8 +161,10 @@ abstract class AsymmetricKey
     /**
      * Loads a private key
      */
-    public static function loadPrivateKey(string|array $key, #[SensitiveParameter] string $password = ''): PrivateKey
-    {
+    public static function loadPrivateKey(
+        #[SensitiveParameter] string|array $key,
+        #[SensitiveParameter] string $password = ''
+    ): PrivateKey {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a private key');
@@ -203,8 +207,11 @@ abstract class AsymmetricKey
     /**
      * Load the key, assuming a specific format
      */
-    public static function loadFormat(string $type, string $key, #[SensitiveParameter] ?string $password = null): AsymmetricKey
-    {
+    public static function loadFormat(
+        string $type,
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): AsymmetricKey {
         self::initialize_static_variables();
 
         $components = false;
@@ -227,8 +234,11 @@ abstract class AsymmetricKey
     /**
      * Loads a private key
      */
-    public static function loadPrivateKeyFormat(string $type, string $key, #[SensitiveParameter] ?string $password = null): PrivateKey
-    {
+    public static function loadPrivateKeyFormat(
+        string $type,
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): PrivateKey {
         $key = self::loadFormat($type, $key, $password);
         if (!$key instanceof PrivateKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a private key');

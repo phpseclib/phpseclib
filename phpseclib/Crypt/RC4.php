@@ -126,7 +126,7 @@ class RC4 extends StreamCipher
      *
      * Keys can be between 1 and 256 bytes long.
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         $length = strlen($key);
         if ($length < 1 || $length > 256) {
@@ -143,7 +143,7 @@ class RC4 extends StreamCipher
      * @see Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
-    public function encrypt(string $plaintext): string
+    public function encrypt(#[SensitiveParameter] string $plaintext): string
     {
         if ($this->engine != self::ENGINE_INTERNAL) {
             return parent::encrypt($plaintext);

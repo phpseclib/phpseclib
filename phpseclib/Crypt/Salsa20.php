@@ -81,10 +81,8 @@ class Salsa20 extends StreamCipher
 
     /**
      * Sets the key.
-     *
-     * @throws LengthException if the key length isn't supported
      */
-    public function setKey(string $key): void
+    public function setKey(#[SensitiveParameter] string $key): void
     {
         switch (strlen($key)) {
             case 16:
@@ -220,7 +218,7 @@ class Salsa20 extends StreamCipher
      * @see \phpseclib4\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
-    public function encrypt(string $plaintext): string
+    public function encrypt(#[SensitiveParameter] string $plaintext): string
     {
         $ciphertext = $this->crypt($plaintext, self::ENCRYPT);
         if (isset($this->poly1305Key)) {

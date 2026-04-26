@@ -75,8 +75,10 @@ abstract class PSS extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         self::initialize_static_variables();
 
         $components = match (true) {
@@ -138,8 +140,16 @@ abstract class PSS extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $n, BigInteger $e, BigInteger $d, array $primes, array $exponents, array $coefficients, ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        BigInteger $n,
+        BigInteger $e,
+        #[SensitiveParameter] BigInteger $d,
+        #[SensitiveParameter] array $primes,
+        #[SensitiveParameter] array $exponents,
+        #[SensitiveParameter] array $coefficients,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         self::initialize_static_variables();
 
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);

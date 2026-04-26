@@ -1611,8 +1611,14 @@ class SFTP extends SSH2
      *
      * @param  resource|string $data
      */
-    public function put(string $remote_file, mixed $data, int $mode = self::SOURCE_STRING, int $start = -1, int $local_start = -1, ?\Closure $progressCallback = null): void
-    {
+    public function put(
+        string $remote_file,
+        #[SensitiveParameter] mixed $data,
+        int $mode = self::SOURCE_STRING,
+        int $start = -1,
+        int $local_start = -1,
+        ?\Closure $progressCallback = null
+    ): void {
         $this->precheck();
 
         $remote_file = $this->realpath($remote_file);
@@ -2544,7 +2550,7 @@ class SFTP extends SSH2
      * @see self::_get_sftp_packet()
      * @see self::send_channel_packet()
      */
-    private function send_sftp_packet(int $type, string $data, int $request_id = 1): void
+    private function send_sftp_packet(int $type, #[SensitiveParameter] string $data, int $request_id = 1): void
     {
         // in SSH2.php the timeout is cumulative per function call. eg. exec() will
         // timeout after 10s. but for SFTP.php it's cumulative per packet

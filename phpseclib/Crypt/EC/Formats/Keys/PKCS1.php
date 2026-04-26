@@ -52,8 +52,10 @@ abstract class PKCS1 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         self::initialize_static_variables();
 
         if (str_contains($key, 'BEGIN EC PARAMETERS') && str_contains($key, 'BEGIN EC PRIVATE KEY')) {
@@ -141,11 +143,17 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
+?     *
      * @param Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, BaseCurve $curve, array $publicKey, ?string $secret = null, #[SensitiveParameter] ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        #[SensitiveParameter] BigInteger $privateKey,
+        BaseCurve $curve,
+        array $publicKey,
+        #[SensitiveParameter] ?string $secret = null,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         self::initialize_static_variables();
 
         if ($curve instanceof TwistedEdwardsCurve || $curve instanceof MontgomeryCurve) {

@@ -56,8 +56,10 @@ abstract class PKCS8 extends Progenitor
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         $isPublic = str_contains($key, 'PUBLIC');
 
         $key = parent::load($key, $password);
@@ -86,8 +88,14 @@ abstract class PKCS8 extends Progenitor
     /**
      * Convert a private key to the appropriate format.
      */
-    public static function savePrivateKey(BigInteger $prime, BigInteger $base, BigInteger $privateKey, BigInteger $publicKey, ?string $password = null, array $options = []): string
-    {
+    public static function savePrivateKey(
+        BigInteger $prime,
+        BigInteger $base,
+        BigInteger $privateKey,
+        BigInteger $publicKey,
+        #[SensitiveParameter] ?string $password = null,
+        array $options = []
+    ): string {
         $params = [
             'prime' => $prime,
             'base' => $base,

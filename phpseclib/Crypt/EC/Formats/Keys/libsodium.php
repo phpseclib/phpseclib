@@ -46,8 +46,10 @@ abstract class libsodium
     /**
      * Break a public or private key down into its constituent components
      */
-    public static function load(string $key, #[SensitiveParameter] ?string $password = null): array
-    {
+    public static function load(
+        #[SensitiveParameter] string $key,
+        #[SensitiveParameter] ?string $password = null
+    ): array {
         switch (strlen($key)) {
             case 32:
                 $public = $key;
@@ -96,8 +98,13 @@ abstract class libsodium
      *
      * @param Integer[] $publicKey
      */
-    public static function savePrivateKey(BigInteger $privateKey, Ed25519 $curve, array $publicKey, ?string $secret = null, #[SensitiveParameter] ?string $password = null): string
-    {
+    public static function savePrivateKey(
+        #[SensitiveParameter] BigInteger $privateKey,
+        Ed25519 $curve,
+        array $publicKey,
+        #[SensitiveParameter] ?string $secret = null,
+        #[SensitiveParameter] ?string $password = null
+    ): string {
         if (!isset($secret)) {
             throw new UnsupportedValueException('Private Key does not have a secret set');
         }
