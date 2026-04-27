@@ -1068,7 +1068,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
     {
         $cert = file_get_contents(dirname(__FILE__) . '/poc_oid_bomb_50x4096.der');;
 
-        $x509 = new File_X509();
+        $x509 = new X509();
         $cert = $x509->loadX509($cert);
 
         $this->assertFalse($cert);
