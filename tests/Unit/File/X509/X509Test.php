@@ -1478,4 +1478,14 @@ Zf+6b317dHQhk60gz+CIt8s=
         $this->assertFalse(isset($cert['signatureAlgorithm']['parameters']));
         $this->assertFalse(isset($cert['tbsCertificate']['signature']['parameters']));
     }
+
+    public function testOIDBomb()
+    {
+        $cert = file_get_contents(dirname(__FILE__) . '/poc_oid_bomb_50x4096.der');;
+
+        $x509 = new X509();
+        $cert = $x509->loadX509($cert);
+
+        $this->assertFalse($cert);
+    }
 }
