@@ -1710,4 +1710,12 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load("$x509");
         $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
     }
+
+    public function testOIDBomb(): void
+    {
+        $cert = file_get_contents(dirname(__FILE__) . '/poc_oid_bomb_50x4096.der');;
+
+        $this->expectException(ResourceLimitException::class);
+        $x509 = X509::load($cert);
+    }
 }
