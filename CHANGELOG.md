@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.52 - 2026-04-27
+
+- ASN1: more stringent OID length limits
+- RSA: OpenSSL 3.2+ changed how PKCS1 decryption works (#2136)
+- Keys/OpenSSH: support comments with spaces in them (#2137)
+
 ## 3.0.51 - 2026-04-09
 
 - SSH2: use constant time string comparison in get_binary_packet() (CVE-2026-40194)
@@ -352,6 +358,10 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.54 - 2026-04-27
+
+- ASN1: more stringent OID length limits
 
 ## 2.0.53 - 2026-04-09
 
@@ -764,6 +774,10 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.29 - 2026-04-27
+
+- ASN1: more stringent OID length limits
 
 ## 1.0.28 - 2026-04-09
 
