@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.29 - 2026-04-27
+
+- ASN1: more stringent OID length limits
+
 ## 1.0.28 - 2026-04-09
 
 - SSH2: use constant time string comparison in get_binary_packet() (CVE-2026-40194)
