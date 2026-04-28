@@ -467,13 +467,20 @@ abstract class ASN1
                 break;
             case self::TYPE_OBJECT_IDENTIFIER:
                 try {
-                    $current['content'] = self::decodeOID($content);
+                    if (strlen($content) > 128) {
+                        throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
+                    }
+                    if (ord($content[-1]) & 0x80) {
+                        throw new UnexpectedValueException('OID is malformed');
+                    }
                 } catch (\Exception $e) {
                     if (!self::$blobsOnBadDecodes) {
                         throw $e;
                     }
                     $current['content'] = new MalformedData($headercontent . $content);
+                    break;
                 }
+                $current['content'] = new OID(new Element($content));
                 break;
             /* Each character string type shall be encoded as if it had been declared:
                [UNIVERSAL x] IMPLICIT OCTET STRING
@@ -564,6 +571,10 @@ abstract class ASN1
         //if (isset($mapping['decoder'])) {
         //    return $mapping['decoder']($decoded['content']);
         //}
+
+        if ($decoded['content'] instanceof OID) {
+            "$decoded[content]"; // force the OID to be decoded
+        }
 
         if (isset($mapping['explicit'])) {
             if (!$decoded['content'] instanceof Constructed) {
@@ -865,7 +876,7 @@ abstract class ASN1
                                     $subtag = (chr(0x80 | $subtagvalue)) . $subtag;
                                     $constant = $constant >> 7;
                                 }
-                                $subtag[strlen($subtag) - 1] = $subtag[strlen($subtag) - 1] & chr(0x7F);
+                                $subtag[-1] = $subtag[-1] & chr(0x7F);
                                 $subtag = chr((self::CLASS_CONTEXT_SPECIFIC << 6) | 0x20 | 0x1F) . $subtag;
                             }
                             $temp = $subtag . self::encodeLength(strlen($temp)) . $temp;
@@ -1140,7 +1151,7 @@ abstract class ASN1
             throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
         }
 
-        if (ord($content[$len - 1]) & 0x80) {
+        if (ord($content[-1]) & 0x80) {
             throw new UnexpectedValueException('OID is malformed');
         }
 

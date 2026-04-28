@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace phpseclib4\File\ASN1\Types;
 
 use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Element;
 
 /**
  * OID (Object Identifier)
@@ -32,16 +33,17 @@ class OID implements BaseType
 
     /**
      * Constructor
-     *
-     * @return Element
      */
-    public function __construct(public string $value)
+    public function __construct(public string|Element $value)
     {
-        $this->tryToSetName();
+        //$this->tryToSetName();
     }
 
     public function __debugInfo(): array
     {
+        if ($this->value instanceof Element) {
+            $this->value = ASN1::decodeOID($this->value->value)->value;
+        }
         $output = ['value' => $this->value];
         $this->tryToSetName();
         if (isset($this->name)) {
@@ -52,11 +54,14 @@ class OID implements BaseType
 
     public function __toString(): string
     {
+        if ($this->value instanceof Element) {
+            $this->value = ASN1::decodeOID($this->value->value)->value;
+        }
         $this->tryToSetName();
         return $this->name ?? $this->value;
     }
 
-    private function tryToSetName()
+    private function tryToSetName(): void
     {
         if (!isset($this->name)) {
             if (preg_match('#^\d[\d\.]+\d$#', $this->value)) {
