@@ -563,7 +563,7 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
      */
     public function testKeyTooLarge(): void
     {
-        $this->expectException('UnexpectedValueException');
+        $this->expectException(UnexpectedValueException::class);
 
         $key = '-----BEGIN PRIVATE KEY-----
 MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////

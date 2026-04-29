@@ -114,7 +114,7 @@ abstract class TestCase extends PhpseclibTestCase
      */
     public function testKeyPaddingAES(): void
     {
-        $this->expectException('LengthException');
+        $this->expectException(LengthException::class);
 
         // same as the above - just with a different ciphertext
 

@@ -20,6 +20,6 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class InvalidModeException extends \RuntimeException implements ExceptionInterface
+class InvalidModeException extends InvalidStateException
 {
 }

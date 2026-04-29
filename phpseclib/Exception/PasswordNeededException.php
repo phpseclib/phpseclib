@@ -20,6 +20,6 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class PasswordNeededException extends \RuntimeException implements ExceptionInterface
+class PasswordNeededException extends UnsupportedValueException
 {
 }

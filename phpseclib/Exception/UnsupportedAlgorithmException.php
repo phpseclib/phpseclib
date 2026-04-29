@@ -20,6 +20,6 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class UnsupportedAlgorithmException extends \RuntimeException implements ExceptionInterface
+class UnsupportedAlgorithmException extends UnsupportedValueException
 {
 }

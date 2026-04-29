@@ -20,6 +20,6 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class FileSystemException extends \RuntimeException implements ExceptionInterface
+class FileSystemException extends UnexpectedValueException
 {
 }

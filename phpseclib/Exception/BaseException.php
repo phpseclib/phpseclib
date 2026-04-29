@@ -7,6 +7,6 @@ namespace phpseclib4\Exception;
 /**
  * Used to mark exceptions originating from this library.
  */
-interface ExceptionInterface
+interface BaseException
 {
 }

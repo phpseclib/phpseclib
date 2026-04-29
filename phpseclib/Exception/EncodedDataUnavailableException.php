@@ -20,7 +20,7 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class EncodedDataUnavailableException extends \RuntimeException implements ExceptionInterface
+class EncodedDataUnavailableException extends UnexpectedValueException
 {
     public ?array $meta = null;
 

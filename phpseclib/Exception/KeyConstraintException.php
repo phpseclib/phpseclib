@@ -20,6 +20,6 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class KeyConstraintException extends \RuntimeException implements ExceptionInterface
+class KeyConstraintException extends UnsupportedValueException
 {
 }

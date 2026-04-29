@@ -13,7 +13,7 @@ abstract class TestCase extends PhpseclibTestCase
 {
     public function testPrimeFieldWithCompositeNumbers(): void
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
 
         $a = new BigInteger('65', 10);
         $p = new BigInteger('126', 10); // 126 isn't a prime

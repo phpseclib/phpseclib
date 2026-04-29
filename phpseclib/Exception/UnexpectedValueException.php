@@ -20,6 +20,6 @@ namespace phpseclib4\Exception;
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
-class UnexpectedValueException extends \UnexpectedValueException implements ExceptionInterface
+class UnexpectedValueException extends \RuntimeException implements BaseException
 {
 }
