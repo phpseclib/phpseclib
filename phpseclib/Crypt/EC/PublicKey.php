@@ -44,9 +44,6 @@ final class PublicKey extends EC implements Common\PublicKey
 
         $shortFormat = $this->shortFormat;
         $format = $this->sigFormat;
-        if ($format === false) {
-            return false;
-        }
 
         if (self::$forcedEngine === 'libsodium' && !$this->curve instanceof Ed25519) {
             throw new BadConfigurationException('Engine libsodium is only supported for Ed25519');
