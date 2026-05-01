@@ -38,6 +38,8 @@ class ChaCha20 extends Salsa20
      */
     protected function isValidEngineHelper(int $engine): bool
     {
+        // neither libsodium or openssl let you set the key for poly1305 so, in-so-far as poly1305
+        // is concerned, our options are fairly limited
         switch ($engine) {
             case self::ENGINE_LIBSODIUM:
                 // PHP 7.2.0 (30 Nov 2017) added support for libsodium
@@ -49,8 +51,28 @@ class ChaCha20 extends Salsa20
                 // with libsodium and subsequent strings with openssl or pure-PHP but again not a high priority
                 return function_exists('sodium_crypto_aead_chacha20poly1305_ietf_encrypt') &&
                        $this->key_length == 32 &&
+                       // if the poly1305 key is being auto-calculated and the counter is 0 we can use libsodium for both chacha20 and poly1305
+                       // if the counter is 1 we can use libsodium for chacha20 but NOT for poly1305. for poly1305, phpseclib will use its own
+                       // pure php implementation
                        (($this->usePoly1305 && !isset($this->poly1305Key) && $this->counter == 0) || $this->counter == 1) &&
                        !$this->continuousBuffer;
+            case self::ENGINE_OPENSSL_AEAD:
+                // PHP 8.2.0 (8 Dec 2022) "added AEAD support for the chacha20-poly1305 algorithm"
+                return extension_loaded('openssl') &&
+                    PHP_VERSION_ID >= 80200 &&
+                    $this->key_length == 32 &&
+                    // we're not doing the "|| $this->>counter == 1" bit that we do for openssl because, most likely,
+                    // if you have chacha20-poly1305 as an available cipher you also have chacha20 and
+                    // if the poly1305 result is going to be discarded, anyway, it'd just be faster to
+                    // not even compute it at all
+                    $this->usePoly1305 && !isset($this->poly1305Key) &&
+                    $this->counter == 0 &&
+                    // libsodium has sodium_crypto_aead_chacha20poly1305_encrypt() for 64-bit nonces
+                    // and sodium_crypto_aead_chacha20poly1305_ietf_encrypt() for 96-bit nonces.
+                    // openssl just does 96-bit nonces and that's it.
+                    strlen($this->nonce ?? '') == 12 &&
+                    !$this->continuousBuffer &&
+                    in_array('chacha20-poly1305', openssl_get_cipher_methods());
             case self::ENGINE_OPENSSL:
                 // OpenSSL 1.1.0 (released 25 Aug 2016) added support for chacha20.
                 // PHP didn't support OpenSSL 1.1.0 until 7.0.19 (11 May 2017)
@@ -76,12 +98,11 @@ class ChaCha20 extends Salsa20
     public function encrypt(string $plaintext): string
     {
         $this->setup();
-
-        if ($this->engine == self::ENGINE_LIBSODIUM) {
-            return $this->encrypt_with_libsodium($plaintext);
-        }
-
-        return parent::encrypt($plaintext);
+        return match ($this->engine) {
+            self::ENGINE_LIBSODIUM => $this->encrypt_with_libsodium($plaintext),
+            self::ENGINE_OPENSSL_AEAD => $this->encrypt_with_openssl_aead($plaintext),
+            default => parent::encrypt($plaintext)
+        };
     }
 
     /**
@@ -96,12 +117,11 @@ class ChaCha20 extends Salsa20
     public function decrypt(string $ciphertext): string
     {
         $this->setup();
-
-        if ($this->engine == self::ENGINE_LIBSODIUM) {
-            return $this->decrypt_with_libsodium($ciphertext);
-        }
-
-        return parent::decrypt($ciphertext);
+        return match ($this->engine) {
+            self::ENGINE_LIBSODIUM => $this->decrypt_with_libsodium($ciphertext),
+            self::ENGINE_OPENSSL_AEAD => $this->decrypt_with_openssl_aead($ciphertext),
+            default => parent::decrypt($ciphertext)
+        };
     }
 
     /**
@@ -121,11 +141,16 @@ class ChaCha20 extends Salsa20
 
         $newciphertext = substr($ciphertext, 0, strlen($plaintext));
 
-        $this->newtag = $this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12 ?
+        $this->newtag = $this->usingGeneratedPoly1305Key ?
             substr($ciphertext, strlen($plaintext)) :
             $this->poly1305($newciphertext);
 
         return $newciphertext;
+    }
+
+    private function encrypt_with_openssl_aead(string $plaintext): string
+    {
+        return openssl_encrypt($plaintext, 'chacha20-poly1305', $this->key, OPENSSL_RAW_DATA, $this->nonce, $this->newtag, $this->aad);
     }
 
     /**
@@ -141,8 +166,11 @@ class ChaCha20 extends Salsa20
             if (!isset($this->oldtag)) {
                 throw new InvalidStateException('Authentication Tag has not been set - call setTag() first');
             }
-            if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
-                $plaintext = sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
+            $params[0] .= $this->oldtag;
+            if ($this->usingGeneratedPoly1305Key) {
+                $plaintext = strlen($this->nonce) == 8 ?
+                    sodium_crypto_aead_chacha20poly1305_decrypt(...$params) :
+                    sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
                 $this->oldtag = null;
                 if ($plaintext === false) {
                     throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
@@ -157,11 +185,35 @@ class ChaCha20 extends Salsa20
             $this->oldtag = null;
         }
 
+        // we're calling encrypt vs decrypt here because decrypt will try to verify the tag and, if we're
+        // at this point in the code, we don't have one. so like if you call decrypt an exception will be
+        // thrown. consequently, we encrypt. since chacha20 is a stream cipher all encryption basically is
+        // is XOR'ing the plaintext with the keystream. if you instead XOR the ciphertext with the keystream
+        // you get the plaintext
         $plaintext = strlen($this->nonce) == 8 ?
             sodium_crypto_aead_chacha20poly1305_encrypt(...$params) :
             sodium_crypto_aead_chacha20poly1305_ietf_encrypt(...$params);
 
         return substr($plaintext, 0, strlen($ciphertext));
+    }
+
+    private function decrypt_with_openssl_aead(string $ciphertext): string
+    {
+        //assert($this->usingGeneratedPoly1305Key);
+        if (!isset($this->oldtag)) {
+            throw new InvalidStateException('Authentication Tag has not been set - call setTag() first');
+        }
+        $plaintext = openssl_decrypt($ciphertext, 'chacha20-poly1305', $this->key, OPENSSL_RAW_DATA, $this->nonce, $this->oldtag, $this->aad);
+        if ($plaintext === false) {
+            throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
+        }
+        $this->oldtag = null;
+        return $plaintext;
+
+        // whereas in libsodium we worry about the !$this->usingGeneratedPoly1305Key case, in this case, we don't.
+        // if you're not using a generated poly1305 key then the OpenSSL algorithm in question should be chacha20 -
+        // not chacha20-poly1305. and chacha20 is taken care of by the "OpenSSL" engine - not the "OpenSSL (AEAD)"
+        // engine
     }
 
     /**
@@ -226,11 +278,15 @@ class ChaCha20 extends Salsa20
         }
 
         if ($this->usePoly1305 && !isset($this->poly1305Key)) {
-            $this->usingGeneratedPoly1305Key = true;
-            if ($this->engine == self::ENGINE_LIBSODIUM) {
+            if ($this->engine == self::ENGINE_LIBSODIUM || $this->engine == self::ENGINE_OPENSSL_AEAD) {
+                $this->usingGeneratedPoly1305Key = true;
                 return;
             }
             $this->createPoly1305Key();
+        }
+
+        if ($this->engine != self::ENGINE_INTERNAL && $this->engine != self::ENGINE_OPENSSL) {
+            return;
         }
 
         $key = $this->key;

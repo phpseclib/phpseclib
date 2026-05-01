@@ -142,6 +142,8 @@ class Salsa20 extends StreamCipher
         if ($this->counter == 0) {
             $this->counter++;
         }
+
+        $this->usingGeneratedPoly1305Key = true;
     }
 
     /**

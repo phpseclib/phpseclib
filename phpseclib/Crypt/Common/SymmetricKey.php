@@ -177,7 +177,7 @@ abstract class SymmetricKey
      *
      * @see \phpseclib4\Crypt\Common\SymmetricKey::__construct()
      */
-    public const ENGINE_OPENSSL_GCM = 6;
+    public const ENGINE_OPENSSL_AEAD = 6;
 
     /**
      * Engine Reverse Map
@@ -185,11 +185,11 @@ abstract class SymmetricKey
      * @see \phpseclib4\Crypt\Common\SymmetricKey::getEngine()
      */
     public const ENGINE_MAP = [
-        self::ENGINE_INTERNAL    => 'PHP',
-        self::ENGINE_EVAL        => 'Eval',
-        self::ENGINE_OPENSSL     => 'OpenSSL',
-        self::ENGINE_LIBSODIUM   => 'libsodium',
-        self::ENGINE_OPENSSL_GCM => 'OpenSSL (GCM)',
+        self::ENGINE_INTERNAL     => 'PHP',
+        self::ENGINE_EVAL         => 'Eval',
+        self::ENGINE_OPENSSL      => 'OpenSSL',
+        self::ENGINE_LIBSODIUM    => 'libsodium',
+        self::ENGINE_OPENSSL_AEAD => 'OpenSSL (AEAD)',
     ];
 
     /**
@@ -299,11 +299,11 @@ abstract class SymmetricKey
      * which will be determined automatically on __construct()
      *
      * Currently available $engines are:
-     * - self::ENGINE_LIBSODIUM   (very fast, php-extension: libsodium, extension_loaded('libsodium') required)
-     * - self::ENGINE_OPENSSL_GCM (very fast, php-extension: openssl, extension_loaded('openssl') required)
-     * - self::ENGINE_OPENSSL     (very fast, php-extension: openssl, extension_loaded('openssl') required)
-     * - self::ENGINE_EVAL        (medium, pure php-engine, no php-extension required)
-     * - self::ENGINE_INTERNAL    (slower, pure php-engine, no php-extension required)
+     * - self::ENGINE_LIBSODIUM    (very fast, php-extension: libsodium, extension_loaded('libsodium') required)
+     * - self::ENGINE_OPENSSL_AEAD (very fast, php-extension: openssl, extension_loaded('openssl') required)
+     * - self::ENGINE_OPENSSL      (very fast, php-extension: openssl, extension_loaded('openssl') required)
+     * - self::ENGINE_EVAL         (medium, pure php-engine, no php-extension required)
+     * - self::ENGINE_INTERNAL     (slower, pure php-engine, no php-extension required)
      *
      * @see self::setEngine()
      * @see self::encrypt()
@@ -1523,16 +1523,12 @@ abstract class SymmetricKey
     /**
      * Sets the authentication tag
      *
-     * Only used in GCM mode
+     * Only used in GCM mode and only when decrypting data and only when decrypting data
      *
      * @see self::decrypt()
      */
     public function setTag(string $tag): void
     {
-        if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
-            $this->createPoly1305Key();
-        }
-
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
             throw new BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
         }
@@ -1895,6 +1891,7 @@ abstract class SymmetricKey
      */
     public function getEngine(): string
     {
+        $this->setEngine();
         return self::ENGINE_MAP[$this->engine];
     }
 
@@ -1909,7 +1906,7 @@ abstract class SymmetricKey
 
         $candidateEngines = [
             self::ENGINE_LIBSODIUM,
-            self::ENGINE_OPENSSL_GCM,
+            self::ENGINE_OPENSSL_AEAD,
             self::ENGINE_OPENSSL,
             self::ENGINE_EVAL,
         ];
@@ -2002,7 +1999,7 @@ abstract class SymmetricKey
             if (!isset($this->nonce)) {
                 throw new InvalidStateException('No nonce has been defined - call setNonce() first');
             }
-            if ($this->mode == self::MODE_GCM && !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
+            if ($this->mode == self::MODE_GCM && !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_AEAD])) {
                 $this->setupGCM();
             }
         } else {
@@ -2010,7 +2007,7 @@ abstract class SymmetricKey
         }
 
         if (!isset($this->iv) && !in_array($this->mode, [self::MODE_STREAM, self::MODE_ECB])) {
-            if ($this->mode != self::MODE_GCM || !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_GCM])) {
+            if ($this->mode != self::MODE_GCM || !in_array($this->engine, [self::ENGINE_LIBSODIUM, self::ENGINE_OPENSSL_AEAD])) {
                 throw new InvalidStateException('No IV has been defined - call setIV() first');
             }
         }

@@ -168,7 +168,7 @@ class ChaCha20Test extends PhpseclibTestCase
         $tag = str_replace(':', '', $tag);
         $tag = pack('H*', $tag);
 
-        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
         foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->enablePoly1305();
@@ -194,7 +194,7 @@ class ChaCha20Test extends PhpseclibTestCase
 
         $plaintext = str_repeat("\0", array_sum($partitions));
 
-        $engines = ['PHP', 'OpenSSL', 'libsodium'];
+        $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
         foreach ($engines as $engine) {
             $c = new ChaCha20();
             $c->setKey($key);
@@ -218,6 +218,58 @@ class ChaCha20Test extends PhpseclibTestCase
             }
 
             $this->assertSame($p1, $p2, "Failed asserting that ciphertext matches expected value with $engine engine");
+        }
+    }
+
+    public function testDecryptNoPoly1305(): void
+    {
+        $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
+        $key = str_repeat('x', 32);
+        $plaintext = 'ddddd';
+
+        foreach ([8, 12] as $nonceSize) {
+            $nonce = str_repeat('x', $nonceSize);
+            $var = "ciphertext$nonceSize";
+            foreach ([false, true] as $calculatePoly) {
+                foreach ($engines as $engine) {
+                    $c = new ChaCha20();
+                    $c->setPreferredEngine($engine);
+                    $c->setKey($key);
+                    $c->setNonce($nonce);
+                    $c->setCounter(1);
+                    if ($calculatePoly) {
+                        $c->enablePoly1305();
+                    }
+                    if ($c->getEngine() != $engine) {
+                        continue;
+                    }
+                    $ciphertext = $c->encrypt($plaintext);
+                    if (isset($$var)) {
+                        $message = "Failed asserting that $engine (with a nonce size of $nonceSize) ";
+                        if ($calculatePoly) {
+                            $message .= "an auto-calculated Poly1305 key ";
+                            $tag = $c->getTag();
+                       }
+                        $message .= "yielded the expected result of " . bin2hex($$var);
+                        $this->assertSame(bin2hex($$var), bin2hex($ciphertext), $message);
+                    } else {
+                        $$var = $ciphertext;
+                    }
+
+                    $c = new ChaCha20();
+                    $c->setPreferredEngine($engine);
+                    $c->setKey($key);
+                    $c->setNonce($nonce);
+                    $c->setCounter(1);
+                    if ($calculatePoly) {
+                        $c->enablePoly1305();
+                        $c->setTag($tag);
+                    }
+                    $result = $c->decrypt($ciphertext);
+                    $message = "Failed asserting that $engine (with a nonce size of $nonceSize) decrypted to $plaintext";
+                    $this->assertSame($plaintext, $result, $message);
+                }
+            }
         }
     }
 }

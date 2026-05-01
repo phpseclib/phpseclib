@@ -222,7 +222,7 @@ class Rijndael extends BlockCipher
                        $this->key_length == 32 &&
                        $this->nonce && strlen($this->nonce) == 12 &&
                        $this->block_size == 16;
-            case self::ENGINE_OPENSSL_GCM:
+            case self::ENGINE_OPENSSL_AEAD:
                 if (!extension_loaded('openssl')) {
                     return false;
                 }
@@ -902,7 +902,7 @@ class Rijndael extends BlockCipher
             case self::ENGINE_LIBSODIUM:
                 $this->newtag = sodium_crypto_aead_aes256gcm_encrypt($plaintext, $this->aad, $this->nonce, $this->key);
                 return Strings::shift($this->newtag, strlen($plaintext));
-            case self::ENGINE_OPENSSL_GCM:
+            case self::ENGINE_OPENSSL_AEAD:
                 return openssl_encrypt(
                     $plaintext,
                     'aes-' . $this->getKeyLength() . '-gcm',
@@ -941,7 +941,7 @@ class Rijndael extends BlockCipher
                     throw new BadDecryptionException('Error decrypting ciphertext with libsodium');
                 }
                 return $plaintext;
-            case self::ENGINE_OPENSSL_GCM:
+            case self::ENGINE_OPENSSL_AEAD:
                 if (!isset($this->oldtag)) {
                     throw new InvalidStateException('Authentication Tag has not been set - call setTag() first');
                 }
