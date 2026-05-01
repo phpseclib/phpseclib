@@ -28,7 +28,7 @@ namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\PublicKey;
-use phpseclib4\Crypt\{Hash, PublicKeyLoader, RSA, Random};
+use phpseclib4\Crypt\{Hash, PublicKeyLoader, RSA};
 use phpseclib4\Exception\{
     BadMethodCallException,
     InvalidArgumentException,
@@ -111,7 +111,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
           for the integer to be positive the leading bit needs to be 0 hence the
           application of a bitmap
         */
-        $serialNumber = new BigInteger(Random::string(20) & ("\x7F" . str_repeat("\xFF", 19)), 256);
+        $serialNumber = new BigInteger(random_bytes(20) & ("\x7F" . str_repeat("\xFF", 19)), 256);
 
         $this->cert = [
             'tbsCertificate' => [

@@ -185,7 +185,7 @@ abstract class EC extends AsymmetricKey
 
         $curve = new $curve();
         if ($curve instanceof TwistedEdwardsCurve) {
-            $arr = $curve->extractSecret(Random::string($curve instanceof Ed448 ? 57 : 32));
+            $arr = $curve->extractSecret(random_bytes($curve instanceof Ed448 ? 57 : 32));
             $privatekey->dA = $dA = $arr['dA'];
             $privatekey->secret = $arr['secret'];
         } else {

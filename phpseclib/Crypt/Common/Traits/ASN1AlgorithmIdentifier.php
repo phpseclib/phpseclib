@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\Common\Traits;
 
-use phpseclib4\Crypt\{AES, DES, RC2, RC4, Random, TripleDES};
+use phpseclib4\Crypt\{AES, DES, RC2, RC4, TripleDES};
 use phpseclib4\Crypt\Common\SymmetricKey;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
@@ -308,7 +308,7 @@ trait ASN1AlgorithmIdentifier
 
     private static function getCryptoObjectFromParams(string $password, array $options): SymmetricKey
     {
-        $salt = Random::string(8);
+        $salt = random_bytes(8);
 
         $iterationCount = $options['iterationCount'] ?? self::$defaultIterationCount;
         $encryptionAlgorithm = $options['encryptionAlgorithm'] ?? self::$defaultEncryptionAlgorithm;
@@ -319,7 +319,7 @@ trait ASN1AlgorithmIdentifier
             $crypto = self::getPBES2EncryptionObject($encryptionScheme);
             $hash = str_replace('-', '/', substr($prf, 11));
             $kdf = 'pbkdf2';
-            $iv = Random::string($crypto->getBlockLength() >> 3);
+            $iv = random_bytes($crypto->getBlockLength() >> 3);
 
             $PBKDF2params = [
                 'salt' => $salt,

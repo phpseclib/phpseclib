@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\{AES, EC, RSA, Random, TripleDES};
+use phpseclib4\Crypt\{AES, EC, RSA, TripleDES};
 use phpseclib4\Exception\{
     BadDecryptionException,
     BadMethodCallException,
@@ -61,9 +61,9 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         if (isset($key) && strlen($key) != $keyLength) {
             throw new LengthException('key is ' . strlen($key) . " bytes long; it should be $keyLength bytes long");
         }
-        $this->cek = $key ?? Random::string($keyLength);
+        $this->cek = $key ?? random_bytes($keyLength);
         $cipher->setKey($this->cek);
-        $iv = Random::string($cipher->getBlockLengthInBytes());
+        $iv = random_bytes($cipher->getBlockLengthInBytes());
         $cipher->setIV($iv);
         $encrypted = $cipher->encrypt($data);
         $this->cms = [
@@ -489,7 +489,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         // see https://datatracker.ietf.org/doc/html/rfc3211
         $keyCheck = ~substr($this->cek, 0, 3);
         $contentCipher = self::getPBES2EncryptionObject((string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm']);
-        $padding = Random::string(max($keyCipher->getBlockLengthInBytes(), 2 * $contentCipher->getBlockLengthInBytes()) - strlen($this->cek) - 4);
+        $padding = random_bytes(max($keyCipher->getBlockLengthInBytes(), 2 * $contentCipher->getBlockLengthInBytes()) - strlen($this->cek) - 4);
         $cekBlock = chr(strlen($this->cek)) . $keyCheck . $this->cek . $padding;
 
         $encryptedKey = $keyCipher->encrypt($cekBlock);
@@ -678,7 +678,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     {
         $icv = substr(sha1($cek, true), 0, 8);
         $cekicv = $cek . $icv;
-        $iv = Random::string(8);
+        $iv = random_bytes(8);
         $cipher = new TripleDES('cbc');
         $cipher->disablePadding();
         $cipher->setKey($kek);

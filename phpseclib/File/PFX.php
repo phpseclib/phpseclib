@@ -20,7 +20,7 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Crypt\Common\PrivateKey;
-use phpseclib4\Crypt\{Hash, PublicKeyLoader, Random};
+use phpseclib4\Crypt\{Hash, PublicKeyLoader};
 use phpseclib4\Exception\{
     InvalidArgumentException,
     PasswordNeededException,
@@ -431,7 +431,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         $saltLength = $options['saltLength'] ?? self::$defaultSaltLength;
         $iterationCount = $options['iterationCount'] ?? self::$defaultIterationCount;
         if ($hashAlgorithm && $this->password) {
-            $salt = Random::string($saltLength);
+            $salt = random_bytes($saltLength);
             $hash = new Hash($hashAlgorithm);
             $hash->setPassword($this->password, $salt, $iterationCount);
             $mac = $hash->hash($this->pfx['authSafe']['content']->value);

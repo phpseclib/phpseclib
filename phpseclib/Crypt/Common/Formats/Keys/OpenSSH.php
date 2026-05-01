@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\{AES, Random};
+use phpseclib4\Crypt\AES;
 use phpseclib4\Exception\{
     BadDecryptionException,
     PasswordNeededException,
@@ -173,7 +173,7 @@ abstract class OpenSSH
         #[SensitiveParameter] ?string $password,
         array $options
     ): string {
-        [, $checkint] = unpack('N', Random::string(4));
+        [, $checkint] = unpack('N', random_bytes(4));
 
         $comment = $options['comment'] ?? self::$comment;
         $paddedKey = Strings::packSSH2('NN', $checkint, $checkint) .
@@ -198,7 +198,7 @@ abstract class OpenSSH
             $key = Strings::packSSH2('sssNss', 'none', 'none', '', 1, $publicKey, $paddedKey);
         } else {
             $rounds = $options['rounds'] ?? 16;
-            $salt = Random::string(16);
+            $salt = random_bytes(16);
             $kdfoptions = Strings::packSSH2('sN', $salt, $rounds);
             $crypto = new AES('ctr');
             $crypto->setPassword($password, 'bcrypt', $salt, $rounds, 32);

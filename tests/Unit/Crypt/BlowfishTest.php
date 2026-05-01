@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\Crypt;
 
 use phpseclib4\Crypt\Blowfish;
-use phpseclib4\Crypt\Random;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class BlowfishTest extends PhpseclibTestCase
@@ -119,7 +118,7 @@ class BlowfishTest extends PhpseclibTestCase
         $plaintext = str_repeat('.', 100);
 
         for ($keyLen = 4; $keyLen <= 56; $keyLen++) {
-            $key = Random::string($keyLen);
+            $key = random_bytes($keyLen);
             $objects[0]->setKey($key);
             $ref = $objects[0]->encrypt($plaintext);
             for ($i = 1; $i < count($objects); $i++) {

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\{AES, DES, Random, TripleDES};
+use phpseclib4\Crypt\{AES, DES, TripleDES};
 use phpseclib4\Exception\{
     PasswordNeededException,
     UnsupportedAlgorithmException,
@@ -168,7 +168,7 @@ abstract class PKCS1 extends PKCS
         $encryptionAlgorithm = $options['encryptionAlgorithm'] ?? self::$defaultEncryptionAlgorithm;
 
         $cipher = self::getEncryptionObject($encryptionAlgorithm);
-        $iv = Random::string($cipher->getBlockLength() >> 3);
+        $iv = random_bytes($cipher->getBlockLength() >> 3);
         $cipher->setKey(self::generateSymmetricKey($password, $iv, $cipher->getKeyLength() >> 3));
         $cipher->setIV($iv);
         $iv = strtoupper(Strings::bin2hex($iv));

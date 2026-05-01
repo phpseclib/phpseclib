@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace phpseclib4\Math\BigInteger\Engines;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Random;
 use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, ResourceLimitException};
 
 /**
@@ -771,7 +770,7 @@ abstract class Engine implements \JsonSerializable
             http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
         */
         $random_max = new static(chr(1) . str_repeat("\0", $size), 256);
-        $random = new static(Random::string($size), 256);
+        $random = new static(random_bytes($size), 256);
 
         [$max_multiple] = $random_max->divide($max);
         $max_multiple = $max_multiple->multiply($max);
@@ -780,7 +779,7 @@ abstract class Engine implements \JsonSerializable
             $random = $random->subtract($max_multiple);
             $random_max = $random_max->subtract($max_multiple);
             $random = $random->bitwise_leftShift(8);
-            $random = $random->add(new static(Random::string(1), 256));
+            $random = $random->add(new static(random_bytes(1), 256));
             $random_max = $random_max->bitwise_leftShift(8);
             [$max_multiple] = $random_max->divide($max);
             $max_multiple = $max_multiple->multiply($max);

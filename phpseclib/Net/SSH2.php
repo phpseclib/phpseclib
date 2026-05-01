@@ -57,7 +57,6 @@ use phpseclib4\Crypt\{
     Hash,
     RC4,
     RSA,
-    Random,
     Rijndael,
     TripleDES,
     Twofish
@@ -1351,7 +1350,7 @@ class SSH2
                 }
         }
 
-        $client_cookie = Random::string(16);
+        $client_cookie = random_bytes(16);
 
         $kexinit_payload_client = pack('Ca*', MessageType::KEXINIT, $client_cookie);
         $kexinit_payload_client .= Strings::packSSH2(
@@ -3953,7 +3952,7 @@ class SSH2
                 $packet_length += 4;
         }
 
-        $padding = Random::string($padding_length);
+        $padding = random_bytes($padding_length);
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
         $packet = pack('NCa*', $packet_length - 4, $padding_length, $data . $padding);

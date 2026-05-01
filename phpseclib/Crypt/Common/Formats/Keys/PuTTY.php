@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\Common\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\{AES, Hash, Random};
+use phpseclib4\Crypt\{AES, Hash};
 use phpseclib4\Exception\{
     BadConfigurationException,
     PasswordNeededException,
@@ -290,13 +290,13 @@ abstract class PuTTY
                     $hash->setKey(sha1('putty-private-key-file-mac-key', true));
             }
         } else {
-            $private .= Random::string(16 - (strlen($private) & 15));
+            $private .= random_bytes(16 - (strlen($private) & 15));
             $source .= Strings::packSSH2('s', $private);
             $crypto = new AES('cbc');
 
             switch ($version) {
                 case 3:
-                    $salt = Random::string(16);
+                    $salt = random_bytes(16);
                     $key .= "Key-Derivation: Argon2id\r\n";
                     $key .= "Argon2-Memory: 8192\r\n";
                     $key .= "Argon2-Passes: 13\r\n";

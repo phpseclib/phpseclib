@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\File\CMS;
 
 use phpseclib4\Crypt\EC;
-use phpseclib4\Crypt\Random;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\File\CMS;
@@ -356,7 +355,7 @@ HZ5LFXx7/Cul
         $x509a = new X509($rsa->getPublicKey());
         $rsa->sign($x509a);
 
-        $key = Random::string(16);
+        $key = random_bytes(16);
         $cms = new CMS\EncryptedData($plaintext, key: $key);
         $cms->createNewRecipientFromPassword('password');
         $cms->createNewRecipientFromKeyWithIdentifier(str_repeat('x', 16), 'zzz');

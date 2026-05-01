@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Curves;
 
 use phpseclib4\Crypt\EC\BaseCurves\TwistedEdwards;
-use phpseclib4\Crypt\{Hash, Random};
+use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException, UnsupportedValueException};
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
@@ -145,7 +145,7 @@ class Ed448 extends TwistedEdwards
      */
     public function createRandomMultiplier(): BigInteger
     {
-        return $this->extractSecret(Random::string(57))['dA'];
+        return $this->extractSecret(random_bytes(57))['dA'];
     }
 
     /**

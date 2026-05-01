@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA;
 
-use phpseclib4\Crypt\{Common, RSA, Random};
+use phpseclib4\Crypt\{Common, RSA};
 use phpseclib4\Exception\{BadConfigurationException, KeyConstraintException, LengthException, UnsupportedAlgorithmException};
 use phpseclib4\Math\BigInteger;
 
@@ -249,7 +249,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         $psLen = $this->k - $mLen - 3;
         $ps = '';
         while (strlen($ps) != $psLen) {
-            $temp = Random::string($psLen - strlen($ps));
+            $temp = random_bytes($psLen - strlen($ps));
             $temp = str_replace("\x00", '', $temp);
             $ps .= $temp;
         }
@@ -290,7 +290,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         $lHash = $this->hash->hash($this->label);
         $ps = str_repeat(chr(0), $this->k - $mLen - 2 * $this->hLen - 2);
         $db = $lHash . $ps . chr(1) . $m;
-        $seed = Random::string($this->hLen);
+        $seed = random_bytes($this->hLen);
         $dbMask = $this->mgf1($seed, $this->k - $this->hLen - 1);
         $maskedDB = $db ^ $dbMask;
         $seedMask = $this->mgf1($maskedDB, $this->hLen);
