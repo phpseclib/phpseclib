@@ -19,7 +19,7 @@ use phpseclib4\Crypt\EC\BaseCurves\{Montgomery as MontgomeryCurve, TwistedEdward
 use phpseclib4\Crypt\EC\Curves\Ed25519;
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException};
+use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -62,7 +62,10 @@ final class PublicKey extends EC implements Common\PublicKey
             }
             if (function_exists('sodium_crypto_sign_verify_detached') && !isset($this->context)) {
                 if ($shortFormat == 'SSH2') {
-                    [, $signature] = Strings::unpackSSH2('ss', $signature);
+                    [$type, $signature] = Strings::unpackSSH2('ss', $signature);
+                    if ($type != 'ssh-ed25519') {
+                        return false;
+                    }
                 }
                 if (strlen($signature) != 64) {
                     return false;
@@ -76,7 +79,13 @@ final class PublicKey extends EC implements Common\PublicKey
 
         if ($this->curve instanceof TwistedEdwardsCurve) {
             if ($shortFormat == 'SSH2') {
-                [, $signature] = Strings::unpackSSH2('ss', $signature);
+                [$type, $signature] = Strings::unpackSSH2('ss', $signature);
+                if ($this->curve instanceof Ed25519 && $type != 'ssh-ed25519') {
+                    return false;
+                }
+                if ($this->curve instanceof Ed448 && $type != 'ssh-ed448') {
+                    return false;
+                }
             }
             if (strlen($signature) != 2 * $this->curve::SIZE) {
                 return false;

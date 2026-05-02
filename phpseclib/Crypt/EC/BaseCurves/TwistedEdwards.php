@@ -40,6 +40,11 @@ use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 class TwistedEdwards extends Base
 {
     /**
+     * Prime Field Integer factory
+     */
+    protected PrimeField $factory;
+
+    /**
      * The modulo
      */
     protected BigInteger $modulo;
