@@ -45,8 +45,8 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     {
         $r = new \ReflectionClass(__CLASS__);
         $cms = $r->newInstanceWithoutConstructor();
-        $temp->encryptedKey = is_string($encoded) ? static::loadString($encoded) : $encoded;
-        return $temp;
+        $cms->encryptedKey = is_string($encoded) ? static::loadString($encoded) : $encoded;
+        return $cms;
     }
 
     protected static function loadString(string $encoded): Constructed
