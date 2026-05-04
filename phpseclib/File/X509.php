@@ -265,9 +265,9 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($cert);
 
         $rules = [];
-        $rules['tbsCertificate']['extensions']['*'] = [self::class, 'mapInExtensions'];
-        $rules['tbsCertificate']['subject']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
-        $rules['tbsCertificate']['issuer']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
+        $rules['tbsCertificate']['extensions']['*'] = self::mapInExtensions(...);
+        $rules['tbsCertificate']['subject']['rdnSequence']['*']['*'] = self::mapInDNs(...);
+        $rules['tbsCertificate']['issuer']['rdnSequence']['*']['*'] = self::mapInDNs(...);
         $rules['tbsCertificate']['subjectPublicKeyInfo'] = function (Constructed &$key) {
             try {
                 $key = PublicKeyLoader::load($key->getEncoded());

@@ -101,8 +101,8 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($csr);
 
         $rules = [];
-        $rules['certificationRequestInfo']['attributes']['*'] = [self::class, 'mapInAttributes'];
-        $rules['certificationRequestInfo']['subject']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
+        $rules['certificationRequestInfo']['attributes']['*'] = self::mapInAttributes(...);
+        $rules['certificationRequestInfo']['subject']['rdnSequence']['*']['*'] = self::mapInDNs(...);
         $rules['certificationRequestInfo']['subjectPKInfo'] = function (Constructed &$csr) {
             try {
                 $csr = PublicKeyLoader::load($csr->getEncoded());
@@ -244,7 +244,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         }
         $rule = [];
         if ($id == 'pkcs-9-at-extensionRequest') {
-            $rule['*'] = [self::class, 'mapInExtensions'];
+            $rule['*'] = self::mapInExtensions(...);
         }
         foreach ($attr['value'] as $key => $value) {
             $value = &$attr['value'][$key];

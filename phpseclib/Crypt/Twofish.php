@@ -331,12 +331,12 @@ class Twofish extends BlockCipher
     protected static function initialize_static_variables(): void
     {
         if (is_float(self::$m3[0])) {
-            self::$m0 = array_map([self::class, 'safe_intval'], self::$m0);
-            self::$m1 = array_map([self::class, 'safe_intval'], self::$m1);
-            self::$m2 = array_map([self::class, 'safe_intval'], self::$m2);
-            self::$m3 = array_map([self::class, 'safe_intval'], self::$m3);
-            self::$q0 = array_map([self::class, 'safe_intval'], self::$q0);
-            self::$q1 = array_map([self::class, 'safe_intval'], self::$q1);
+            self::$m0 = array_map(self::safe_intval(...), self::$m0);
+            self::$m1 = array_map(self::safe_intval(...), self::$m1);
+            self::$m2 = array_map(self::safe_intval(...), self::$m2);
+            self::$m3 = array_map(self::safe_intval(...), self::$m3);
+            self::$q0 = array_map(self::safe_intval(...), self::$q0);
+            self::$q1 = array_map(self::safe_intval(...), self::$q1);
         }
 
         parent::initialize_static_variables();

@@ -55,9 +55,9 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         //ASN1::disableCacheInvalidation();
         $rules = [];
-        $rules['signedAttrs']['*'] = [self::class, 'mapInAttrs'];
-        $rules['unsignedAttrs']['*'] = [self::class, 'mapInAttrs'];
-        $rules['sid']['issuerAndSerialNumber']['issuer']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
+        $rules['signedAttrs']['*'] = self::mapInAttrs(...);
+        $rules['unsignedAttrs']['*'] = self::mapInAttrs(...);
+        $rules['sid']['issuerAndSerialNumber']['issuer']['rdnSequence']['*']['*'] = self::mapInDNs(...);
         $decoded = ASN1::decodeBER($encoded);
         $signer = ASN1::map($decoded, Maps\SignerInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
@@ -172,7 +172,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         switch ($attr['type']) {
             case 'id-aa-signingCertificate':
             case 'id-aa-signingCertificateV2':
-                $rules['certs']['*']['issuerSerial']['issuer']['*']['directoryName']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
+                $rules['certs']['*']['issuerSerial']['issuer']['*']['directoryName']['rdnSequence']['*']['*'] = self::mapInDNs(...);
         }
         ASN1::disableCacheInvalidation();
         for ($i = 0; $i < count($attr['value']); $i++) {

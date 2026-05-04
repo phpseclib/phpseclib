@@ -88,9 +88,9 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($crl);
 
         $rules = [];
-        $rules['tbsCertList']['issuer']['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
-        $rules['tbsCertList']['crlExtensions']['*'] = [self::class, 'mapInExtensions'];
-        $rules['tbsCertList']['revokedCertificates']['*']['crlEntryExtensions']['*'] = [self::class, 'mapInExtensions'];
+        $rules['tbsCertList']['issuer']['rdnSequence']['*']['*'] = self::mapInDNs(...);
+        $rules['tbsCertList']['crlExtensions']['*'] = self::mapInExtensions(...);
+        $rules['tbsCertList']['revokedCertificates']['*']['crlEntryExtensions']['*'] = self::mapInExtensions(...);
 
         return ASN1::map($decoded, Maps\CertificateList::MAP, $rules);
     }

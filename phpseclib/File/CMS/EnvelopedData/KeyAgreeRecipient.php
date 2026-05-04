@@ -27,8 +27,8 @@ class KeyAgreeRecipient extends Recipient
         //ASN1::disableCacheInvalidation();
         $decoded = ASN1::decodeBER($encoded);
         $rules = [];
-        $rules['keyEncryptionAlgorithm'] = [self::class, 'mapInAlgoParams'];
-        $rules['recipientEncryptedKeys'] = [self::class, 'mapInEncryptedKeys'];
+        $rules['keyEncryptionAlgorithm'] = self::mapInAlgoParams(...);
+        $rules['recipientEncryptedKeys'] = self::mapInEncryptedKeys(...);
         $recipient = ASN1::map($decoded, Maps\KeyAgreeRecipientInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
         return $recipient;

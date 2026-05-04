@@ -440,7 +440,7 @@ trait DN
                 $dn = ASN1::encodeDER($dn, Maps\Name::MAP);
                 $dn = ASN1::decodeBER($dn);
                 $rules = [];
-                $rules['rdnSequence']['*']['*'] = [self::class, 'mapInDNs'];
+                $rules['rdnSequence']['*']['*'] = self::mapInDNs(...);
                 $dn = ASN1::map($dn, Maps\Name::MAP, $rules);
                 return $dn->toArray();
             case self::DN_ASN1:

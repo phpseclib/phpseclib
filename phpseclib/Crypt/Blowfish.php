@@ -410,8 +410,8 @@ class Blowfish extends BlockCipher
     protected static function initialize_static_variables(): void
     {
         if (is_float(self::$sbox[0x200])) {
-            self::$sbox = array_map([self::class, 'safe_intval'], self::$sbox);
-            self::$parray = array_map([self::class, 'safe_intval'], self::$parray);
+            self::$sbox = array_map(self::safe_intval(...), self::$sbox);
+            self::$parray = array_map(self::safe_intval(...), self::$parray);
         }
 
         parent::initialize_static_variables();
