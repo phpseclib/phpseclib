@@ -1992,7 +1992,7 @@ abstract class SymmetricKey
             $this->createPoly1305Key();
         }
 
-        $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0, 'enmcrypt_init' => true];
+        $this->enbuffer = $this->debuffer = ['ciphertext' => '', 'xor' => '', 'pos' => 0];
         //$this->newtag = $this->oldtag = false;
 
         if ($this->usesNonce()) {
