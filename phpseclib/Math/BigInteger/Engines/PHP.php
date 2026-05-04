@@ -671,7 +671,7 @@ abstract class PHP extends Engine
     private static function safe_divide(int $x, int $y): int
     {
         if (static::BASE === 26) {
-            return (int)($x / $y);
+            return intdiv($x, $y);
         }
 
         // static::BASE === 31
@@ -849,7 +849,7 @@ abstract class PHP extends Engine
             return;
         }
 
-        $num_digits = (int)($shift / static::BASE);
+        $num_digits = intdiv($shift, static::BASE);
         $shift %= static::BASE;
         $shift = 1 << $shift;
 
@@ -881,7 +881,7 @@ abstract class PHP extends Engine
             return;
         }
 
-        $num_digits = (int)($shift / static::BASE);
+        $num_digits = intdiv($shift, static::BASE);
         $shift %= static::BASE;
         $carry_shift = static::BASE - $shift;
         $carry_mask = (1 << $shift) - 1;
@@ -1137,7 +1137,7 @@ abstract class PHP extends Engine
             throw new InvalidArgumentException('Offset must be greater than 1');
         }
 
-        $width = (int) ($split / static::BASE);
+        $width = intdiv($split, static::BASE);
         if (!$width) {
             $arr = $this->bitwise_small_split($split);
             return array_map(function ($digit) {
@@ -1166,7 +1166,7 @@ abstract class PHP extends Engine
             } else {
                 $remaining = static::BASE - $overflow;
                 $tempsplit = $split - $remaining;
-                $tempwidth = (int)($tempsplit / static::BASE + 1);
+                $tempwidth = intdiv($tempsplit, static::BASE + 1);
                 $digit = array_slice($val, $i, $tempwidth);
                 $i += $tempwidth;
                 $tempoverflow = $tempsplit % static::BASE;
