@@ -27,9 +27,7 @@ class BCMathTest extends TestCase
         return new BCMath($x, $base);
     }
 
-    /**
-     * @group github2089
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2089')]
     public function testBCSscale(): void
     {
         bcscale(1);

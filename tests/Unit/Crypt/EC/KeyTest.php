@@ -558,9 +558,7 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
         $this->assertTrue($key->withSignatureFormat('SSH2')->verify('zzz', $sig2));
     }
 
-    /**
-     * @group github1712
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1712')]
     public function testKeyTooLarge(): void
     {
         $this->expectException(UnexpectedValueException::class);
@@ -593,9 +591,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $private = EC::loadFormat('PKCS8', $key);
     }
 
-    /**
-     * @group github1712
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1712')]
     public function testLargeCurve25519Key(): void
     {
         $raw = pack('H*', '8426220e7a57dc8d685d3966e3a23600e32563ce6033e07d0c89dbb5bd296577');
@@ -728,9 +724,7 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
         $this->assertInstanceOf(PublicKey::class, $key);
     }
 
-    /**
-     * @group github1956
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1956')]
     public function testIEEESignature(): void
     {
         $key = '{"alg":"ES256","crv":"P-256","ext":true,"key_ops":["verify"],"kty":"EC","x":"FKwqyGd4i2NAl8RUXCCBRCAIbcpeGyfyXwgA_AWHb8Y","y":"njxhw5O6zGVkBlcPDKYj0E-6VO1giHTUkJWBhgKNqd8"}';

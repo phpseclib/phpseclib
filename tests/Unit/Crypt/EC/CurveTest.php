@@ -19,7 +19,7 @@ use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\OIDs\Curves;
 use phpseclib4\Tests\PhpseclibTestCase;
 
-class CurveTest extends PhpseclibTestCase
+final class CurveTest extends PhpseclibTestCase
 {
     public static function curves(): array
     {
@@ -67,9 +67,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify that the base points are correct and verify the finite field math
-     *
-     * @dataProvider curves
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('curves')]
     public function testBasePoint($name): void
     {
         $class = 'phpseclib4\Crypt\EC\Curves\\' . $name;
@@ -79,10 +78,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify the correctness of the point addition / doubling / multiplication algorithms
-     *
-     * @dataProvider curves
-     * @requires PHP 7.0
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('curves')]
     public function testKeyGeneration($name): void
     {
         $class = 'phpseclib4\Crypt\EC\Curves\\' . $name;
@@ -94,9 +91,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify that OIDs have corresponding curve class
-     *
-     * @dataProvider curvesWithOIDs
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('curvesWithOIDs')]
     public function testCurveExistance($name): void
     {
         $this->assertFileExists(__DIR__ . "/../../../../phpseclib/Crypt/EC/Curves/$name.php");
@@ -104,9 +100,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Verify that all named curves have a corresponding OID
-     *
-     * @dataProvider allCurves
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('allCurves')]
     public function testOIDExistance($name): void
     {
         switch ($name) {
@@ -119,10 +114,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Sign with internal engine, verify with best engine
-     *
-     * @dataProvider curves
-     * @requires PHP 7.0
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('curves')]
     public function testInternalSign($name): void
     {
         // tests utilizing dataProvider only seem to output when all the dataProvider input
@@ -180,10 +173,8 @@ class CurveTest extends PhpseclibTestCase
 
     /**
      * Sign with best engine, verify with internal engine
-     *
-     * @dataProvider curves
-     * @requires PHP 7.0
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('curves')]
     public function testInternalVerify($name): void
     {
         if (substr($name, 0, 4) == 'sect') {

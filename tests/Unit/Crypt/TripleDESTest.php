@@ -104,9 +104,7 @@ class TripleDESTest extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider engineVectors
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('engineVectors')]
     public function testVectors($engine, $key, $plaintext, $expected): void
     {
         $des = new TripleDES('cbc');
@@ -156,9 +154,7 @@ class TripleDESTest extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider engineIVVectors
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('engineIVVectors')]
     public function testVectorsWithIV($engine, $key, $iv, $plaintext, $expected): void
     {
         $des = new TripleDES('cbc');
@@ -194,9 +190,7 @@ class TripleDESTest extends PhpseclibTestCase
         }
     }
 
-    /**
-     * @dataProvider provideForCorrectSelfUseInLambda
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideForCorrectSelfUseInLambda')]
     public function testCorrectSelfUseInLambda(string $key, string $expectedCiphertext): void
     {
         $td = new TripleDES('ecb');

@@ -216,9 +216,7 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         //$this->assertCount(4, $x509['tbsCertificate']['extensions']);
     }
 
-    /**
-     * @group github705
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github705')]
     public function testSaveNullRSAParam(): void
     {
         $privKey = PublicKeyLoader::load('-----BEGIN RSA PRIVATE KEY-----
@@ -504,9 +502,7 @@ C47x9g==
         $this->assertTrue($x509->validateURL('https://www.google.com'));
     }
 
-    /**
-     * @group github1213
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1213')]
     public function testValidateSignatureWithoutKeyIdentifier(): void
     {
         $x509 = X509::load('-----BEGIN CERTIFICATE-----
@@ -557,9 +553,7 @@ HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
         $this->assertTrue($x509->validateSignature());
     }
 
-    /**
-     * @group github1213
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1213')]
     public function testValidateSignatureSelfSignedWithoutKeyIdentifier(): void
     {
         $x509 = X509::load('-----BEGIN CERTIFICATE-----
@@ -589,9 +583,7 @@ HI8pYRZmT7tKW3HxlZLJGGVo5CgBawdiWngK5v+LwWiNRTqxJA==
         $this->assertTrue($x509->validateSignature(false));
     }
 
-    /**
-     * @group github1243
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1243')]
     public function testExtensionRemoval(): void
     {
         // Load the CA and its private key.
@@ -1061,9 +1053,7 @@ A9bhRA0cVk7bAEU2c44CYg==
         ASN1::disableBlobsOnBadDecodes();
     }
 
-    /**
-     * @group github1387
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1387')]
     public function testNameConstraintIP(): void
     {
         $x509 = X509::load('-----BEGIN CERTIFICATE-----
@@ -1102,9 +1092,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $this->assertSame($x509->getExtension('id-ce-nameConstraints')['extnValue']['excludedSubtrees'][1]['base']['iPAddress'], ['0.0.0.0', '0.0.0.0']);
     }
 
-    /**
-     * @group github1456
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1456')]
     public function testRandomString(): void
     {
         $a = 'da7e705569d4196cd49cf3b3d92cd435ca34ccbe';
@@ -1114,9 +1102,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $x509 = X509::load($a)->toArray();
     }
 
-    /**
-     * @group github1542
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1542')]
     public function testMultiCertPEM(): void
     {
         $a = '-----BEGIN CERTIFICATE-----
@@ -1228,9 +1214,7 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
         $this->assertIsArray($x509);
     }
 
-    /**
-     * @group github1586
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1586')]
     public function testComputeKeyIdentifier(): void
     {
         $key = RSA::createKey(512);
@@ -1241,9 +1225,7 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
         $this->assertIsString((string) $x509->getExtension('id-ce-subjectKeyIdentifier')['extnValue']);
     }
 
-    /**
-     * @group github1665
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1665')]
     public function testImplicitV1(): void
     {
         $x509 = X509::load('-----BEGIN CERTIFICATE-----
@@ -1270,9 +1252,7 @@ itRo91vT68U=
         $this->assertEquals($x509['tbsCertificate']['version'], 'v1');
     }
 
-    /**
-     * @group github1657
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1657')]
     public function signWithEncryptedPSS(): void
     {
         $private = PublicKeyLoader::load('-----BEGIN ENCRYPTED PRIVATE KEY-----
@@ -1295,9 +1275,7 @@ o2UiZsxgoMYuq02T07DOknc=
         $this->assertIsString("$subject");
     }
 
-    /**
-     * @group github1676
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1676')]
     public function testMalformedExt(): void
     {
         $a = '-----BEGIN CERTIFICATE-----
@@ -1396,9 +1374,7 @@ dzXhMVAQYlpu27381/Ts2SuDx6v/cZ8lV8D5o/xTtCpWAnLxM2bxSyVnYbk=
         $this->assertFalse($x509->validateURL('https://asdf.cnn2.com/'));
     }
 
-    /**
-     * @group github1943
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1943')]
     public function testWeirdCharsCert(): void
     {
         $cert = '-----BEGIN CERTIFICATE-----
@@ -1454,9 +1430,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         ASN1::disableBlobsOnBadDecodes();
     }
 
-    /**
-     * @group github2051
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2051')]
     public function testRSACertWithECSDASig()
     {
         // a secp256r1 key
@@ -1516,9 +1490,7 @@ Zf+6b317dHQhk60gz+CIt8s=
         $this->assertFalse(isset($cert['tbsCertificate']['signature']['parameters']));
     }
 
-    /**
-     * @group github1027
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1027')]
     public function testInfiniteLoop(): void
     {
         $cert = '-----BEGIN CERTIFICATE-----

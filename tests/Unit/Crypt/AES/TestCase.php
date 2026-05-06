@@ -70,9 +70,7 @@ abstract class TestCase extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider continuousBufferCombos
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('continuousBufferCombos')]
     public function testEncryptDecryptWithContinuousBuffer($mode, $plaintext, $iv, $key): void
     {
         $aes = new AES($mode);
@@ -91,9 +89,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertEquals($plaintext, $actual);
     }
 
-    /**
-     * @group github451
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github451')]
     public function testKeyPaddingRijndael(): void
     {
         // this test case is from the following URL:
@@ -109,9 +105,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertEquals($ciphertext, pack('H*', '231d844639b31b412211cfe93712b880'));
     }
 
-    /**
-     * @group github451
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github451')]
     public function testKeyPaddingAES(): void
     {
         $this->expectException(LengthException::class);
@@ -176,14 +170,12 @@ abstract class TestCase extends PhpseclibTestCase
     /**
      * @return array<array{string, string, array}>
      */
-    public function continuousBufferBatteryCombosWithoutSingleCombos(): array
+    public static function continuousBufferBatteryCombosWithoutSingleCombos(): array
     {
         return array_filter(self::continuousBufferBatteryCombos(), fn (array $continuousBufferBatteryCombo) => count($continuousBufferBatteryCombo[2]) > 1);
     }
 
-    /**
-     * @dataProvider continuousBufferBatteryCombos
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('continuousBufferBatteryCombos')]
     public function testContinuousBufferBattery($op, $mode, $test): void
     {
         $iv = str_repeat('x', 16);
@@ -226,9 +218,8 @@ abstract class TestCase extends PhpseclibTestCase
 
     /**
      * Pretty much the same as testContinuousBufferBattery with the caveat that continuous mode is not enabled.
-     *
-     * @dataProvider continuousBufferBatteryCombosWithoutSingleCombos
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('continuousBufferBatteryCombosWithoutSingleCombos')]
     public function testNonContinuousBufferBattery($op, $mode, $test): void
     {
         $iv = str_repeat('x', 16);
@@ -385,9 +376,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame($aes->getKeyLength(), 256);
     }
 
-    /**
-     * @group github938
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github938')]
     public function testContinuousBuffer(): void
     {
         $aes = new AES('cbc');

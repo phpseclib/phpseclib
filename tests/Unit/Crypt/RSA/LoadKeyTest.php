@@ -63,9 +63,7 @@ class LoadKeyTest extends PhpseclibTestCase
         ];
     }
 
-    /**
-     * @dataProvider getGarbageStrings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getGarbageStrings')]
     public function testBadKey($key): void
     {
         $this->expectException(NoKeyLoadedException::class);
@@ -407,9 +405,8 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
     /**
      * make phpseclib generated XML keys be unsigned. this may need to be reverted
      * if it is later learned that XML keys are, in fact, supposed to be signed
-     *
-     * @group github468
      */
+    #[\PHPUnit\Framework\Attributes\Group('github468')]
     public function testUnsignedXML(): void
     {
         $key = '<RSAKeyValue>
@@ -423,9 +420,7 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $this->assertSame(strtolower(preg_replace('#\s#', '', $key)), strtolower(preg_replace('#\s#', '', $newkey)));
     }
 
-    /**
-     * @group github468
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github468')]
     public function testSignedPKCS1(): void
     {
         $key = '-----BEGIN PUBLIC KEY-----
@@ -441,9 +436,7 @@ JWrQdxx/WNN+ABG426rgYYbeGcIlWLZCw6Bx/1HtN5ef6nVEoiGNChYKIRB4QFOi
         $this->assertSame(preg_replace('#\s#', '', $key), preg_replace('#\s#', '', $newkey));
     }
 
-    /**
-     * @group github861
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github861')]
     public function testPKCS8Only(): void
     {
         $key = '-----BEGIN PRIVATE KEY-----
@@ -592,9 +585,7 @@ ILaEujU=
         $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
     }
 
-    /**
-     * @group github980
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github980')]
     public function testZeroComponents(): void
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
@@ -1158,9 +1149,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
         $this->assertIsString($result);
     }
 
-    /**
-     * @group github1579
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1579')]
     public function testNakedPKCS1PublicKey(): void
     {
         $key = '3082020a0282020100d595c09fbc635612b3ef6a0067d74cb76fa9af62a9272400c2a896f1335b920b88a9accaffe915e38542d296c1a559a586223521da8977030888a8d076910f59489a3a4a10bf950bf2b83278810e4c3bfc027b6b6cb75736cfaabaa83de15c619b8e9f65a60f4cfeba11fb5bf5e93abff68468695948b1843e2e09504281651475f7eff1c30fcb17026f13f04109fc930e489c14a1ef80ec51be6bb73f1679d258c2db535b04f4be82790ac01b4b0e9cb68a9bb5afab4363b5f33ff143ef13d1b2a292a72881d68d765a6c1fc981da0a2644ed284607d19f39802b3967bf9308da1f6515b59a2b0a1c57c14d661a62672f3b9453f931b62c446267d912c0987b7fb4c4fe085e3573ddfd9761ec2c035fa560c6c98343e9d448667b724a919780be2fd8666115d8a75b29e6c1e216cd73a693192f551f72fdf9eac0bb5bda83b11b5159151419249915e6006e6018bc1cda20960d4f1c7df7d401afd322656b4f0810348b8d20d506b08dd8752a0a721efa750b785fb2cb40930d33dd70bd8ad83883470851bd664c648da3f102545f1c54fa803cea5ba3edb51c3b894bd8fbd48d4ed97c251b3eed1d4e636d487a711d3859946acc14f808d777bcc3c5594ac2cd7dcf278ef4e7d3badea740f757a0669f213dadf46e9ff0eeb10720af086ce29e27e0ca2a639f4f3c5825ea5e2774bb3e722ce40e7cf6e2075857797c13d2d50203010001';
@@ -1168,9 +1157,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
         $this->assertInstanceOf(PublicKey::class, $key);
     }
 
-    /**
-     * @group github1711
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1711')]
     public function testRawPrivateKey(): void
     {
         $key = RSA::createKey(512);
@@ -1397,9 +1384,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
         $this->assertTrue($key->verify($plaintext, $sig));
     }
 
-    /**
-     * @group github1958
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1958')]
     public function testPKCS8RC2MD5CBC(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v1 PBE-MD5-RC2-64 -out enckey.pem
@@ -1425,9 +1410,7 @@ NIRifWY=
         $this->pkcs8tester($key, $pass);
     }
 
-    /**
-     * @group github1958
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1958')]
     public function testPKCS8DES(): void
     {
         // openssl pkcs8 -in private.pem -topk8 -v2 des -out enckey.pem
@@ -1455,9 +1438,7 @@ vtpiPBM=
         $this->pkcs8tester($key, $pass);
     }
 
-    /**
-     * @group github1994
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1994')]
     public function testCloseNumbers(): void
     {
         $rsa = PublicKeyLoader::load([
@@ -1476,9 +1457,7 @@ vtpiPBM=
         $this->assertSame($expected, $sig);
     }
 
-    /**
-     * @group github2085
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2085')]
     public function testNegativeModulo()
     {
         $key = pack('H*', '3082010902820100A5513062C4CCD2DF578E6C4A84448D4B09E6734113CB133EEFD1F92D427B5981E5824FC619898D414ED5D8D51497985731B5B9720F78802C03D90163D915EABC86437526B4ADCD39E619076B1679114BCEE8194636889620D0CCC1B311FC8D256271D06C2802F25F8F10073DAA046B6F0C7492D93029AB053E5A8E1D87C8D9736082460CAE8B235C2E9DB6CDD932EC4293B694763F8FF8DB8FA4221BDBF0E921E6D8D283728E270761D1D451EBE6A0AE72D2A5DDF3774E91B949EFDA35B6206A00391957520767876800580DF003A6102C993709EDD59AE3E46263BFA125E478950E4890801D51BDF6BA550845018A1C024F24056C064B6A774CF2FD573CDD510203010001');
@@ -1488,9 +1467,7 @@ vtpiPBM=
         $this->assertIsString($result);
     }
 
-    /**
-     * @group github2107
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2107')]
     public function testPSSWithoutSaltLen()
     {
         $key = '-----BEGIN PRIVATE KEY-----
@@ -1527,9 +1504,7 @@ y8m/iELU++SxNcox
         $this->assertInstanceOf(PrivateKey::class, $key);
     }
 
-    /**
-     * @group github2116
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2116')]
     public function testOpenSSHPubKeyWithMultipleSpaces()
     {
         $key = 'ssh-rsa      AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e' .
@@ -1541,9 +1516,7 @@ y8m/iELU++SxNcox
         $this->assertInstanceOf(PublicKey::class, $rsa);
     }
 
-    /**
-     * @group github2116
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2116')]
     public function testOpenSSHPubKeyWithTabs()
     {
         $key = "ssh-rsa\tAAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e" .
@@ -1555,9 +1528,7 @@ y8m/iELU++SxNcox
         $this->assertInstanceOf(PublicKey::class, $rsa);
     }
 
-    /**
-     * @group github2137
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2137')]
     public function testOpenSSHPubKeyWithSpacesInComment()
     {
         $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4e' .

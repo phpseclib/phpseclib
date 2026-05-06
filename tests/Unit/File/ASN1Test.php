@@ -21,8 +21,8 @@ class ASN1Test extends PhpseclibTestCase
 {
     /**
      * on older versions of \phpseclib4\File\ASN1 this would yield a PHP Warning
-     * @group github275
      */
+    #[\PHPUnit\Framework\Attributes\Group('github275')]
     public function testAnyString(): void
     {
         $KDC_REP = [
@@ -93,8 +93,8 @@ class ASN1Test extends PhpseclibTestCase
 
     /**
      * on older versions of \phpseclib4\File\ASN1 this would produce a null instead of an array
-     * @group github275
      */
+    #[\PHPUnit\Framework\Attributes\Group('github275')]
     public function testIncorrectString(): void
     {
         $PA_DATA = [
@@ -311,9 +311,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertEquals('v3', $arr['demo']);
     }
 
-    /**
-     * @group github1367
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1367')]
     public function testOIDs(): void
     {
         // from the example in 8.19.5 in the following:
@@ -331,9 +329,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertEquals($orig, ASN1::decodeOID("$new"));
     }
 
-    /**
-     * @group github1388
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1388')]
     public function testExplicitImplicitDate(): void
     {
         $map = [
@@ -429,9 +425,8 @@ class ASN1Test extends PhpseclibTestCase
 
     /**
      * Test that an exception is thrown on bad decodes
-     *
-     * @dataProvider badDecodes
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('badDecodes')]
     public function testExceptionsOnBadDecodes(string $data, array $map, ?string $path, ?string $key): void
     {
         $this->expectException(\Exception::class);
@@ -441,9 +436,8 @@ class ASN1Test extends PhpseclibTestCase
 
     /**
      * Test that MalformedData is returned when exceptions are disabled
-     *
-     * @dataProvider badDecodes
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('badDecodes')]
     public function testBlobsOnBadDecodes(string $data, array $map, ?string $path, ?string $key): void
     {
         ASN1::enableBlobsOnBadDecodes();
@@ -460,9 +454,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertInstanceOf(MalformedData::class, $result);
     }
 
-    /**
-     * @group github2104
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2104')]
     public function testBadBigInteger()
     {
         $this->expectException(\Exception::class);

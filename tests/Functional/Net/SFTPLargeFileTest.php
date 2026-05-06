@@ -23,11 +23,9 @@ class SFTPLargeFileTest extends SFTPTestCase
         parent::setUpBeforeClass();
     }
 
-    /**
-     * @group github298
-     * @group github455
-     * @group github457
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github298')]
+    #[\PHPUnit\Framework\Attributes\Group('github455')]
+    #[\PHPUnit\Framework\Attributes\Group('github457')]
     public function testPutSizeLocalFile(): void
     {
         $tmp_filename = $this->createTempFile(128, 1024 * 1024);

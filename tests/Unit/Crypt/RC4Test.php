@@ -200,9 +200,7 @@ class RC4Test extends PhpseclibTestCase
         return $result;
     }
 
-    /**
-     * @dataProvider engineVectors
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('engineVectors')]
     public function testVectors($engine, $key, $offset, $expected): void
     {
         $rc4 = new RC4();

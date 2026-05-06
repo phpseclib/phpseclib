@@ -136,9 +136,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         CSR::disableBinaryOutput();
     }
 
-    /**
-     * @group github1675
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1675')]
     public function testPKCS1CSR(): void
     {
         $csr = CSR::load('-----BEGIN CERTIFICATE REQUEST-----
@@ -161,9 +159,7 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
         $this->assertFalse(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
     }
 
-    /**
-     * @group github1675
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1675')]
     public function testPSSCSR(): void
     {
         $csr = CSR::load('-----BEGIN CERTIFICATE REQUEST-----

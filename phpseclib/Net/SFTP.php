@@ -1149,7 +1149,7 @@ class SFTP extends SSH2
     {
         $this->precheck();
 
-        $this->realpath($filename);
+        $filename = $this->realpath($filename);
 
         if ($this->use_stat_cache) {
             $result = $this->query_stat_cache($filename);

@@ -39,9 +39,7 @@ class SSH2AgentTest extends PhpseclibFunctionalTestCase
         return ['ssh' => $ssh, 'ssh-agent' => $agent];
     }
 
-    /**
-     * @depends testAgentLogin
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testAgentLogin')]
     public function testAgentForward($args)
     {
         $ssh = $args['ssh'];

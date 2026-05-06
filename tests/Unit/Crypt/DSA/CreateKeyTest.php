@@ -17,9 +17,6 @@ use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
-/**
- * @requires PHP 7.0
- */
 class CreateKeyTest extends PhpseclibTestCase
 {
     public function testCreateParameters()
@@ -41,9 +38,7 @@ class CreateKeyTest extends PhpseclibTestCase
         return $dsa;
     }
 
-    /**
-     * @depends testCreateParameters
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreateParameters')]
     public function testCreateKey($params): void
     {
         // libsodium doesn't support DSA but it still ought not result in any errors outside of the BadConfigurationException being thrown

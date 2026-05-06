@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Net;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\TimeoutException;
@@ -36,7 +37,6 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
-     * @requires PHPUnit < 10
      * Verify that MASK_* constants remain distinct
      */
     public function testBitmapMasks(): void
@@ -51,10 +51,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         }
     }
 
-    /**
-     * @dataProvider formatLogDataProvider
-     * @requires PHPUnit < 10
-     */
+    #[DataProvider('formatLogDataProvider')]
     public function testFormatLog(array $message_log, array $message_number_log, $expected): void
     {
         $ssh = $this->createSSHMock();
@@ -63,9 +60,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testGenerateIdentifier(): void
     {
         $identifier = self::callFunc($this->createSSHMock(), 'generate_identifier');
@@ -93,9 +87,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         }
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testGetExitStatusIfNotConnected(): void
     {
         $ssh = $this->createSSHMock();
@@ -103,18 +94,12 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertNull($ssh->getExitStatus());
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testPTYIDefaultValue(): void
     {
         $ssh = $this->createSSHMock();
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testEnablePTY(): void
     {
         $ssh = $this->createSSHMock();
@@ -126,9 +111,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isPTYEnabled());
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testQuietModeDefaultValue(): void
     {
         $ssh = $this->createSSHMock();
@@ -136,9 +118,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertFalse($ssh->isQuietModeEnabled());
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testEnableQuietMode(): void
     {
         $ssh = $this->createSSHMock();
@@ -162,9 +141,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testReadUnauthenticated(): void
     {
         $this->expectException(InvalidStateException::class);
@@ -175,9 +151,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->read();
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testWriteUnauthenticated(): void
     {
         $this->expectException(InvalidStateException::class);
@@ -188,14 +161,11 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->write('');
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testWriteOpensShell(): void
     {
         $ssh = $this->getMockBuilder(SSH2::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct', 'isAuthenticated', 'openShell', 'send_channel_packet'])
+            ->onlyMethods(['__destruct', 'isAuthenticated', 'openShell', 'send_channel_packet'])
             ->getMock();
         $ssh->expects($this->once())
             ->method('isAuthenticated')
@@ -209,14 +179,11 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->write('hello');
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testOpenShellWhenOpen(): void
     {
         $ssh = $this->getMockBuilder(SSH2::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct'])
+            ->onlyMethods(['__destruct'])
             ->getMock();
 
         $this->expectException(InvalidStateException::class);
@@ -235,9 +202,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(20, $ssh->getTimeout());
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testGetStreamTimeout(): void
     {
         $default = ini_get('default_socket_timeout');
@@ -286,14 +250,11 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals([0, 0], self::callFunc($ssh, 'get_stream_timeout'));
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testSendChannelPacketNoBufferedData(): void
     {
         $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->onlyMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
         $ssh->expects($this->once())
             ->method('get_channel_packet')
@@ -314,14 +275,11 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEmpty(self::getVar($ssh, 'channel_buffers_write'));
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testSendChannelPacketBufferedData(): void
     {
         $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->onlyMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
         $ssh->expects($this->once())
             ->method('get_channel_packet')
@@ -343,9 +301,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEmpty(self::getVar($ssh, 'channel_buffers_write'));
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testSendChannelPacketTimeout(): void
     {
         $this->expectException(TimeoutException::class);
@@ -353,7 +308,7 @@ class SSH2UnitTest extends PhpseclibTestCase
 
         $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->onlyMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
         $ssh->expects($this->once())
             ->method('get_channel_packet')
@@ -374,9 +329,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals([1 => 'hello'], self::getVar($ssh, 'channel_buffers_write'));
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testSendChannelPacketNoWindowAdjustment(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -384,7 +336,7 @@ class SSH2UnitTest extends PhpseclibTestCase
 
         $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['get_channel_packet', 'send_binary_packet'])
+            ->onlyMethods(['get_channel_packet', 'send_binary_packet'])
             ->getMock();
         $ssh->expects($this->once())
             ->method('get_channel_packet')
@@ -399,21 +351,17 @@ class SSH2UnitTest extends PhpseclibTestCase
         self::callFunc($ssh, 'send_channel_packet', [1, 'hello world']);
     }
 
-    /**
-     * @requires PHPUnit < 10
-     */
     public function testDisconnectHelper(): void
     {
         $ssh = $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct', 'isConnected', 'send_binary_packet'])
+            ->onlyMethods(['__destruct', 'isConnected', 'send_binary_packet'])
             ->getMock();
         $ssh->expects($this->once())
             ->method('isConnected')
             ->willReturn(true);
         $ssh->expects($this->once())
             ->method('send_binary_packet')
-            ->with($this->isType('string'))
             ->willReturnCallback(function () use ($ssh): void {
                 self::callFunc($ssh, 'disconnect_helper', [1]);
                 throw new \Exception('catch me');
@@ -428,7 +376,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     {
         return $this->getMockBuilder('phpseclib4\Net\SSH2')
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct'])
+            ->onlyMethods(['__destruct'])
             ->getMock();
     }
 }

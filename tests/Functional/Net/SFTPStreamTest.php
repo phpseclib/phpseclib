@@ -32,9 +32,7 @@ class SFTPStreamTest extends SFTPTestCase
         $this->assertSame(0, $this->sftp->filesize('fooo.txt'));
     }
 
-    /**
-     * @group github778
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github778')]
     public function testFilenameWithHash(): void
     {
         $context = stream_context_create([
@@ -60,9 +58,7 @@ class SFTPStreamTest extends SFTPTestCase
         $this->assertEquals(['.', '..'], array_slice($dirs, 0, 2));
     }
 
-    /**
-     * @group github1552
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1552')]
     public function testStreamSelect(): void
     {
         $context = stream_context_create([

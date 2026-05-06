@@ -170,17 +170,13 @@ class HashTest extends PhpseclibTestCase
         ];
     }
 
-    /**
-     * @dataProvider hmacData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('hmacData')]
     public function testHMAC($hash, $key, $message, $result): void
     {
         $this->assertHMACsTo($hash, $key, $message, $result);
     }
 
-    /**
-     * @dataProvider hmacData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('hmacData')]
     public function testHMAC96($hash, $key, $message, $result): void
     {
         if ($hash == 'aes_cmac') {
@@ -400,17 +396,13 @@ class HashTest extends PhpseclibTestCase
         ];
     }
 
-    /**
-     * @dataProvider hashData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('hashData')]
     public function testHash($hash, $message, $result): void
     {
         $this->assertHashesTo($hash, $message, $result);
     }
 
-    /**
-     * @dataProvider hashData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('hashData')]
     public function testHash96($hash, $message, $result): void
     {
         if (preg_match('#^sha3-\d+#', $hash) || preg_match('#^shake(?:128|256)-\d+#', $hash) || $hash === 'keccak256') {
@@ -448,9 +440,7 @@ class HashTest extends PhpseclibTestCase
         $this->assertSame($hash->getHash(), 'sha1');
     }
 
-    /**
-     * @dataProvider lengths
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('lengths')]
     public function testGetLengthKnown($algorithm, $length): void
     {
         $hash = new Hash($algorithm);
@@ -501,9 +491,7 @@ class HashTest extends PhpseclibTestCase
         ];
     }
 
-    /**
-     * @dataProvider UMACs
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('UMACs')]
     public function testUMACs($message, $algo, $tag, $error): void
     {
         $k = 'abcdefghijklmnop'; // A 16-byte UMAC key

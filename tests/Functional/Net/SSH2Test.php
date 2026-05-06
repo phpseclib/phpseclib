@@ -47,11 +47,9 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testConstructor
-     * @group github408
-     * @group github412
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testConstructor')]
+    #[\PHPUnit\Framework\Attributes\Group('github408')]
+    #[\PHPUnit\Framework\Attributes\Group('github412')]
     public function testPreLogin(SSH2 $ssh): SSH2
     {
         $this->assertFalse(
@@ -93,9 +91,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testPreLogin
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testPreLogin')]
     public function testBadPassword(SSH2 $ssh): SSH2
     {
         $username = $this->getEnv('SSH_USERNAME');
@@ -123,9 +119,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testBadPassword
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testBadPassword')]
     public function testPasswordLogin(SSH2 $ssh): SSH2
     {
         $username = $this->getEnv('SSH_USERNAME');
@@ -148,21 +142,20 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testPasswordLogin
-     * @group github280
-     * @requires PHPUnit < 10
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testPasswordLogin')]
+    #[\PHPUnit\Framework\Attributes\Group('github280')]
     public function testExecWithMethodCallback(SSH2 $ssh): SSH2
     {
-        $callbackObject = $this->getMockBuilder('stdClass')
-            ->setMethods(['callbackMethod'])
-            ->getMock();
-        $callbackObject
-            ->expects($this->atLeastOnce())
-            ->method('callbackMethod')
-            ->will($this->returnValue(true));
+        $callbackObject = new class {
+            public int $callCount = 0;
+            public function callbackMethod($data): bool
+            {
+                $this->callCount++;
+                return true;
+            }
+        };
         $ssh->exec('pwd', \Closure::fromCallable([$callbackObject, 'callbackMethod']));
+        $this->assertGreaterThanOrEqual(1, $callbackObject->callCount, 'callbackMethod was not called');
 
         $this->assertFalse(
             $ssh->isPTYOpen(),
@@ -203,10 +196,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         );
     }
 
-    /**
-     * @depends testExecWithMethodCallback
-     * @group github1009
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testExecWithMethodCallback')]
+    #[\PHPUnit\Framework\Attributes\Group('github1009')]
     public function testDisablePTY(SSH2 $ssh): SSH2
     {
         $ssh->enablePTY();
@@ -273,10 +264,8 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testDisablePTY
-     * @group github1167
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testDisablePTY')]
+    #[\PHPUnit\Framework\Attributes\Group('github1167')]
     public function testChannelDataAfterOpen(SSH2 $ssh): void
     {
         // Ubuntu's OpenSSH from 5.8 to 6.9 didn't work with multiple channels. see
@@ -385,9 +374,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $ssh;
     }
 
-    /**
-     * @depends testOpenShell
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testOpenShell')]
     public function testResetOpenShell(SSH2 $ssh): void
     {
         $ssh->reset();
@@ -601,9 +588,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
         return $tests;
     }
 
-    /**
-     * @group github2062
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2062')]
     public function testSendEOF()
     {
         $ssh = $this->getSSH2Login();
@@ -615,10 +600,10 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     }
 
     /**
-     * @dataProvider getCryptoAlgorithms
      * @param string $type
      * @param string $algorithm
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getCryptoAlgorithms')]
     public function testCryptoAlgorithms($type, $algorithm): void
     {
         $ssh = $this->getSSH2();

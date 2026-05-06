@@ -33,9 +33,7 @@ class CreateKeyTest extends PhpseclibTestCase
         return [$publickey, $privatekey];
     }
 
-    /**
-     * @depends testCreateKey
-     */
+    #[\PHPUnit\Framework\Attributes\Depends('testCreateKey')]
     public function testEncryptDecrypt($args): void
     {
         [$publickey, $privatekey] = $args;

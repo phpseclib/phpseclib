@@ -18,6 +18,11 @@ jobs:
                     php-version: ${{ matrix.php-version }}
                 env:
                     update: true
+            -   name: Override PHPUnit and ParaTest versions
+                run: |
+                    composer require --dev --no-update \
+                      "phpunit/phpunit:${{ matrix.phpunit }}" \
+                      "brianium/paratest:${{ matrix.paratest }}"
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction --no-cache
             -   name: Lint
@@ -25,7 +30,13 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['8.2', '8.3', '8.4', '8.5']
+                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
+                include:
+                    -   { php-version: '8.1', phpunit: '^10.5', paratest: '^7.0' }
+                    -   { php-version: '8.2', phpunit: '^11.5', paratest: '^7.8.5' }
+                    -   { php-version: '8.3', phpunit: '^11.5', paratest: '^7.8.5' }
+                    -   { php-version: '8.4', phpunit: '^12.5', paratest: '^7.16' }
+                    -   { php-version: '8.5', phpunit: '^13.1', paratest: '^7.22' }
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -39,8 +50,10 @@ jobs:
                     php-version: '8.2'
                 env:
                     update: true
+            -   name: Override PHPUnit and ParaTest versions
+                run: composer require --dev --no-update "phpunit/phpunit:^11.5" "brianium/paratest:^7.8.5"
             -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction --no-cache
+                run: composer update --with-all-dependencies --no-interaction --no-cache
             -   name: PHP_CodeSniffer
                 run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
             -   name: PHP CS Fixer
@@ -62,8 +75,14 @@ jobs:
                     php-version: ${{ matrix.php-version }}
                 env:
                     update: true
+            -   name: Override PHPUnit and ParaTest versions
+                shell: bash
+                run: |
+                    composer require --dev --no-update \
+                      "phpunit/phpunit:${{ matrix.phpunit }}" \
+                      "brianium/paratest:${{ matrix.paratest }}"
             -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction --no-cache --ignore-platform-req=php
+                run: composer update --with-all-dependencies --no-interaction --no-cache --ignore-platform-req=php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
                 run: |
@@ -87,9 +106,15 @@ jobs:
                     echo "PHPSECLIB_SSH_HOME=/home/phpseclib" >> $GITHUB_ENV
                     echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
             -   name: PHPUnit
-                run: vendor/bin/paratest --verbose --configuration=tests/phpunit.xml --runner=WrapperRunner
+                run: vendor/bin/paratest --configuration=tests/phpunit.xml --runner=WrapperRunner --no-progress
         strategy:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['8.2', '8.3', '8.4', '8.5']
+                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
+                include:
+                    -   { php-version: '8.1', phpunit: '^10.5', paratest: '^7.0' }
+                    -   { php-version: '8.2', phpunit: '^11.5', paratest: '^7.8.5' }
+                    -   { php-version: '8.3', phpunit: '^11.5', paratest: '^7.8.5' }
+                    -   { php-version: '8.4', phpunit: '^12.5', paratest: '^7.16' }
+                    -   { php-version: '8.5', phpunit: '^13.1', paratest: '^7.22' }

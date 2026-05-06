@@ -332,9 +332,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertTrue($rand1->compare($max) < 0);
     }
 
-    /**
-     * @group github279
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github279')]
     public function testDiffieHellmanKeyAgreement(): void
     {
         // "Oakley Group 14" 2048-bit modular exponentiation group as used in
@@ -412,9 +410,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame("$c", '51');
     }
 
-    /**
-     * @group github954
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github954')]
     public function testSlidingWindow(): void
     {
         $e = $this->getInstance(str_repeat('1', 1794), 2);
@@ -468,9 +464,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame(128, $prime->getLength());
     }
 
-    /**
-     * @group github1260
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1260')]
     public function testZeros(): void
     {
         $a = $this->getInstance();
@@ -478,9 +472,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertTrue($a->equals($b));
     }
 
-    /**
-     * @group github1264
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1264')]
     public function test48ToHex(): void
     {
         $temp = $this->getInstance(48);
@@ -527,9 +519,7 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
         $this->assertSame("$x", "$y");
     }
 
-    /**
-     * @group github2086
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2086')]
     public function testModPowNegativeBase(): void
     {
         $a = $this->getInstance('-9');
@@ -545,9 +535,7 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
         $this->assertSame('9', (string) $d);
     }
 
-    /**
-     * @group github2113
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2113')]
     public function testPHP85ChrDeprecation()
     {
         $a = $this->getInstance('999999999');

@@ -35,9 +35,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertNull($num2->squareRoot());
     }
 
-    /**
-     * @group github1929
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1929')]
     public function testGarbageCollectedToBytes(): void
     {
         $blob = base64_decode('BFgsTFQeqKr0toyURbtT43INMDS7FTHjz3yn3MR1/Yv/pb2b9ZCYNQ/Tafe5hQpEJ4TpZOKfikP/hWZvFL8QCPgqbIGqw/KTfA==');
@@ -52,9 +50,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertIsString($point[0]->toBytes());
     }
 
-    /**
-     * @group github2087
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2087')]
     public function testZero(): void
     {
         $factory = new PrimeField(new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED', 16));

@@ -65,9 +65,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         RSA::forceEngine();
     }
 
-    /**
-     * @group github768
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github768')]
     public function testPSSSigs(): void
     {
         $rsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
@@ -162,9 +160,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         RSA::forceEngine();
     }
 
-    /**
-     * @group github1423
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1423')]
     public function testPSSSigsWithNonPowerOf2Key(): void
     {
         $pub = <<<HERE
@@ -256,9 +252,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         RSA::forceEngine();
     }
 
-    /**
-     * @group github1669
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github1669')]
     public function testOAEPWithLabel(): void
     {
         $publicKey = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
@@ -323,9 +317,7 @@ k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
         $this->assertTrue((bool) ($rsa->getPadding() & RSA::SIGNATURE_PSS));
     }
 
-    /**
-     * @group github2132
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2132')]
     public function testSHA3()
     {
         $key = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
@@ -352,9 +344,7 @@ dMHAqhC117qQfr2KEJPJnTnJjkuWpiW2gRuBSdVE20oNAgMBAAE=
         $this->assertTrue($key->withHash('sha3/512')->withMGFHash('sha3/512')->verify('hello world', $sig));
     }
 
-    /**
-     * @group github2136
-     */
+    #[\PHPUnit\Framework\Attributes\Group('github2136')]
     public function testEncryptOneKeyDecryptAnotherKey()
     {
         $keyA = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
