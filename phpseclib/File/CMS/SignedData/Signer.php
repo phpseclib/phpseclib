@@ -33,6 +33,43 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     use \phpseclib4\File\Common\Traits\DN;
     use \phpseclib4\File\Common\Traits\Extension; // pretty much just for extensionMatch()
 
+    /**
+     * Return internal array representation
+     *
+     * @see \phpseclib4\File\X509::getDN()
+     */
+    public const DN_ARRAY = 0;
+    /**
+     * Return string
+     *
+     * @see \phpseclib4\File\X509::getDN()
+     */
+    public const DN_STRING = 1;
+    /**
+     * Return ASN.1 name string
+     *
+     * @see \phpseclib4\File\X509::getDN()
+     */
+    public const DN_ASN1 = 2;
+    /**
+     * Return OpenSSL compatible array
+     *
+     * @see \phpseclib4\File\X509::getDN()
+     */
+    public const DN_OPENSSL = 3;
+    /**
+     * Return canonical ASN.1 RDNs string
+     *
+     * @see \phpseclib4\File\X509::getDN()
+     */
+    public const DN_CANON = 4;
+    /**
+     * Return name hash for file indexing
+     *
+     * @see \phpseclib4\File\X509::getDN()
+     */
+    public const DN_HASH = 5;
+
     public Constructed|array|null $signer;
     public ?SignedData $cms = null;
     public Choice|Constructed|null $parent;

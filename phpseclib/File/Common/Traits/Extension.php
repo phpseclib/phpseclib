@@ -29,7 +29,7 @@ use phpseclib4\File\ASN1\Types\{BaseType, Choice, OID, OctetString};
  */
 trait Extension
 {
-    private static function getMapping(string $extnId): array|true|null
+    private static function getMapping(string $extnId): array|bool|null
     {
         if (isset(self::$extensions[$extnId])) {
             return self::$extensions[$extnId];
