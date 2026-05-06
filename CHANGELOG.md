@@ -2,7 +2,7 @@
 
 ## 2.0.54 - 2026-04-27
 
-- ASN1: more stringent OID length limits
+- ASN1: more stringent OID length limits (CVE-2026-44167)
 
 ## 2.0.53 - 2026-04-09
 
