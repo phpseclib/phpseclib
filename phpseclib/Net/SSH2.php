@@ -4304,7 +4304,7 @@ class SSH2
     public function getLog(): array|string|null
     {
         if (!defined('NET_SSH2_LOGGING')) {
-            return false;
+            return null;
         }
 
         switch (NET_SSH2_LOGGING) {
