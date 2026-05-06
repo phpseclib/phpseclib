@@ -2,7 +2,7 @@
 
 ## 3.0.52 - 2026-04-27
 
-- ASN1: more stringent OID length limits
+- ASN1: more stringent OID length limits (CVE-2026-44167)
 - RSA: OpenSSL 3.2+ changed how PKCS1 decryption works (#2136)
 - Keys/OpenSSH: support comments with spaces in them (#2137)
 
