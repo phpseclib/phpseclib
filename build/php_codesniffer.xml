@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <ruleset name="phpseclib">
-    <file>../build/php-cs-fixer.php</file>
     <file>../phpseclib/</file>
     <file>../tests/</file>
 
