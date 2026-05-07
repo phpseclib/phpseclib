@@ -89,9 +89,12 @@ jobs:
                     PHPSECLIB_SSH_USERNAME='phpseclib'
                     PHPSECLIB_SSH_PASSWORD='EePoov8po1aethu2kied1ne0'
 
+                    # Create user
                     sudo useradd --create-home --base-dir /home "$PHPSECLIB_SSH_USERNAME"
                     echo "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_PASSWORD" | sudo chpasswd
-                    ssh-keygen -t rsa -b 1024 -f "$HOME/.ssh/id_rsa" -q -N ""
+
+                    # Generate keypair, set up agent and authorized_keys
+                    ssh-keygen -t rsa -b 2048 -f "$HOME/.ssh/id_rsa" -q -N ""
                     eval `ssh-agent -s`
                     ssh-add "$HOME/.ssh/id_rsa"
                     sudo mkdir -p "/home/$PHPSECLIB_SSH_USERNAME/.ssh/"
@@ -100,10 +103,45 @@ jobs:
                     sudo cp "/tmp/known_hosts" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/known_hosts"
                     sudo chown "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_USERNAME" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/" -R
 
+                    # ---------- Port 23: keyboard-interactive only ----------
+                    sudo tee /etc/ssh/sshd_config_kbdint > /dev/null <<'EOF'
+                    Port 23
+                    PidFile /run/sshd_kbdint.pid
+                    PasswordAuthentication no
+                    PubkeyAuthentication no
+                    KbdInteractiveAuthentication yes
+                    ChallengeResponseAuthentication yes
+                    UsePAM yes
+                    AuthenticationMethods keyboard-interactive
+                    Subsystem sftp /usr/lib/openssh/sftp-server
+                    EOF
+                    sudo /usr/sbin/sshd -f /etc/ssh/sshd_config_kbdint
+
+                    # ---------- Port 24: 2FA (publickey + keyboard-interactive) ----------
+                    sudo tee /etc/ssh/sshd_config_2fa > /dev/null <<'EOF'
+                    Port 24
+                    PidFile /run/sshd_2fa.pid
+                    PasswordAuthentication no
+                    PubkeyAuthentication yes
+                    KbdInteractiveAuthentication yes
+                    ChallengeResponseAuthentication yes
+                    UsePAM yes
+                    AuthenticationMethods publickey,keyboard-interactive
+                    Subsystem sftp /usr/lib/openssh/sftp-server
+                    EOF
+                    sudo /usr/sbin/sshd -f /etc/ssh/sshd_config_2fa
+
+                    # Verify both are listening
+                    sleep 1
+                    sudo ss -tlnp | grep -E ':(22|23|24)\b'
+
+                    # Export env vars
                     echo "PHPSECLIB_SSH_HOSTNAME=localhost" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_USERNAME=$PHPSECLIB_SSH_USERNAME" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_PASSWORD=$PHPSECLIB_SSH_PASSWORD" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_HOME=/home/phpseclib" >> $GITHUB_ENV
+                    echo "PHPSECLIB_SSH_KBDINT_PORT=23" >> $GITHUB_ENV
+                    echo "PHPSECLIB_SSH_2FA_PORT=24" >> $GITHUB_ENV
                     echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
             -   name: PHPUnit
                 run: vendor/bin/paratest --configuration=tests/phpunit.xml --runner=WrapperRunner --no-progress
