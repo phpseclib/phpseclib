@@ -3,14 +3,14 @@
 /**
  * Raw Signature Handler
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * Handles signatures as arrays
  *
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2016 Jim Wigginton
+ * @copyright 2016-2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

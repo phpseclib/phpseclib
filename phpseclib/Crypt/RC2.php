@@ -5,7 +5,7 @@
  *
  * Uses OpenSSL, if available/possible, and an internal implementation, otherwise
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * Useful resources are as follows:
  *
@@ -28,7 +28,7 @@
  *
  * @author   Patrick Monnerat <pm@datasphere.ch>
  * @license  http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link     http://phpseclib.sourceforge.net
+ * @link     https://phpseclib.com/
  */
 
 declare(strict_types=1);

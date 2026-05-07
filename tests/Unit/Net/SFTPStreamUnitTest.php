@@ -2,7 +2,7 @@
 
 /**
  * @author    Andreas Fischer <bantu@phpbb.com>
- * @copyright 2014 Andreas Fischer
+ * @copyright 2014-2026 Andreas Fischer
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 

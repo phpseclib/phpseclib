@@ -3,7 +3,7 @@
 /**
  * Pure-PHP (EC)DH implementation
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * Here's an example of how to compute a shared secret with this library:
  * <code>
@@ -17,9 +17,9 @@
  * </code>
  *
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2016 Jim Wigginton
+ * @copyright 2019-2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

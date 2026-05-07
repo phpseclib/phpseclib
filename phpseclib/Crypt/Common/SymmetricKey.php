@@ -3,7 +3,7 @@
 /**
  * Base Class for all \phpseclib4\Crypt\* cipher classes
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * Internally for phpseclib developers:
  *  If you plan to add a new cipher class, please note following rules:
@@ -27,9 +27,9 @@
  *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @author    Hans-Juergen Petrich <petrich@tronic-media.com>
- * @copyright 2007 Jim Wigginton
+ * @copyright 2013-2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

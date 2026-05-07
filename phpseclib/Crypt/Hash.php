@@ -22,11 +22,11 @@
  * </code>
  *
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2015 Jim Wigginton
+ * @copyright 2007-2026 Jim Wigginton
  * @author    Andreas Fischer <bantu@phpbb.com>
- * @copyright 2015 Andreas Fischer
+ * @copyright 2007-2026 Andreas Fischer
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

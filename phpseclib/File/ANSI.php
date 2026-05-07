@@ -3,7 +3,7 @@
 /**
  * Pure-PHP ANSI Decoder
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * If you call read() in \phpseclib4\Net\SSH2 you may get {@link http://en.wikipedia.org/wiki/ANSI_escape_code ANSI escape codes} back.
  * They'd look like chr(0x1B) . '[00m' or whatever (0x1B = ESC).  They tell a
@@ -11,9 +11,9 @@
  * color to display them in, etc. \phpseclib4\File\ANSI is a {@link http://en.wikipedia.org/wiki/VT100 VT100} terminal emulator.
  *
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2012 Jim Wigginton
+ * @copyright 2012-2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

@@ -3,7 +3,7 @@
 /**
  * "PKCS1" (RFC5915) Formatted EC Key Handler
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * Used by File/X509.php
  *
@@ -18,9 +18,9 @@
  * all. I suppose this could also be named IETF but idk
  *
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2015 Jim Wigginton
+ * @copyright 2018-2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

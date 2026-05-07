@@ -3,7 +3,7 @@
 /**
  * Pure-PHP FIPS 186-4 compliant implementation of DSA.
  *
- * PHP version 5
+ * PHP version 8.1+
  *
  * Here's an example of how to create signatures and verify signatures with this library:
  * <code>
@@ -22,9 +22,9 @@
  * </code>
  *
  * @author    Jim Wigginton <terrafrost@php.net>
- * @copyright 2016 Jim Wigginton
+ * @copyright 2016-2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ * @link      https://phpseclib.com/
  */
 
 declare(strict_types=1);

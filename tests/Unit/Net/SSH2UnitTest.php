@@ -2,7 +2,7 @@
 
 /**
  * @author    Marc Scholten <marc@pedigital.de>
- * @copyright 2013 Marc Scholten
+ * @copyright 2013-2026 Marc Scholten
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
