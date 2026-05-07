@@ -249,7 +249,7 @@ class ChaCha20Test extends PhpseclibTestCase
                         if ($calculatePoly) {
                             $message .= "an auto-calculated Poly1305 key ";
                             $tag = $c->getTag();
-                       }
+                        }
                         $message .= "yielded the expected result of " . bin2hex($$var);
                         $this->assertSame(bin2hex($$var), bin2hex($ciphertext), $message);
                     } else {

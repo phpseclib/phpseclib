@@ -1,5 +1,5 @@
 <?php
- 
+
 /**
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2018-2026 Jim Wigginton

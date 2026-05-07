@@ -295,7 +295,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     }
                     if ($content['type'] != $this->tag) {
                         $error = 'All subtags of a constructed string should be the same type as the constructed string itself';
-                        $error = "$error (found " . ASN1::convertTypeConstantToString($content['type']) . '; expected '. ASN1::convertTypeConstantToString($this->tag) . ')';
+                        $error = "$error (found " . ASN1::convertTypeConstantToString($content['type']) . '; expected ' . ASN1::convertTypeConstantToString($this->tag) . ')';
                         throw new UnexpectedValueException($error);
                     }
                     $result .= $content['content'];
@@ -486,7 +486,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     }
                 }
                 $map[] = $temp;
-            } catch (EncodedDataUnavailableException|ExcessivelyDeepDataException $e) {
+            } catch (EncodedDataUnavailableException | ExcessivelyDeepDataException $e) {
                 $data = substr($this->encoded, $content['start'] - $this->start, ($content['length'] ?? $content['actuallength']) + $content['headerlength']);
                 $map[] = $e instanceof EncodedDataUnavailableException ? new Element($data) : new ExcessivelyDeepData($data);
             }
@@ -530,7 +530,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     $candidate->key = $key;
                 }
             // altho the data is unavailable to ASN1 it _is_ available to Constructed
-            } catch (EncodedDataUnavailableException|ExcessivelyDeepDataException $e) {
+            } catch (EncodedDataUnavailableException | ExcessivelyDeepDataException $e) {
                 $data = substr($this->encoded, $temp['start'] - $this->start, ($temp['length'] ?? $temp['actuallength']) + $temp['headerlength']);
                 return $e instanceof EncodedDataUnavailableException ? new Element($data) : new ExcessivelyDeepData($data);
             } catch (UnexpectedValueException) {

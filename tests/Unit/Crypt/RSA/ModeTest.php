@@ -243,8 +243,8 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $engines = ['libsodium', 'OpenSSL', 'PHP'];
         foreach ($engines as $engine) {
             try {
-               RSA::forceEngine($engine);
-               $this->assertTrue($rsa->verify($message, $signature));
+                RSA::forceEngine($engine);
+                $this->assertTrue($rsa->verify($message, $signature));
             } catch (BadConfigurationException $e) {
             }
         }

@@ -50,7 +50,7 @@ abstract class PuTTY extends Progenitor
     public static function load(
         #[SensitiveParameter] string $key,
         #[SensitiveParameter] ?string $password
-    ): array{
+    ): array {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
             return $components;

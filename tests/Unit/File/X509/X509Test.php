@@ -1573,7 +1573,7 @@ XPKVItoiHkqP9zckhd6b4ho=
         $x509->addDNProp('id-at-postalAddress', $address);
         X509::load("$x509");
         $result = $x509->getDNProps('id-at-postalAddress')[0];
-        foreach ($address as $i=>$expected) {
+        foreach ($address as $i => $expected) {
             $this->assertSame($expected, (string) $result[$i]);
         }
     }
@@ -1605,8 +1605,8 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load($cert);
         $this->assertSame(4, count($x509->listExtensions()));
         $ext = $x509->getExtension('id-ce-subjectAltName');
-        $this->assertEquals($ext['extnValue'],$x509['tbsCertificate']['extensions'][1]['extnValue']);
-        $this->assertNotEquals($ext['extnValue'],$x509['tbsCertificate']['extensions'][2]['extnValue']);
+        $this->assertEquals($ext['extnValue'], $x509['tbsCertificate']['extensions'][1]['extnValue']);
+        $this->assertNotEquals($ext['extnValue'], $x509['tbsCertificate']['extensions'][2]['extnValue']);
     }
 
     public function testDefaultBoolean(): void
@@ -1635,7 +1635,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load(file_get_contents(__DIR__ . '/google.crt'));
         $CRLCache = [];
         $cacheMisses = $cacheHits = 0;
-        X509::setInCRLFunction(function(string $url, BigInteger $serial) use (&$CRLCache, &$cacheHits, &$cacheMisses) {
+        X509::setInCRLFunction(function (string $url, BigInteger $serial) use (&$CRLCache, &$cacheHits, &$cacheMisses) {
             if (isset($CRLCache[$url])) {
                 $cacheHits++;
             } else {
@@ -1685,7 +1685,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
 
     public function testOIDBomb(): void
     {
-        $cert = file_get_contents(dirname(__FILE__) . '/poc_oid_bomb_50x4096.der');;
+        $cert = file_get_contents(dirname(__FILE__) . '/poc_oid_bomb_50x4096.der');
 
         $x509 = X509::load($cert);
         $this->expectException(ResourceLimitException::class);

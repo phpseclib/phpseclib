@@ -13,9 +13,9 @@ use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
 class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
 {
-    static protected $remoteFile;
-    static protected $exampleData;
-    static protected $exampleDataLength;
+    protected static $remoteFile;
+    protected static $exampleData;
+    protected static $exampleDataLength;
 
     public static function setUpBeforeClass(): void
     {

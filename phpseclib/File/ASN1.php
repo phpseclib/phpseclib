@@ -886,7 +886,6 @@ abstract class ASN1
                         }
                     }
                     $value .= $temp;
-
                 }
 
                 break;

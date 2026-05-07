@@ -254,7 +254,8 @@ abstract class PKCS8 extends Progenitor
      */
     public static function savePrivateKey(
         #[SensitiveParameter] BigInteger $privateKey,
-        BaseCurve $curve, array $publicKey,
+        BaseCurve $curve,
+        array $publicKey,
         #[SensitiveParameter] ?string $secret = null,
         #[SensitiveParameter] ?string $password = null,
         array $options = []

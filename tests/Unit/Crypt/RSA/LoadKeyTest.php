@@ -23,7 +23,6 @@ use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
-
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class LoadKeyTest extends PhpseclibTestCase

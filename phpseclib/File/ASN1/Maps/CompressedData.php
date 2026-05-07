@@ -30,6 +30,6 @@ abstract class CompressedData
             'version' => CMSVersion::MAP,
             'compressionAlgorithm' => CompressionAlgorithmIdentifier::MAP,
             'encapContentInfo' => EncapsulatedContentInfo::MAP,
-       ],
+        ],
     ];
 }

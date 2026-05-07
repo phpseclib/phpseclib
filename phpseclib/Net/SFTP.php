@@ -1928,7 +1928,7 @@ class SFTP extends SSH2
                             $this->init_sftp_connection();
                             throw new ConnectionClosedException('Connection closed while downloading file');
                         } else {
-                            throw new UnexpectedSFTPPacketException (
+                            throw new UnexpectedSFTPPacketException(
                                 'Expected SSH_FXP_DATA or SSH_FXP_STATUS. ' .
                                 'Got packet type: SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type)
                             );

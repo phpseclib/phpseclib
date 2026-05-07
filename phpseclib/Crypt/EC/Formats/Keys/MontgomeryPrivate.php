@@ -47,7 +47,7 @@ abstract class MontgomeryPrivate
         #[SensitiveParameter] string $key,
         #[SensitiveParameter] ?string $password = null
     ): array {
-        $curve = match(strlen($key)) {
+        $curve = match (strlen($key)) {
             32 => new Curve25519(),
             56 => new Curve448(),
             default => throw new UnexpectedValueException('The only supported lengths are 32 and 56')
