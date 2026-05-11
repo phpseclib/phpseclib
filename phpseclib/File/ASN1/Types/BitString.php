@@ -28,7 +28,7 @@ use phpseclib4\Exception\InvalidStateException;
 class BitString extends BaseString implements \ArrayAccess, \Countable, \Iterator
 {
     public array $mappedValue;
-    public const TYPE = 4;
+    public const TYPE = 3;
 
     private function preCheck()
     {
