@@ -1503,7 +1503,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $data;
     }
 
-    public static function setInCRLFunction(\Closure $func): void
+    public static function setCRLLookupCallback(\Closure $func): void
     {
         self::$inCRLFunction = $func;
     }
