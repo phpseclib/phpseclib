@@ -1635,7 +1635,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load(file_get_contents(__DIR__ . '/google.crt'));
         $CRLCache = [];
         $cacheMisses = $cacheHits = 0;
-        X509::setInCRLFunction(function (string $url, BigInteger $serial) use (&$CRLCache, &$cacheHits, &$cacheMisses) {
+        X509::setCRLLookupCallback(function (string $url, BigInteger $serial) use (&$CRLCache, &$cacheHits, &$cacheMisses) {
             if (isset($CRLCache[$url])) {
                 $cacheHits++;
             } else {
