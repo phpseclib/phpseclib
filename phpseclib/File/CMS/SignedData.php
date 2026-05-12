@@ -429,16 +429,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->toString();
     }
 
-    private function mapOutDNs(string $path): void
-    {
-        $dns = &Arrays::subArray($this->cms, $path);
-        if (!$dns) {
-            return;
-        }
-
-        self::mapOutDNsInner($dns);
-    }
-
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
