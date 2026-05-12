@@ -426,14 +426,14 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
                     try {
                         $recipient['kekri']->withKey($key);
                         return $this;
-                    } catch (\Exception $e) {
+                    } catch (\Exception) {
                     }
                     break;
                 case isset($recipient['ktri']) && $key instanceof RSA\PrivateKey:
                     try {
                         $recipient['ktri']->withKey($key);
                         return $this;
-                    } catch (\Exception $e) {
+                    } catch (\Exception) {
                     }
                     break;
                 case isset($recipient['kari']) && $key instanceof EC\PrivateKey:
@@ -441,7 +441,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
                         try {
                             $subkey->withKey($key);
                             return $this;
-                        } catch (\Exception $e) {
+                        } catch (\Exception) {
                         }
                     }
             }
