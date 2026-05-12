@@ -62,6 +62,34 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         RSA::forceEngine();
     }
 
+    public function testOpenSSLDecryptWithPassphraseProtectedPrivateKey()
+    {
+        if (!function_exists('openssl_private_decrypt')) {
+            $this->markTestSkipped('OpenSSL is not available');
+        }
+
+        $privatekey = RSA::createKey(1024)->withPassword('password');
+        $privatekey = PublicKeyLoader::load($privatekey->toString('PKCS8'), 'password')
+            ->withPadding(RSA::ENCRYPTION_NONE);
+        $publickey = $privatekey->getPublicKey()
+            ->withPadding(RSA::ENCRYPTION_NONE);
+
+        $plaintext = str_repeat("\0", ($privatekey->getLength() >> 3) - 5) . 'hello';
+        $ciphertext = $publickey->encrypt($plaintext);
+
+        RSA::forceEngine('OpenSSL');
+        set_error_handler(function ($errno, $errstr) {
+            throw new \ErrorException($errstr, 0, $errno);
+        });
+
+        try {
+            $this->assertSame($plaintext, $privatekey->decrypt($ciphertext));
+        } finally {
+            restore_error_handler();
+            RSA::forceEngine();
+        }
+    }
+
     /**
      * @group github768
      */
