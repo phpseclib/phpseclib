@@ -68,6 +68,31 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
             $this->markTestSkipped('OpenSSL is not available');
         }
 
+        $probePrivatekey = RSA::createKey(1024)->withPadding(RSA::ENCRYPTION_NONE);
+        $probePublickey = $probePrivatekey->getPublicKey()->withPadding(RSA::ENCRYPTION_NONE);
+        $probePlaintext = str_repeat("\0", ($probePrivatekey->getLength() >> 3) - 5) . 'probe';
+        $probeCiphertext = $probePublickey->encrypt($probePlaintext);
+        $probeOutput = '';
+
+        set_error_handler(function () {
+            return true;
+        });
+
+        try {
+            $canOpenSSLDecrypt = openssl_private_decrypt(
+                $probeCiphertext,
+                $probeOutput,
+                $probePrivatekey->toString('PKCS8'),
+                OPENSSL_NO_PADDING
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        if (!$canOpenSSLDecrypt || $probeOutput !== $probePlaintext) {
+            $this->markTestSkipped('OpenSSL private decrypt is not supported by this PHP/OpenSSL build');
+        }
+
         $privatekey = RSA::createKey(1024)->withPassword('password');
         $privatekey = PublicKeyLoader::load($privatekey->toString('PKCS8'), 'password')
             ->withPadding(RSA::ENCRYPTION_NONE);
