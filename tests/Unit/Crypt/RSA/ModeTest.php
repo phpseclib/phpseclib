@@ -65,8 +65,68 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         RSA::forceEngine();
     }
 
+<<<<<<< HEAD
     #[\PHPUnit\Framework\Attributes\Group('github768')]
     public function testPSSSigs(): void
+=======
+    public function testOpenSSLDecryptWithPassphraseProtectedPrivateKey()
+    {
+        if (!function_exists('openssl_private_decrypt')) {
+            $this->markTestSkipped('OpenSSL is not available');
+        }
+
+        $probePrivatekey = RSA::createKey(1024)->withPadding(RSA::ENCRYPTION_NONE);
+        $probePublickey = $probePrivatekey->getPublicKey()->withPadding(RSA::ENCRYPTION_NONE);
+        $probePlaintext = str_repeat("\0", ($probePrivatekey->getLength() >> 3) - 5) . 'probe';
+        $probeCiphertext = $probePublickey->encrypt($probePlaintext);
+        $probeOutput = '';
+
+        set_error_handler(function () {
+            return true;
+        });
+
+        try {
+            $canOpenSSLDecrypt = openssl_private_decrypt(
+                $probeCiphertext,
+                $probeOutput,
+                $probePrivatekey->toString('PKCS8'),
+                OPENSSL_NO_PADDING
+            );
+        } finally {
+            restore_error_handler();
+        }
+
+        if (!$canOpenSSLDecrypt || $probeOutput !== $probePlaintext) {
+            $this->markTestSkipped('OpenSSL private decrypt is not supported by this PHP/OpenSSL build');
+        }
+
+        $privatekey = RSA::createKey(1024)->withPassword('password');
+        $privatekey = PublicKeyLoader::load($privatekey->toString('PKCS8'), 'password')
+            ->withPadding(RSA::ENCRYPTION_NONE);
+        $publickey = $privatekey->getPublicKey()
+            ->withPadding(RSA::ENCRYPTION_NONE);
+
+        $plaintext = str_repeat("\0", ($privatekey->getLength() >> 3) - 5) . 'hello';
+        $ciphertext = $publickey->encrypt($plaintext);
+
+        RSA::forceEngine('OpenSSL');
+        set_error_handler(function ($errno, $errstr) {
+            throw new \ErrorException($errstr, 0, $errno);
+        });
+
+        try {
+            $this->assertSame($plaintext, $privatekey->decrypt($ciphertext));
+        } finally {
+            restore_error_handler();
+            RSA::forceEngine();
+        }
+    }
+
+    /**
+     * @group github768
+     */
+    public function testPSSSigs()
+>>>>>>> 3.0
     {
         $rsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVx

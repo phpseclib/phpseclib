@@ -884,7 +884,9 @@ abstract class RSA extends AsymmetricKey
                 }
             } else {
                 if ($this->encryptionPadding !== self::ENCRYPTION_OAEP || PHP_VERSION_ID >= 80500) {
-                    $key = $this->toString('PKCS8');
+                    $key = $this instanceof PrivateKey ?
+                        $this->withPassword()->toString('PKCS8') :
+                        $this->toString('PKCS8');
                     if ($func === 'openssl_private_decrypt' && str_contains($key, 'PUBLIC')) {
                         if ($this->encryptionPadding === self::ENCRYPTION_OAEP) {
                             if (self::$forcedEngine === 'OpenSSL') {
