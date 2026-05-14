@@ -1548,7 +1548,7 @@ class SFTP extends SSH2
         $this->get_sftp_packet_or_error([SFTPPacketType::STATUS], StatusCode::OK);
 
         if ($mode !== -1) {
-            $this->chmod($mode, $dir);
+            $this->chmod($dir, $mode);
         }
     }
 
