@@ -91,7 +91,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
         if (function_exists('openssl_get_md_methods') && self::$forcedEngine !== 'PHP') {
             if (in_array($this->hash->getHash(), openssl_get_md_methods())) {
                 $signature = '';
-                $result = openssl_sign($message, $signature, $this->toString('PKCS8'), $this->hash->getHash());
+                $result = openssl_sign($message, $signature, $this->withPassword()->toString('PKCS8'), $this->hash->getHash());
 
                 if ($result) {
                     if ($this->shortFormat == 'ASN1') {

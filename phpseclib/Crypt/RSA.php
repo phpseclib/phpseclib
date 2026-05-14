@@ -1079,7 +1079,21 @@ abstract class RSA extends AsymmetricKey
                         case self::ENCRYPTION_NONE:
                         case self::ENCRYPTION_PKCS1:
                             $padding = $this->encryptionPadding === self::ENCRYPTION_NONE ? OPENSSL_NO_PADDING : OPENSSL_PKCS1_PADDING;
-                            $result = $func($message, $output, $key, $padding);
+                            // on github actions, php 7.0 and 7.1 on windows emit the following warning:
+                            // openssl_private_decrypt(): key parameter is not a valid private key
+                            set_error_handler(function ($errno, $errstr) {
+                                throw new BadConfigurationException("Engine OpenSSL is forced but got error: $errstr");
+                            });
+                            try {
+                                $result = $func($message, $output, $key, $padding);
+                            } catch (BadConfigurationException $e) {
+                                if (self::$forcedEngine === 'OpenSSL') {
+                                    throw $e;
+                                }
+                                $result = false;
+                            } finally {
+                                restore_error_handler();
+                            }
                             break;
                         //case self::ENCRYPTION_OAEP:
                         default:
