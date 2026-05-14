@@ -65,11 +65,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         RSA::forceEngine();
     }
 
-<<<<<<< HEAD
-    #[\PHPUnit\Framework\Attributes\Group('github768')]
-    public function testPSSSigs(): void
-=======
-    public function testOpenSSLDecryptWithPassphraseProtectedPrivateKey()
+    public function testOpenSSLDecryptWithPassphraseProtectedPrivateKey(): void
     {
         if (!function_exists('openssl_private_decrypt')) {
             $this->markTestSkipped('OpenSSL is not available');
@@ -122,11 +118,8 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         }
     }
 
-    /**
-     * @group github768
-     */
-    public function testPSSSigs()
->>>>>>> 3.0
+    #[\PHPUnit\Framework\Attributes\Group('github768')]
+    public function testPSSSigs(): void
     {
         $rsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVx
