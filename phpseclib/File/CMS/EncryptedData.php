@@ -621,7 +621,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
-    public function placeRecipient(Recipient $recipient, string $type): void
+    private function placeRecipient(Recipient $recipient, string $type): void
     {
         if (isset($this->cms['content']['recipientInfos'])) {
             $this->compile();
