@@ -278,7 +278,8 @@ class BigInteger implements \JsonSerializable
      */
     public function modInverse(BigInteger $n): ?BigInteger
     {
-        return new static($this->value->modInverse($n->value));
+        $value = $this->value->modInverse($n->value);
+        return $value ? new static($value) : null;
     }
 
     /**
