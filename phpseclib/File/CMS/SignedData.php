@@ -414,7 +414,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->createSigner($skeleton);
     }
 
-    public function addSignature(Signer $signer)
+    public function addSignature(Signer $signer): void
     {
         $this->compile();
         $this->addCertificate(($signer->getCertificate()));
@@ -532,7 +532,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    public function detach()
+    public function detach(): void
     {
         $this->fp = null;
         unset($this->cms['content']['encapContentInfo']['eContent']);
