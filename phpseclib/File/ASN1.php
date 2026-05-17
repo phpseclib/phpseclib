@@ -131,6 +131,8 @@ abstract class ASN1
      */
     private static $encoded;
 
+    private static $use64BitOIDHandling;
+
     /**
      * Type mapping table for the ANY type.
      *
@@ -1148,6 +1150,19 @@ abstract class ASN1
         return chr($tag) . self::encodeLength(strlen($value)) . $value;
     }
 
+    public static function enable64BitOIDHandling()
+    {
+        if (PHP_INT_SIZE === 4) {
+            throw new \RuntimeException('64-bit OID handling is unavailable on 32-bit PHP installs');
+        }
+        self::$use64BitOIDHandling = true;
+    }
+
+    public static function disable64BitOIDHandling()
+    {
+        self::$use64BitOIDHandling = false;
+    }
+
     /**
      * BER-decode the OID
      *
@@ -1165,6 +1180,10 @@ abstract class ASN1
             $eighty = new BigInteger(80);
         }
 
+        if (!isset(self::$use64BitOIDHandling)) {
+            self::$use64BitOIDHandling = PHP_INT_SIZE === 8;
+        }
+
         $oid = [];
         $pos = 0;
         $len = strlen($content);
@@ -1180,19 +1199,48 @@ abstract class ASN1
 
         $n = new BigInteger();
         $subn = $numBytes = 0;
-        while ($pos < $len) {
-            $temp = ord($content[$pos++]);
-            $subn <<= 7;
-            $subn |= ($temp & 0x7F);
-            $numBytes++;
-            $endByte = ~$temp & 0x80;
-            if ($numBytes === PHP_INT_SIZE || $endByte) {
-                $n = $n->bitwise_leftShift($numBytes * 7);
-                $n = $n->bitwise_or(new BigInteger($subn));
-                $subn = $numBytes = 0;
-                if ($endByte) {
-                    $oid[] = $n;
-                    $n = new BigInteger();
+        if (self::$use64BitOIDHandling) {
+            $prefix = '';
+            while ($pos < $len) {
+                $temp = ord($content[$pos++]);
+                $subn <<= 7;
+                $subn |= ($temp & 0x7F);
+                $numBytes++;
+                $endByte = ~$temp & 0x80;
+                if ($numBytes === PHP_INT_SIZE) {
+                    $prefix .= substr(pack('J', $subn), 1); // we're basically left shifting by 7 bytes
+                    $subn = $numBytes = 0;
+                    if ($endByte) {
+                        $oid[] = new BigInteger($prefix, 256);
+                        $prefix = '';
+                    }
+                } elseif ($endByte) {
+                    if (strlen($prefix)) {
+                        $arc = new BigInteger($prefix, 256);
+                        $arc = $arc->bitwise_leftShift($numBytes * 7);
+                        $oid[] = $arc->bitwise_or(new BigInteger($subn));
+                        $prefix = '';
+                    } else {
+                        $oid[] = new BigInteger($subn);
+                    }
+                    $subn = $numBytes = 0;
+                }
+            }
+        } else {
+            while ($pos < $len) {
+                $temp = ord($content[$pos++]);
+                $subn <<= 7;
+                $subn |= ($temp & 0x7F);
+                $numBytes++;
+                $endByte = ~$temp & 0x80;
+                if ($numBytes === PHP_INT_SIZE || $endByte) {
+                    $n = $n->bitwise_leftShift($numBytes * 7);
+                    $n = $n->bitwise_or(new BigInteger($subn));
+                    $subn = $numBytes = 0;
+                    if ($endByte) {
+                        $oid[] = $n;
+                        $n = new BigInteger();
+                    }
                 }
             }
         }
