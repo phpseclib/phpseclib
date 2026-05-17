@@ -26,6 +26,7 @@ namespace phpseclib4\File;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Exception\{
+    BadConfigurationException,
     EOCException,
     EncodedDataUnavailableException,
     ResourceLimitException,
@@ -215,7 +216,7 @@ abstract class ASN1
      */
     private static bool $useEncodedCache = true;
 
-    private static $use64BitOIDHandling;
+    private static ?bool $use64BitOIDHandling = null;
 
     /**
      * Cache Invalidation Flag
@@ -1129,15 +1130,15 @@ abstract class ASN1
         return $header . $value;
     }
 
-    public static function enable64BitOIDHandling()
+    public static function enable64BitOIDHandling(): void
     {
         if (PHP_INT_SIZE === 4) {
-            throw new \RuntimeException('64-bit OID handling is unavailable on 32-bit PHP installs');
+            throw new BadConfigurationException('64-bit OID handling is unavailable on 32-bit PHP installs');
         }
         self::$use64BitOIDHandling = true;
     }
 
-    public static function disable64BitOIDHandling()
+    public static function disable64BitOIDHandling(): void
     {
         self::$use64BitOIDHandling = false;
     }
