@@ -1179,13 +1179,21 @@ abstract class ASN1
         }
 
         $n = new BigInteger();
+        $subn = $numBytes = 0;
         while ($pos < $len) {
             $temp = ord($content[$pos++]);
-            $n = $n->bitwise_leftShift(7);
-            $n = $n->bitwise_or(new BigInteger($temp & 0x7F));
-            if (~$temp & 0x80) {
-                $oid[] = $n;
-                $n = new BigInteger();
+            $subn <<= 7;
+            $subn |= ($temp & 0x7F);
+            $numBytes++;
+            $endByte = ~$temp & 0x80;
+            if ($numBytes === PHP_INT_SIZE || $endByte) {
+                $n = $n->bitwise_leftShift($numBytes * 7);
+                $n = $n->bitwise_or(new BigInteger($subn));
+                $subn = $numBytes = 0;
+                if ($endByte) {
+                    $oid[] = $n;
+                    $n = new BigInteger();
+                }
             }
         }
         $part1 = array_shift($oid);
