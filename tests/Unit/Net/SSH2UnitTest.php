@@ -63,7 +63,7 @@ class SSH2UnitTest extends PhpseclibTestCase
     public function testGenerateIdentifier(): void
     {
         $identifier = self::callFunc($this->createSSHMock(), 'generate_identifier');
-        $this->assertStringStartsWith('SSH-2.0-phpseclib_3.0', $identifier);
+        $this->assertStringStartsWith('SSH-2.0-phpseclib_4.0', $identifier);
 
         if (function_exists('sodium_crypto_sign_keypair')) {
             $this->assertStringContainsString('libsodium', $identifier);
