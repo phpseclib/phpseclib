@@ -24,7 +24,7 @@ class GCMTest extends PhpseclibTestCase
             'PHP',
             'Eval',
             'OpenSSL',
-            'OpenSSL (GCM)',
+            'OpenSSL (AEAD)',
         ];
 
         // test vectors come from the following URL:
