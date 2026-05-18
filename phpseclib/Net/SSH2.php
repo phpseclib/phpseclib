@@ -4521,7 +4521,7 @@ class SSH2
         } else {
             $engines = [
                 'libsodium',
-                'OpenSSL (GCM)',
+                'OpenSSL (AEAD)',
                 'OpenSSL',
                 'Eval',
                 'PHP',
