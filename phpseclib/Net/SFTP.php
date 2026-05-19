@@ -1681,6 +1681,7 @@ class SFTP extends SSH2
      * @param bool $recursive
      * @throws \UnexpectedValueException on receipt of unexpected packets
      * @return mixed
+     * @changed in phpseclib 4.0.0
      */
     public function chmod($mode, $filename, $recursive = false)
     {
@@ -3466,6 +3467,7 @@ class SFTP extends SSH2
      * Returns all errors on the SFTP layer
      *
      * @return array
+     * @removed in phpseclib 4.0.0
      */
     public function getSFTPErrors()
     {
@@ -3476,6 +3478,7 @@ class SFTP extends SSH2
      * Returns the last error on the SFTP layer
      *
      * @return string
+     * @removed in phpseclib 4.0.0
      */
     public function getLastSFTPError()
     {

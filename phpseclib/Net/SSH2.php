@@ -4913,6 +4913,7 @@ class SSH2
      * If you are looking for messages from the SFTP layer, please see SFTP::getSFTPErrors()
      *
      * @return string[]
+     * @removed in phpseclib 4.0.0
      */
     public function getErrors()
     {
@@ -4925,6 +4926,7 @@ class SSH2
      * If you are looking for messages from the SFTP layer, please see SFTP::getLastSFTPError()
      *
      * @return string
+     * @removed in phpseclib 4.0.0
      */
     public function getLastError()
     {

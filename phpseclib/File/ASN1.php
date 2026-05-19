@@ -192,6 +192,7 @@ abstract class ASN1
      *
      * @param Element|string $encoded
      * @return ?array
+     * @changed in phpseclib 4.0.0
      */
     public static function decodeBER($encoded)
     {
@@ -516,6 +517,7 @@ abstract class ASN1
      * @param array $mapping
      * @param array $special
      * @return array|bool|Element|string|null
+     * @changed in phpseclib 4.0.0
      */
     public static function asn1map(array $decoded, $mapping, $special = [])
     {
@@ -842,6 +844,7 @@ abstract class ASN1
      * @param array $mapping
      * @param array $special
      * @return string
+     * @changed in phpseclib 4.0.0
      */
     public static function encodeDER($source, $mapping, $special = [])
     {
@@ -1170,6 +1173,7 @@ abstract class ASN1
      *
      * @param string $content
      * @return string
+     * @changed in phpseclib 4.0.0
      */
     public static function decodeOID($content)
     {
@@ -1328,6 +1332,7 @@ abstract class ASN1
      * @param string $content
      * @param int $tag
      * @return \DateTime|false
+     * @changed in phpseclib 4.0.0
      */
     private static function decodeTime($content, $tag)
     {
@@ -1373,6 +1378,7 @@ abstract class ASN1
      * Sets the time / date format for asn1map().
      *
      * @param string $format
+     * @removed in phpseclib 4.0.0
      */
     public static function setTimeFormat($format)
     {
@@ -1386,6 +1392,7 @@ abstract class ASN1
      * Previously loaded OIDs are retained.
      *
      * @param array $oids
+     * @changed in phpseclib 4.0.0
      */
     public static function loadOIDs(array $oids)
     {
@@ -1400,6 +1407,7 @@ abstract class ASN1
      * Previously loaded filters are not retained.
      *
      * @param array $filters
+     * @removed in phpseclib 4.0.0
      */
     public static function setFilters(array $filters)
     {
@@ -1416,6 +1424,7 @@ abstract class ASN1
      * @param int $from
      * @param int $to
      * @return string
+     * @removed in phpseclib 4.0.0
      */
     public static function convert($in, $from = self::TYPE_UTF8_STRING, $to = self::TYPE_UTF8_STRING)
     {
@@ -1581,6 +1590,7 @@ abstract class ASN1
      *
      * @param string $name
      * @return string
+     * @removed in phpseclib 4.0.0
      */
     public static function getOID($name)
     {
