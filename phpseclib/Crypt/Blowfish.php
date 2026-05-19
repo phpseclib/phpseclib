@@ -517,8 +517,7 @@ class Blowfish extends BlockCipher
             $p[17] ^ $key[1],
         ];
 
-        // @codingStandardsIgnoreStart
-        [ $p[0],  $p[1]] = self::encryptBlockHelperFast(     0,      0, $sbox, $p);
+        [ $p[0],  $p[1]] = self::encryptBlockHelperFast(0, 0, $sbox, $p);
         [ $p[2],  $p[3]] = self::encryptBlockHelperFast($p[ 0], $p[ 1], $sbox, $p);
         [ $p[4],  $p[5]] = self::encryptBlockHelperFast($p[ 2], $p[ 3], $sbox, $p);
         [ $p[6],  $p[7]] = self::encryptBlockHelperFast($p[ 4], $p[ 5], $sbox, $p);
@@ -527,7 +526,6 @@ class Blowfish extends BlockCipher
         [$p[12], $p[13]] = self::encryptBlockHelperFast($p[10], $p[11], $sbox, $p);
         [$p[14], $p[15]] = self::encryptBlockHelperFast($p[12], $p[13], $sbox, $p);
         [$p[16], $p[17]] = self::encryptBlockHelperFast($p[14], $p[15], $sbox, $p);
-        // @codingStandardsIgnoreEnd
 
         [$sbox[0], $sbox[1]] = self::encryptBlockHelperFast($p[16], $p[17], $sbox, $p);
         for ($i = 2; $i < 1024; $i += 2) {
@@ -567,8 +565,7 @@ class Blowfish extends BlockCipher
             $p[17] ^ $key[1],
         ];
 
-        // @codingStandardsIgnoreStart
-        [ $p[0],  $p[1]] = self::encryptBlockHelperFast($data[ 0]         , $data[ 1]         , $sbox, $p);
+        [ $p[0],  $p[1]] = self::encryptBlockHelperFast($data[0], $data[ 1], $sbox, $p);
         [ $p[2],  $p[3]] = self::encryptBlockHelperFast($data[ 2] ^ $p[ 0], $data[ 3] ^ $p[ 1], $sbox, $p);
         [ $p[4],  $p[5]] = self::encryptBlockHelperFast($data[ 4] ^ $p[ 2], $data[ 5] ^ $p[ 3], $sbox, $p);
         [ $p[6],  $p[7]] = self::encryptBlockHelperFast($data[ 6] ^ $p[ 4], $data[ 7] ^ $p[ 5], $sbox, $p);
@@ -577,7 +574,6 @@ class Blowfish extends BlockCipher
         [$p[12], $p[13]] = self::encryptBlockHelperFast($data[12] ^ $p[10], $data[13] ^ $p[11], $sbox, $p);
         [$p[14], $p[15]] = self::encryptBlockHelperFast($data[14] ^ $p[12], $data[15] ^ $p[13], $sbox, $p);
         [$p[16], $p[17]] = self::encryptBlockHelperFast($data[ 0] ^ $p[14], $data[ 1] ^ $p[15], $sbox, $p);
-        // @codingStandardsIgnoreEnd
 
         [$sbox[0], $sbox[1]] = self::encryptBlockHelperFast($data[2] ^ $p[16], $data[3] ^ $p[17], $sbox, $p);
         for ($i = 2, $j = 4; $i < 1024; $i += 2, $j = ($j + 2) % 16) { // instead of 16 maybe count($data) would be better?
