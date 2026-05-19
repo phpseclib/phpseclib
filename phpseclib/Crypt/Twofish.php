@@ -582,7 +582,6 @@ class Twofish extends BlockCipher
             $R1 = ((($R1 >> 31) & 1) | ($R1 << 1)) ^ self::safe_intval($t0 + ($t1 << 1) + $K[++$ki]);
         }
 
-        // @codingStandardsIgnoreStart
         return pack(
             "V4",
             $K[4] ^ $R2,
@@ -590,7 +589,6 @@ class Twofish extends BlockCipher
             $K[6] ^ $R0,
             $K[7] ^ $R1
         );
-        // @codingStandardsIgnoreEnd
     }
 
     /**
@@ -637,7 +635,6 @@ class Twofish extends BlockCipher
             $R0 = ($R0 >> 31 & 0x1 | $R0 << 1) ^ self::safe_intval($t0 + $t1 + $K[--$ki]);
         }
 
-        // @codingStandardsIgnoreStart
         return pack(
             "V4",
             $K[0] ^ $R2,
@@ -645,7 +642,6 @@ class Twofish extends BlockCipher
             $K[2] ^ $R0,
             $K[3] ^ $R1
         );
-        // @codingStandardsIgnoreEnd
     }
 
     /**
