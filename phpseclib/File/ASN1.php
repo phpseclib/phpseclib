@@ -1185,7 +1185,16 @@ abstract class ASN1
                 $numBytes++;
                 $endByte = ~$temp & 0x80;
                 if ($numBytes === PHP_INT_SIZE) {
-                    $prefix .= substr(pack('J', $subn), 1); // we're basically left shifting by 7 bytes
+                    // the idea here is that if we have 8 bytes then we have 8 bits that we need to throw away. those
+                    // 8 bits form 1 byte and the remaining bits form 7 bytes. since we've already compacted the 64 bits
+                    // down to 56 bits (7 bytes) we can just throw away the most significant byte, hence the substring.
+                    // at this point, appending to the string we've been building up is basically the same as left
+                    // shifting that string by 56 bits and then doing a bitwise OR with our new 56-bit integer
+
+                    // this trick doesn't work on 32-bit systems because on a 32-bit system you'd have 4 bytes and 4 bits
+                    // that need to be thrown away. the problem with that being that you can't simply throw away 4 bits
+                    // by doing a substring.
+                    $prefix .= substr(pack('J', $subn), 1);
                     $subn = $numBytes = 0;
                     if ($endByte) {
                         $oid[] = new BigInteger($prefix, 256);
