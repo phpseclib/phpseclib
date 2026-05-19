@@ -1363,36 +1363,24 @@ abstract class ASN1
     }
 
     /**
-     * Set the time format
-     *
-     * Sets the time / date format for map().
-     */
-    public static function setTimeFormat(string $format): void
-    {
-        self::$format = $format;
-    }
-
-    /**
      * Load OIDs
      *
      * Load the relevant OIDs for a particular ASN.1 semantic mapping.
      * Previously loaded OIDs are retained.
      */
-    public static function loadOIDs(array|string $oids): bool
+    public static function loadOIDs(array|string $oids): void
     {
         if (is_array($oids)) {
             self::$reverseOIDs += $oids;
             self::$oids = array_flip(self::$reverseOIDs);
-
-            return true;
+            return;
         }
         $class = 'phpseclib4\File\ASN1\OIDs\\' . $oids;
         if (!class_exists($class)) {
-            return false;
+            return;
         }
         self::$reverseOIDs += $class::OIDs;
         self::$oids = array_flip(self::$reverseOIDs);
-        return true;
     }
 
     /**
