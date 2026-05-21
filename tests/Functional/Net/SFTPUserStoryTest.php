@@ -766,4 +766,15 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->posix_rename('test1.txt', 'test2.txt');
         $this->assertSame('aaaaa', $sftp->get('test2.txt'));
     }
+
+    #[\PHPUnit\Framework\Attributes\Depends('testPasswordLogin')]
+    public function testMkdirChmod(SFTP $sftp): void
+    {
+        $sftp->mkdir('permtest', 0777);
+        $this->assertSame(0777, $sftp->fileperms('permtest') & 0777);
+        $sftp->rmdir('permtest');
+        $sftp->mkdir('permtest', 0755);
+        $this->assertSame(0755, $sftp->fileperms('permtest') & 0777);
+        $sftp->rmdir('permtest');
+    }
 }
