@@ -244,10 +244,14 @@ class GMP extends Engine
      */
     public function modInverse(GMP $n): ?GMP
     {
+        $result = gmp_invert($this->value, $n->value);
+        if ($result === false) {
+            return null;
+        }
         $temp = new self();
-        $temp->value = gmp_invert($this->value, $n->value);
+        $temp->value = $result;
 
-        return $temp->value === false ? null : $this->normalize($temp);
+        return $this->normalize($temp);
     }
 
     /**
