@@ -118,15 +118,17 @@ class BigInteger implements \JsonSerializable
             $engines = [
                 ['GMP', ['DefaultEngine']],
                 ['PHP64', ['OpenSSL']],
+                ['BCMath64', ['OpenSSL']],
                 ['BCMath', ['OpenSSL']],
                 ['PHP32', ['OpenSSL']],
                 ['PHP64', ['DefaultEngine']],
                 ['PHP32', ['DefaultEngine']],
             ];
             // per https://phpseclib.com/docs/speed PHP 8.4.0+ _significantly_ sped up BCMath
-            if (version_compare(PHP_VERSION, '8.4.0') >= 0) {
-                $engines[1][0] = 'BCMath';
-                $engines[2][0] = 'PHP64';
+            if (PHP_VERSION_ID >= 80400) {
+                $engines[1][0] = 'BCMath64';
+                $engines[2][0] = 'BCMath';
+                $engines[3][0] = 'PHP64';
             }
 
             foreach ($engines as $engine) {
