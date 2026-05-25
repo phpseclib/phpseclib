@@ -6,7 +6,7 @@
  * Supports base-2, base-10, base-16, and base-256 numbers.  Uses the GMP or BCMath extensions, if available,
  * and an internal implementation, otherwise.
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * Here's an example of how to use this library:
  * <code>
