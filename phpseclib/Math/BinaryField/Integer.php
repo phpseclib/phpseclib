@@ -11,7 +11,7 @@
  * and subtraction become the same operation as XOR.
  * eg. 1 + 1 + 1 == 3 % 2 == 1 or 0 - 1 == -1 % 2 == 1
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2018-2026 Jim Wigginton

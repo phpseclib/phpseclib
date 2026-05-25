@@ -18,7 +18,7 @@
  * If a later version of SEC2 comes out wherein some $a$ values are non-zero we can create a
  * new method for those. eg. KoblitzA1Prime.php or something.
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2018-2026 Jim Wigginton

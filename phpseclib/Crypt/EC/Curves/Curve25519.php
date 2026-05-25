@@ -3,7 +3,7 @@
 /**
  * Curve25519
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2019-2026 Jim Wigginton
