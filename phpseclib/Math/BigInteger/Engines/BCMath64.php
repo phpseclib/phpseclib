@@ -48,33 +48,24 @@ class BCMath64 extends BCMath
      */
     protected function initialize(int $base): void
     {
-        switch (abs($base)) {
-            case 256:
-                // round $len to the nearest 8
-                $len = (strlen($this->value) + 7) & ~7;
+        if (abs($base) != 256) {
+            parent::initialize($base);
+            return;
+        }
 
-                $x = str_pad($this->value, $len, chr(0), STR_PAD_LEFT);
+        // round $len to the nearest 8
+        $len = (strlen($this->value) + 7) & ~7;
 
-                $this->value = '0';
-                for ($i = 0; $i < $len; $i += 8) {
-                    $this->value = bcmul($this->value, '18446744073709551616', 0); // 18446744073709551616 == 2**64
-                    $temp = sprintf('%u', unpack('J', substr($x, $i, 8))[1]);
-                    $this->value = bcadd($this->value, $temp, 0);
-                }
-                if ($this->is_negative) {
-                    $this->value = '-' . $this->value;
-                }
-                break;
-            case 16:
-                $x = (strlen($this->value) & 1) ? '0' . $this->value : $this->value;
-                $temp = new self(Strings::hex2bin($x), 256);
-                $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
-                $this->is_negative = false;
-                break;
-            case 10:
-                // explicitly casting $x to a string is necessary, here, since doing $x[0] on -1 yields different
-                // results then doing it on '-1' does (modInverse does $x[0])
-                $this->value = $this->value === '-' ? '0' : (string) $this->value;
+        $x = str_pad($this->value, $len, chr(0), STR_PAD_LEFT);
+
+        $this->value = '0';
+        for ($i = 0; $i < $len; $i += 8) {
+            $this->value = bcmul($this->value, '18446744073709551616', 0); // 18446744073709551616 == 2**64
+            $temp = sprintf('%u', unpack('J', substr($x, $i, 8))[1]);
+            $this->value = bcadd($this->value, $temp, 0);
+        }
+        if ($this->is_negative) {
+            $this->value = '-' . $this->value;
         }
     }
 
