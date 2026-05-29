@@ -165,7 +165,7 @@ abstract class Arrays
     {
         $parts = explode('/', $path);
         foreach ($parts as $k => $i) {
-            if (!isset($root)) {
+            if (!is_array($root) && !$root instanceof \ArrayAccess) {
                 return;
             }
 
@@ -174,7 +174,7 @@ abstract class Arrays
                 foreach ($root as $key => $val) {
                     if (empty($path)) {
                         $root[$key] = $func($val);
-                    } else {
+                    } elseif (is_array($root[$key]) || $root[$key] instanceof \ArrayAccess) {
                         self::subArrayMapWithWildcards($root[$key], $path, $func);
                     }
                 }
