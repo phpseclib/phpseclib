@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @author    Andreas Fischer <bantu@phpbb.com>
- * @copyright 2019-2026 Andreas Fischer
+ * @author    Jim Wigginton <terrafrost@php.net>
+ * @copyright 2026 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
