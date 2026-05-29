@@ -115,8 +115,8 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
                     $recipient[$key]->key = $key;
                 }
             } elseif (is_array($recipient)) {
-                $key = key($recipient);
-                $value = current($recipient);
+                $key = array_key_first($recipient);
+                $value = $recipient[$key];
                 $recipient[$key] = match ($key) {
                     'ktri' => new KeyTransRecipient($value),
                     'kari' => new KeyAgreeRecipient($value),
