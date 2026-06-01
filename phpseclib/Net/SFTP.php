@@ -3789,4 +3789,47 @@ class SFTP extends SSH2
             Strings::unpackSSH2('QQQQQQQQQQQ', $response)
         );
     }
+
+    public function hardlink($oldpath, $newpath)
+    {
+        if (!$this->precheck()) {
+            return false;
+        }
+
+        if (!isset($this->extensions['hardlink@openssh.com']) || $this->extensions['hardlink@openssh.com'] !== '1') {
+            throw new \RuntimeException(
+                "Extension 'hardlink@openssh.com' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
+        }
+
+        $oldpath = $this->realpath($oldpath);
+        $newpath = $this->realpath($newpath);
+        if ($oldpath === false || $newpath === false) {
+            return false;
+        }
+
+        $packet = Strings::packSSH2('sss', 'hardlink@openssh.com', $oldpath, $newpath);
+        $this->send_sftp_packet(NET_SFTP_EXTENDED, $packet);
+
+        $response = $this->get_sftp_packet();
+        if ($this->packet_type !== NET_SFTP_STATUS) {
+            throw new \UnexpectedValueException('Expected NET_SFTP_STATUS. '
+                . 'Got packet type: ' . $this->packet_type);
+        }
+
+        // if $status isn't SSH_FX_OK it's probably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
+        list($status) = Strings::unpackSSH2('N', $response);
+        if ($status !== NET_SFTP_STATUS_OK) {
+            $this->logError($response, $status);
+            return false;
+        }
+
+        // don't move the stat cache entry over since this operation could very well change the
+        // atime and mtime attributes
+        $this->remove_from_stat_cache($oldpath);
+        $this->remove_from_stat_cache($newpath);
+
+        return true;
+    }
 }
