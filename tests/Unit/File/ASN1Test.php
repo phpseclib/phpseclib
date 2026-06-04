@@ -455,11 +455,18 @@ class ASN1Test extends PhpseclibTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github2104')]
-    public function testBadBigInteger()
+    public function testBadBigInteger(): void
     {
         $this->expectException(\Exception::class);
         $key = pack('H*', 'a309486df62e19383a7faecd02423d44fb28773f36403f8a5e3c45f62549c855');
         $decoded = ASN1::decodeBER($key);
         $key = ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
+    }
+
+    public function testChoiceDecode(): void
+    {
+        $encoded = hex2bin('305d310c300a060355040b13037a7a7a310c300a060355040b0c03787878313f303d060355041030360c0d6a696d2077696767696e746f6e0c1333303031206573706572616e7a612078696e670c1061757374696e2c207478203738373538');
+        $decoded = ASN1::decodeBER($encoded);
+        $this->assertIsArray(ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\Name::MAP)['rdnSequence']->toArray());
     }
 }
