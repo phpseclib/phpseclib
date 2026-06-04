@@ -137,7 +137,9 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
             if (isset($this->value->depth)) {
                 $this->value->depth = $this->depth + 1;
-                $this->value->key = $this->key;
+                if (isset($this->key)) {
+                    $this->value->key = $this->key;
+                }
             }
         }
         return $this->value;
