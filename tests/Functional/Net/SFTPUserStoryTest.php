@@ -777,4 +777,25 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $this->assertSame(0755, $sftp->fileperms('permtest') & 0777);
         $sftp->rmdir('permtest');
     }
+
+    #[\PHPUnit\Framework\Attributes\Depends('testPasswordLogin')]
+    public function testHardlink($sftp): void
+    {
+        $sftp->put('test3.txt', 'abcdefg');
+
+        $this->assertTrue(
+            $sftp->hardlink('test3.txt', 'hardlink'),
+            'Failed asserting that a hardlink could be created'
+        );
+        $this->assertSame(
+            'abcdefg',
+            $sftp->get('hardlink'),
+            'Failed asserting that a hardlink is the same as the original file'
+        );
+        $this->assertSame(
+            $sftp->stat('test3.txt'),
+            $sftp->stat('hardlink'),
+            'Failed asserting that hardlink stat is the same as original file stat'
+        );
+    }
 }

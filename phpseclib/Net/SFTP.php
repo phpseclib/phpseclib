@@ -2967,6 +2967,32 @@ class SFTP extends SSH2
         );
     }
 
+    public function hardlink(string $oldpath, string $newpath): void
+    {
+        $this->precheck();
+
+        if (!isset($this->extensions['hardlink@openssh.com']) || $this->extensions['hardlink@openssh.com'] !== '1') {
+            throw new ServiceUnavailableException(
+                "Extension 'hardlink@openssh.com' is not supported by the server. " .
+                "Call getSupportedVersions() to see a list of supported extension"
+            );
+        }
+
+        $oldpath = $this->realpath($oldpath);
+        $newpath = $this->realpath($newpath);
+
+        $packet = Strings::packSSH2('sss', 'hardlink@openssh.com', $oldpath, $newpath);
+        $this->send_sftp_packet(SFTPPacketType::EXTENDED, $packet);
+        $this->get_sftp_packet_or_error([SFTPPacketType::STATUS], StatusCode::OK);
+
+        // this operation will change the ctime and link-count attributes
+        // which could be cached depending on sftp version
+        $this->remove_from_stat_cache($oldpath);
+        // hardlink creation should fail if $newpath exists;
+        // removing it from the cache anyway, just to be sure
+        $this->remove_from_stat_cache($newpath);
+    }
+
     /**
      * @param int[] $packet_types
      */
