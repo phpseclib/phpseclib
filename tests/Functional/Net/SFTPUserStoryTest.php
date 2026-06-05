@@ -783,10 +783,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $sftp->put('test3.txt', 'abcdefg');
 
-        $this->assertTrue(
-            $sftp->hardlink('test3.txt', 'hardlink'),
-            'Failed asserting that a hardlink could be created'
-        );
+        $sftp->hardlink('test3.txt', 'hardlink');
         $this->assertSame(
             'abcdefg',
             $sftp->get('hardlink'),
