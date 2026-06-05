@@ -3825,9 +3825,12 @@ class SFTP extends SSH2
             return false;
         }
 
-        // don't move the stat cache entry over since this operation could very well change the
-        // atime and mtime attributes
+        // this operation will change the ctime and link-count attributes
+        // which could be cached depending on sftp version
         $this->remove_from_stat_cache($oldpath);
+
+        // hardlink creation should fail if $newpath exists;
+        // removing it from the cache anyway, just to be sure
         $this->remove_from_stat_cache($newpath);
 
         return true;
