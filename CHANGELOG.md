@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.53 - 2026-06-09
+
+- RSA: decryption with password protected keys didn't work with OpenSSL engine (#2140)
+- ASN1: speed up OID calculations
+- SFTP: add hardlink() method (#2142)
+- DES: fix PHP deprecations (#2145)
+
 ## 3.0.52 - 2026-04-27
 
 - ASN1: more stringent OID length limits (CVE-2026-44167)
