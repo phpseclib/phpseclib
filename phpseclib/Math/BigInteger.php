@@ -6,7 +6,7 @@
  * Supports base-2, base-10, base-16, and base-256 numbers.  Uses the GMP or BCMath extensions, if available,
  * and an internal implementation, otherwise.
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * Here's an example of how to use this library:
  * <code>
@@ -118,15 +118,17 @@ class BigInteger implements \JsonSerializable
             $engines = [
                 ['GMP', ['DefaultEngine']],
                 ['PHP64', ['OpenSSL']],
+                ['BCMath64', ['OpenSSL']],
                 ['BCMath', ['OpenSSL']],
                 ['PHP32', ['OpenSSL']],
                 ['PHP64', ['DefaultEngine']],
                 ['PHP32', ['DefaultEngine']],
             ];
             // per https://phpseclib.com/docs/speed PHP 8.4.0+ _significantly_ sped up BCMath
-            if (version_compare(PHP_VERSION, '8.4.0') >= 0) {
-                $engines[1][0] = 'BCMath';
-                $engines[2][0] = 'PHP64';
+            if (PHP_VERSION_ID >= 80400) {
+                $engines[1][0] = 'BCMath64';
+                $engines[2][0] = 'BCMath';
+                $engines[3][0] = 'PHP64';
             }
 
             foreach ($engines as $engine) {

@@ -3,7 +3,7 @@
 /**
  * GMP BigInteger Engine
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2017-2026 Jim Wigginton
@@ -244,10 +244,14 @@ class GMP extends Engine
      */
     public function modInverse(GMP $n): ?GMP
     {
+        $result = gmp_invert($this->value, $n->value);
+        if ($result === false) {
+            return null;
+        }
         $temp = new self();
-        $temp->value = gmp_invert($this->value, $n->value);
+        $temp->value = $result;
 
-        return $temp->value === false ? null : $this->normalize($temp);
+        return $this->normalize($temp);
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * BCMath BigInteger Engine
  *
- * PHP version 5 and 7
+ * PHP version 8.1+
  *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2017-2026 Jim Wigginton
@@ -87,11 +87,8 @@ class BCMath extends Engine
                 $this->value = '0';
                 for ($i = 0; $i < $len; $i += 4) {
                     $this->value = bcmul($this->value, '4294967296', 0); // 4294967296 == 2**32
-                    $this->value = bcadd(
-                        $this->value,
-                        (string) (0x1000000 * ord($x[$i]) + ((ord($x[$i + 1]) << 16) | (ord($x[$i + 2]) << 8) | ord($x[$i + 3]))),
-                        0
-                    );
+                    $temp = sprintf('%u', unpack('N', substr($x, $i, 4))[1]);
+                    $this->value = bcadd($this->value, $temp, 0);
                 }
 
                 if ($this->is_negative) {
@@ -100,14 +97,14 @@ class BCMath extends Engine
                 break;
             case 16:
                 $x = (strlen($this->value) & 1) ? '0' . $this->value : $this->value;
-                $temp = new self(Strings::hex2bin($x), 256);
+                $temp = new static(Strings::hex2bin($x), 256);
                 $this->value = $this->is_negative ? '-' . $temp->value : $temp->value;
                 $this->is_negative = false;
                 break;
             case 10:
                 // explicitly casting $x to a string is necessary, here, since doing $x[0] on -1 yields different
                 // results then doing it on '-1' does (modInverse does $x[0])
-                $this->value = $this->value === '-' ? '0' : (string)$this->value;
+                $this->value = $this->value === '-' ? '0' : (string) $this->value;
         }
     }
 
@@ -140,9 +137,16 @@ class BCMath extends Engine
         }
 
         while (bccomp($current, '0', 0) > 0) {
-            $temp = bcmod($current, '16777216', 0);
-            $value = chr($temp >> 16) . chr(($temp >> 8) & 0xFF) . chr($temp & 0xFF) . $value;
-            $current = bcdiv($current, '16777216', 0);
+            $quotient = bcdiv($current, '4294967296', 0);
+            $remainder = bcsub($current, bcmul($quotient, '4294967296', 0), 0);
+            $temp = (int) ($remainder / 256); // ie. >> 8
+            $value = chr($temp >> 16) . // ie. $remainder >> 24
+                chr(($temp >> 8) & 0xFF) . // ie. $remainder >> 16
+                chr($temp & 0xFF) . // i. $remainder >> 8
+                //chr((int) ($remainder - 256 * $temp)) .
+                chr((int) fmod(floatval($remainder), 256)) .
+                $value;
+            $current = $quotient;
         }
 
         return $this->precision > 0 ?
@@ -153,9 +157,9 @@ class BCMath extends Engine
     /**
      * Adds two BigIntegers.
      */
-    public function add(BCMath $y): BCMath
+    public function add(BCMath $y): static
     {
-        $temp = new self();
+        $temp = new static();
         $temp->value = bcadd($this->value, $y->value, 0);
 
         return $this->normalize($temp);
@@ -164,9 +168,9 @@ class BCMath extends Engine
     /**
      * Subtracts two BigIntegers.
      */
-    public function subtract(BCMath $y): BCMath
+    public function subtract(BCMath $y): static
     {
-        $temp = new self();
+        $temp = new static();
         $temp->value = bcsub($this->value, $y->value, 0);
 
         return $this->normalize($temp);
@@ -175,9 +179,9 @@ class BCMath extends Engine
     /**
      * Multiplies two BigIntegers.
      */
-    public function multiply(BCMath $x): BCMath
+    public function multiply(BCMath $x): static
     {
-        $temp = new self();
+        $temp = new static();
         $temp->value = bcmul($this->value, $x->value, 0);
 
         return $this->normalize($temp);
@@ -195,8 +199,8 @@ class BCMath extends Engine
      */
     public function divide(BCMath $y): array
     {
-        $quotient = new self();
-        $remainder = new self();
+        $quotient = new static();
+        $remainder = new static();
 
         $quotient->value = bcdiv($this->value, $y->value, 0);
         $remainder->value = bcmod($this->value, $y->value, 0);
@@ -270,7 +274,7 @@ class BCMath extends Engine
      *
      * Say you have 693 and 609.  The GCD is 21.
      */
-    public function gcd(BCMath $n): BCMath
+    public function gcd(BCMath $n): static
     {
         ['gcd' => $gcd] = $this->extendedGCD($n);
         return $gcd;
@@ -279,7 +283,7 @@ class BCMath extends Engine
     /**
      * Absolute value.
      */
-    public function abs(): BCMath
+    public function abs(): static
     {
         $temp = new static();
         $temp->value = strlen($this->value) && $this->value[0] == '-' ?
@@ -292,7 +296,7 @@ class BCMath extends Engine
     /**
      * Logical And
      */
-    public function bitwise_and(BCMath $x): BCMath
+    public function bitwise_and(BCMath $x): static
     {
         return $this->bitwiseAndHelper($x);
     }
@@ -300,7 +304,7 @@ class BCMath extends Engine
     /**
      * Logical Or
      */
-    public function bitwise_or(BCMath $x): BCMath
+    public function bitwise_or(BCMath $x): static
     {
         return $this->bitwiseOrHelper($x);
     }
@@ -308,7 +312,7 @@ class BCMath extends Engine
     /**
      * Logical Exclusive Or
      */
-    public function bitwise_xor(BCMath $x): BCMath
+    public function bitwise_xor(BCMath $x): static
     {
         return $this->bitwiseXorHelper($x);
     }
@@ -318,7 +322,7 @@ class BCMath extends Engine
      *
      * Shifts BigInteger's by $shift bits, effectively dividing by 2**$shift.
      */
-    public function bitwise_rightShift(int $shift): BCMath
+    public function bitwise_rightShift(int $shift): static
     {
         $temp = new static();
         $temp->value = bcdiv($this->value, bcpow('2', (string)$shift, 0), 0);
@@ -331,7 +335,7 @@ class BCMath extends Engine
      *
      * Shifts BigInteger's by $shift bits, effectively multiplying by 2**$shift.
      */
-    public function bitwise_leftShift(int $shift): BCMath
+    public function bitwise_leftShift(int $shift): static
     {
         $temp = new static();
         $temp->value = bcmul($this->value, bcpow('2', (string) $shift, 0), 0);
@@ -392,7 +396,7 @@ class BCMath extends Engine
     /**
      * Performs modular exponentiation.
      */
-    protected function powModInner(BCMath $e, BCMath $n): BCMath
+    protected function powModInner(BCMath $e, BCMath $n): static
     {
         try {
             $class = static::$modexpEngine[static::class];
@@ -407,7 +411,7 @@ class BCMath extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      */
-    protected function normalize(BCMath $result): BCMath
+    protected function normalize(BCMath $result): static
     {
         $result->precision = $this->precision;
         $result->bitmask = $this->bitmask;
@@ -438,7 +442,7 @@ class BCMath extends Engine
      * BigInteger::randomRange($min, $max)
      * BigInteger::randomRange($max, $min)
      */
-    public static function randomRange(BCMath $min, BCMath $max): BCMath
+    public static function randomRange(BCMath $min, BCMath $max): static
     {
         return self::randomRangeHelper($min, $max);
     }
@@ -509,9 +513,9 @@ class BCMath extends Engine
     /**
      * Performs exponentiation.
      */
-    public function pow(BCMath $n): BCMath
+    public function pow(BCMath $n): static
     {
-        $temp = new self();
+        $temp = new static();
         $temp->value = bcpow($this->value, $n->value, 0);
 
         return $this->normalize($temp);
@@ -520,7 +524,7 @@ class BCMath extends Engine
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
      */
-    public static function min(BCMath ...$nums): BCMath
+    public static function min(BCMath ...$nums): static
     {
         return self::minHelper($nums);
     }
@@ -528,7 +532,7 @@ class BCMath extends Engine
     /**
      * Return the maximum BigInteger between an arbitrary number of BigIntegers.
      */
-    public static function max(BCMath ...$nums): BCMath
+    public static function max(BCMath ...$nums): static
     {
         return self::maxHelper($nums);
     }
@@ -546,7 +550,7 @@ class BCMath extends Engine
      *
      * @see self::setPrecision()
      */
-    protected static function setBitmask(int $bits): BCMath
+    protected static function setBitmask(int $bits): static
     {
         $temp = parent::setBitmask($bits);
         return $temp->add(static::$one[static::class]);
@@ -586,7 +590,7 @@ class BCMath extends Engine
      *
      * Given $k, returns -$k
      */
-    public function negate(): BCMath
+    public function negate(): static
     {
         $temp = clone $this;
 
