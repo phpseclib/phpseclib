@@ -5,3 +5,4 @@
 /vendor/
 .gitignore
 .phpunit.result.cache
+.DS_Store
