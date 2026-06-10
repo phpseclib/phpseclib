@@ -256,4 +256,23 @@ dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
 
         $this->assertTrue($key->verify('zzz', $sig));
     }
+
+    #[\PHPUnit\Framework\Attributes\Group('github2149')]
+    public function testInvalidVersion()
+    {
+        $key = '-----BEGIN DSA PRIVATE KEY-----
+MIIBugIBEQKBgQCHc0onPSpqqR3lE69+wLgJJ4LISkPPLwxbPnO1mSJNnjhvucXC
+NjmetDFkPSO2R3MkruD4MCLkKlvIEnIhH8pG32R7GNHLubIp/qcjRJ7NXtS5cG6p
+LU4I1NWlekKUBAjQP2plM3U81Ut3JM39qGYZTM8NPGH0uWTIFn8PpVEzUwIVAIW0
+sPS7m+gJzXCJ6brM/y4iSyzxAoGAZOMeOwOLp3iOcd5AjbXkdDIBSggMQeHbkD9f
+ztMLhhxLaMvygncP6DOIxpmC1LU+APB+DSqyIwhm2ag0Fuo7QYpF4nzZGeX7VWem
+WnGgcKSzkMStlGueW1lnFkrUcRk8H8IksuZtxiNSgDMvPsxRxLx9m1pulbNI9Izh
+QDkxDAACgYAP0fYZ4Nytae+Xm870Q1PC6kkI3DHKLxnJEudKqRzuMvaa5DauXC30
+L2Ifb93GBciTKPd/LAK6EcVnXiIgp/U1eTqzgNjzKAjJRIRBg70a2tbYJ71dRHOW
+FqdGw3uIr1Hu9IZQk0qzyS0WP7ADXmhCsAqHMiCgwrHy/CYIo950EwIUErkN0hjz
+Mf7Jz8+drwf9tboRi44=
+    -----END DSA PRIVATE KEY-----';
+        $this->expectException(NoKeyLoadedException::class);
+        PublicKeyLoader::load($key);
+    }
 }

@@ -60,7 +60,11 @@ abstract class PKCS1 extends Progenitor
         }
 
         try {
-            return ASN1::map($decoded, Maps\DSAPrivateKey::MAP)->toArray();
+            $key = ASN1::map($decoded, Maps\DSAPrivateKey::MAP)->toArray();
+            if ($key['version']->toString() !== '0') {
+                throw new UnsupportedValueException('DSA Private Keys only work when the version number is 0');
+            }
+            return $key;
         } catch (\Exception) {
         }
 
