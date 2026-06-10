@@ -1540,6 +1540,7 @@ y8m/iELU++SxNcox
         $this->assertSame($rsa->getComment(), 'phpseclib generated key');
     }
 
+    #[\PHPUnit\Framework\Attributes\Group('github2148')]
     public function testInvalidVersion()
     {
         $key = '-----BEGIN RSA PRIVATE KEY-----
