@@ -541,4 +541,10 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
         $a = $this->getInstance('999999999');
         $this->assertSame('3b9ac9ff', $a->toHex());
     }
+
+    public function testEmptyStringLength()
+    {
+        $a = $this->getInstance('');
+        $this->assertSame(0, $a->getLengthInBytes());
+    }
 }
