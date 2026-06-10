@@ -64,6 +64,9 @@ abstract class PKCS1 extends Progenitor
         }
 
         $key = ASN1::asn1map($decoded[0], Maps\RSAPrivateKey::MAP);
+        if ($key['version'] === false) {
+            throw new \UnexpectedValueException('Version number is not valid');
+        }
         if (is_array($key)) {
             $components += [
                 'modulus' => $key['modulus'],
