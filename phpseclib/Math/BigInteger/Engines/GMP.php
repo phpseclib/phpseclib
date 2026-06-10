@@ -114,8 +114,7 @@ class GMP extends Engine
     public function toBits(bool $twos_compliment = false): string
     {
         $hex = $this->toHex($twos_compliment);
-
-        $bits = gmp_strval(gmp_init($hex, 16), 2);
+        $bits = strlen($hex) ? gmp_strval(gmp_init($hex, 16), 2) : '';
 
         if ($this->precision > 0) {
             $bits = substr($bits, -$this->precision);
