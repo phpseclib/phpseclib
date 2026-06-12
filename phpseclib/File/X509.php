@@ -338,6 +338,14 @@ class File_X509
     var $disable_url_fetch = false;
 
     /**
+     * URL fetch callback
+     *
+     * @var string|array|null
+     * @access private
+     */
+    var $urlFetchCallback = null;
+
+    /**
      * Default Constructor.
      *
      * @return File_X509
@@ -2191,6 +2199,10 @@ class File_X509
     /**
      * Fetches a URL
      *
+     * If a fetch callback is set via setURLFetchCallback(), the host is resolved
+     * once and the connection is pinned to that IP (the callback judges the
+     * resolved IP, preventing DNS-rebinding bypass).
+     *
      * @param string $url
      * @access private
      * @return bool|string
@@ -2202,25 +2214,47 @@ class File_X509
         }
 
         $parts = parse_url($url);
+        if ($parts === false || !isset($parts['scheme']) || !isset($parts['host'])) {
+            return false;
+        }
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? $parts['port'] : 80;
+
+        if (isset($this->urlFetchCallback)) {
+            if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $host)) {
+                $ip = $host; // already an IPv4 literal
+            } else {
+                $ip = gethostbyname($host); // IPv4 only
+                if ($ip === $host) {
+                    return false;
+                }
+            }
+            if (!call_user_func($this->urlFetchCallback, $host, $ip, $port, $parts['scheme'])) {
+                return false;
+            }
+            $target = $ip;
+        } else {
+            $target = $host;
+        }
+
         $data = '';
         switch ($parts['scheme']) {
             case 'http':
-                $fsock = @fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80);
+                $fsock = @fsockopen($target, $port);
                 if (!$fsock) {
                     return false;
                 }
-                $path = $parts['path'];
+                $path = isset($parts['path']) ? $parts['path'] : '/';
                 if (isset($parts['query'])) {
                     $path.= '?' . $parts['query'];
                 }
                 fputs($fsock, "GET $path HTTP/1.0\r\n");
-                fputs($fsock, "Host: $parts[host]\r\n\r\n");
+                fputs($fsock, "Host: $host\r\n\r\n");
                 $line = fgets($fsock, 1024);
-                if (strlen($line) < 3) {
+                if ($line === false || strlen($line) < 3) {
                     return false;
                 }
-                preg_match('#HTTP/1.\d (\d{3})#', $line, $temp);
-                if ($temp[1] != '200') {
+                if (!preg_match('#HTTP/1.\d (\d{3})#', $line, $temp) || $temp[1] != '200') {
                     return false;
                 }
 
@@ -2239,7 +2273,8 @@ class File_X509
                 break;
             //case 'ftp':
             //case 'ldap':
-            //default:
+            default:
+                return false;
         }
 
         return $data;
@@ -5212,5 +5247,16 @@ class File_X509
             $reverseMap = array_flip($this->oids);
         }
         return isset($reverseMap[$name]) ? $reverseMap[$name] : $name;
+    }
+
+    /**
+     * Returns the OID corresponding to a name
+     *
+     * @access public
+     * @param array|string|null $callback
+     */
+    function setURLFetchCallback($callback)
+    {
+        $this->urlFetchCallback = $callback;
     }
 }
