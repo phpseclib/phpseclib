@@ -270,6 +270,14 @@ class X509
     private $domains = null;
 
     /**
+     * URL fetch callback
+     *
+     * @var string|array|null
+     * @access private
+     */
+    static $urlFetchCallback = null;
+
+    /**
      * Default Constructor.
      *
      * @return X509
@@ -1120,6 +1128,10 @@ class X509
     /**
      * Fetches a URL
      *
+     * If a fetch callback is set via setURLFetchCallback(), the host is resolved
+     * once and the connection is pinned to that IP (the callback judges the
+     * resolved IP, preventing DNS-rebinding bypass).
+     *
      * @param string $url
      * @return bool|string
      */
@@ -1130,25 +1142,58 @@ class X509
         }
 
         $parts = parse_url($url);
+        if ($parts === false || !isset($parts['scheme']) || !isset($parts['host'])) {
+            return false;
+        }
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? $parts['port'] : 80;
+
+        if (isset(self::$urlFetchCallback)) {
+            if (filter_var($host, FILTER_VALIDATE_IP)) {
+                $ip = $host;
+                // unwrap IPv4-mapped IPv6 so the callback judges the real v4 address
+                if (preg_match('/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i', $ip, $m)) {
+                    $ip = $m[1];
+                }
+            } else {
+                $records = dns_get_record($host, DNS_A | DNS_AAAA);
+                if (!$records) {
+                    return false;
+                }
+                if (isset($records[0]['ip'])) {
+                    $ip = $records[0]['ip'];
+                } elseif (isset($records[0]['ipv6'])) {
+                    $ip = $records[0]['ipv6'];
+                } else {
+                    return false;
+                }
+            }
+            if (!call_user_func(self::$urlFetchCallback, $host, $ip, $port, $parts['scheme'])) {
+                return false;
+            }
+            $target = strpos($ip, ':') !== false ? "[$ip]" : $ip;
+        } else {
+            $target = $host;
+        }
+
         $data = '';
         switch ($parts['scheme']) {
             case 'http':
-                $fsock = @fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80);
+                $fsock = @fsockopen($target, $port);
                 if (!$fsock) {
                     return false;
                 }
-                $path = $parts['path'];
+                $path = isset($parts['path']) ? $parts['path'] : '/';
                 if (isset($parts['query'])) {
                     $path .= '?' . $parts['query'];
                 }
                 fputs($fsock, "GET $path HTTP/1.0\r\n");
-                fputs($fsock, "Host: $parts[host]\r\n\r\n");
+                fputs($fsock, "Host: $host\r\n\r\n");
                 $line = fgets($fsock, 1024);
-                if (strlen($line) < 3) {
+                if ($line === false || strlen($line) < 3) {
                     return false;
                 }
-                preg_match('#HTTP/1.\d (\d{3})#', $line, $temp);
-                if ($temp[1] != '200') {
+                if (!preg_match('#HTTP/1.\d (\d{3})#', $line, $temp) || $temp[1] != '200') {
                     return false;
                 }
 
@@ -1167,7 +1212,8 @@ class X509
                 break;
             //case 'ftp':
             //case 'ldap':
-            //default:
+            default:
+                return false;
         }
 
         return $data;
@@ -4075,5 +4121,16 @@ class X509
     public function setExtensionValue($id, $value, $critical = false, $replace = false)
     {
         $this->extensionValues[$id] = compact('critical', 'replace', 'value');
+    }
+
+    /**
+     * Returns the OID corresponding to a name
+     *
+     * @access public
+     * @param array|string|null $callback
+     */
+    static function setURLFetchCallback($callback)
+    {
+        self::$urlFetchCallback = $callback;
     }
 }
