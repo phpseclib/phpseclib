@@ -328,7 +328,7 @@ class X509
      * @var string|array|null
      * @access private
      */
-    var $urlFetchCallback = null;
+    static $urlFetchCallback = null;
 
     /**
      * Default Constructor.
@@ -2181,19 +2181,30 @@ class X509
         $host = $parts['host'];
         $port = isset($parts['port']) ? $parts['port'] : 80;
 
-        if (isset($this->urlFetchCallback)) {
-            if (preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $host)) {
-                $ip = $host; // already an IPv4 literal
+        if (isset(self::$urlFetchCallback)) {
+            if (filter_var($host, FILTER_VALIDATE_IP)) {
+                $ip = $host;
+                // unwrap IPv4-mapped IPv6 so the callback judges the real v4 address
+                if (preg_match('/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i', $ip, $m)) {
+                    $ip = $m[1];
+                }
             } else {
-                $ip = gethostbyname($host); // IPv4 only
-                if ($ip === $host) {
+                $records = dns_get_record($host, DNS_A | DNS_AAAA);
+                if (!$records) {
+                    return false;
+                }
+                if (isset($records[0]['ip'])) {
+                    $ip = $records[0]['ip'];
+                } elseif (isset($records[0]['ipv6'])) {
+                    $ip = $records[0]['ipv6'];
+                } else {
                     return false;
                 }
             }
-            if (!call_user_func($this->urlFetchCallback, $host, $ip, $port, $parts['scheme'])) {
+            if (!call_user_func(self::$urlFetchCallback, $host, $ip, $port, $parts['scheme'])) {
                 return false;
             }
-            $target = $ip;
+            $target = strpos($ip, ':') !== false ? "[$ip]" : $ip;
         } else {
             $target = $host;
         }
@@ -5165,8 +5176,8 @@ class X509
      * @access public
      * @param array|string|null $callback
      */
-    function setURLFetchCallback($callback)
+    static function setURLFetchCallback($callback)
     {
-        $this->urlFetchCallback = $callback;
+        self::$urlFetchCallback = $callback;
     }
 }
