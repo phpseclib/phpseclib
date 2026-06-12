@@ -273,9 +273,8 @@ class X509
      * URL fetch callback
      *
      * @var string|array|null
-     * @access private
      */
-    static $urlFetchCallback = null;
+    private static $urlFetchCallback = null;
 
     /**
      * Default Constructor.
@@ -1524,6 +1523,8 @@ class X509
 
     /**
      * Prevents URIs from being automatically retrieved
+     *
+     * @removed in phpseclib 4.0.0
      */
     public static function disableURLFetch()
     {
@@ -1532,6 +1533,8 @@ class X509
 
     /**
      * Allows URIs to be automatically retrieved
+     *
+     * @removed in phpseclib 4.0.0
      */
     public static function enableURLFetch()
     {
@@ -4126,10 +4129,9 @@ class X509
     /**
      * Returns the OID corresponding to a name
      *
-     * @access public
-     * @param array|string|null $callback
+     * @param ?callable $callback
      */
-    static function setURLFetchCallback($callback)
+    public static function setURLFetchCallback($callback)
     {
         self::$urlFetchCallback = $callback;
     }
