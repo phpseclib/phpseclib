@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.55 - 2026-06-14
+
+- X509: add setURLFetchCallback() method
+- ASN1: speed up OID calculations
+
 ## 2.0.54 - 2026-04-27
 
 - ASN1: more stringent OID length limits (CVE-2026-44167)
@@ -415,6 +420,10 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.30 - 2026-06-14
+
+- X509: add setURLFetchCallback() method
 
 ## 1.0.29 - 2026-04-27
 
