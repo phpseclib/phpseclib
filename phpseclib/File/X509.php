@@ -105,11 +105,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     private static int $recur_limit = 5;
 
     /**
-     * URL fetch flag
-     */
-    private static bool $disable_url_fetch = false;
-
-    /**
      * The certificate authorities
      */
     private static array $CAs = [];
@@ -123,6 +118,8 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     private static \Closure $inCRLFunction;
 
+    private static ?\Closure $urlFetchCallback = null;
+
     public function __construct(PublicKey|CSR|null $cert = null)
     {
         if (!isset(self::$inCRLFunction)) {
@@ -130,7 +127,13 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             // of time, however, phpseclib, making no assumptions on the underlying filesystem, doesn't
             // really have a mechanism to do this. if you want to save CRLs to some sort of DB then you can
             // replace this function with one that'll cache to the DB and pull from the DB when appropriate
-            self::$inCRLFunction = function (string $url, BigInteger $serial) {
+            self::$inCRLFunction = function (string $url, BigInteger $serial): bool {
+                return false;
+            };
+        }
+
+        if (!isset(self::$urlFetchCallback)) {
+            self::$urlFetchCallback = function (string $host, string $ip, int $port, string $scheme): bool {
                 return false;
             };
         }
@@ -1158,22 +1161,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     }
 
     /**
-     * Prevents URIs from being automatically retrieved
-     */
-    public static function disableURLFetch(): void
-    {
-        self::$disable_url_fetch = true;
-    }
-
-    /**
-     * Allows URIs to be automatically retrieved
-     */
-    public static function enableURLFetch(): void
-    {
-        self::$disable_url_fetch = false;
-    }
-
-    /**
      * Validate a signature
      *
      * Returns true if the signature is verified, false if it is not correct or on error
@@ -1452,40 +1439,70 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Fetches a URL
+     *
+     * The host is resolved once and the connection is pinned to that IP. A fetch
+     * callback registered via setURLFetchCallback() judges the resolved IP and must
+     * approve it for the fetch to proceed; with no callback registered, no fetch
+     * happens at all. This is the secure default that replaces disableURLFetch().
+     * Redirects are intentionally NOT followed, so a permitted host cannot bounce
+     * the fetch to an ungated internal address.
+     *
+     * @param string $url
+     * @return ?string
      */
     private static function fetchURL(string $url): ?string
     {
-        if (self::$disable_url_fetch) {
+        $parts = parse_url($url);
+        if ($parts === false || !isset($parts['scheme'], $parts['host'])) {
+            return null;
+        }
+        $host = $parts['host'];
+        $port = $parts['port'] ?? 80;
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $ip = $host;
+            if (preg_match('/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i', $ip, $m)) {
+                $ip = $m[1];
+            }
+        } else {
+            $records = dns_get_record($host, DNS_A | DNS_AAAA);
+            if (!$records) {
+                return null;
+            }
+            $ip = $records[0]['ip'] ?? $records[0]['ipv6'] ?? null;
+            if ($ip === null) {
+                return null;
+            }
+        }
+
+        if (!(static::$urlFetchCallback)($host, $ip, $port, $parts['scheme'])) {
             return null;
         }
 
-        $parts = parse_url($url);
+        $target = strpos($ip, ':') !== false ? "[$ip]" : $ip;
+
         $data = '';
         switch ($parts['scheme']) {
             case 'http':
-                $fsock = @fsockopen($parts['host'], $parts['port'] ?? 80);
+                $fsock = @fsockopen($target, $port);
                 if (!$fsock) {
                     return null;
                 }
-                $path = $parts['path'];
+                $path = $parts['path'] ?? '/';
                 if (isset($parts['query'])) {
                     $path .= '?' . $parts['query'];
                 }
                 fputs($fsock, "GET $path HTTP/1.0\r\n");
-                fputs($fsock, "Host: $parts[host]\r\n\r\n");
+                fputs($fsock, "Host: $host\r\n\r\n");
                 $line = fgets($fsock, 1024);
-                if (strlen($line) < 3) {
+                if ($line === false || strlen($line) < 3) {
                     return null;
                 }
-                preg_match('#HTTP/1.\d (\d{3})#', $line, $temp);
-                if ($temp[1] != '200') {
+                if (!preg_match('#HTTP/1\.\d (\d{3})#', $line, $temp) || $temp[1] != '200') {
                     return null;
                 }
-
-                // skip the rest of the headers in the http response
                 while (!feof($fsock) && fgets($fsock, 1024) != "\r\n") {
                 }
-
                 while (!feof($fsock)) {
                     $temp = fread($fsock, 1024);
                     if ($temp === false) {
@@ -1493,11 +1510,11 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                     }
                     $data .= $temp;
                 }
-
                 break;
             //case 'ftp':
             //case 'ldap':
-            //default:
+            default:
+                return null; // fail closed on unhandled schemes
         }
 
         return $data;
@@ -1506,6 +1523,11 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public static function setCRLLookupCallback(\Closure $func): void
     {
         self::$inCRLFunction = $func;
+    }
+
+    public static function setURLFetchCallback(\Closure $func): void
+    {
+        static::$urlFetchCallback = $func;
     }
 
     public function enableHideFullDecode(): void
