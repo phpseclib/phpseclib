@@ -325,7 +325,7 @@ HERE;
         $rsa = $rsa->withPadding(RSA::SIGNATURE_PKCS1);
         //$rsa = $rsa->withHash('sha256');
 
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        $engines = ['libsodium', 'OpenSSL', 'PHP', null];
         foreach ($engines as $engine) {
             try {
                RSA::forceEngine($engine);
