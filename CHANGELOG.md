@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.54 - 2026-06-14
+
+- X509: add setURLFetchCallback() method
+
 ## 3.0.53 - 2026-06-09
 
 - RSA: decryption with password protected keys didn't work with OpenSSL engine (#2140)
@@ -365,6 +369,11 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.55 - 2026-06-14
+
+- X509: add setURLFetchCallback() method
+- ASN1: speed up OID calculations
 
 ## 2.0.54 - 2026-04-27
 
@@ -781,6 +790,10 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.30 - 2026-06-14
+
+- X509: add setURLFetchCallback() method
 
 ## 1.0.29 - 2026-04-27
 
