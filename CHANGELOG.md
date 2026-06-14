@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.30 - 2026-06-14
+
+- X509: add setURLFetchCallback() method
+
 ## 1.0.29 - 2026-04-27
 
 - ASN1: more stringent OID length limits (CVE-2026-44167)
