@@ -293,7 +293,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = $rsa->withPadding(RSA::SIGNATURE_PKCS1);
         //$rsa = $rsa->withHash('sha256');
 
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        $engines = ['libsodium', 'OpenSSL', 'PHP', null];
         foreach ($engines as $engine) {
             try {
                 RSA::forceEngine($engine);
