@@ -710,6 +710,20 @@ lV66p3Ui7pFABGc/Lv7nOyANXfLugBO8MyzydGA4NRGiS2MbGpswPCg154pWausU
 M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
 -----END CERTIFICATE-----');
 
+        X509::setURLFetchCallback(function (string $host, string $ip, int $port, string $scheme): bool {
+            if ($scheme !== 'http' && $scheme !== 'https') {
+                return false;
+            }
+
+            $public = filter_var(
+                $ip,
+                FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+            );
+
+            return $public !== false; // public address -> allow; internal/reserved -> deny
+        });
+
         X509::setRecurLimit(0);
         $this->assertFalse($x509->validateSignature());
 
