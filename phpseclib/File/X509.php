@@ -1446,9 +1446,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
      * happens at all. This is the secure default that replaces disableURLFetch().
      * Redirects are intentionally NOT followed, so a permitted host cannot bounce
      * the fetch to an ungated internal address.
-     *
-     * @param string $url
-     * @return ?string
      */
     private static function fetchURL(string $url): ?string
     {
