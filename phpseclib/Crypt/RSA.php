@@ -859,14 +859,14 @@ abstract class RSA extends AsymmetricKey
 
             OpenSSL does NOT accept both - it REQUIRES NULL be present. phpseclib, however,
             DOES accept both. at first, it didn't. at first, not knowing why some small number
-            of PKCS1 signatures ommitted NULL, i added the SIGNATURE_RELAXED_PKCS1 mode on
+            of PKCS1 signatures omitted NULL, i added the SIGNATURE_RELAXED_PKCS1 mode on
             2015-08-26. https://phpseclib.com/docs/rsa#rsasignature_relaxed_pkcs1 talks more
             about that mode. later, on 2021-04-05, there was CVE-2021-30130. consequently,
             the SIGNATURE_PKCS1 mode was updated to accept either NULL or non-NULL.
 
             because phpseclib accepts PKCS1 signatures that OpenSSL doesn't, OpenSSL isn't
             used for PKCS1. if the OpenSSL extension is installed then it'll be used to perform
-            unpadded RSA (ie. modular exponentation), however, the actual PKCS1 construction
+            unpadded RSA (ie. modular exponentiation), however, the actual PKCS1 construction
             takes place in PHP code vs OpenSSL.
 
             see https://security.stackexchange.com/questions/110330/encoding-of-optional-null-in-der
