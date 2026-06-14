@@ -838,6 +838,43 @@ abstract class RSA extends AsymmetricKey
                     default => null
                 };
             }
+            /*
+            https://datatracker.ietf.org/doc/html/rfc4055#page-6 says the following:
+
+               There are two possible encodings for the AlgorithmIdentifier
+               parameters field associated with these object identifiers.  The two
+               alternatives arise from the loss of the OPTIONAL associated with the
+               algorithm identifier parameters when the 1988 syntax for
+               AlgorithmIdentifier was translated into the 1997 syntax.  Later the
+               OPTIONAL was recovered via a defect report, but by then many people
+               thought that algorithm parameters were mandatory.  Because of this
+               history some implementations encode parameters as a NULL element
+               while others omit them entirely.  The correct encoding is to omit the
+               parameters field; however, when RSASSA-PSS and RSAES-OAEP were
+               defined, it was done using the NULL parameters rather than absent
+               parameters.
+
+               All implementations MUST accept both NULL and absent parameters as
+               legal and equivalent encodings.
+
+            OpenSSL does NOT accept both - it REQUIRES NULL be present. phpseclib, however,
+            DOES accept both. at first, it didn't. at first, not knowing why some small number
+            of PKCS1 signatures ommitted NULL, i added the SIGNATURE_RELAXED_PKCS1 mode on
+            2015-08-26. https://phpseclib.com/docs/rsa#rsasignature_relaxed_pkcs1 talks more
+            about that mode. later, on 2021-04-05, there was CVE-2021-30130. consequently,
+            the SIGNATURE_PKCS1 mode was updated to accept either NULL or non-NULL.
+
+            because phpseclib accepts PKCS1 signatures that OpenSSL doesn't, OpenSSL isn't
+            used for PKCS1. if the OpenSSL extension is installed then it'll be used to perform
+            unpadded RSA (ie. modular exponentation), however, the actual PKCS1 construction
+            takes place in PHP code vs OpenSSL.
+
+            see https://security.stackexchange.com/questions/110330/encoding-of-optional-null-in-der
+            for an additional reference
+            */
+            if ($this->$paddingType === self::SIGNATURE_PKCS1 && $func === 'openssl_verify') {
+                $error = 'Engine OpenSSL is forced but can\'t be used with PKCS1 signature verification because OpenSSL requires NULL be present whereas phpseclib doesn\'t';
+            }
             if ($this->$paddingType === self::ENCRYPTION_OAEP) {
                 $error = match (true) {
                     $this->hash->getHash() !== $this->mgfHash->getHash() =>
