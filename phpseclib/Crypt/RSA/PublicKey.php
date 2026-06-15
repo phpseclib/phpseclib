@@ -18,7 +18,7 @@ use phpseclib4\Exception\{BadConfigurationException, KeyConstraintException, Len
 use phpseclib4\Math\BigInteger;
 
 /**
- * Raw RSA Key Handler
+ * RSA Public Key
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */

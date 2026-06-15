@@ -20,7 +20,7 @@ use phpseclib4\File\CSR;
 use phpseclib4\Math\BigInteger;
 
 /**
- * Raw RSA Key Handler
+ * RSA Private Key
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
