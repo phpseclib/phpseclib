@@ -191,7 +191,7 @@ abstract class AsymmetricKey
     /**
      * Loads parameters
      */
-    public static function loadParameters(string|array $key): AsymmetricKey
+    public static function loadParameters(string $key): AsymmetricKey
     {
         try {
             $key = self::load($key);
@@ -330,9 +330,9 @@ abstract class AsymmetricKey
      *
      * Set to the empty string to use the default config file
      */
-    public static function setOpenSSLConfigPath(string $val): void
+    public static function setOpenSSLConfigPath(string $path): void
     {
-        self::$configFile = $val;
+        self::$configFile = $path;
     }
 
     /**
