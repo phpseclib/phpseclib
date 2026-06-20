@@ -114,7 +114,8 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 break;
             }
             if (!isset($length)) {
-                $this->calculateIndefiniteLength($offset, $depth + 1);
+                self::incrementDepth($depth);
+                $this->calculateIndefiniteLength($offset, $depth);
             } else {
                 $offset += $length;
             }

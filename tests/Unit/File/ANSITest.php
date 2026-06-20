@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File;
 
+use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\File\ANSI;
 use phpseclib4\Tests\PhpseclibTestCase;
 
@@ -67,5 +69,24 @@ class ANSITest extends PhpseclibTestCase
         $lines = explode("\r\n", $screen);
         $this->assertCount(24, $lines);
         $this->assertSame(str_repeat('z', 80), $lines[22]);
+    }
+
+    private function encLen(int $n): string
+    {
+        if ($n <= 0x7f) {
+            return chr($n);
+        }
+        $t = ltrim(pack('N', $n), "\x00");
+        return chr(0x80 | strlen($t)) . $t;
+    }
+
+    public function testIndefiniteLength(): void
+    {
+        $N = 1000; // recursion depth (default is 128)
+        $body = str_repeat("\x30\x80", $N); // N nested indefinite-length SEQUENCE headers
+        $payload = "\x30" . self::encLen(strlen($body)) . $body;
+
+        $this->expectException(NoKeyLoadedException::class);
+        PublicKeyLoader::load($payload);
     }
 }
