@@ -15,6 +15,7 @@
         <directory name="../tests"/>
     </projectFiles>
     <issueHandlers>
+        <MissingOverrideAttribute errorLevel="suppress" />
         <Trace>
             <errorLevel type="error">
                 <directory name=".."/>

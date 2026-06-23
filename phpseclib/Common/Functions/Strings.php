@@ -333,13 +333,13 @@ abstract class Strings
     /**
      * Increment the current string
      */
-    public static function increment_str(string &$var): string
+    public static function increment_str(string &$var): void
     {
         if (function_exists('sodium_increment')) {
             $var = strrev($var);
             sodium_increment($var);
             $var = strrev($var);
-            return $var;
+            return;
         }
 
         for ($i = 4; $i <= strlen($var); $i += 4) {
@@ -350,25 +350,23 @@ abstract class Strings
                     break;
                 case "\x7F\xFF\xFF\xFF":
                     $var = substr_replace($var, "\x80\x00\x00\x00", -$i, 4);
-                    return $var;
+                    return;
                 default:
                     $temp = unpack('Nnum', $temp);
                     $var = substr_replace($var, pack('N', $temp['num'] + 1), -$i, 4);
-                    return $var;
+                    return;
             }
         }
 
         $remainder = strlen($var) % 4;
 
         if ($remainder == 0) {
-            return $var;
+            return;
         }
 
         $temp = unpack('Nnum', str_pad(substr($var, 0, $remainder), 4, "\0", STR_PAD_LEFT));
         $temp = substr(pack('N', $temp['num'] + 1), -$remainder);
         $var = substr_replace($var, $temp, 0, $remainder);
-
-        return $var;
     }
 
     /**
