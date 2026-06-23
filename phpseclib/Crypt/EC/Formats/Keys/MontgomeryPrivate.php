@@ -44,8 +44,8 @@ abstract class MontgomeryPrivate
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $curve = match (strlen($key)) {
             32 => new Curve25519(),
@@ -78,11 +78,11 @@ abstract class MontgomeryPrivate
      * @param Integer[] $publicKey
      */
     public static function savePrivateKey(
-        #[SensitiveParameter] BigInteger $privateKey,
+        #[\SensitiveParameter] BigInteger $privateKey,
         MontgomeryCurve $curve,
         array $publicKey,
-        #[SensitiveParameter] ?string $secret = null,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if (isset($password)) {

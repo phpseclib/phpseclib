@@ -32,8 +32,8 @@ abstract class PublicKeyLoader
      * @throws NoKeyLoadedException if key is not valid
      */
     public static function load(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): AsymmetricKey {
         // use ASN1::EXCEPTIONS_EVERY_TIME here because without it a valid RSAPublicKey
         // will be recognized as an invalid RSAPrivateKey
@@ -86,8 +86,8 @@ abstract class PublicKeyLoader
      * Loads a private key
      */
     public static function loadPrivateKey(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): PrivateKey {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {

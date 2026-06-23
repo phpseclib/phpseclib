@@ -120,8 +120,8 @@ abstract class AsymmetricKey
      * Load the key
      */
     public static function load(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): AsymmetricKey {
         self::initialize_static_variables();
 
@@ -162,8 +162,8 @@ abstract class AsymmetricKey
      * Loads a private key
      */
     public static function loadPrivateKey(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] string $password = ''
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] string $password = ''
     ): PrivateKey {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
@@ -209,8 +209,8 @@ abstract class AsymmetricKey
      */
     public static function loadFormat(
         string $type,
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): AsymmetricKey {
         self::initialize_static_variables();
 
@@ -236,8 +236,8 @@ abstract class AsymmetricKey
      */
     public static function loadPrivateKeyFormat(
         string $type,
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): PrivateKey {
         $key = self::loadFormat($type, $key, $password);
         if (!$key instanceof PrivateKey) {

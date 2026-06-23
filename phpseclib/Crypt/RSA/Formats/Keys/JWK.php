@@ -31,8 +31,8 @@ abstract class JWK extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $key = parent::loadHelper($key);
 
@@ -94,11 +94,11 @@ abstract class JWK extends Progenitor
     public static function savePrivateKey(
         BigInteger $n,
         BigInteger $e,
-        #[SensitiveParameter] BigInteger $d,
-        #[SensitiveParameter] array $primes,
-        #[SensitiveParameter] array $exponents,
-        #[SensitiveParameter] array $coefficients,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if (isset($password)) {

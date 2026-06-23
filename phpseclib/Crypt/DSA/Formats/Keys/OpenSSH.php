@@ -38,8 +38,8 @@ abstract class OpenSSH extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $parsed = parent::load($key, $password);
 
@@ -96,8 +96,8 @@ abstract class OpenSSH extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $publicKey = self::savePublicKey($p, $q, $g, $y, ['binary' => true]);

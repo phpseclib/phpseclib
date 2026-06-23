@@ -61,8 +61,8 @@ abstract class PKCS8 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         if (str_contains($key, 'PUBLIC')) {
             $isPublic = true;
@@ -108,8 +108,8 @@ abstract class PKCS8 extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $params = [

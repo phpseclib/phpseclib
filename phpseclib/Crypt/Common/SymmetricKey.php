@@ -576,7 +576,7 @@ abstract class SymmetricKey
      * Once enabled Poly1305 cannot be disabled. If $key is not passed then an attempt to call createPoly1305Key
      * will be made.
      */
-    public function setPoly1305Key(#[SensitiveParameter] ?string $key = null): void
+    public function setPoly1305Key(#[\SensitiveParameter] ?string $key = null): void
     {
         if ($this->mode == self::MODE_GCM) {
             throw new BadMethodCallException('Poly1305 cannot be used in GCM mode');
@@ -698,7 +698,7 @@ abstract class SymmetricKey
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         if (isset($this->explicit_key_length) && strlen($key) != $this->explicit_key_length) {
             throw new LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
@@ -727,7 +727,7 @@ abstract class SymmetricKey
      * @see Crypt/Hash.php
      */
     public function setPassword(
-        #[SensitiveParameter] string $password,
+        #[\SensitiveParameter] string $password,
         string $method = 'pbkdf2',
         int|string ...$func_args
     ): void {
@@ -891,7 +891,7 @@ abstract class SymmetricKey
      *
      * @see self::decrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         if ($this->paddable) {
             $plaintext = $this->pad($plaintext);

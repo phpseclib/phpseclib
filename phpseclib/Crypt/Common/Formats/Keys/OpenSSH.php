@@ -58,8 +58,8 @@ abstract class OpenSSH
      * $type can be either ssh-dss or ssh-rsa
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         // key format is described here:
         // https://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/PROTOCOL.key?annotate=HEAD
@@ -169,8 +169,8 @@ abstract class OpenSSH
      */
     protected static function wrapPrivateKey(
         string $publicKey,
-        #[SensitiveParameter] string $privateKey,
-        #[SensitiveParameter] ?string $password,
+        #[\SensitiveParameter] string $privateKey,
+        #[\SensitiveParameter] ?string $password,
         array $options
     ): string {
         [, $checkint] = unpack('N', random_bytes(4));

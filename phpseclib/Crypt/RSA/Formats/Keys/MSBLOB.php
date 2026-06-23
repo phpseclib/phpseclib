@@ -63,8 +63,8 @@ abstract class MSBLOB
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $key = Strings::base64_decode($key);
         if (strlen($key) < 20) {
@@ -154,11 +154,11 @@ abstract class MSBLOB
     public static function savePrivateKey(
         BigInteger $n,
         BigInteger $e,
-        #[SensitiveParameter] BigInteger $d,
-        #[SensitiveParameter] array $primes,
-        #[SensitiveParameter] array $exponents,
-        #[SensitiveParameter] array $coefficients,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null
     ): string {
         if (count($primes) != 2) {
             throw new InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');

@@ -208,7 +208,7 @@ class TripleDES extends DES
      * @see DES::setKey()
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         if (isset($this->explicit_key_length) && strlen($key) != $this->explicit_key_length) {
             throw new LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');

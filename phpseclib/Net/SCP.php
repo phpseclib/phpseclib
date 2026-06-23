@@ -82,7 +82,7 @@ class SCP extends SSH2
      */
     public function put(
         string $remote_file,
-        #[SensitiveParameter] mixed $data,
+        #[\SensitiveParameter] mixed $data,
         int $mode = self::SOURCE_STRING,
         ?\Closure $callback = null
     ): void {

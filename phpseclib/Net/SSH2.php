@@ -1907,7 +1907,7 @@ class SSH2
      *
      * @see self::_login()
      */
-    public function login(string $username, #[SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
+    public function login(string $username, #[\SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
     {
         if (!($this->bitmap & self::MASK_CONSTRUCTOR)) {
             $this->connect();
@@ -1938,7 +1938,7 @@ class SSH2
      *
      * @see self::_login_helper()
      */
-    protected function sublogin(string $username, #[SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
+    protected function sublogin(string $username, #[\SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
     {
         if (empty($args)) {
             return $this->login_helper($username);
@@ -2014,7 +2014,7 @@ class SSH2
      */
     private function login_helper(
         string $username,
-        #[SensitiveParameter] string|PrivateKey|array|Agent|null $password = null
+        #[\SensitiveParameter] string|PrivateKey|array|Agent|null $password = null
     ): bool {
         if (!($this->bitmap & self::MASK_LOGIN_REQ)) {
             $packet = Strings::packSSH2('Cs', MessageType::SERVICE_REQUEST, 'ssh-userauth');
@@ -2155,7 +2155,7 @@ class SSH2
      *
      * See {@link http://tools.ietf.org/html/rfc4256 RFC4256} for details.  This is not a full-featured keyboard-interactive authenticator.
      */
-    private function keyboard_interactive_login(string $username, #[SensitiveParameter] string|array $password): bool
+    private function keyboard_interactive_login(string $username, #[\SensitiveParameter] string|array $password): bool
     {
         $packet = Strings::packSSH2(
             'Cs5',
@@ -2287,7 +2287,7 @@ class SSH2
      * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.}
      */
-    private function privatekey_login(string $username, #[SensitiveParameter] PrivateKey $privatekey): bool
+    private function privatekey_login(string $username, #[\SensitiveParameter] PrivateKey $privatekey): bool
     {
         $publickey = $privatekey->getPublicKey();
 
@@ -3905,7 +3905,7 @@ class SSH2
      * @see self::_get_binary_packet()
      */
     protected function send_binary_packet(
-        #[SensitiveParameter] string $data,
+        #[\SensitiveParameter] string $data,
         ?string $logged = null
     ): void {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
@@ -4181,7 +4181,7 @@ class SSH2
      */
     protected function send_channel_packet(
         int $client_channel,
-        #[SensitiveParameter] string $data
+        #[\SensitiveParameter] string $data
     ): void {
         if (
             isset($this->channel_buffers_write[$client_channel])

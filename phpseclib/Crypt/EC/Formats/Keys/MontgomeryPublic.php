@@ -37,8 +37,8 @@ abstract class MontgomeryPublic
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $curve = match (strlen($key)) {
             32 => new Curve25519(),

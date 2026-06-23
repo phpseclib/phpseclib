@@ -448,7 +448,7 @@ class Blowfish extends BlockCipher
      * Performs OpenSSH-style bcrypt
      */
     public static function bcrypt_pbkdf(
-        #[SensitiveParameter] string $pass,
+        #[\SensitiveParameter] string $pass,
         string $salt,
         int $keylen,
         int $rounds

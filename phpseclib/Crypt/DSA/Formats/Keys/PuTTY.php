@@ -48,8 +48,8 @@ abstract class PuTTY extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password
     ): array {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
@@ -77,8 +77,8 @@ abstract class PuTTY extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if ($q->getLength() != 160) {

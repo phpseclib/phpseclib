@@ -200,7 +200,7 @@ class Hash
      *
      * Keys can be of any length.
      */
-    public function setKey(#[SensitiveParameter] ?string $key = null): void
+    public function setKey(#[\SensitiveParameter] ?string $key = null): void
     {
         $this->key = $key;
         $this->computeKey();
@@ -1480,7 +1480,7 @@ class Hash
     // from https://www.rfc-editor.org/rfc/rfc7292#appendix-B.2
     // this is mostly the same as SymmetricKey::setPassword()'s implementation of pkcs12
     public function setPassword(
-        #[SensitiveParameter] string $password,
+        #[\SensitiveParameter] string $password,
         string $salt,
         int $iterationCount
     ): void {

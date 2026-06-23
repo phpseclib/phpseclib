@@ -47,8 +47,8 @@ abstract class PKCS1 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $key = parent::loadHelper($key, $password);
 
@@ -123,8 +123,8 @@ abstract class PKCS1 extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $key = [

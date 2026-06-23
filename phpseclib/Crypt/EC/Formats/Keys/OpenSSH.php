@@ -54,8 +54,8 @@ abstract class OpenSSH extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $parsed = parent::load($key, $password);
 
@@ -174,11 +174,11 @@ abstract class OpenSSH extends Progenitor
      * @param Integer[] $publicKey
      */
     public static function savePrivateKey(
-        #[SensitiveParameter] BigInteger $privateKey,
+        #[\SensitiveParameter] BigInteger $privateKey,
         BaseCurve $curve,
         array $publicKey,
-        #[SensitiveParameter] ?string $secret = null,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if ($curve instanceof Ed25519) {

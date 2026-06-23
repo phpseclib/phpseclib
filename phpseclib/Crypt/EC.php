@@ -426,7 +426,7 @@ abstract class EC extends AsymmetricKey
     // multiplication is concerned, neither value affects the resultant x value
     public static function convertPointToPublicKey(
         string $curveName,
-        #[SensitiveParameter] string $secret,
+        #[\SensitiveParameter] string $secret,
         bool $toPublicKey = true
     ): PublicKey|string {
         $curveName = self::getCurveCase($curveName);

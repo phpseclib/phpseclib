@@ -30,5 +30,5 @@ interface PrivateKey
     /**
      * @return static
      */
-    public function withPassword(#[SensitiveParameter] ?string $password = null): PrivateKey;
+    public function withPassword(#[\SensitiveParameter] ?string $password = null): PrivateKey;
 }

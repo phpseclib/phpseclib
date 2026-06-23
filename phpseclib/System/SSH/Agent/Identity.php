@@ -290,7 +290,7 @@ class Identity implements PrivateKey
     /**
      * Sets the password
      */
-    public function withPassword(#[SensitiveParameter] ?string $password = null): PrivateKey
+    public function withPassword(#[\SensitiveParameter] ?string $password = null): PrivateKey
     {
         throw new BadMethodCallException('ssh-agent does not provide a mechanism to get the private key');
     }

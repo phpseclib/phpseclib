@@ -69,8 +69,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     }
 
     public static function load(
-        #[SensitiveParameter] string|array|Constructed $pfx,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array|Constructed $pfx,
+        #[\SensitiveParameter] ?string $password = null
     ): self {
         $temp = new self();
         $temp->pfx = is_string($pfx) ? self::loadString($pfx, $password) : $pfx;
@@ -79,8 +79,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     }
 
     private static function loadString(
-        #[SensitiveParameter] string $pfx,
-        #[SensitiveParameter] ?string $password
+        #[\SensitiveParameter] string $pfx,
+        #[\SensitiveParameter] ?string $password
     ): Constructed {
         ASN1::disableCacheInvalidation();
 
@@ -180,7 +180,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     // PrivateKey objects are designed to be immutable hence their use of withPassword()
     // PFX is *not* designed to be immutable
-    public function setPassword(#[SensitiveParameter] ?string $password = null): void
+    public function setPassword(#[\SensitiveParameter] ?string $password = null): void
     {
         if (!isset($password)) {
             $this->removePassword();
@@ -302,7 +302,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
      * @var string|BaseString|string[]|BaseString[]|null $localKeyID
      */
     public function add(
-        #[SensitiveParameter] X509|PrivateKey $obj,
+        #[\SensitiveParameter] X509|PrivateKey $obj,
         string|BaseString|array|null $friendlyName = null,
         string|BaseString|array|null $localKeyID = null
     ): void {

@@ -259,7 +259,7 @@ abstract class DH extends AsymmetricKey
      * Compute Shared Secret
      */
     public static function computeSecret(
-        #[SensitiveParameter] PrivateKey|EC\PrivateKey|string $private,
+        #[\SensitiveParameter] PrivateKey|EC\PrivateKey|string $private,
         PublicKey|EC\PublicKey|BigInteger|string $public
     ): BigInteger|string {
         if ($private instanceof PrivateKey) { // DH\PrivateKey
@@ -343,8 +343,8 @@ abstract class DH extends AsymmetricKey
      * Load the key
      */
     public static function load(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): AsymmetricKey {
         try {
             return EC::load($key, $password);

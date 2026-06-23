@@ -65,8 +65,8 @@ abstract class PKCS8 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         // initialize_static_variables() is defined in both the trait and the parent class
         // when it's defined in two places it's the traits one that's called
@@ -171,7 +171,7 @@ abstract class PKCS8 extends Progenitor
         return $components;
     }
 
-    private static function loadECDH(#[SensitiveParameter] array $key): array
+    private static function loadECDH(#[\SensitiveParameter] array $key): array
     {
         $components = [];
 
@@ -253,11 +253,11 @@ abstract class PKCS8 extends Progenitor
      * @param Integer[] $publicKey
      */
     public static function savePrivateKey(
-        #[SensitiveParameter] BigInteger $privateKey,
+        #[\SensitiveParameter] BigInteger $privateKey,
         BaseCurve $curve,
         array $publicKey,
-        #[SensitiveParameter] ?string $secret = null,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         self::initialize_static_variables();

@@ -809,7 +809,7 @@ abstract class RSA extends AsymmetricKey
      * Handles OpenSSL encryption / decryption / signature creation / verification
      */
     protected function handleOpenSSL(
-        #[SensitiveParameter] string $func,
+        #[\SensitiveParameter] string $func,
         string $message,
         ?string $signature = null
     ): bool|null|string {

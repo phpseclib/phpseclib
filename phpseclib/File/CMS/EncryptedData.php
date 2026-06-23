@@ -52,7 +52,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public string $cek; // content encryption key
 
     public function __construct(
-        #[SensitiveParameter] string $data,
+        #[\SensitiveParameter] string $data,
         string $encryptionAlgorithm = 'aes128-CBC-PAD',
         #[\SensitiveParameter] ?string $key = null
     ) {
@@ -512,7 +512,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     public function createNewRecipientFromKeyWithIdentifier(
-        #[SensitiveParameter] string $key,
+        #[\SensitiveParameter] string $key,
         string $identifier,
         ?\DateTimeInterface $date = null
     ): KEKRecipient {
