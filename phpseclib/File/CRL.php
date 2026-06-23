@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CRL Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode Certificate Revocation Lists (CRL).
  *

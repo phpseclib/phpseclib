@@ -5,7 +5,7 @@
  *
  * The PFX RFC is quite terrible, as discussed in https://www.cs.auckland.ac.nz/~pgut001/pubs/pfx.html
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode PFX files.
  *
