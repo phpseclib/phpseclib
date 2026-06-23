@@ -460,7 +460,7 @@ abstract class EC extends AsymmetricKey
      *
      * @see self::getPublicKey()
      */
-    public function getParameters(string $type = 'PKCS1'): ?Parameters
+    public function getParameters(string $type = 'PKCS1'): Parameters
     {
         $type = self::validatePlugin('Keys', $type, 'saveParameters');
 
