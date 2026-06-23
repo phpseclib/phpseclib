@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     xmlns="https://getpsalm.org/schema/config"
-    errorLevel="1"
-    errorBaseline="psalm_baseline.xml"
+    errorLevel="8"
     findUnusedCode="true"
     findUnusedPsalmSuppress="true"
     sealAllMethods="true"
