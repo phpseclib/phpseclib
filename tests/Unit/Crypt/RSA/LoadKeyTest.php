@@ -1169,9 +1169,10 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
             'p' => $key['primes'][1],
             'q' => $key['primes'][2],
         ];
-        $key = PublicKeyLoader::loadPrivateKey($key);
-        $str2 = "$key";
+        $str2 = (string) PublicKeyLoader::loadPrivateKey($key);
+        $this->assertSame($str1, $str2);
 
+        $str2 = (string) RSA::loadFormat('Raw', $key);
         $this->assertSame($str1, $str2);
     }
 
