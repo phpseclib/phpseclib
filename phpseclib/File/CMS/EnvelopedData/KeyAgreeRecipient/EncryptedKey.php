@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / KeyAgreeRecipient / EncryptedKey Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / EnvelopedData / KeyAgreeRecipient / EncryptedKey files.
  *

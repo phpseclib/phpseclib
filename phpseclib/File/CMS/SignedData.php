@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / SignedData Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / SignedData files.
  *
