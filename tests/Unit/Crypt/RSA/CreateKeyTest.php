@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Crypt\RSA;
 
+use phpseclib4\Crypt\RSA\Formats\Keys\OpenSSH;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\RSA\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
@@ -78,5 +79,21 @@ class CreateKeyTest extends PhpseclibTestCase
             ->toString('PKCS8', ['encryptionAlgorithm' => 'pbeWithSHAAnd3-KeyTripleDES-CBC']);
         $actual = PKCS8::extractEncryptionAlgorithm($key)['algorithm'];
         $this->assertEquals($actual, 'pbeWithSHAAnd3-KeyTripleDES-CBC');
+    }
+
+    public function testBinaryOutput(): void
+    {
+        $rsa = RSA::createKey(1024);
+        OpenSSH::enableBinaryOutput();
+        $bin1 = $rsa->getPublicKey()->toString('OpenSSH');
+        OpenSSH::disableBinaryOutput();
+        $bin2 = $rsa->getPublicKey()->toString('OpenSSH', ['binary' => true]);
+        $this->assertSame($bin1, $bin2);
+
+        PKCS8::enableBinaryOutput();
+        $bin1 = $rsa->getPublicKey()->toString('PKCS8');
+        PKCS8::disableBinaryOutput();
+        $bin2 = $rsa->getPublicKey()->toString('PKCS8', ['binary' => true]);
+        $this->assertSame($bin1, $bin2);
     }
 }

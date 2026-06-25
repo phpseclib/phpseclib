@@ -35,6 +35,13 @@ use phpseclib4\Exception\{
 abstract class PuTTY
 {
     /**
+     * Public Handler
+     *
+     * @var string
+     */
+    public const PUBLIC_HANDLER = '';
+
+    /**
      * Default comment
      */
     private static string $comment = 'phpseclib-generated-key';
@@ -203,6 +210,10 @@ abstract class PuTTY
                         $passes = trim(preg_replace('#Argon2-Passes: (\d+)#', '$1', $key[$offset++]));
                         $parallelism = trim(preg_replace('#Argon2-Parallelism: (\d+)#', '$1', $key[$offset++]));
                         $salt = Strings::hex2bin(trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
+
+                        if ($parallelism != 1) {
+                            throw new UnsupportedValueException('Argon2 parallelism > 1 is not supported by libsodium');
+                        }
 
                         [
                             'symkey' => $symkey,

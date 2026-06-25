@@ -25,6 +25,10 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException};
  */
 abstract class PHP extends Engine
 {
+    public const BASE = -1;
+    public const BASE_FULL = 0;
+    public const MAX_DIGIT = 0;
+
     /**#@+
      * Array constants
      *

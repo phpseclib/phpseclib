@@ -47,6 +47,20 @@ abstract class PKCS8 extends PKCS
     use \phpseclib4\Crypt\Common\Traits\ASN1AlgorithmIdentifier;
 
     /**
+     * OID Name
+     *
+     * @var string
+     */
+    public const OID_NAME = '';
+
+    /**
+     * OID Value
+     *
+     * @var string
+     */
+    public const OID_VALUE = '';
+
+    /**
      * OIDs loaded
      */
     private static bool $oidsLoaded = false;
