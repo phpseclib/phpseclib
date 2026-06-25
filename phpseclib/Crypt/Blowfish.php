@@ -380,9 +380,7 @@ class Blowfish extends BlockCipher
             // xor P1 with the first 32-bits of the key, xor P2 with the second 32-bits ...
             for ($data = 0, $k = 0; $k < 4; ++$k) {
                 $data = ($data << 8) | $key[$j];
-                if (++$j >= $keyl) {
-                    $j = 0;
-                }
+                $j = ($j + 1) % $keyl;
             }
             $this->bctx['p'][] = self::$parray[$i] ^ intval($data);
         }
@@ -692,7 +690,8 @@ class Blowfish extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Common\SymmetricKey::_setupInlineCrypt()
+     * @see Common\SymmetricKey::setup()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

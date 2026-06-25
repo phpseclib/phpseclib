@@ -953,7 +953,6 @@ abstract class SymmetricKey
                         $pos = 0;
                     }
                     $len = strlen($plaintext);
-                    $i = 0;
                     if ($pos) {
                         $orig_pos = $pos;
                         $max = $this->block_size - $pos;
@@ -978,7 +977,6 @@ abstract class SymmetricKey
                         $ciphertext .= openssl_encrypt(substr($plaintext, 0, -$overflow) . str_repeat("\0", $this->block_size), $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA, $iv);
                         $iv = Strings::pop($ciphertext, $this->block_size);
 
-                        $size = $len - $overflow;
                         $block = $iv ^ substr($plaintext, -$overflow);
                         $iv = substr_replace($iv, $block, 0, $overflow);
                         $ciphertext .= $block;
@@ -1013,7 +1011,7 @@ abstract class SymmetricKey
                     if ($this->continuousBuffer) {
                         $this->encryptIV = $iv;
                     }
-                    break;
+                    return $ciphertext;
                 case self::MODE_OFB:
                     return $this->openssl_ofb_process($plaintext, $this->encryptIV, $this->enbuffer);
             }

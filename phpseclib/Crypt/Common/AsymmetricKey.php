@@ -83,6 +83,17 @@ abstract class AsymmetricKey
      */
     protected static ?string $configFile;
 
+    /**
+     * Algorithm Name
+     *
+     * This really shouldn't be needed. The child classes that extend AsymmetricKey define it so
+     * there's no need for this class to do so, however, if this class doesn't define it then psalm
+     * will complain
+     *
+     * @see self::load()
+     */
+    public const ALGORITHM = '';
+
     abstract public function toString(string $type, array $options = []): array|string;
 
     /**
@@ -264,7 +275,7 @@ abstract class AsymmetricKey
     public static function loadParametersFormat(string $type, string $key): AsymmetricKey
     {
         $key = self::loadFormat($type, $key);
-        if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
+        if ($key instanceof PrivateKey || $key instanceof PublicKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a parameter');
         }
         return $key;
@@ -329,6 +340,8 @@ abstract class AsymmetricKey
      * Sets the OpenSSL config file path
      *
      * Set to the empty string to use the default config file
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setOpenSSLConfigPath(string $path): void
     {
@@ -450,6 +463,11 @@ abstract class AsymmetricKey
     /**
      * Compute the pseudorandom k for signature generation,
      * using the process specified for deterministic DSA.
+     *
+     * Not currently used but the method exists in case we do
+     * want to use it at some point
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function computek(string $h1): string
     {

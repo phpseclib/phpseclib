@@ -325,7 +325,6 @@ abstract class PuTTY
             $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
-            $mac = $hash->hash($source);
         }
 
         $private = Strings::base64_encode($private);

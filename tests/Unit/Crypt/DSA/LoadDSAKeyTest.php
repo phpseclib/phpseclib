@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Crypt\DSA;
 
+use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
@@ -115,6 +116,11 @@ L1cwyXx0KMaaampd34MzOIHbC44SHY+cE3aVVUsnmt6Ur1nQaVYVszl+AO6m8bPm
         $this->assertInstanceOf(Parameters::class, $dsa);
         $this->assertSame($key, str_replace(["\n", "\r"], '', "$dsa"));
         $this->assertSame($key, str_replace(["\n", "\r"], '', (string) $dsa->getParameters()));
+
+        $dsa = DSA::loadParameters($key);
+        $this->assertInstanceOf(Parameters::class, $dsa);
+        $dsa = DSA::loadParametersFormat('PKCS1', $key);
+        $this->assertInstanceOf(Parameters::class, $dsa);
     }
 
     public function testPKCS8Public(): void
