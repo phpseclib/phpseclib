@@ -417,4 +417,25 @@ abstract class TestCase extends PhpseclibTestCase
 
         $aes->encrypt(str_repeat('a', 16));
     }
+
+    public function testMiscFunctions(): void
+    {
+        $aes = new AES('cbc');
+        $this->assertSame('cbc', $aes->getMode());
+        $this->assertFalse($aes->continuousBufferEnabled());
+        $aes->setMetaData('test', 'zzz');
+        $this->assertTrue($aes->hasMetaData('test'));
+        $this->assertIsString($aes->getMetaData('test'));
+        $aes->deleteMetaData('test');
+        $this->assertFalse($aes->hasMetaData('test'));
+        $aes->setKey(str_repeat('x', 16));
+        $aes->setIV(str_repeat('x', 16));
+        $ciphertext1 = $aes->encrypt(str_repeat('x', 16));
+        $aes->disablePadding();
+        $ciphertext2 = $aes->encrypt(str_repeat('x', 16));
+        $this->assertNotSame($ciphertext1, $ciphertext2);
+        $aes->enablePadding();
+        $ciphertext3 = $aes->encrypt(str_repeat('x', 16));
+        $this->assertSame($ciphertext1, $ciphertext3);
+    }
 }

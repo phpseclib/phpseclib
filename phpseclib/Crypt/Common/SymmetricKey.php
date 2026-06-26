@@ -2706,7 +2706,7 @@ abstract class SymmetricKey
      *
      * On ARM CPUs converting floats to ints doesn't always work
      */
-    protected static function safe_intval(float $x): int
+    protected static function safe_intval(int|float $x): int
     {
         if (is_int($x)) {
             return $x;
