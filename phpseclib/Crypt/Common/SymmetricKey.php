@@ -1262,7 +1262,6 @@ abstract class SymmetricKey
                         $pos = 0;
                     }
                     $len = strlen($ciphertext);
-                    $i = 0;
                     if ($pos) {
                         $orig_pos = $pos;
                         $max = $this->block_size - $pos;

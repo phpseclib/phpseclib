@@ -19,6 +19,12 @@
     </stubs>
     <issueHandlers>
         <MissingOverrideAttribute errorLevel="suppress" />
+        <UnsupportedPropertyReferenceUsage errorLevel="suppress" />
+        <UnusedVariable>
+            <errorLevel type="suppress">
+                <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
+            </errorLevel>
+        </UnusedVariable>
         <Trace>
             <errorLevel type="error">
                 <directory name=".."/>
