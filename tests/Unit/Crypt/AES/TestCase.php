@@ -339,6 +339,7 @@ abstract class TestCase extends PhpseclibTestCase
     {
         $aes = new AES('cbc');
         $this->assertSame($aes->getKeyLength(), 128);
+        $this->assertSame($aes->getKeyLengthInBytes(), 16);
     }
 
     public function testGetKeyLengthWith192BitKey(): void
@@ -346,6 +347,7 @@ abstract class TestCase extends PhpseclibTestCase
         $aes = new AES('cbc');
         $aes->setKey(str_repeat('a', 24));
         $this->assertSame($aes->getKeyLength(), 192);
+        $this->assertSame($aes->getKeyLengthInBytes(), 24);
     }
 
     public function testSetKeyLengthWithLargerKey(): void
