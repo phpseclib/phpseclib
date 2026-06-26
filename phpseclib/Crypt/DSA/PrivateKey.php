@@ -72,7 +72,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
      *
      * @see self::verify()
      */
-    public function sign(string|Signable $source): string
+    public function sign(string|Signable $source): string|array
     {
         $format = $this->sigFormat;
 

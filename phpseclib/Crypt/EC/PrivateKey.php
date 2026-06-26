@@ -95,7 +95,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
      *
      * @see self::verify()
      */
-    public function sign(string|Signable $source): string
+    public function sign(string|Signable $source): string|array
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
@@ -350,7 +350,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
     /**
      * Returns a signature in the appropriate format
      */
-    private function formatSignature(BigInteger $r, BigInteger $s): string
+    private function formatSignature(BigInteger $r, BigInteger $s): string|array
     {
         $format = $this->sigFormat;
 

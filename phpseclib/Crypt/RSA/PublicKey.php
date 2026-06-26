@@ -14,7 +14,13 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\RSA;
 
 use phpseclib4\Crypt\{Common, RSA};
-use phpseclib4\Exception\{BadConfigurationException, KeyConstraintException, LengthException, UnsupportedAlgorithmException};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    KeyConstraintException,
+    LengthException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -178,8 +184,12 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @see self::sign()
      */
-    public function verify(string $message, string $signature): bool
+    public function verify(string $message, string|array $signature): bool
     {
+        if (is_array($signature)) {
+            throw new UnexpectedValueException('$message must be a string, not an array');
+        }
+
         $result = $this->handleOpenSSL('openssl_verify', $message, $signature);
         if ($result !== null) {
             return $result;

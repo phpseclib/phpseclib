@@ -36,7 +36,7 @@ final class PublicKey extends EC implements Common\PublicKey
      *
      * @see self::verify()
      */
-    public function verify(string $message, string $signature): bool
+    public function verify(string $message, string|array $signature): bool
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
@@ -44,6 +44,14 @@ final class PublicKey extends EC implements Common\PublicKey
 
         $shortFormat = $this->shortFormat;
         $format = $this->sigFormat;
+
+        if ($shortFormat == 'Raw') {
+            if (is_string($signature)) {
+                throw new UnexpectedValueException('Raw signatures must be arrays');
+            }
+        } elseif (is_array($signature)) {
+            throw new UnexpectedValueException('The only signature format that takes in arrays is the Raw format');
+        }
 
         if (self::$forcedEngine === 'libsodium' && !$this->curve instanceof Ed25519) {
             throw new BadConfigurationException('Engine libsodium is only supported for Ed25519');

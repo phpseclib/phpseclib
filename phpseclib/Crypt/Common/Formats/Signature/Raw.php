@@ -28,6 +28,8 @@ abstract class Raw
 {
     /**
      * Loads a signature
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function load(array $sig): array
     {
@@ -46,8 +48,10 @@ abstract class Raw
 
     /**
      * Returns a signature in the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
-    public static function save(BigInteger $r, BigInteger $s): string
+    public static function save(BigInteger $r, BigInteger $s): array
     {
         return compact('r', 's');
     }
