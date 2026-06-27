@@ -40,6 +40,7 @@ use phpseclib4\Math\BigInteger;
  * PKCS#1 Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -143,6 +144,8 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(
         BigInteger $p,

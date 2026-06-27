@@ -35,6 +35,7 @@ use phpseclib4\Math\BigInteger;
  * PKCS#8 Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -102,6 +103,8 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $p,

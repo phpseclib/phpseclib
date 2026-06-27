@@ -22,13 +22,14 @@ namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
-use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\{LengthException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
  * PuTTY Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @api
  */
 abstract class PuTTY extends Progenitor
 {
@@ -61,7 +62,9 @@ abstract class PuTTY extends Progenitor
             'public' => $public,
             'private' => $private
         ] = $components;
-        unset($components['public'], $components['private']);
+        if ($type != 'ssh-dss') {
+            throw new UnexpectedValueException('Expected ssh-dss as the key type - got ' . $type . ' as the key type');
+        }
 
         [$p, $q, $g, $y] = Strings::unpackSSH2('iiii', $public);
         [$x] = Strings::unpackSSH2('i', $private);
@@ -98,8 +101,7 @@ abstract class PuTTY extends Progenitor
         BigInteger $p,
         BigInteger $q,
         BigInteger $g,
-        BigInteger $y,
-        array $options = []
+        BigInteger $y
     ): string {
         if ($q->getLength() != 160) {
             throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');

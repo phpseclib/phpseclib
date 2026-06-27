@@ -32,6 +32,7 @@ use phpseclib4\Math\BigInteger;
  * "PKCS1" Formatted DH Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -52,7 +53,7 @@ abstract class PKCS1 extends Progenitor
     /**
      * Convert EC parameters to the appropriate format
      */
-    public static function saveParameters(BigInteger $prime, BigInteger $base, array $options = []): string
+    public static function saveParameters(BigInteger $prime, BigInteger $base): string
     {
         $params = [
             'prime' => $prime,
