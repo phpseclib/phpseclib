@@ -64,6 +64,7 @@ class RC2 extends BlockCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC2::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 16; // = 128 bits
 
@@ -472,6 +473,7 @@ class RC2 extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setupInlineCrypt()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

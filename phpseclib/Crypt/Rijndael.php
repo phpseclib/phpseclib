@@ -576,7 +576,6 @@ class Rijndael extends BlockCipher
      * @see self::encryptBlock()
      * @see self::setupInlineCrypt()
      * @see self::subWord()
-     * @return array &$tables
      */
     protected function &getTables(): array
     {

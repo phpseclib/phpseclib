@@ -322,6 +322,7 @@ class Twofish extends BlockCipher
      * The Key Length (in bytes)
      *
      * @see self::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 16;
 
@@ -648,6 +649,7 @@ class Twofish extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::_setupInlineCrypt()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

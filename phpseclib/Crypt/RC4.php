@@ -68,6 +68,7 @@ class RC4 extends StreamCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC4::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 128; // = 1024 bits
 

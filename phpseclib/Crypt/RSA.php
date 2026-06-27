@@ -387,6 +387,8 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * OnLoad Handler
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): RSA
     {

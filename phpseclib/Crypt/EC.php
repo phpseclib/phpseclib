@@ -310,6 +310,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * OnLoad Handler
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): EC
     {
