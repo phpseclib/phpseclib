@@ -1213,6 +1213,12 @@ Private-MAC: 7979eb6f604fb3e0bd191295479517f641598649167835402c6cbfde6cbf21ef';
         PuTTY::setVersion(2);
         $new2 = $key->toString('PuTTY', ['version' => 3]);
         $this->assertSame($new1, $new2);
+
+        $this->assertFalse($key->hasPassword());
+        $key = $key->withPassword('password');
+        $this->assertTrue($key->hasPassword());
+        $key = $key->withoutPassword();
+        $this->assertFalse($key->hasPassword());
     }
 
     public function testPuTTYV3PW(): void

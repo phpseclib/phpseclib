@@ -97,6 +97,12 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $this->assertIsString("$dsa");
         $this->assertIsString($dsa->getPublicKey()->toString('PKCS1'));
         $this->assertIsString((string) $dsa->getParameters());
+
+        $this->assertFalse($dsa->hasPassword());
+        $dsa = $dsa->withPassword('password');
+        $this->assertTrue($dsa->hasPassword());
+        $dsa = $dsa->withoutPassword();
+        $this->assertFalse($dsa->hasPassword());
     }
 
     public function testParameters(): void

@@ -284,7 +284,7 @@ abstract class AsymmetricKey
     /**
      * Validate Plugin
      */
-    protected static function validatePlugin(string $format, string $type, ?string $method = null)
+    protected static function validatePlugin(string $format, string $type, ?string $method = null): string
     {
         $type = strtolower($type);
         if (!isset(self::$plugins[static::ALGORITHM][$format][$type])) {

@@ -82,19 +82,6 @@ class DES extends BlockCipher
     protected int $key_length = 8;
 
     /**
-     * The OpenSSL names of the cipher / modes
-     *
-     * @see Common\SymmetricKey::openssl_mode_names
-     */
-    protected array $openssl_mode_names = [
-        self::MODE_ECB => 'des-ecb',
-        self::MODE_CBC => 'des-cbc',
-        self::MODE_CFB => 'des-cfb',
-        self::MODE_OFB => 'des-ofb',
-        // self::MODE_CTR is undefined for DES
-    ];
-
-    /**
      * Switch for DES/3DES encryption
      *
      * Used only if $engine == self::ENGINE_INTERNAL

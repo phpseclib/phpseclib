@@ -183,6 +183,12 @@ IgMgAAQBQu3OdMu7sPorh3jArVsAqSjQVHFXoh5nutPQ7/4=
         PKCS1::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
         PKCS8::useNamedCurve();
+
+        $this->assertFalse($key->hasPassword());
+        $key = $key->withPassword('password');
+        $this->assertTrue($key->hasPassword());
+        $key = $key->withoutPassword();
+        $this->assertFalse($key->hasPassword());
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
