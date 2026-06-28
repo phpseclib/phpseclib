@@ -25,7 +25,7 @@ use phpseclib4\Math\BigInteger;
  * SSH2 Signature Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @api
+ * @psalm-api
  */
 abstract class SSH2
 {

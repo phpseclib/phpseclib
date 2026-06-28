@@ -35,7 +35,7 @@ use phpseclib4\Math\BigInteger;
  * PKCS#8 Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @api
+ * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {

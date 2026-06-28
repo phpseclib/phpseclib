@@ -26,7 +26,7 @@ use phpseclib4\Math\BigInteger;
  * OpenSSH Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @api
+ * @psalm-api
  */
 abstract class OpenSSH extends Progenitor
 {
