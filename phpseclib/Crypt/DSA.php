@@ -306,6 +306,8 @@ abstract class DSA extends AsymmetricKey
      * Determines the signature padding mode
      *
      * Valid values are: ASN1, SSH2, Raw
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function withSignatureFormat(string $format): DSA
     {
@@ -317,6 +319,8 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getSignatureFormat(): string
     {

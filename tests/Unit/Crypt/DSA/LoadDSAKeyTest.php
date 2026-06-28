@@ -63,9 +63,23 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $this->assertIsString("$dsa");
         $this->assertIsString($dsa->getPublicKey()->toString('PuTTY'));
         $this->assertIsString($dsa->getParameters()->toString('PuTTY'));
+        $length = ['L' => 2048, 'N' => 160];
+        $this->assertSame($length, $dsa->getLength());
 
         $dsa = $dsa->withPassword('password');
         $this->assertGreaterThan(0, strlen("$dsa"));
+
+        $arr = $dsa->toArray();
+        $this->assertIsArray($arr);
+        foreach (['p', 'q', 'g', 'y', 'x'] as $key) {
+            $this->assertArrayHasKey($key, $arr);
+        }
+
+        $arr = $dsa->getPublickey()->toArray();
+        $this->assertIsArray($arr);
+        foreach (['p', 'q', 'g', 'y'] as $key) {
+            $this->assertArrayHasKey($key, $arr);
+        }
     }
 
     public function testPKCS1Key(): void
