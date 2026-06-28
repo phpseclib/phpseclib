@@ -65,6 +65,8 @@ trait Common
      *
      * If the key contains an implicit curve phpseclib needs the curve
      * to be explicitly provided
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setImplicitCurve(BaseCurve $curve): void
     {
