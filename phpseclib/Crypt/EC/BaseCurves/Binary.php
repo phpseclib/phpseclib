@@ -126,7 +126,8 @@ class Binary extends Base
     /**
      * Adds two points on the curve
      *
-     * @return \phpseclib4\Math\Common\FiniteField[]
+     * @return BinaryInteger[]
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function addPoint(array $p, array $q): array
     {
@@ -199,7 +200,7 @@ class Binary extends Base
     /**
      * Doubles a point on a curve
      *
-     * @return FiniteField[]
+     * @return BinaryInteger[]
      */
     public function doublePoint(array $p): array
     {
@@ -252,6 +253,9 @@ class Binary extends Base
      * "Due to patent issues the compressed option is disabled by default for binary curves
      *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
      *  compile time."
+     *
+     * @psalm-suppress PossiblyUnusedParam
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function derivePoint(string $m): array
     {
@@ -261,7 +265,7 @@ class Binary extends Base
     /**
      * Tests whether or not the x / y values satisfy the equation
      *
-     * @return boolean
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function verifyPoint(array $p): bool
     {
