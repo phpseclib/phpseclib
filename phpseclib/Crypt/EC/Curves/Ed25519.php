@@ -104,6 +104,7 @@ class Ed25519 extends TwistedEdwards
      * Used by EC\Keys\Common.php
      *
      * @return PrimeInteger[]
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function recoverX(BigInteger $y, bool $sign): array
     {
@@ -253,8 +254,7 @@ class Ed25519 extends TwistedEdwards
         }
 
         // from https://tools.ietf.org/html/rfc8032#page-12
-
-        [$x1, $y1, $z1, $t1] = $p;
+        [$x1, $y1, $z1] = $p;
 
         $a = $x1->multiply($x1);
         $b = $y1->multiply($y1);
@@ -277,6 +277,7 @@ class Ed25519 extends TwistedEdwards
      * Adds two points on the curve
      *
      * @return PrimeInteger[]
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function addPoint(array $p, array $q): array
     {
