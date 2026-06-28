@@ -50,12 +50,12 @@ class TwistedEdwards extends Base
     protected BigInteger $modulo;
 
     /**
-     * Cofficient for x^2
+     * Coefficient for x^2
      */
     protected PrimeInteger $a;
 
     /**
-     * Cofficient for x^2*y^2
+     * Coefficient for x^2*y^2
      */
     protected PrimeInteger $d;
 
@@ -119,6 +119,8 @@ class TwistedEdwards extends Base
 
     /**
      * Returns the a coefficient
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getA(): PrimeInteger
     {
@@ -126,7 +128,9 @@ class TwistedEdwards extends Base
     }
 
     /**
-     * Returns the a coefficient
+     * Returns the d coefficient
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getD(): PrimeInteger
     {
