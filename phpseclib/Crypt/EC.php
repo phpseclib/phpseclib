@@ -87,23 +87,6 @@ abstract class EC extends AsymmetricKey
     private string $curveName;
 
     /**
-     * Curve Order
-     *
-     * Used for deterministic ECDSA
-     */
-    protected BigInteger $q;
-
-    /**
-     * Alias for the private key
-     *
-     * Used for deterministic ECDSA. AsymmetricKey expects $x. I don't like x because
-     * with x you have x * the base point yielding an (x, y)-coordinate that is the
-     * public key. But the x is different depending on which side of the equal sign
-     * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     */
-    protected BigInteger $x;
-
-    /**
      * Context
      */
     protected ?string $context = null;

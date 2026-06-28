@@ -282,20 +282,19 @@ final class PrivateKey extends EC implements Common\PrivateKey
         // suspect
         /*
         // if this were actually being used it'd probably be better if this lived in load() and createKey()
-        $this->q = $this->curve->getOrder();
-        $dA = $this->dA->toBigInteger();
-        $this->x = $dA;
+        $q = $this->curve->getOrder();
+        $x = $this->dA->toBigInteger();
 
         $h1 = $this->hash->hash($message);
         $k = $this->computek($h1);
-        [x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
+        [$x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
         $x = $x->toBigInteger();
-        [, $r] = $x->divide($this->q);
-        $kinv = $k->modInverse($this->q);
+        [, $r] = $x->divide($q);
+        $kinv = $k->modInverse($q);
         $h1 = $this->bits2int($h1);
         $temp = $h1->add($dA->multiply($r));
         $temp = $kinv->multiply($temp);
-        [, $s] = $temp->divide($this->q);
+        [, $s] = $temp->divide($q);
         */
 
         $signature = $this->formatSignature($r, $s);
