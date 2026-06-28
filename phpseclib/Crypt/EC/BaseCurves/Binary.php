@@ -126,7 +126,7 @@ class Binary extends Base
     /**
      * Adds two points on the curve
      *
-     * @return FiniteField[]
+     * @return \phpseclib4\Math\Common\FiniteField[]
      */
     public function addPoint(array $p, array $q): array
     {

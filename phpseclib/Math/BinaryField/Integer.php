@@ -130,10 +130,8 @@ class Integer extends Base
 
     /**
      * Returns the degree of the polynomial
-     *
-     * @return int
      */
-    private static function deg(string $x)
+    private static function deg(string $x): int
     {
         $x = ltrim($x, "\0");
         $xbit = decbin(ord($x[0]));

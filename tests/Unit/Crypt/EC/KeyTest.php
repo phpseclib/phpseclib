@@ -226,6 +226,7 @@ Ag8BAAAAAAAAANnM7Io55W8CAQIEOjA4AgEBBA8AXtfDMRsRTx8snPbWHquhIgMg
 AAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf/5keGa4=
 -----END PRIVATE KEY-----');
         $this->assertSameNL('sect113r1', $key->getCurve());
+        $this->assertSame(120, $key->getLength());
 
         // see testBinaryPKCS1PrivateKeySpecifiedCurve() for an
         // explanation of the differences between the above key
