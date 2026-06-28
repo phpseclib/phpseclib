@@ -38,13 +38,15 @@ use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
  */
 class Montgomery extends Base
 {
+    public const SIZE = -1;
+
     /**
      * Prime Field Integer factory
      */
     protected PrimeField $factory;
 
     /**
-     * Cofficient for x
+     * Coefficient for x
      */
     protected PrimeInteger $a;
 

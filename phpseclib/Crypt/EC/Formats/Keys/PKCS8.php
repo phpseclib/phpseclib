@@ -42,6 +42,7 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * PKCS#8 Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -57,7 +58,7 @@ abstract class PKCS8 extends Progenitor
     /**
      * OID Value
      *
-     * @var string
+     * @var array
      */
     public const OID_VALUE = ['1.2.840.10045.2.1', '1.3.101.112', '1.3.101.113', '1.3.101.110', '1.3.101.111'];
 

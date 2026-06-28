@@ -26,6 +26,7 @@ use phpseclib4\Math\BigInteger;
  * JWK Formatted EC Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class JWK extends Progenitor
 {
@@ -33,6 +34,8 @@ abstract class JWK extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,

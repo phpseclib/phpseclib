@@ -44,6 +44,7 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * "PKCS1" (RFC5915) Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -51,8 +52,6 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -118,8 +117,8 @@ abstract class PKCS1 extends Progenitor
         $components = [];
         $components['curve'] = self::loadCurveByParam($key['parameters']);
         $components['dA'] = new BigInteger((string) $key['privateKey'], 256);
-        $components['QA'] = isset($ecPrivate['publicKey']) ?
-            self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
+        $components['QA'] = isset($key['publicKey']) ?
+            self::extractPoint((string) $key['publicKey'], $components['curve']) :
             $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
         return $components;
@@ -147,6 +146,7 @@ abstract class PKCS1 extends Progenitor
      * Convert a private key to the appropriate format.
 ?     *
      * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         #[\SensitiveParameter] BigInteger $privateKey,

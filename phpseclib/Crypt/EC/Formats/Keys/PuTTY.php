@@ -27,6 +27,7 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * PuTTY Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PuTTY extends Progenitor
 {
@@ -123,7 +124,7 @@ abstract class PuTTY extends Progenitor
      *
      * @param FiniteField[] $publicKey
      */
-    public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
+    public static function savePublicKey(BaseCurve $curve, array $publicKey): string
     {
         $public = explode(' ', OpenSSH::savePublicKey($curve, $publicKey));
         $type = $public[0];
