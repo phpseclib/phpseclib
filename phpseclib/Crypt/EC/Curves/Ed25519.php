@@ -20,6 +20,7 @@ use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException, Unsup
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
+/** @psalm-api */
 class Ed25519 extends TwistedEdwards
 {
     public const HASH = 'sha512';
@@ -104,7 +105,6 @@ class Ed25519 extends TwistedEdwards
      * Used by EC\Keys\Common.php
      *
      * @return PrimeInteger[]
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public function recoverX(BigInteger $y, bool $sign): array
     {
@@ -277,7 +277,6 @@ class Ed25519 extends TwistedEdwards
      * Adds two points on the curve
      *
      * @return PrimeInteger[]
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public function addPoint(array $p, array $q): array
     {

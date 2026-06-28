@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\EC\Curves;
 
+/** @psalm-api */
 final class nistp384 extends secp384r1
 {
 }
