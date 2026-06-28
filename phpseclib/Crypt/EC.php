@@ -460,6 +460,8 @@ abstract class EC extends AsymmetricKey
      * Determines the signature padding mode
      *
      * Valid values are: ASN1, SSH2, Raw
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function withSignatureFormat(string $format): EC
     {
@@ -475,6 +477,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getSignatureFormat(): string
     {
@@ -488,6 +492,7 @@ abstract class EC extends AsymmetricKey
      *
      * @see self::verify()
      * @see self::sign()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function withContext(?string $context = null): EC
     {
@@ -510,6 +515,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getContext(): string
     {
