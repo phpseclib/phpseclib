@@ -16,7 +16,7 @@ namespace phpseclib4\Crypt\EC;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\{Common, EC, Hash};
 use phpseclib4\Crypt\EC\BaseCurves\{Montgomery as MontgomeryCurve, TwistedEdwards as TwistedEdwardsCurve};
-use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Crypt\EC\Curves\{Ed25519, Ed448};
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException, UnexpectedValueException};
@@ -221,7 +221,8 @@ final class PublicKey extends EC implements Common\PublicKey
         $u1 = $this->curve->convertInteger($u1);
         $u2 = $this->curve->convertInteger($u2);
 
-        [$x1, $y1] = $this->curve->multiplyAddPoints(
+        // multiplyPoint() always returns [$x, $y]; only $x is needed here
+        [$x1, ] = $this->curve->multiplyAddPoints(
             [$this->curve->getBasePoint(), $this->QA],
             [$u1, $u2]
         );

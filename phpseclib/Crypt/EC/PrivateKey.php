@@ -116,7 +116,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $order = $this->curve->getOrder();
 
         $shortFormat = $this->shortFormat;
-        $format = $this->sigFormat;
 
         if (self::$forcedEngine === 'libsodium' && !$this->curve instanceof Ed25519) {
             throw new BadConfigurationException('Engine libsodium is only supported for Ed25519');
@@ -261,7 +260,8 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
         while (true) {
             $k = BigInteger::randomRange(self::$one, $order->subtract(self::$one));
-            [$x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
+            // multiplyPoint() always returns [$x, $y]; only $x is needed here
+            [$x, ] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
             $x = $x->toBigInteger();
             [, $r] = $x->divide($order);
             if ($r->equals(self::$zero)) {

@@ -39,6 +39,9 @@ use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
  */
 class TwistedEdwards extends Base
 {
+    public const HASH = '';
+    public const SIZE = -1;
+
     /**
      * Prime Field Integer factory
      */
