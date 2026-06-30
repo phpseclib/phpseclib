@@ -183,8 +183,8 @@ class Hash
     /**#@+
      * AES_CMAC variables
      */
-    private string $k1;
-    private string $k2;
+    //private string $k1;
+    //private string $k2;
     /**#@-*/
 
     /**
@@ -405,7 +405,7 @@ class Hash
      */
     private function pdf(): string
     {
-        $k = $this->key;
+        //$k = $this->key;
         $nonce = $this->nonce;
         $taglen = $this->length;
 
@@ -934,8 +934,8 @@ class Hash
                 // make it constant time
                 $k2 = $msb ? $k2 ^ $constRb : $k2 | $constZero;
 
-                $this->k1 = $k1;
-                $this->k2 = $k2;
+                //$this->k1 = $k1;
+                //$this->k2 = $k2;
             }
 
             $len = strlen($text);
@@ -1031,7 +1031,7 @@ class Hash
 
             // SHA3 HMACs are discussed at https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf#page=30
 
-            $key    = str_pad($this->computedKey, $b, chr(0));
+            $key    = str_pad($this->computedKey, $this->blockSize >> 3, chr(0));
             $temp   = $this->ipad ^ $key;
             $temp  .= $text;
             $temp   = substr($algo($temp, ...array_values($this->parameters)), 0, $this->length);
@@ -1134,6 +1134,8 @@ class Hash
      * defined as "the KECCAK instance with KECCAK-f[1600] as the underlying permutation and
      * capacity c". This is relevant because, altho the KECCAK standard defines a mode
      * (KECCAK-f[800]) designed for 32-bit machines that mode is incompatible with SHA3
+     *
+     * @psalm-suppress UnusedMethod
      */
     private static function sha3_32(string $p, int $c, int $r, int $d, int $padType): string
     {
@@ -1142,8 +1144,6 @@ class Hash
         $num_ints = $block_size >> 2;
 
         $p .= static::sha3_pad($padLength, $padType);
-
-        $n = strlen($p) / $r; // number of blocks
 
         $s = [
             [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
@@ -1314,16 +1314,15 @@ class Hash
 
     /**
      * Pure-PHP 64-bit implementation of SHA3
+     *
+     * @psalm-suppress UnusedMethod
      */
     private static function sha3_64(string $p, int $c, int $r, int $d, int $padType): string
     {
         $block_size = $r >> 3;
         $padLength = $block_size - (strlen($p) % $block_size);
-        $num_ints = $block_size >> 2;
 
         $p .= static::sha3_pad($padLength, $padType);
-
-        $n = strlen($p) / $r; // number of blocks
 
         $s = [
             [0, 0, 0, 0, 0],
@@ -1490,7 +1489,6 @@ class Hash
 
         $password = "\0" . chunk_split($password, 1, "\0") . "\0";
 
-        $u = $this->length << 3;
         $v = $this->blockSize >> 3;
         $saltLength = strlen($salt);
         $passLength = strlen($password);
