@@ -297,10 +297,7 @@ abstract class RSA extends AsymmetricKey
             }
         }
 
-        static $e;
-        if (!isset($e)) {
-            $e = new BigInteger(self::$defaultExponent);
-        }
+        $e = new BigInteger(self::$defaultExponent);
 
         $n = clone self::$one;
         $exponents = $coefficients = $primes = [];
@@ -339,7 +336,6 @@ abstract class RSA extends AsymmetricKey
 
             [$temp] = $lcm['top']->divide($lcm['bottom']);
             $gcd = $temp->gcd($e);
-            $i0 = 1;
         } while (!$gcd->equals(self::$one));
 
         $coefficients[2] = $primes[2]->modInverse($primes[1]);

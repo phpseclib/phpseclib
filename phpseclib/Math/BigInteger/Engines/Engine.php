@@ -706,7 +706,7 @@ abstract class Engine implements \JsonSerializable
         $compare = $max->compare($min);
 
         if (!$compare) {
-            return $min->isPrime() ? $min : false;
+            return $min->isPrime() ? $min : null;
         } elseif ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;

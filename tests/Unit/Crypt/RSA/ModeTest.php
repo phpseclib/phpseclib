@@ -435,4 +435,46 @@ B78AVyeOXhlI
         // reset
         RSA::forceEngine();
     }
+
+    public function testBlinding()
+    {
+        $publicKey = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnkFHQbt801+kMnxn0VmMVljp8
+XdsbLEziLul3MwwckBDHwW6UDvYjN7vzJ/OM2RTxTbzilDcXJ37Zqz4qlDvXwSNm
+gIe+3dpuuRQRrJuJP6FD8zDTkRmg3QWOIIPBTzCqOtJKgWjFwMMxfCOBFEv6Ldn5
+Ac0i9ARl0/aNTWjvGwIDAQAB
+-----END PUBLIC KEY-----');
+
+        $privateKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKeQUdBu3zTX6Qyf
+GfRWYxWWOnxd2xssTOIu6XczDByQEMfBbpQO9iM3u/Mn84zZFPFNvOKUNxcnftmr
+PiqUO9fBI2aAh77d2m65FBGsm4k/oUPzMNORGaDdBY4gg8FPMKo60kqBaMXAwzF8
+I4EUS/ot2fkBzSL0BGXT9o1NaO8bAgMBAAECgYAO2OPW8ywF86ervaFAHDN1YzVV
+db+HXdqGJB/9tuE42q8R9BrHNbgrkLGvrveOoGGRrBCzhuyGubIsuVat0SqoI6qE
+nB9uahaIBfF5FZ7+bNW5OfkgerUUYP1S1MGFxUqINnUY1YHITmo6pUKHsiJtP7si
+hnCT6uEx8LqVNf1quQJBANs+VCZVUDq6eMy3E/u03HiAB8cyqLVMVQ4cLyoiWmFl
+nEFzZwMd20ZMjtcxICiizW3dlDvyxWYKH93irL0JyM0CQQDDp/VFsh83vKICVvM9
+IZHwE/Z8vZA3eTkGbWmgnr6qaxqge3FU02kUvIHHlvLmXYIt30lTq0Rn+Lz+TGV/
+jDeHAkBHYSaSiGojhLx5og1+gKbbEIv3vbWRuTVj76cnZ6HXXfaelIzwRdMzMw+6
+XgMjV8XcRCzTy7ma/Cbd3cPxk/LtAkEAwkehMVexz/KrHI+icG1JMI9iDnNdJPhm
+O4+hdzCqOyanBfwNiSF0Encslze4ci8f+NTjRwWlo2hGomzRzFk7OQJAPPd/o0az
+kg9nF+JxLiz7hF+/6MLVZgIfw04u05ANtOSVVQP4UTmJ/tNAe3OBUQVlRQAJ1m3j
+zUlir0ACPypC1Q==
+-----END PRIVATE KEY-----');
+
+        $data = 'The quick brown fox jumps over the lazy dog';
+
+        RSA::forceEngine('PHP');
+        RSA::disableBlinding();
+
+        $sig = $privateKey->sign($data);
+        $this->assertTrue($publicKey->verify($data, $sig));
+
+        RSA::enableBlinding();
+
+        $sig = $privateKey->sign($data);
+        $this->assertTrue($publicKey->verify($data, $sig));
+
+        RSA::forceEngine();
+    }
 }

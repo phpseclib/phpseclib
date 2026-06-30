@@ -141,6 +141,8 @@ L1cwyXx0KMaaampd34MzOIHbC44SHY+cE3aVVUsnmt6Ur1nQaVYVszl+AO6m8bPm
         $this->assertInstanceOf(Parameters::class, $dsa);
         $dsa = DSA::loadParametersFormat('PKCS1', $key);
         $this->assertInstanceOf(Parameters::class, $dsa);
+        $dsa = PublicKeyLoader::loadParameters($key);
+        $this->assertInstanceOf(Parameters::class, $dsa);
     }
 
     public function testPKCS8Public(): void

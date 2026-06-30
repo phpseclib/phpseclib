@@ -114,7 +114,7 @@ abstract class PublicKeyLoader
     public static function loadParameters(string $key): AsymmetricKey
     {
         $key = self::load($key);
-        if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
+        if ($key instanceof PrivateKey || $key instanceof PublicKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a parameter');
         }
         return $key;

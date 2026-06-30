@@ -15,7 +15,7 @@
         <directory name="../tests"/>
     </projectFiles>
     <stubs>
-        <file name="stubs/openssl-curve-keytypes.php"/>
+        <file name="stubs/openssl.php"/>
     </stubs>
     <issueHandlers>
         <MissingOverrideAttribute errorLevel="suppress" />

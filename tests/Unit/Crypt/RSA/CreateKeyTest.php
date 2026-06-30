@@ -16,6 +16,8 @@ use phpseclib4\Crypt\RSA\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
 use phpseclib4\Crypt\RSA\PrivateKey;
 use phpseclib4\Crypt\RSA\PublicKey;
+use phpseclib4\File\ASN1;
+use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class CreateKeyTest extends PhpseclibTestCase
@@ -69,6 +71,8 @@ class CreateKeyTest extends PhpseclibTestCase
         $rsa = RSA::load($rsa->getPublicKey()->toString('PKCS1'));
         $this->assertTrue($rsa->verify('zzz', $signature));
 
+        RSA::setSmallestPrime(4096);
+
         RSA::forceEngine();
     }
 
@@ -95,5 +99,18 @@ class CreateKeyTest extends PhpseclibTestCase
         PKCS8::disableBinaryOutput();
         $bin2 = $rsa->getPublicKey()->toString('PKCS8', ['binary' => true]);
         $this->assertSame($bin1, $bin2);
+    }
+
+    public function testSetExponent(): void
+    {
+        RSA::forceEngine('PHP');
+        RSA::setExponent(37); // this is what puttygen uses
+        $key = RSA::createKey(1024)->toString('PKCS1');
+        $key = ASN1::extractBER($key);
+        $key = ASN1::decodeBER($key);
+        $key = ASN1::map($key, ASN1\Maps\RSAPrivateKey::MAP);
+        $this->assertTrue($key['publicExponent']->equals(new BigInteger(37)), "Failed asserting that public exponent ($key[publicExponent]) equals 37");
+        RSA::setExponent(65537); // restore default value
+        RSA::forceEngine();
     }
 }
