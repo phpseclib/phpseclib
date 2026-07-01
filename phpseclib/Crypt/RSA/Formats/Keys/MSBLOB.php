@@ -27,6 +27,7 @@ use phpseclib4\Math\BigInteger;
  * Microsoft BLOB Formatted RSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class MSBLOB
 {
@@ -61,6 +62,8 @@ abstract class MSBLOB
 
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -75,8 +78,8 @@ abstract class MSBLOB
         // https://msdn.microsoft.com/en-us/library/windows/desktop/aa387453(v=vs.85).aspx
         [
             'type' => $type,
-            'version' => $version,
-            'reserved' => $reserved,
+            //'version' => $version,
+            //'reserved' => $reserved,
             'algo' => $algo
         ] = unpack('atype/aversion/vreserved/Valgo', Strings::shift($key, 8));
         $publickey = match (ord($type)) {

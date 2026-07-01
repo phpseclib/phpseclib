@@ -299,14 +299,14 @@ abstract class RSA extends AsymmetricKey
 
         $e = new BigInteger(self::$defaultExponent);
 
-        $n = clone self::$one;
-        $exponents = $coefficients = $primes = [];
-        $lcm = [
-            'top' => clone self::$one,
-            'bottom' => false,
-        ];
-
         do {
+            $n = clone self::$one;
+            $exponents = $coefficients = $primes = [];
+            $lcm = [
+                'top' => clone self::$one,
+                'bottom' => false,
+            ];
+
             for ($i = 1; $i <= $num_primes; $i++) {
                 if ($i != $num_primes) {
                     $primes[$i] = BigInteger::randomPrime($regSize);

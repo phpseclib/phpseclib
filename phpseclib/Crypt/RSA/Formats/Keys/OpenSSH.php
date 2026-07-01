@@ -26,6 +26,7 @@ use phpseclib4\Math\BigInteger;
  * OpenSSH Formatted RSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class OpenSSH extends Progenitor
 {
@@ -105,6 +106,8 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,

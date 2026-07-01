@@ -362,7 +362,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
         // EME-OAEP decoding
 
         $lHash = $this->hash->hash($this->label);
-        $y = ord($em[0]);
+        //$y = ord($em[0]);
         $maskedSeed = substr($em, 1, $this->hLen);
         $maskedDB = substr($em, $this->hLen + 1);
         $seedMask = $this->mgf1($maskedDB, $this->hLen);

@@ -57,14 +57,12 @@ abstract class PuTTY extends Progenitor
             return $components;
         }
         [
-            'type' => $type,
+            //'type' => $type,
             'comment' => $comment,
             'public' => $public,
             'private' => $private
         ] = $components;
-        if ($type != 'ssh-dss') {
-            throw new UnexpectedValueException('Expected ssh-dss as the key type - got ' . $type . ' as the key type');
-        }
+        unset($components['public'], $components['private']);
 
         [$p, $q, $g, $y] = Strings::unpackSSH2('iiii', $public);
         [$x] = Strings::unpackSSH2('i', $private);
