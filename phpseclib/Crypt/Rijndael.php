@@ -532,6 +532,7 @@ class Rijndael extends BlockCipher
                     $this->dw[$row] = $temp;
                 }
 
+                /** @psalm-suppress LoopInvalidation */
                 $col = 0;
                 $row++;
             }
@@ -751,7 +752,8 @@ class Rijndael extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib4\Crypt\Common\SymmetricKey::setupInlineCrypt()
+     * @see Common\SymmetricKey::setup()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

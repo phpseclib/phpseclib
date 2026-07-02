@@ -438,4 +438,19 @@ abstract class TestCase extends PhpseclibTestCase
         $ciphertext3 = $aes->encrypt(str_repeat('x', 16));
         $this->assertSame($ciphertext1, $ciphertext3);
     }
+
+    public function testBlockLength(): void
+    {
+        if ($this->engine === 'OpenSSL') {
+            self::markTestSkipped('OpenSSL does not support block lengths other than 128');
+        }
+        $aes = new Rijndael('cbc');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setBlockLength(256);
+        $aes->setKey(str_repeat('x', 16));
+        $aes->setIV(str_repeat('x', 32));
+        $ciphertext = bin2hex($aes->encrypt(str_repeat('x', 32)));
+        $expected = 'ba25bbbbe12e460f6dd9d49b065b6b13b79f613e8b8daff114bd99426794e013ed7983adfd27683c1a60593b5dcb1f4e02a9d384bfd20e1bd550d43566b99ade';
+        $this->assertSame($expected, $ciphertext);
+    }
 }

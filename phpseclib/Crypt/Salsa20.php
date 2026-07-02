@@ -101,7 +101,7 @@ class Salsa20 extends StreamCipher
     public function setNonce(string $nonce): void
     {
         if (strlen($nonce) != 8) {
-            throw new LengthException('Nonce of size ' . strlen($key) . ' not supported by this algorithm. Only an 64-bit nonce is supported');
+            throw new LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only an 64-bit nonce is supported');
         }
 
         $this->nonce = $nonce;
