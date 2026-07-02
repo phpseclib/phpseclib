@@ -206,7 +206,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
      */
-    private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false): string
+    private function rsaes_pkcs1_v1_5_encrypt(string $m): string
     {
         $mLen = strlen($m);
 
