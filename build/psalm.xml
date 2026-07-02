@@ -26,6 +26,17 @@
                 <file name="../phpseclib/File/ANSI.php"/>
             </errorLevel>
         </UnusedVariable>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/File/ASN1/Maps"/>
+                <directory name="../tests"/>
+            </errorLevel>
+        </UnusedClass>
+        <PossiblyUnusedMethod>
+            <errorLevel type="suppress">
+                <directory name="../tests"/>
+            </errorLevel>
+        </PossiblyUnusedMethod>
         <Trace>
             <errorLevel type="error">
                 <directory name=".."/>
