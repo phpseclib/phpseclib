@@ -191,14 +191,6 @@ abstract class ASN1
     private static bool $allOIDsLoaded = false;
 
     /**
-     * Default date format
-     *
-     * @var string
-     * @link http://php.net/class.datetime
-     */
-    private static string $format = 'D, d M Y H:i:s O';
-
-    /**
      * Current Location of most recent ASN.1 encode process
      *
      * Useful for debug purposes
@@ -544,7 +536,7 @@ abstract class ASN1
             'content' => $content,
         ] + $current);
 
-        $start += $length;
+        //$start += $length;
 
         return $current;
     }
@@ -690,6 +682,8 @@ abstract class ASN1
      * Use Encoded Cache
      *
      * The encoded cache is only used when encoding ASN.1 stuff
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function useEncodedCache(): void
     {
@@ -700,6 +694,8 @@ abstract class ASN1
      * Ignore Encoded Cache
      *
      * The encoded cache is only used when encoding ASN.1 stuff
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function ignoreEncodedCache(): void
     {
@@ -1130,6 +1126,7 @@ abstract class ASN1
         return $header . $value;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function enable64BitOIDHandling(): void
     {
         if (PHP_INT_SIZE === 4) {
@@ -1138,6 +1135,7 @@ abstract class ASN1
         self::$use64BitOIDHandling = true;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function disable64BitOIDHandling(): void
     {
         self::$use64BitOIDHandling = false;
@@ -1487,8 +1485,10 @@ abstract class ASN1
         return self::$oids[$oid] ?? $oid;
     }
 
-    /*
+    /**
      * Extracts the V part of a TLV DER / BER encoded string
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function extractValue(string $encoded): string
     {

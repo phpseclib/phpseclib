@@ -15,6 +15,7 @@ use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\EC;
+use phpseclib4\File\ASN1\ExcessivelyDeepData;
 use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedFormatException;
@@ -1704,5 +1705,37 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load($cert);
         $this->expectException(ResourceLimitException::class);
         $x509->toArray();
+    }
+
+    public function testRecursiveDepth(): void
+    {
+        ASN1::setRecursionDepth(1);
+        $cert = '-----BEGIN CERTIFICATE-----
+MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjAcMRowGAYDVQQKDBFwaHBzZWNsaWIgZGVtbyBDQTCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqSrTRQXbUXfHhXKuy+0cb5HnlBXH
+OEA2OqywyVKTxqdai/S+6ZfqytC+ukxkrPsGUzOGsAz9ne+R2Rtv/Szl+V8uKAG+
+2ktj4iw0JlWvNbdbAONm7N1AcWpPcOI3I+tt4HrAxunTdbBaalavf2eCTpzybtT1
+88HLo97eyeUCxUsCAwEAAaM/MD0wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFCS1BJ12nN8ObQWE4OgOOSH9DxTRMA0GCSqGSIb3DQEBBQUA
+A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
++ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
+cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
+-----END CERTIFICATE-----';
+        try {
+            $x509 = X509::load($cert)->toArray();
+            $this->fail('Expected ResourceLimitException');
+        } catch (ResourceLimitException) {
+        }
+        ASN1::enableBlobsOnBadDecodes();
+        $x509 = X509::load($cert)->toArray();
+        $this->assertInstanceOf(ExcessivelyDeepData::class, $x509['tbsCertificate']);
+        $this->assertInstanceOf(ExcessivelyDeepData::class, $x509['signatureAlgorithm']);
+        ASN1::setRecursionDepth(128);
+        ASN1::disableBlobsOnBadDecodes();
+        $x509 = X509::load($cert)->toArray();
+        $this->assertisArray($x509['tbsCertificate']);
+        $this->assertTrue(true);
     }
 }

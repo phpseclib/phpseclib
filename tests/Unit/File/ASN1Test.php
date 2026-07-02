@@ -10,11 +10,14 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File;
 
+use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Constructed;
 use phpseclib4\File\ASN1\MalformedData;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Common\Functions\Arrays;
+use phpseclib4\File\X509;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -468,5 +471,44 @@ class ASN1Test extends PhpseclibTestCase
         $encoded = hex2bin('305d310c300a060355040b13037a7a7a310c300a060355040b0c03787878313f303d060355041030360c0d6a696d2077696767696e746f6e0c1333303031206573706572616e7a612078696e670c1061757374696e2c207478203738373538');
         $decoded = ASN1::decodeBER($encoded);
         $this->assertIsArray(ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\Name::MAP)['rdnSequence']->toArray());
+    }
+
+    private function encLen(int $n): string
+    {
+        if ($n <= 0x7f) {
+            return chr($n);
+        }
+        $t = ltrim(pack('N', $n), "\x00");
+        return chr(0x80 | strlen($t)) . $t;
+    }
+
+    public function testIndefiniteLength(): void
+    {
+        $N = 1000; // recursion depth (default is 128)
+        $body = str_repeat("\x30\x80", $N); // N nested indefinite-length SEQUENCE headers
+        $payload = "\x30" . self::encLen(strlen($body)) . $body;
+
+        $this->expectException(NoKeyLoadedException::class);
+        PublicKeyLoader::load($payload);
+    }
+
+    public function testMiscFunctions(): void
+    {
+        $cert = '-----BEGIN CERTIFICATE-----
+MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjAcMRowGAYDVQQKDBFwaHBzZWNsaWIgZGVtbyBDQTCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqSrTRQXbUXfHhXKuy+0cb5HnlBXH
+OEA2OqywyVKTxqdai/S+6ZfqytC+ukxkrPsGUzOGsAz9ne+R2Rtv/Szl+V8uKAG+
+2ktj4iw0JlWvNbdbAONm7N1AcWpPcOI3I+tt4HrAxunTdbBaalavf2eCTpzybtT1
+88HLo97eyeUCxUsCAwEAAaM/MD0wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFCS1BJ12nN8ObQWE4OgOOSH9DxTRMA0GCSqGSIb3DQEBBQUA
+A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
++ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
+cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
+-----END CERTIFICATE-----';
+        $x509 = X509::load($cert);
+        $this->assertSame(ASN1::TYPE_SEQUENCE, $x509['tbsCertificate']->getTag());
+        $this->assertSame($x509['tbsCertificate']->keys()[0], $x509['tbsCertificate']->firstKey());
     }
 }
