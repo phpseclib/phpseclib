@@ -32,8 +32,6 @@ final class PublicKey extends RSA implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
 
-    private static bool $oidsLoaded = false;
-
     /**
      * Exponentiate
      */
