@@ -23,6 +23,7 @@
         <UnusedVariable>
             <errorLevel type="suppress">
                 <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
+                <file name="../phpseclib/File/ANSI.php"/>
             </errorLevel>
         </UnusedVariable>
         <Trace>
