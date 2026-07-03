@@ -21,6 +21,7 @@ namespace phpseclib4\File\ASN1\OIDs;
  * OIDs from RFC5280 and those RFCs mentioned in RFC5280#section-4.1.1.2
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class X509
 {

@@ -26,6 +26,7 @@ namespace phpseclib4\File\ASN1\OIDs;
  * brainpool*t* curves are twisted versions of the brainpool*r* curves
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class Curves
 {

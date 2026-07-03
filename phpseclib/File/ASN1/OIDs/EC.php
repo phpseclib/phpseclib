@@ -19,6 +19,7 @@ namespace phpseclib4\File\ASN1\OIDs;
  * EC OIDs
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class EC
 {
