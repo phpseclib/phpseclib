@@ -27,6 +27,8 @@ use phpseclib4\File\CMS\SignedData\Signer;
  * ASN.1 Choice
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
 {
@@ -34,16 +36,11 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     public Choice|Constructed|null $parent = null;
     public int $depth = 0;
     public int|string $key;
-    private string $rawheader = '';
-    private string $encoded = '';
-    private string $wrapping = '';
     private bool $forcedCache = false;
     private bool $iteratorStart = true;
 
     /**
      * Constructor
-     *
-     * @return Element
      */
     public function __construct(public string $index, public mixed $value)
     {
@@ -128,7 +125,6 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
     {
         if ($offset != $this->index) {
             throw new UnexpectedValueException("The requested offset '$offset' was not found - did you mean '{$this->index}'?");
-            return $this->value;
         }
         if (($this->value instanceof Constructed || $this->value instanceof Choice) && !$this->value->parent) {
             $this->value->parent = $this;
@@ -192,9 +188,6 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
             return [$this->index => $this->value->toArray($convertPrimitives)];
         }
         return [$this->index => $convertPrimitives ? ASN1::convertToPrimitive($this->value) : $this->value];
-        return $this->value instanceof Constructed || $this->value instanceof Choice ?
-            [$this->index => $this->value->toArray($convertPrimitives)] :
-            [$this->index => $convertPrimitives ? ASN1::convertToPrimitive($this->value) : $this->value];
     }
 
     public function reconstituteKeyHelper(): ?string
