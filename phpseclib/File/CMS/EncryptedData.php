@@ -99,6 +99,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
 
         ASN1::disableCacheInvalidation();
         foreach ($cms->cms['content']['recipientInfos'] as $i => $recipient) {
+            unset($recipient); // we're only doing this so psalm can be happy
             $recipient = &$cms->cms['content']['recipientInfos'][$i];
             $key = $recipient->index;
             if ($recipient instanceof Choice) {
@@ -171,11 +172,13 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getAlgorithm(): string
     {
         return (string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm'];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getKey(): string
     {
         return $this->cek;
@@ -413,6 +416,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // return the first SearchableKey matching $keyIdentifier or null if none are found
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function findRecipient(string|X509 $keyIdentifier): ?SearchableKey
     {
         $recipients = $this->findRecipients($keyIdentifier);
@@ -454,7 +458,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public function deriveFromPassword(#[\SensitiveParameter] string $password): self
     {
         $this->compile();
-        $result = [];
         foreach ($this->cms['content']['recipientInfos'] as $recipient) {
             if (isset($recipient['pwri'])) {
                 try {
@@ -549,6 +552,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
+    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function createNewRecipientFromX509(X509 $x509, int $type = CMS::ISSUER_AND_DN): KeyTransRecipient|KeyAgreeRecipient
     {
         $publicKey = $x509->getPublicKey();
@@ -676,6 +680,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // from https://www.rfc-editor.org/rfc/rfc3217#section-3.1
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function wrapDES(#[\SensitiveParameter] string $kek, #[\SensitiveParameter] string $cek): string
     {
         $icv = substr(sha1($cek, true), 0, 8);
@@ -714,6 +719,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         $this->cms['content']['originatorInfo']['certs'][] = ['certificate' => $cert];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function addCRL(CRL $crl): void
     {
         if (!isset($this->cms['content']['recipientInfos'])) {
