@@ -25,8 +25,7 @@ use phpseclib4\File\{ASN1, X509};
 
 class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
 {
-    private ?RSA\PrivateKey $kek = null;
-
+    /** @psalm-suppress PossiblyUnusedMethod */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
@@ -58,6 +57,7 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
         ASN1::enableCacheInvalidation();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function withKey(#[\SensitiveParameter] RSA\PrivateKey $key): self
     {
         $kek = &$key;
@@ -88,11 +88,13 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function matchesX509(X509 $x509): bool
     {
         return $x509->isIssuerOf($this->recipient['rid'], ['keyEncipherment']);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\KeyTransRecipientInfo::MAP);

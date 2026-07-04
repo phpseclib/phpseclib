@@ -36,9 +36,11 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public Constructed|array $encryptedKey;
     public EncryptedData $cms;
     public KeyAgreeRecipient $recipient;
-    private EC\PrivateKey $kek;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Constructed $parent;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array $key)
@@ -63,6 +65,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $temp;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function withKey(#[\SensitiveParameter] EC\PrivateKey $key): self
     {
         $private = &$key;
@@ -139,6 +142,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function matchesX509(X509 $x509): bool
     {
         return $x509->isIssuerOf($this->encryptedKey['rid'], ['keyAgreement']);
@@ -222,6 +226,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $this->encryptedKey->valid();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->encryptedKey instanceof Constructed ? $this->encryptedKey->keys() : array_keys($this->encryptedKey);

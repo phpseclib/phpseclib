@@ -32,8 +32,11 @@ class Recipient implements \ArrayAccess, \Countable, \Iterator
 
     public Constructed|array|null $recipient;
     public ?EncryptedData $cms = null;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Choice $parent;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $recipient = null)
@@ -126,6 +129,7 @@ class Recipient implements \ArrayAccess, \Countable, \Iterator
         return $this->recipient->valid();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->recipient instanceof Constructed ? $this->recipient->keys() : array_keys($this->recipient);
