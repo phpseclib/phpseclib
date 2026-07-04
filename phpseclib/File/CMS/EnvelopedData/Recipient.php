@@ -18,9 +18,14 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS\EnvelopedData;
 
 use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\File\ASN1\Types\{BaseType, Choice};
 use phpseclib4\File\CMS\EncryptedData;
 
+/**
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
+ */
 class Recipient implements \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;

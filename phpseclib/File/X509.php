@@ -37,7 +37,15 @@ use phpseclib4\Exception\{
     UnexpectedValueException
 };
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{BaseString, BitString, Boolean, Choice, OID, OctetString};
+use phpseclib4\File\ASN1\Types\{
+    BaseString,
+    BaseType,
+    BitString,
+    Boolean,
+    Choice,
+    OID,
+    OctetString
+};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\Math\BigInteger;
 
@@ -45,6 +53,8 @@ use phpseclib4\Math\BigInteger;
  * Pure-PHP X.509 Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 {

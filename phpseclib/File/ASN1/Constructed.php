@@ -39,8 +39,8 @@ use phpseclib4\File\CMS\SignedData\Signer;
  * ASN.1 Constructed Array Object
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<int|string, mixed>
- * @implements \Iterator<int|string, mixed>
+ * @implements \ArrayAccess<int|string, BaseType>
+ * @implements \Iterator<int|string, Basetype>
  */
 class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
 {

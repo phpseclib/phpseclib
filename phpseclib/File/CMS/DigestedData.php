@@ -20,13 +20,15 @@ namespace phpseclib4\File\CMS;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\OctetString;
+use phpseclib4\File\ASN1\Types\{BaseType, OctetString};
 use phpseclib4\File\{ASN1, CMS};
 
 /**
  * Pure-PHP CMS / DigestedData Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class DigestedData implements \ArrayAccess, \Countable, \Iterator
 {

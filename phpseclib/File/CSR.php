@@ -32,6 +32,8 @@ use phpseclib4\File\Common\Signable;
  * Pure-PHP CSR Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 {

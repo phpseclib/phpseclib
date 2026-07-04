@@ -19,11 +19,16 @@ namespace phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient;
 
 use phpseclib4\Crypt\{EC, PublicKeyLoader};
 use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1\{Constructed, Maps};
+use phpseclib4\File\ASN1\{Constructed, Maps, Types\BaseType};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EncryptedData;
 use phpseclib4\File\CMS\EnvelopedData\{DerivableKey, KeyAgreeRecipient, SearchableKey};
 
+/**
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
+ */
 class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;

@@ -22,7 +22,7 @@ use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{BadMethodCallException, UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{OID, OctetString};
+use phpseclib4\File\ASN1\Types\{BaseType, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\Common\Signable;
@@ -31,6 +31,8 @@ use phpseclib4\File\Common\Signable;
  * Pure-PHP CMS / SignedData Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
 {

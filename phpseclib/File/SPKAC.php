@@ -21,7 +21,7 @@ use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Crypt\{PublicKeyLoader, RSA};
 use phpseclib4\Exception\{NoKeyLoadedException, UnexpectedValueException};
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps, Types\BaseType};
 use phpseclib4\File\ASN1\Types\BitString;
 use phpseclib4\File\Common\Signable;
 
@@ -29,6 +29,8 @@ use phpseclib4\File\Common\Signable;
  * Pure-PHP SPKAC Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 {

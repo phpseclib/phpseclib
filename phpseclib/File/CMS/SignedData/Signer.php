@@ -22,11 +22,16 @@ use phpseclib4\Crypt\Common\PublicKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1\{Constructed, Maps};
-use phpseclib4\File\ASN1\Types\{BitString, OctetString};
+use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\SignedData;
 use phpseclib4\File\Common\Signable;
 
+/**
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
+ */
 class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 {
     use \phpseclib4\File\Common\Traits\ASN1Signature;
