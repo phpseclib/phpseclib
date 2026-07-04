@@ -511,4 +511,24 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         $this->assertSame(ASN1::TYPE_SEQUENCE, $x509['tbsCertificate']->getTag());
         $this->assertSame($x509['tbsCertificate']->keys()[0], $x509['tbsCertificate']->firstKey());
     }
+
+    public function testBitstringToArray(): void
+    {
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
+MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjAcMRowGAYDVQQKDBFwaHBzZWNsaWIgZGVtbyBDQTCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqSrTRQXbUXfHhXKuy+0cb5HnlBXH
+OEA2OqywyVKTxqdai/S+6ZfqytC+ukxkrPsGUzOGsAz9ne+R2Rtv/Szl+V8uKAG+
+2ktj4iw0JlWvNbdbAONm7N1AcWpPcOI3I+tt4HrAxunTdbBaalavf2eCTpzybtT1
+88HLo97eyeUCxUsCAwEAAaM/MD0wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFCS1BJ12nN8ObQWE4OgOOSH9DxTRMA0GCSqGSIb3DQEBBQUA
+A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
++ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
+cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
+-----END CERTIFICATE-----');
+        $arr = $x509->getExtension('id-ce-keyUsage')['extnValue']->toArray();
+        $arr2 = ['cRLSign', 'keyCertSign'];
+        $this->assertSame($arr, $arr2);
+    }
 }
