@@ -14,6 +14,7 @@ use phpseclib4\Crypt\EC;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\CMS;
 use phpseclib4\File\CMS\SignedData;
+use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -394,5 +395,22 @@ ybcPA9iklr0wAwYBAAMBAA==
         $this->assertIsString("$cms");
         $cert = $cms->getSigners()[0]->getCertificate();
         $this->assertTrue($cert->validateSignature(false));
+    }
+
+    public function testCacheInvalidation(): void
+    {
+        $cms = CMS::load(file_get_contents(__DIR__ . '/FE.pdf.p7m'));
+        $this->assertTrue($cms->hasEncoded());
+        // if you try to access $cms['content']['signerInfos'][0] after changing some subvalue within it
+        // the __get() magic method of SignedData will recompile, hence why we assign $signer by reference
+        $signer = &$cms['content']['signerInfos'][0];
+        $signer['sid']['issuerAndSerialNumber']['issuer']['rdnSequence'][0][0]['value'] = 'ZZZZ';
+        $this->assertinstanceOf(Signer::class, $signer);
+        $this->assertFalse($signer->hasEncoded());
+        $this->assertFalse($cms->hasEncoded());
+        // the __toString() magic method of SignedData also forces a recompile
+        "$cms";
+        $this->assertTrue($signer->hasEncoded());
+        $this->assertTrue($cms->hasEncoded());
     }
 }

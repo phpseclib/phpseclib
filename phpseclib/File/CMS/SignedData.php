@@ -609,7 +609,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cms->getEncoded();
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasEncoded(): bool
     {
         //$this->compile();
