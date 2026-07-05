@@ -399,6 +399,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->createSigner($skeleton, $x509);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function addNakedSigner(X509 $x509, int $type = CMS::ISSUER_AND_DN): Signer
     {
         // When [signedAttrs] is absent, the result is just the message digest of the [the encapContentInfo eContent OCTET STRING].
@@ -487,6 +488,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cms->valid();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->cms instanceof Constructed ? $this->cms->keys() : array_keys($this->cms);
@@ -508,6 +510,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $signers;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function findSigner(X509 $x509): ?Signer
     {
         $this->compile();
@@ -534,6 +537,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function detach(): void
     {
         $this->fp = null;
@@ -574,6 +578,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms['content']['certificates'][] = ['certificate' => $cert];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function addCRL(CRL $crl): void
     {
         $this->cms['content']['crls'][] = $crl;
@@ -597,12 +602,14 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return count($this->cms['content']['signerInfos']) == $matches;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getEncoded(): string
     {
         $this->compile();
         return $this->cms->getEncoded();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasEncoded(): bool
     {
         //$this->compile();
