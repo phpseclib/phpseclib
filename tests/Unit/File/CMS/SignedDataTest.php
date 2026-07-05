@@ -385,4 +385,14 @@ ybcPA9iklr0wAwYBAAMBAA==
         $this->assertTrue($cms->validateSignature(false));
         X509::checkKeyUsage();
     }
+
+    public function testSigningWithPrivateKey(): void
+    {
+        $private = EC::createKey('secp256k1');
+        $cms = new CMS\SignedData('hello world!');
+        $private->sign($cms);
+        $this->assertIsString("$cms");
+        $cert = $cms->getSigners()[0]->getCertificate();
+        $this->assertTrue($cert->validateSignature(false));
+    }
 }

@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\{Arrays, Strings};
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
 use phpseclib4\Crypt\{PublicKeyLoader, RSA};
 use phpseclib4\Exception\{InvalidStateException, NoKeyLoadedException, UnexpectedValueException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
@@ -404,7 +404,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
     /**
      * Identify signature algorithm from private key
      */
-    public function identifySignatureAlgorithm(PublicKey $key): void
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->csr['certificationRequestInfo']['signature'] = $algorithm;

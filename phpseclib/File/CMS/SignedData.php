@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\{Arrays, Strings};
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{BadMethodCallException, UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
@@ -224,12 +224,12 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public function identifySignatureAlgorithm(PublicKey $key): void
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
         if (!isset($this->tempSigner)) {
             $x509 = new X509($key->getPublicKey());
             $x509->setExtension('id-ce-keyUsage', ['digitalSignature']);
-            $private->sign($x509);
+            $key->sign($x509);
             $this->tempSigner = $this->addESSSigner($x509);
         }
         $this->tempSigner->identifySignatureAlgorithm($key);

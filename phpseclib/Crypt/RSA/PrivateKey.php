@@ -266,7 +266,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
             if ($source instanceof CSR && !$source->hasPublicKey()) {
                 $source->setPublicKey($public);
             }
-            $source->identifySignatureAlgorithm($public);
+            $source->identifySignatureAlgorithm($this);
             $message = $source->getSignableSection();
         } else {
             $message = $source;

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
 use phpseclib4\Crypt\{PublicKeyLoader, RSA};
 use phpseclib4\Exception\{NoKeyLoadedException, UnexpectedValueException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps, Types\BaseType};
@@ -197,7 +197,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public function identifySignatureAlgorithm(PublicKey $key): void
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->spkac['publicKeyAndChallenge']['signature'] = $algorithm;
