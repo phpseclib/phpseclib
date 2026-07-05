@@ -144,6 +144,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->crl->__debugInfo();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->crl instanceof Constructed ? $this->crl->keys() : array_keys($this->crl);
@@ -170,16 +171,19 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         unset($this->crl[$offset]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getDNProps(string $propName): array
     {
         return $this->getIssuerDNProps($propName);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasDNProp(string $propName): bool
     {
         return $this->hasIssuerNProp($propName);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getDN(int $format = self::DN_STRING): array|string
     {
         return $this->getIssuerDN($format);
@@ -190,11 +194,13 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setIssuerDN($props);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function resetDN(): void
     {
         self::resetIssuerDN();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasIssuerDNProp(string $propName): bool
     {
         return static::hasDNPropsInternal($this->crl['tbsCertList']['issuer'], $propName);
@@ -220,6 +226,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         self::setDNInternal($this->crl['tbsCertList']['issuer'], []);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function isRevoked(BigInteger|X509 $sn): bool
     {
         $idx = $this->getRevokedIndex($sn);
@@ -319,6 +326,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     // returns true if the cert you're trying to revoke is in the cert
     // and false if it's not
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function unrevoke(BigInteger|X509 $cert): bool
     {
         $idx = $this->getRevokedIndex($cert);
@@ -331,6 +339,8 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Alias for setThisDate
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setLastDate(\DateTimeInterface|string $date): void
     {
@@ -347,6 +357,8 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Set next date
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setNextDate(\DateTimeInterface|string $date): void
     {
@@ -366,6 +378,8 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Enable binary output (DER)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function enableBinaryOutput(): void
     {
@@ -374,6 +388,8 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Disable binary output (ie. enable PEM)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function disableBinaryOutput(): void
     {
@@ -418,6 +434,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $rclist = &Arrays::subArray($this->crl, 'tbsCertList/revokedCertificates');
         if ($rclist) {
             foreach ($rclist as $i => $extension) {
+                unset($extension); // we're only doing this so psalm can be happy
                 $extension = &Arrays::subArray($rclist, "$i/crlEntryExtensions");
                 if ($extension) {
                     self::mapOutExtensionsHelper($extension);
@@ -454,7 +471,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     /**
      * Identify signature algorithm from private key
      *
-     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws \phpseclib4\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function identifySignatureAlgorithm(PrivateKey $key): void
     {
@@ -488,6 +505,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         ]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function listExtensions(): array
     {
         if (!isset($this->crl['tbsCertList']['crlExtensions'])) {
@@ -500,6 +518,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $exts;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function listRevokedExtensions(BigInteger|X509 $cert): array
     {
         $r = $this->getRevokedInfo($cert);
@@ -554,6 +573,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasExtension(string $name): bool
     {
         if (!isset($this->crl['tbsCertificate']['crlExtensions'])) {
@@ -567,6 +587,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasRevokedExtension(BigInteger|X509 $cert, string $name): bool
     {
         $r = $this->getRevokedInfo($cert);
@@ -581,6 +602,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removeExtension(string $name): void
     {
         if (!isset($this->crl['tbsCertList']['crlExtensions'])) {
@@ -593,6 +615,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removeRevokedExtension(BigInteger|X509 $cert, string $name): void
     {
         $idx = $this->getRevokedIndex($cert);
@@ -621,6 +644,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         }
         if (isset($this->crl['tbsCertList']['crlExtensions'])) {
             foreach ($this->crl['tbsCertList']['crlExtensions'] as $i => $ext) {
+                unset($ext); // we're only doing this so psalm can be happy
                 $ext = &$this->crl['tbsCertList']['crlExtensions'][$i];
                 if ("$ext[extnId]" == $name) {
                     $ext['extnValue'] = $value;
@@ -648,6 +672,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     // if $cert doesn't exist in the CRL this will *not* add it. if you want to revoke
     // a new cert call revoke().
     // if an extension is present multiple times only the first instance will be updated
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setRevokedExtension(BigInteger|X509 $cert, string $name, mixed $value, ?bool $critical = null): void
     {
         $idx = $this->getRevokedIndex($cert);
@@ -668,6 +693,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
             return;
         }
         foreach ($revoked['crlEntryExtensions'] as $i => $ext) {
+            unset($ext); // we're only doing this so psalm can be happy
             $ext = &$revoked['crlEntryExtensions'][$i];
             if ("$ext[extnId]" == $name) {
                 $ext['extnValue'] = $value;
@@ -730,7 +756,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     public function validateSignature(): bool
     {
         $CAs = X509::getCAs();
-        foreach ($CAs as $i => $ca) {
+        foreach ($CAs as $ca) {
             if ($ca->isIssuerOf($this)) {
                 $signingCert = $ca;
                 break;
