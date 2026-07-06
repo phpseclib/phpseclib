@@ -25,7 +25,7 @@ use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
 use phpseclib4\Crypt\{PublicKeyLoader, RSA};
 use phpseclib4\Exception\{InvalidStateException, NoKeyLoadedException, UnexpectedValueException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{BaseType, BitString, PrintableString, UTF8String};
+use phpseclib4\File\ASN1\Types\{BaseType, BaseString, BitString, PrintableString, UTF8String};
 use phpseclib4\File\Common\Signable;
 
 /**
@@ -158,6 +158,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->csr->__debugInfo();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->csr instanceof Constructed ? $this->csr->keys() : array_keys($this->csr);
@@ -194,7 +195,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             $value = &$attributes[$i]['value'];
 
             if ($id == 'pkcs-9-at-extensionRequest') {
-                $oldValue = $value instanceof Constructed ? $value->toArray() : $value;
                 foreach ($value as $i => $subvalue) {
                     self::mapOutExtensionsHelper($value[$i]);
                 }
@@ -322,6 +322,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->csr['certificationRequestInfo']['subjectPKInfo'] = $publicKey;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removePublicKey(): void
     {
         $this->csr['certificationRequestInfo']['subjectPKInfo'] = [
@@ -485,11 +486,13 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         self::setSubjectDN($props);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function resetDN(): void
     {
         self::resetSubjectDN();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removeDNProps(string $propName): void
     {
         self::removeSubjectDNProps($propName);
@@ -500,26 +503,31 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         self::addSubjectDNProp($propName, $value);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function addDNProps(string $propName, array $values): void
     {
         self::addSubjectDNProps($propName, $values);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasDNProp(string $propName): bool
     {
         return self::hasSubjectDNProp($propName);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getDNProps(string $propName): array
     {
         return self::getSubjectDNProps($propName);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getDN(int $format = self::DN_STRING): array|string
     {
         return self::getSubjectDN($format);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function listAttributes(): array
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -592,6 +600,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasAttribute(string $name): bool
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -605,6 +614,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasExtension(string $name): bool
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -645,6 +655,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         ];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removeAttribute(string $type): void
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -657,6 +668,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removeExtension(string $name): void
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -734,6 +746,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setAttribute('pkcs-9-at-challengePassword', [$value]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getChallengePassword(): ?string
     {
         $attr = $this->getAttribute('pkcs-9-at-challengePassword');
@@ -742,6 +755,8 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Register the mapping for a custom/unsupported extension.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function registerExtension(string $id, array $mapping): void
     {
@@ -756,6 +771,8 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Register the mapping for a custom/unsupported extension.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function getRegisteredExtension(string $id): ?array
     {
@@ -803,6 +820,8 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
      * Returns true if the signature is verified, false if it is not correct or on error
      *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function validateSignature(): bool
     {

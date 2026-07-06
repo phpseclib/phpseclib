@@ -434,7 +434,6 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $rclist = &Arrays::subArray($this->crl, 'tbsCertList/revokedCertificates');
         if ($rclist) {
             foreach ($rclist as $i => $extension) {
-                unset($extension); // we're only doing this so psalm can be happy
                 $extension = &Arrays::subArray($rclist, "$i/crlEntryExtensions");
                 if ($extension) {
                     self::mapOutExtensionsHelper($extension);
@@ -644,7 +643,6 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         }
         if (isset($this->crl['tbsCertList']['crlExtensions'])) {
             foreach ($this->crl['tbsCertList']['crlExtensions'] as $i => $ext) {
-                unset($ext); // we're only doing this so psalm can be happy
                 $ext = &$this->crl['tbsCertList']['crlExtensions'][$i];
                 if ("$ext[extnId]" == $name) {
                     $ext['extnValue'] = $value;
@@ -693,7 +691,6 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
             return;
         }
         foreach ($revoked['crlEntryExtensions'] as $i => $ext) {
-            unset($ext); // we're only doing this so psalm can be happy
             $ext = &$revoked['crlEntryExtensions'][$i];
             if ("$ext[extnId]" == $name) {
                 $ext['extnValue'] = $value;

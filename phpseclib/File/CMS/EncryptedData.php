@@ -99,7 +99,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
 
         ASN1::disableCacheInvalidation();
         foreach ($cms->cms['content']['recipientInfos'] as $i => $recipient) {
-            unset($recipient); // we're only doing this so psalm can be happy
             $recipient = &$cms->cms['content']['recipientInfos'][$i];
             $key = $recipient->index;
             if ($recipient instanceof Choice) {

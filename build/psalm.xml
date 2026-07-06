@@ -20,6 +20,7 @@
     <issueHandlers>
         <MissingOverrideAttribute errorLevel="suppress" />
         <UnsupportedPropertyReferenceUsage errorLevel="suppress" />
+        <UnusedForeachValue errorLevel="suppress" />
         <UnusedVariable>
             <errorLevel type="suppress">
                 <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
