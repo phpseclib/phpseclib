@@ -386,7 +386,7 @@ abstract class RSA extends AsymmetricKey
      *
      * @psalm-suppress PossiblyUnusedMethod
      */
-    protected static function onLoad(array $components): RSA
+    protected static function onLoad(array $components): static
     {
         $key = $components['isPublicKey'] ?
             new PublicKey() :
@@ -599,7 +599,7 @@ abstract class RSA extends AsymmetricKey
      * Used with signature production / verification and (if the encryption mode is self::PADDING_OAEP) encryption and
      * decryption.
      */
-    public function withHash(string $hash): RSA
+    public function withHash(string $hash): static
     {
         $new = clone $this;
 
@@ -636,7 +636,7 @@ abstract class RSA extends AsymmetricKey
      * The mask generation function is used by self::PADDING_OAEP and self::PADDING_PSS and although it's
      * best if Hash and MGFHash are set to the same thing this is not a requirement.
      */
-    public function withMGFHash(string $hash): RSA
+    public function withMGFHash(string $hash): static
     {
         $new = clone $this;
 
@@ -685,7 +685,7 @@ abstract class RSA extends AsymmetricKey
      *    Typical salt lengths in octets are hLen (the length of the output
      *    of the hash function Hash) and 0.
      */
-    public function withSaltLength(?int $sLen): RSA
+    public function withSaltLength(?int $sLen): static
     {
         $new = clone $this;
         $new->sLen = $sLen;
@@ -712,7 +712,7 @@ abstract class RSA extends AsymmetricKey
      *    the empty string; other uses of the label are outside the scope of
      *    this document.
      */
-    public function withLabel(string $label): RSA
+    public function withLabel(string $label): static
     {
         $new = clone $this;
         $new->label = $label;
@@ -732,7 +732,7 @@ abstract class RSA extends AsymmetricKey
      *
      * Example: $key->withPadding(RSA::ENCRYPTION_PKCS1 | RSA::SIGNATURE_PKCS1);
      */
-    public function withPadding(int $padding): RSA
+    public function withPadding(int $padding): static
     {
         $masks = [
             self::ENCRYPTION_OAEP,

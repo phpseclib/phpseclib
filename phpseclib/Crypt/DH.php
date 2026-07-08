@@ -345,7 +345,7 @@ abstract class DH extends AsymmetricKey
     public static function load(
         #[\SensitiveParameter] string|array $key,
         #[\SensitiveParameter] ?string $password = null
-    ): AsymmetricKey {
+    ): static {
         try {
             return EC::load($key, $password);
         } catch (NoKeyLoadedException $e) {
@@ -385,7 +385,7 @@ abstract class DH extends AsymmetricKey
     /**
      * Determines which hashing function should be used
      */
-    public function withHash(string $hash): AsymmetricKey
+    public function withHash(string $hash): static
     {
         throw new BadMethodCallException('DH does not use a hash algorithm');
     }
@@ -406,7 +406,7 @@ abstract class DH extends AsymmetricKey
      *
      * @see self::getPublicKey()
      */
-    public function getParameters(): AsymmetricKey
+    public function getParameters(): Parameters
     {
         $type = DH::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 

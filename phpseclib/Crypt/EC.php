@@ -296,7 +296,7 @@ abstract class EC extends AsymmetricKey
      *
      * @psalm-suppress PossiblyUnusedMethod
      */
-    protected static function onLoad(array $components): EC
+    protected static function onLoad(array $components): static
     {
         if (!isset($components['dA']) && !isset($components['QA'])) {
             $new = new Parameters();
@@ -460,10 +460,8 @@ abstract class EC extends AsymmetricKey
      * Determines the signature padding mode
      *
      * Valid values are: ASN1, SSH2, Raw
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
-    public function withSignatureFormat(string $format): EC
+    public function withSignatureFormat(string $format): static
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
@@ -492,9 +490,8 @@ abstract class EC extends AsymmetricKey
      *
      * @see self::verify()
      * @see self::sign()
-     * @psalm-suppress PossiblyUnusedMethod
      */
-    public function withContext(?string $context = null): EC
+    public function withContext(?string $context = null): static
     {
         if (!$this->curve instanceof TwistedEdwardsCurve) {
             throw new BadMethodCallException('Only Ed25519 and Ed448 support contexts');
@@ -526,7 +523,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Determines which hashing function should be used
      */
-    public function withHash(string $hash): AsymmetricKey
+    public function withHash(string $hash): static
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');

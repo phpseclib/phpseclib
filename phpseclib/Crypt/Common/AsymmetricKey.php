@@ -133,7 +133,7 @@ abstract class AsymmetricKey
     public static function load(
         #[\SensitiveParameter] string|array $key,
         #[\SensitiveParameter] ?string $password = null
-    ): AsymmetricKey {
+    ): static {
         self::initialize_static_variables();
 
         $class = new \ReflectionClass(static::class);
@@ -202,7 +202,7 @@ abstract class AsymmetricKey
     /**
      * Loads parameters
      */
-    public static function loadParameters(string $key): AsymmetricKey
+    public static function loadParameters(string $key): static
     {
         try {
             $key = self::load($key);
@@ -222,7 +222,7 @@ abstract class AsymmetricKey
         string $type,
         #[\SensitiveParameter] string|array $key,
         #[\SensitiveParameter] ?string $password = null
-    ): AsymmetricKey {
+    ): static {
         self::initialize_static_variables();
 
         $components = false;
@@ -272,7 +272,7 @@ abstract class AsymmetricKey
     /**
      * Loads parameters
      */
-    public static function loadParametersFormat(string $type, string $key): AsymmetricKey
+    public static function loadParametersFormat(string $type, string $key): static
     {
         $key = self::loadFormat($type, $key);
         if ($key instanceof PrivateKey || $key instanceof PublicKey) {
@@ -442,7 +442,7 @@ abstract class AsymmetricKey
     /**
      * Determines which hashing function should be used
      */
-    public function withHash(string $hash): AsymmetricKey
+    public function withHash(string $hash): static
     {
         $new = clone $this;
 

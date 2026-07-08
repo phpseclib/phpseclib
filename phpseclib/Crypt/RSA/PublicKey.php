@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA;
 
-use phpseclib4\Crypt\{Common, RSA};
+use phpseclib4\Crypt\{Common, RSA, RSA\PrivateKey};
 use phpseclib4\Exception\{
     BadConfigurationException,
     KeyConstraintException,
@@ -334,7 +334,7 @@ final class PublicKey extends RSA implements Common\PublicKey
     /**
      * Converts a public key to a private key
      */
-    public function asPrivateKey(): RSA
+    public function asPrivateKey(): PrivateKey
     {
         $new = new PrivateKey();
         $new->exponent = $this->exponent;
