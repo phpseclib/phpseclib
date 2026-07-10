@@ -71,6 +71,8 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Enable binary output (DER)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function enableBinaryOutput(): void
     {
@@ -79,12 +81,15 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Disable binary output (ie. enable PEM)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function disableBinaryOutput(): void
     {
         self::$binary = false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasPublicKey(): bool
     {
         return $this->spkac['publicKeyAndChallenge']['spki'] instanceof PublicKey;
@@ -95,6 +100,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['publicKeyAndChallenge']['spki'] = $publicKey;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removePublicKey(): void
     {
         $this->spkac['publicKeyAndChallenge']['spki'] = [
@@ -150,6 +156,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['publicKeyAndChallenge']['challenge'] = $challenge & str_repeat("\x7F", strlen($challenge));
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getChallenge(): string
     {
         $this->compile();
@@ -195,7 +202,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
     /**
      * Identify signature algorithm from private key
      *
-     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws \phpseclib4\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      */
     public function identifySignatureAlgorithm(PrivateKey $key): void
     {
@@ -319,6 +326,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         unset($this->spkac[$offset]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->spkac instanceof Constructed ? $this->spkac->keys() : array_keys($this->spkac);
