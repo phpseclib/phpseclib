@@ -25,6 +25,8 @@
             <errorLevel type="suppress">
                 <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
                 <file name="../phpseclib/File/ANSI.php"/>
+                <file name="../phpseclib/File/Common/Traits/ASN1Signature.php"/>
+                <file name="../phpseclib/File/Common/Traits/Extension.php"/>
             </errorLevel>
         </UnusedVariable>
         <UnusedClass>
