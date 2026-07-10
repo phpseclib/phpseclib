@@ -49,7 +49,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             'content' => []
         ]
     ];
-    private ?string $password = null;
+    private ?string $password = '';
 
     // same as OpenSSL
     // setting this to null will mean that a MAC isn't included
@@ -140,6 +140,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the default hash algorithm
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setHashAlgorithm(string $algo): void
     {
@@ -166,6 +168,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the iteration count
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setIterationCount(int $count): void
     {
@@ -174,6 +178,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the salt length
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setSaltLength(int $length): void
     {
@@ -235,19 +241,21 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 foreach ($value['content'] as $subkey => $subvalue) {
                     $subvalue = $value['content'][$subkey];
                     if ($subvalue['bagId'] == 'CertBag') {
-                        foreach ($subvalue['bagAttributes'] as $attr) {
-                            switch ($attr['type']) {
-                                case 'pkcs-9-at-localKeyId':
-                                    $var = 'localKeyIDs';
-                                    break;
-                                case 'pkcs-9-at-friendlyName':
-                                    $var = 'friendlyNames';
-                                    break;
-                                default:
-                                    continue 2;
-                            }
-                            foreach ($attr['value'] as $attrValue) {
-                                $$var[count($certs)][] = $attrValue;
+                        if (isset($subvalue['bagAttributes'])) {
+                            foreach ($subvalue['bagAttributes'] as $attr) {
+                                switch ($attr['type']) {
+                                    case 'pkcs-9-at-localKeyId':
+                                        $var = 'localKeyIDs';
+                                        break;
+                                    case 'pkcs-9-at-friendlyName':
+                                        $var = 'friendlyNames';
+                                        break;
+                                    default:
+                                        continue 2;
+                                }
+                                foreach ($attr['value'] as $attrValue) {
+                                    $$var[count($certs)][] = $attrValue;
+                                }
                             }
                         }
                         $certs[] = $subvalue['bagValue']['certValue'];
@@ -264,7 +272,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 unset($value);
             }
             foreach ($certs as $i => $cert) {
-                $this->add($cert, friendlyName: $friendlyNames[$i], localKeyID: $localKeyIDs[$i]);
+                $this->add($cert, friendlyName: $friendlyNames[$i] ?? null, localKeyID: $localKeyIDs[$i] ?? null);
             }
         }
         $this->password = $password;
@@ -686,15 +694,18 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     public function pfxFromFriendlyName(string|BaseString $value): self
     {
         $temp = new self();
+        $temp->password = $this->password;
         foreach ($this->pluckByFriendlyName($value) as $object) {
             $temp->add($object);
         }
         return $temp;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function pfxFromLocalKeyID(string|BaseString $value): self
     {
         $temp = new self();
+        $temp->password = $this->password;
         foreach ($this->pluckByLocalKeyID($value) as $object) {
             $temp->add($object);
         }
