@@ -28,7 +28,7 @@ namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\{PublicKey, PrivateKey};
-use phpseclib4\Crypt\{Hash, PublicKeyLoader, RSA};
+use phpseclib4\Crypt\{EC, Hash, PublicKeyLoader, RSA};
 use phpseclib4\Exception\{
     BadMethodCallException,
     InvalidArgumentException,
@@ -137,12 +137,14 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             // of time, however, phpseclib, making no assumptions on the underlying filesystem, doesn't
             // really have a mechanism to do this. if you want to save CRLs to some sort of DB then you can
             // replace this function with one that'll cache to the DB and pull from the DB when appropriate
+            /** @psalm-suppress UnusedClosureParam */
             self::$inCRLFunction = function (string $url, BigInteger $serial): bool {
                 return false;
             };
         }
 
         if (!isset(self::$urlFetchCallback)) {
+            /** @psalm-suppress UnusedClosureParam */
             self::$urlFetchCallback = function (string $host, string $ip, int $port, string $scheme): bool {
                 return false;
             };
@@ -251,6 +253,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$strictDNComparison = false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function isStrictDNComparisonEnabled(): bool
     {
         return self::$strictDNComparison;
@@ -281,6 +284,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$checkBasicConstraints = false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function isCheckBasicConstraintsEnabled(): bool
     {
         return self::$checkBasicConstraints;
@@ -288,6 +292,8 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Enable binary output (DER)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function enableBinaryOutput(): void
     {
@@ -296,6 +302,8 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Disable binary output (ie. enable PEM)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function disableBinaryOutput(): void
     {
@@ -352,6 +360,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         unset($this->cert[$offset]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function currentlyDecoded(): array|string
     {
         return $this->cert->currentlyDecoded();
@@ -367,6 +376,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cert->__debugInfo();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->cert instanceof Constructed ? $this->cert->keys() : array_keys($this->cert);
@@ -399,6 +409,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cert instanceof Constructed ? $this->cert->toArray($convertPrimitives) : $this->cert;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setPadding(int $padding): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -409,6 +420,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withPadding($padding);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setHash(string $hash): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -419,6 +431,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withHash($hash);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setMFGHash(string $hash): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -429,6 +442,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withMFGHash($hash);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setLabel(string $label): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -511,6 +525,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::hasDNPropsInternal($this->cert['tbsCertificate']['subject'], $propName);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasIssuerDNProp(string $propName): bool
     {
         return self::hasDNPropsInternal($this->cert['tbsCertificate']['issuer'], $propName);
@@ -541,11 +556,13 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = $publicKey;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasPublicKey(): bool
     {
         return $this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removePublicKey(): void
     {
         $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = [
@@ -860,12 +877,14 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setIssuerDN($props);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function resetDN(): void
     {
         $this->resetSubjectDN();
         $this->resetIssuerDN();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removeDNProps(string $propName): void
     {
         $this->testForSelfSigned();
@@ -882,6 +901,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->addIssuerDNProp($propName, $value);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function addDNProps(string $propName, array $values): void
     {
         $this->testForSelfSigned();
@@ -897,6 +917,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->getSubjectDNProps($propName);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasDNProp(string $propName): bool
     {
         $this->testForSelfSigned();
@@ -911,6 +932,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->getSubjectDN($format);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setKeyIdentifier(string|OctetString $value): void
     {
         $this->testForSelfSigned();
@@ -919,6 +941,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setSubjectKeyIdentifier($value);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function createKeyIdentifier(int $method = 1): void
     {
         $this->testForSelfSigned();
@@ -955,6 +978,8 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Set the IP Addresses's which the cert is to be valid for
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function addIPAddresses(string ...$ipAddresses): void
     {
@@ -1039,6 +1064,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$targetValidationDate = $date;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function getTargetValidationDate(): \DateTimeInterface|string|null
     {
         return self::$targetValidationDate;
