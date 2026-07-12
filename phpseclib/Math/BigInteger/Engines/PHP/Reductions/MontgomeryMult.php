@@ -21,6 +21,7 @@ use phpseclib4\Math\BigInteger\Engines\PHP;
  * PHP Montgomery Modular Exponentiation Engine with interleaved multiplication
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class MontgomeryMult extends Montgomery
 {

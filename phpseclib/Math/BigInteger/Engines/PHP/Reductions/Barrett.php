@@ -22,6 +22,7 @@ use phpseclib4\Math\BigInteger\Engines\PHP\Base;
  * PHP Barrett Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class Barrett extends Base
 {
@@ -78,7 +79,6 @@ abstract class Barrett extends Base
         }
 
         if (($key = array_search($m, $cache[self::VARIABLE])) === false) {
-            $key = count($cache[self::VARIABLE]);
             $cache[self::VARIABLE][] = $m;
 
             $lhs = new $class();

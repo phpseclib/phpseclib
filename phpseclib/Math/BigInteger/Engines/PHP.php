@@ -22,12 +22,17 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException};
  * Pure-PHP Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PHP extends Engine
 {
     public const BASE = -1;
-    public const BASE_FULL = 0;
-    public const MAX_DIGIT = 0;
+    public const BASE_FULL = -1;
+    public const MAX_DIGIT = -1;
+    public const MAX10 = -1;
+    public const MAX10LEN = -1;
+    public const MAX_DIGIT2 = -1;
+    public const MSB = -1;
 
     /**#@+
      * Array constants
@@ -72,7 +77,6 @@ abstract class PHP extends Engine
      * Default constructor
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
-     * @return PHP
      * @see parent::__construct()
      */
     public function __construct(int|string|\GMP $x = 0, int $base = 10)
@@ -128,18 +132,6 @@ abstract class PHP extends Engine
 
                 $this->value = $temp->value;
         }
-    }
-
-    /**
-     * Pads strings so that unpack may be used on them
-     */
-    protected function pad(string $str): string
-    {
-        $length = strlen($str);
-
-        $pad = 4 - (strlen($str) % 4);
-
-        return str_pad($str, $length + $pad, "\0", STR_PAD_LEFT);
     }
 
     /**
@@ -329,7 +321,7 @@ abstract class PHP extends Engine
 
             $x_negative = !$x_negative;
 
-            $x_size = count($x_value);
+            //$x_size = count($x_value);
             $y_size = count($y_value);
         }
 
@@ -545,7 +537,7 @@ abstract class PHP extends Engine
         $y_value = &$y->value;
 
         $x_max = count($x->value) - 1;
-        $y_max = count($y->value) - 1;
+        $y_max = count($y_value) - 1;
 
         $quotient = new static();
         $quotient_value = &$quotient->value;
@@ -628,7 +620,7 @@ abstract class PHP extends Engine
                 --$quotient_value[$q_index];
             }
 
-            $x_max = count($x_value) - 1;
+            //$x_max = count($x_value) - 1;
         }
 
         // unnormalize the remainder
@@ -1157,7 +1149,6 @@ abstract class PHP extends Engine
         $i = $overflow = 0;
         $len = count($val);
         while ($i < $len) {
-            $digit = [];
             if (!$overflow) {
                 $digit = array_slice($val, $i, $width);
                 $i += $width;

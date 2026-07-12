@@ -40,6 +40,11 @@
                 <directory name="../tests"/>
             </errorLevel>
         </PossiblyUnusedMethod>
+        <PossiblyUnusedParam>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math/BigInteger/Engines/BCMath"/>
+            </errorLevel>
+        </PossiblyUnusedParam>
         <Trace>
             <errorLevel type="error">
                 <directory name=".."/>

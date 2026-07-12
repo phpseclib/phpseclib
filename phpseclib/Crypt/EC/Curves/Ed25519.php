@@ -254,7 +254,7 @@ class Ed25519 extends TwistedEdwards
         }
 
         // from https://tools.ietf.org/html/rfc8032#page-12
-        [$x1, $y1, $z1] = $p;
+        [$x1, $y1, $z1] = $p; // $p has a fourth parameter as well - $t1
 
         $a = $x1->multiply($x1);
         $b = $y1->multiply($y1);
