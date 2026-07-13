@@ -36,17 +36,16 @@ class secp192r1 extends Prime
            enough to offset whatever else might be gained by a simplified reduction algorithm.
            now, if PHP supported unsigned integers things might be different. no bit-shifting
            would be required for the PHP engine and it'd be a lot faster. but as is, BigInteger
-           uses base-2**31 or base-2**26 depending on whether or not the system is has a 32-bit
+           uses base-2**31 or base-2**26 depending on whether or not the system is a 32-bit
            or a 64-bit OS.
         */
         /*
         $m_length = $this->getLengthInBytes();
-        $this->setReduction(function($c) use ($m_length) {
+        $this->setReduction(function(BigInteger $c) use ($modulo, $m_length) {
             $cBytes = $c->toBytes();
-            $className = $this->className;
 
             if (strlen($cBytes) > 2 * $m_length) {
-                [], $r] = $c->divide($className::$modulo);
+                [], $r] = $c->divide($modulo);
                 return $r;
             }
 
@@ -60,8 +59,8 @@ class secp192r1 extends Prime
             $s4 = new BigInteger($c[5] . $c[5] . $c[5], 256);
 
             $r = $s1->add($s2)->add($s3)->add($s4);
-            while ($r->compare($className::$modulo) >= 0) {
-                $r = $r->subtract($className::$modulo);
+            while ($r->compare($modulo) >= 0) {
+                $r = $r->subtract($modulo);
             }
 
             return $r;

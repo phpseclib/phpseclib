@@ -25,6 +25,7 @@ use phpseclib4\Math\PrimeField\Integer;
  * Prime Finite Fields
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class PrimeField extends FiniteField
 {
@@ -57,7 +58,7 @@ class PrimeField extends FiniteField
      */
     public function setReduction(\Closure $func): void
     {
-        $this->reduce = $func->bindTo($this, $this);
+        Integer::setRecurringModuloFunction($this->instanceID, $func->bindTo($this, $this));
     }
 
     /**

@@ -23,6 +23,7 @@ use phpseclib4\Math\Common\FiniteField\Integer as Base;
  * Prime Finite Fields
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class Integer extends Base
 {
