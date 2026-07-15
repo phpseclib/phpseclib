@@ -146,6 +146,68 @@ p0GbMJDyR4e9T04ZZwIDAQAB
         RSA::forceEngine();
     }
 
+    public function testPSSSignAndVerifyAcrossEngines(): void
+    {
+        $privatekey = RSA::createKey(1024)
+            ->withHash('sha256')
+            ->withMGFHash('sha256')
+            ->withPadding(RSA::SIGNATURE_PSS);
+        $publickey = $privatekey->getPublicKey();
+
+        $message = 'zzzz';
+        $signature = $privatekey->sign($message);
+
+        RSA::forceEngine('PHP');
+        try {
+            $this->assertTrue($publickey->verify($message, $signature));
+        } finally {
+            RSA::forceEngine();
+        }
+    }
+
+    public function testPSSSignWithForcedOpenSSLEngineFailsOnSmallKey(): void
+    {
+        if (!defined('OPENSSL_PKCS1_PSS_PADDING')) {
+            $this->markTestSkipped('OPENSSL_PKCS1_PSS_PADDING is not defined (requires PHP >= 8.5)');
+        }
+
+        $privatekey = RSA::createKey(512)
+            ->withHash('sha256')
+            ->withMGFHash('sha256')
+            ->withPadding(RSA::SIGNATURE_PSS);
+
+        RSA::forceEngine('OpenSSL');
+        try {
+            $this->expectException(BadConfigurationException::class);
+            $privatekey->sign('zzzz');
+        } finally {
+            RSA::forceEngine();
+        }
+    }
+
+    public function testPSSSignWithForcedOpenSSLEngineFailsOnOldOpenSSL(): void
+    {
+        if (!defined('OPENSSL_PKCS1_PSS_PADDING')) {
+            $this->markTestSkipped('OPENSSL_PKCS1_PSS_PADDING is not defined (requires PHP >= 8.5)');
+        }
+        if (OPENSSL_VERSION_NUMBER >= 0x30100000) {
+            $this->markTestSkipped('OpenSSL >= 3.1.0 defaults to a spec-compliant PSS salt length for this key size');
+        }
+
+        $privatekey = RSA::createKey(1024)
+            ->withHash('sha256')
+            ->withMGFHash('sha256')
+            ->withPadding(RSA::SIGNATURE_PSS);
+
+        RSA::forceEngine('OpenSSL');
+        try {
+            $this->expectException(BadConfigurationException::class);
+            $privatekey->sign('zzzz');
+        } finally {
+            RSA::forceEngine();
+        }
+    }
+
     public function testSmallModulo(): void
     {
         $this->expectException(KeyConstraintException::class);
