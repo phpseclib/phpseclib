@@ -4914,10 +4914,7 @@ class SSH2
 
     /**
      * To String Magic Method
-     *
-     * @return string
      */
-    #[\ReturnTypeWillChange]
     public function __toString(): string
     {
         return $this->getResourceId();

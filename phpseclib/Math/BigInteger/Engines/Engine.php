@@ -349,8 +349,7 @@ abstract class Engine implements \JsonSerializable
      *
      * @return array{hex: string, precision?: int]
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->precision > 0) {

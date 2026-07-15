@@ -377,8 +377,7 @@ class BigInteger implements \JsonSerializable
      *
      * @return array{hex: string, precision?: int]
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->getPrecision() > 0) {
