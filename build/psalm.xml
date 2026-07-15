@@ -27,6 +27,7 @@
                 <file name="../phpseclib/File/ANSI.php"/>
                 <file name="../phpseclib/File/Common/Traits/ASN1Signature.php"/>
                 <file name="../phpseclib/File/Common/Traits/Extension.php"/>
+                <file name="../phpseclib/Net/SFTP.php"/>
             </errorLevel>
         </UnusedVariable>
         <UnusedClass>
