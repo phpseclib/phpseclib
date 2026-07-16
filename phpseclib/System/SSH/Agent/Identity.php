@@ -41,7 +41,6 @@ use phpseclib4\System\SSH\Common\Traits\ReadBytes;
  * methods phpseclib looks for to perform public key authentication.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @internal
  */
 class Identity implements PrivateKey
 {
@@ -150,6 +149,8 @@ class Identity implements PrivateKey
 
     /**
      * Sets the hash
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function withHash(string $hash): Identity
     {
@@ -187,6 +188,8 @@ class Identity implements PrivateKey
      * Sets the padding
      *
      * Only PKCS1 padding is supported
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function withPadding(int $padding): Identity
     {
@@ -203,6 +206,8 @@ class Identity implements PrivateKey
      * Determines the signature padding mode
      *
      * Valid values are: ASN1, SSH2, Raw
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function withSignatureFormat(string $format): Identity
     {
@@ -220,6 +225,8 @@ class Identity implements PrivateKey
      * Returns the curve
      *
      * Returns a string if it's a named curve, an array if not
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getCurve(): string|array
     {
@@ -270,6 +277,7 @@ class Identity implements PrivateKey
 
         if ($this->key instanceof RSA) {
             [$type, $signature_blob] = Strings::unpackSSH2('ss', $signature_blob);
+            unset($type);
         }
 
         if ($source instanceof Signable) {
@@ -307,6 +315,8 @@ class Identity implements PrivateKey
 
     /**
      * Returns the comment
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getComment(): ?string
     {
