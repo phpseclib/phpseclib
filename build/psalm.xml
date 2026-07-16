@@ -41,6 +41,11 @@
                 <directory name="../tests"/>
             </errorLevel>
         </PossiblyUnusedMethod>
+        <UnusedParam>
+            <errorLevel type="suppress">
+                <file name="../phpseclib/Net/SFTP/Stream.php"/>
+            </errorLevel>
+        </UnusedParam>
         <PossiblyUnusedParam>
             <errorLevel type="suppress">
                 <directory name="../phpseclib/Math/BigInteger/Engines/BCMath"/>

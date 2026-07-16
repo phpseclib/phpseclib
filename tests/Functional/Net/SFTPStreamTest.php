@@ -78,4 +78,15 @@ class SFTPStreamTest extends SFTPTestCase
             $suffix
         );
     }
+
+    public function testTouch(): void
+    {
+        $session = $this->sftp;
+        $pwd = $this->sftp->pwd();
+        $fileName = "sftp://$session/$pwd/touched.txt";
+        $this->assertFalse(file_exists($fileName));
+        touch($fileName);
+        $this->assertTrue(file_exists($fileName));
+        $this->assertEquals(0, filesize($fileName));
+    }
 }
