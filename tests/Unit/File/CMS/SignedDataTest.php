@@ -56,7 +56,7 @@ M0OBYZe9ntgapIKsumKkfhOzo65F41fsyi2n6U8gLE0m6QYy+bMI0ElWXfjDA5eT
 2kPMf5mvGDoVHc4xL+HZrNfFCPxneRBsB6fhZHfhKBp5E3yhDKStGe2O1Vs=
 -----END CMS-----');
         $result = $cms->toArray();
-        //$this->assertIsArray($result);
+        $this->assertIsArray($result);
         //$cms = SignedData::load($result);
         $this->assertCount(8, $cms->getSigners()[0]->getSignedAttr('pkcs-9-at-smimeCapabilities')[0]);
     }
@@ -172,7 +172,7 @@ ybcPA9iklr0wAwYBAAMBAA==
             '111 Anywhere St',
             'Anytown, TX, USA',
         ]);
-        $signer = $cms->addSigner($x509);
+        $cms->addSigner($x509);
         $cms = CMS::load("$cms");
         $this->assertIsArray($cms->toArray());
     }
@@ -184,7 +184,7 @@ ybcPA9iklr0wAwYBAAMBAA==
         $x509 = new X509();
         $x509->setSubjectKeyIdentifier($expected);
         $x509->setDN('O=test');
-        $signer = $cms->addSigner($x509, CMS::KEY_ID);
+        $cms->addSigner($x509, CMS::KEY_ID);
 
         $cms = CMS::load("$cms");
         $this->assertEquals($expected, $cms->getSigners()[0]['sid']['subjectKeyIdentifier']);

@@ -49,10 +49,7 @@ abstract class PhpseclibTestCase extends TestCase
         return $filename;
     }
 
-    /**
-     * @return null
-     */
-    protected static function ensureConstant(string $constant, $expected)
+    protected static function ensureConstant(string $constant, $expected): void
     {
         if (defined($constant)) {
             $value = constant($constant);
@@ -95,7 +92,6 @@ abstract class PhpseclibTestCase extends TestCase
                 }
             }
         }
-        $prop->setAccessible(true);
         return $prop->getValue($obj);
     }
 
@@ -114,7 +110,6 @@ abstract class PhpseclibTestCase extends TestCase
                 }
             }
         }
-        $prop->setAccessible(true);
         $prop->setValue($obj, $value);
     }
 
@@ -122,7 +117,6 @@ abstract class PhpseclibTestCase extends TestCase
     {
         $reflection = new \ReflectionClass($obj::class);
         $method = $reflection->getMethod($func);
-        $method->setAccessible(true);
         return $method->invokeArgs($obj, $params);
     }
 }

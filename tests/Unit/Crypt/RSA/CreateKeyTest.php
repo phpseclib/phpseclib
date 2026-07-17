@@ -62,7 +62,7 @@ class CreateKeyTest extends PhpseclibTestCase
         $this->assertCount(4, $r['primes']);
         // the last prime number could be slightly over. eg. 99 * 99 == 9801 but 10 * 10 = 100. the more numbers you're
         // multiplying the less certain you are to have each of them multiply to an n-bit number
-        foreach (array_slice($r['primes'], 0, 3) as $i => $prime) {
+        foreach (array_slice($r['primes'], 0, 3) as $prime) {
             $this->assertSame($prime->getLength(), 256);
         }
 

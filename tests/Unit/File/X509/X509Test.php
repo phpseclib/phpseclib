@@ -619,7 +619,6 @@ A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
 +ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
 cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
 -----END CERTIFICATE-----';
-        $ca = X509::load($pemca);
 
         // Read the old certificate.
         X509::addCA($pemca);
@@ -755,7 +754,6 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 -----END CERTIFICATE-----');
 
         $validateDate = new \ReflectionMethod($x509, 'validateDate');
-        $validateDate->setAccessible(true);
 
         $this->assertFalse($validateDate->invoke($x509, 'Nov 22, 2018'));
         $this->assertTrue($validateDate->invoke($x509, 'Nov 22, 2012'));
@@ -1019,7 +1017,7 @@ B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
 A9bhRA0cVk7bAEU2c44CYg==
 -----END CERTIFICATE-----';
         $this->expectException(UnexpectedValueException::class);
-        $x509 = X509::load($cert)->toArray();
+        X509::load($cert)->toArray();
     }
 
     public function testLongTagOnBadCert2(): void
@@ -1114,7 +1112,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $a = pack('H*', $a);
 
         $this->expectException(UnexpectedValueException::class);
-        $x509 = X509::load($a)->toArray();
+        X509::load($a)->toArray();
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github1542')]
@@ -1662,7 +1660,6 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         });
 
         $validateNonRevokedStatus = new \ReflectionMethod($x509, 'validateNonRevokedStatus');
-        $validateNonRevokedStatus->setAccessible(true);
 
         $this->assertTrue($validateNonRevokedStatus->invoke($x509));
         $this->assertSame(0, $cacheHits);
@@ -1724,7 +1721,7 @@ A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
 cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
 -----END CERTIFICATE-----';
         try {
-            $x509 = X509::load($cert)->toArray();
+            X509::load($cert)->toArray();
             $this->fail('Expected ResourceLimitException');
         } catch (ResourceLimitException) {
         }

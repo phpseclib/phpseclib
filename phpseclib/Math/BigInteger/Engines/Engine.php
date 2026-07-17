@@ -207,8 +207,6 @@ abstract class Engine implements \JsonSerializable
      * Sets engine type.
      *
      * Throws an exception if the type is invalid
-     *
-     * @param class-string<Engine> $engine
      */
     public static function setModExpEngine(string $engine): void
     {

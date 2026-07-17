@@ -1603,7 +1603,7 @@ v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
 -----END RSA PRIVATE KEY-----';
         PKCS8::requireDER();
         try {
-            $key = RSA::loadPrivateKey($str);
+            RSA::loadPrivateKey($str);
             $this->assertFalse(true, 'Key loaded when it shouldn\'t have');
         } catch (\Exception $e) {
             $this->assertInstanceOf(NoKeyLoadedException::class, $e);

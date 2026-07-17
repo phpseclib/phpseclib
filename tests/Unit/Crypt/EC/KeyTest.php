@@ -595,7 +595,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 //////////////////////////////////////////////8=
 -----END PRIVATE KEY-----';
 
-        $private = EC::loadFormat('PKCS8', $key);
+        EC::loadFormat('PKCS8', $key);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github1712')]

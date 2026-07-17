@@ -696,6 +696,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testRawlistCallback(SFTP $sftp)
     {
         $files = [];
+        /** @psalm-suppress UnusedClosureParam */
         $callback = function ($dir, $filename, $attributes) use (&$files): void {
             $files[] = $filename;
         };

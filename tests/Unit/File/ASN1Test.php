@@ -428,13 +428,15 @@ class ASN1Test extends PhpseclibTestCase
 
     /**
      * Test that an exception is thrown on bad decodes
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('badDecodes')]
     public function testExceptionsOnBadDecodes(string $data, array $map, ?string $path, ?string $key): void
     {
         $this->expectException(\Exception::class);
         $decoded = ASN1::decodeBER(pack('H*', $data));
-        $r = ASN1::map($decoded, $map)->toArray();
+        ASN1::map($decoded, $map)->toArray();
     }
 
     /**
@@ -463,7 +465,7 @@ class ASN1Test extends PhpseclibTestCase
         $this->expectException(\Exception::class);
         $key = pack('H*', 'a309486df62e19383a7faecd02423d44fb28773f36403f8a5e3c45f62549c855');
         $decoded = ASN1::decodeBER($key);
-        $key = ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
+        ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
     }
 
     public function testChoiceDecode(): void

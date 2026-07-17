@@ -143,7 +143,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame('4', (string) $c);
 
         $d = $a->multiply($c);
-        [$q, $r] = $d->divide($b);
+        [, $r] = $d->divide($b);
         $this->assertSame('1', (string) $r);
     }
 

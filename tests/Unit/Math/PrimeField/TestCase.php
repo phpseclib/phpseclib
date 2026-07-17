@@ -40,7 +40,7 @@ abstract class TestCase extends PhpseclibTestCase
     {
         $blob = base64_decode('BFgsTFQeqKr0toyURbtT43INMDS7FTHjz3yn3MR1/Yv/pb2b9ZCYNQ/Tafe5hQpEJ4TpZOKfikP/hWZvFL8QCPgqbIGqw/KTfA==');
         $public = "\0" . substr($blob, 0, 49);
-        $private = substr($blob, -24);
+        //$private = substr($blob, -24);
 
         $point = \phpseclib4\Crypt\EC\Formats\Keys\PKCS1::extractPoint(
             $public,

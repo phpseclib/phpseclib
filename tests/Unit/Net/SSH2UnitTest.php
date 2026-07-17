@@ -218,7 +218,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh = $this->createSSHMock();
         $ssh->setKeepAlive(2);
         self::setVar($ssh, 'last_packet', microtime(true));
-        [$sec, $usec] = self::callFunc($ssh, 'get_stream_timeout');
+        [$sec, ] = self::callFunc($ssh, 'get_stream_timeout');
         $this->assertGreaterThanOrEqual(1, $sec);
         $this->assertLessThanOrEqual(2, $sec);
 
@@ -234,7 +234,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $ssh->setTimeout(5);
         $ssh->setKeepAlive(2);
         self::setVar($ssh, 'last_packet', microtime(true));
-        [$sec, $usec] = self::callFunc($ssh, 'get_stream_timeout');
+        [$sec, ] = self::callFunc($ssh, 'get_stream_timeout');
         $this->assertGreaterThanOrEqual(1, $sec);
         $this->assertLessThanOrEqual(2, $sec);
 
