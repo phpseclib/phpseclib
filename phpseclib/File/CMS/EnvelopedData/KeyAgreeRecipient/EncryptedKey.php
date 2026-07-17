@@ -173,6 +173,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->encryptedKey[$offset];
     }
 

@@ -200,10 +200,6 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
 
     public function invalidateCache(): void
     {
-        $this->rawheader = '';
-        $this->encoded = '';
-        $this->wrapping = '';
-
         if ($this->parent) {
             $this->parent->invalidateCache();
         }
