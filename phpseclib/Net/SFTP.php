@@ -1354,7 +1354,7 @@ class SFTP extends SSH2
         if ($recursive) {
             $files = [];
             $this->setstat_recursive($filename, $attr, $files);
-            $this->read_put_responses($files);
+            $this->read_put_responses_files($files);
             return;
         }
 
@@ -1381,7 +1381,7 @@ class SFTP extends SSH2
      */
     private function setstat_recursive(string $path, string $attr, array &$files): void
     {
-        $this->read_put_responses($files);
+        $this->read_put_responses_files($files);
 
         try {
             // try to open $path as a directory
@@ -1421,7 +1421,7 @@ class SFTP extends SSH2
 
                 $files[] = $filename;
                 if (count($files) >= $this->queueSize) {
-                    $this->read_put_responses($files);
+                    $this->read_put_responses_files($files);
                 }
             }
         }
@@ -1434,7 +1434,7 @@ class SFTP extends SSH2
 
         $files[] = $filename;
         if (count($files) >= $this->queueSize) {
-            $this->read_put_responses($files);
+            $this->read_put_responses_files($files);
         }
     }
 
@@ -1751,12 +1751,12 @@ class SFTP extends SSH2
             $i++;
             $j++;
             if ($i == $this->uploadQueueSize) {
-                $this->read_put_responses($i);
+                $this->read_put_responses_count($i);
             }
         }
 
         try {
-            $this->read_put_responses($i);
+            $this->read_put_responses_count($i);
         } catch (\Exception $e) {
             throw $e;
         } finally {
@@ -1780,41 +1780,38 @@ class SFTP extends SSH2
      *
      * Sending an SSH_FXP_WRITE packet and immediately reading its response isn't as efficient as blindly sending out $i
      * SSH_FXP_WRITEs, in succession, and then reading $i responses.
-     *
-     * @psalm-suppress UndefinedVariable
      */
-    private function read_put_responses(int|array &$count): void
+    private function read_responses(int $i, ?array $files = null): void
     {
-        if (is_array($count)) {
-            $files = &$count;
-            $i = $size = count($count);
-            $size--;
-        } else {
-            $i = $count;
-        }
-        while ($i--) {
+        $size = $files === null ? 0 : count($files);
+        while ($i-- > 0) {
             $response = $this->get_sftp_packet();
             if ($this->packet_type != SFTPPacketType::STATUS) {
                 throw new UnexpectedValueException(
-                    'Expected SSH_FXP_STATUS. ' .
-                    'Got packet type: SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type)
+                    'Expected SSH_FXP_STATUS. Got packet type: SSH_FXP_' .
+                    SFTPPacketType::getConstantNameByValue($this->packet_type)
                 );
             }
             [$status] = Strings::unpackSSH2('N', $response);
             if ($status != StatusCode::OK) {
-                if (!isset($files)) {
+                if ($files === null) {
                     throw $this->throwStatusError($response, $status);
                 }
-                $this->logError($response, $status, $files[$size - $i]);
+                $this->logError($response, $status, $files[$size - 1 - $i] ?? '');
             }
         }
+    }
 
-        if (isset($files)) {
-            $files = [];
-        } else {
-            $count = 0;
-        }
-        //return $i < 0;
+    private function read_put_responses_files(array &$files): void
+    {
+        $this->read_responses(count($files), $files);
+        $files = [];
+    }
+
+    private function read_put_responses_count(int &$count): void
+    {
+        $this->read_responses($count);
+        $count = 0;
     }
 
     /**
@@ -1999,7 +1996,7 @@ class SFTP extends SSH2
 
             $files = [];
             $this->delete_recursive($path, $files);
-            $this->read_put_responses($files);
+            $this->read_put_responses_files($files);
             return;
         }
 
@@ -2013,7 +2010,7 @@ class SFTP extends SSH2
      */
     private function delete_recursive(string $path, array &$files): void
     {
-        $this->read_put_responses($files, true);
+        $this->read_put_responses_files($files);
         try {
             $entries = $this->readlist($path, true);
         } catch (FileSystemException $e) {
@@ -2041,7 +2038,7 @@ class SFTP extends SSH2
 
                 $files[] = "REMOVE $temp";
                 if (count($files) >= $this->queueSize) {
-                    $this->read_put_responses($files);
+                    $this->read_put_responses_files($files);
                 }
             }
         }
@@ -2051,7 +2048,7 @@ class SFTP extends SSH2
 
         $files[] = "RMDIR $path";
         if (count($files) >= $this->queueSize) {
-            $this->read_put_responses($files);
+            $this->read_put_responses_files($files);
         }
     }
 

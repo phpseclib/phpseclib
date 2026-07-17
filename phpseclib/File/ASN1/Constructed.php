@@ -156,6 +156,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
         }
 
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->decoded[$offset];
     }
 
