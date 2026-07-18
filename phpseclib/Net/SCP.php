@@ -79,10 +79,11 @@ class SCP extends SSH2
      * care of that, yourself.
      *
      * @param string|resource $data
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function put(
         string $remote_file,
-        #[SensitiveParameter] mixed $data,
+        #[\SensitiveParameter] mixed $data,
         int $mode = self::SOURCE_STRING,
         ?\Closure $callback = null
     ): void {
@@ -106,7 +107,6 @@ class SCP extends SSH2
 
         $remote_file = basename($remote_file);
 
-        $dataCallback = false;
         switch (true) {
             case is_resource($data):
                 $mode = $mode & ~self::SOURCE_LOCAL_FILE;
@@ -138,7 +138,6 @@ class SCP extends SSH2
             $size = strlen($data);
         }
 
-        $sent = 0;
         $size = $size < 0 ? ($size & 0x7FFFFFFF) + 0x80000000 : $size;
 
         $temp = 'C0644 ' . $size . ' ' . $remote_file . "\n";
@@ -175,6 +174,7 @@ class SCP extends SSH2
      * operation
      *
      * @param string|resource|null $local_file
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function get(string $remote_file, mixed $local_file = null, ?\Closure $progressCallback = null): ?string
     {

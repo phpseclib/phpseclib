@@ -74,6 +74,7 @@ trait Common
         return $this->metadata['rawheader'] . $this->metadata['content'];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getEncodedWithoutHeader(): string
     {
         if (!isset($this->metadata['content'])) {
@@ -114,6 +115,7 @@ trait Common
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function getTypeID(): int
     {
         $reflection = new \ReflectionClassConstant(static::class, 'TYPE');

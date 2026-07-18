@@ -138,6 +138,7 @@ kBniZHdFBAZBTE14YJUBkw==
         $dsa = $dsa
             ->withHash('sha1')
             ->withSignatureFormat('SSH2');
+        $this->assertEquals('SSH2', $dsa->getSignatureFormat());
         $message = pack('H*', '8bfc69a222c12ddf6bc6bf33c9cadc106af04feb');
         $signature = pack('H*', '000000077373682d64737300000028a7a2e55dc43e5e6145aa94daa0552ea479d1139d6d6ba50650b489e24e976593e73f76557813d6bc');
 

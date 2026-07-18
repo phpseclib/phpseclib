@@ -22,13 +22,14 @@ namespace phpseclib4\Crypt\DSA\Formats\Keys;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
-use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\{LengthException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
 
 /**
  * PuTTY Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PuTTY extends Progenitor
 {
@@ -48,15 +49,15 @@ abstract class PuTTY extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password
     ): array {
         $components = parent::load($key, $password);
         if (!isset($components['private'])) {
             return $components;
         }
         [
-            'type' => $type,
+            //'type' => $type,
             'comment' => $comment,
             'public' => $public,
             'private' => $private
@@ -77,8 +78,8 @@ abstract class PuTTY extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if ($q->getLength() != 160) {
@@ -98,8 +99,7 @@ abstract class PuTTY extends Progenitor
         BigInteger $p,
         BigInteger $q,
         BigInteger $g,
-        BigInteger $y,
-        array $options = []
+        BigInteger $y
     ): string {
         if ($q->getLength() != 160) {
             throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');

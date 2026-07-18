@@ -25,61 +25,6 @@ use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException};
 abstract class Arrays
 {
     /**
-     * Check for validity of subarray
-     *
-     * This is kinda like Laravel's Arr::has() method with their dot notation
-     *
-     * This is intended for use in conjunction with _subArrayUnchecked(),
-     * implementing the checks included in _subArray() but without copying
-     * a potentially large array by passing its reference by-value to is_array().
-     */
-    public static function isSubArrayValid(array|\ArrayAccess $root, string $path): bool
-    {
-        foreach (explode('/', $path) as $i) {
-            if (!isset($root)) {
-                return false;
-            }
-
-            if (!isset($root[$i])) {
-                return true;
-            }
-
-            $root = $root[$i];
-        }
-
-        return true;
-    }
-
-    /**
-     * Get a reference to a subarray
-     *
-     * This variant of _subArray() does no is_array() checking,
-     * so $root should be checked with _isSubArrayValid() first.
-     *
-     * This is here for performance reasons:
-     * Passing a reference (i.e. $root) by-value (i.e. to is_array())
-     * creates a copy. If $root is an especially large array, this is expensive.
-     */
-    public static function &subArrayUnchecked(array|\ArrayAccess &$root, string $path, bool $create = false): array|\ArrayAccess|null
-    {
-        $false = null;
-
-        foreach (explode('/', $path) as $i) {
-            if (!isset($root[$i])) {
-                if (!$create) {
-                    return $false;
-                }
-
-                $root[$i] = [];
-            }
-
-            $root = &$root[$i];
-        }
-
-        return $root;
-    }
-
-    /**
      * Get a reference to a subarray
      *
      * This is kinda like Laravel's Arr::set() / Arr::get() method with their dot notation

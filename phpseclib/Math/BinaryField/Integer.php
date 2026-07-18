@@ -31,6 +31,7 @@ use phpseclib4\Math\Common\FiniteField\Integer as Base;
  * Binary Finite Fields
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class Integer extends Base
 {
@@ -130,10 +131,8 @@ class Integer extends Base
 
     /**
      * Returns the degree of the polynomial
-     *
-     * @return int
      */
-    private static function deg(string $x)
+    private static function deg(string $x): int
     {
         $x = ltrim($x, "\0");
         $xbit = decbin(ord($x[0]));

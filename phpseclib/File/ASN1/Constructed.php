@@ -39,6 +39,8 @@ use phpseclib4\File\CMS\SignedData\Signer;
  * ASN.1 Constructed Array Object
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<int|string, BaseType>
+ * @implements \Iterator<int|string, Basetype>
  */
 class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
 {
@@ -70,6 +72,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->tag = $tag;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getTag(): int
     {
         return $this->tag;
@@ -153,6 +156,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
         }
 
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->decoded[$offset];
     }
 
@@ -532,6 +536,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 }
             // altho the data is unavailable to ASN1 it _is_ available to Constructed
             } catch (EncodedDataUnavailableException | ExcessivelyDeepDataException $e) {
+                if (!ASN1::isBlobsOnBadDecodesEnabled() && $e instanceof ExcessivelyDeepDataException) {
+                    throw $e;
+                }
                 $data = substr($this->encoded, $temp['start'] - $this->start, ($temp['length'] ?? $temp['actuallength']) + $temp['headerlength']);
                 return $e instanceof EncodedDataUnavailableException ? new Element($data) : new ExcessivelyDeepData($data);
             } catch (UnexpectedValueException) {
@@ -594,6 +601,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->invalidateCache();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function firstKey(): mixed
     {
         if (!$this->mapping) {

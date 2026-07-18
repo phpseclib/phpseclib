@@ -21,6 +21,7 @@ use phpseclib4\Math\BigInteger\Engines\GMP;
  * GMP Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class DefaultEngine extends GMP
 {

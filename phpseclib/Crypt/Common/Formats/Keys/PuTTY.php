@@ -35,6 +35,13 @@ use phpseclib4\Exception\{
 abstract class PuTTY
 {
     /**
+     * Public Handler
+     *
+     * @var string
+     */
+    public const PUBLIC_HANDLER = '';
+
+    /**
      * Default comment
      */
     private static string $comment = 'phpseclib-generated-key';
@@ -81,7 +88,7 @@ abstract class PuTTY
      * Generate a symmetric key for PuTTY v3 keys
      */
     private static function generateV3Key(
-        #[SensitiveParameter] string $password,
+        #[\SensitiveParameter] string $password,
         string $flavour,
         int $memory,
         int $passes,
@@ -111,8 +118,8 @@ abstract class PuTTY
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password
     ): array {
 
         if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
@@ -204,6 +211,10 @@ abstract class PuTTY
                         $parallelism = trim(preg_replace('#Argon2-Parallelism: (\d+)#', '$1', $key[$offset++]));
                         $salt = Strings::hex2bin(trim(preg_replace('#Argon2-Salt: ([0-9a-f]+)#', '$1', $key[$offset++])));
 
+                        if ($parallelism != 1) {
+                            throw new UnsupportedValueException('Argon2 parallelism > 1 is not supported by libsodium');
+                        }
+
                         [
                             'symkey' => $symkey,
                             'symiv' => $symiv,
@@ -257,9 +268,9 @@ abstract class PuTTY
      */
     protected static function wrapPrivateKey(
         string $public,
-        #[SensitiveParameter] string $private,
+        #[\SensitiveParameter] string $private,
         string $type,
-        #[SensitiveParameter] ?string $password,
+        #[\SensitiveParameter] ?string $password,
         array $options = []
     ): string {
         $encryption = isset($password) ? 'aes256-cbc' : 'none';
@@ -325,7 +336,6 @@ abstract class PuTTY
             $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
-            $mac = $hash->hash($source);
         }
 
         $private = Strings::base64_encode($private);

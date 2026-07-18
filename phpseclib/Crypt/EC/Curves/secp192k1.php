@@ -18,6 +18,7 @@ namespace phpseclib4\Crypt\EC\Curves;
 use phpseclib4\Crypt\EC\BaseCurves\KoblitzPrime;
 use phpseclib4\Math\BigInteger;
 
+/** @psalm-api */
 class secp192k1 extends KoblitzPrime
 {
     public function __construct()

@@ -580,4 +580,26 @@ hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
 
         EC::forceEngine();
     }
+
+    public function testRawSignature(): void
+    {
+        $message = 'hello, world!';
+        $private = PublicKeyLoader::load('PuTTY-User-Key-File-2: ecdsa-sha2-nistp256
+Encryption: none
+Comment: ecdsa-key-20181105
+Public-Lines: 3
+AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJEXCsWA8s18
+m25MJlVE1urbXPYFi4q8oMbb2H0kE2f5WPxizsKXRmb1J68paXQizryL9fC4FTqI
+CJ1+UnaPfk0=
+Private-Lines: 1
+AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
+Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
+        $private = $private->withSignatureFormat('Raw');
+        $public = $private->getPublicKey();
+
+        $signature = $private->sign($message);
+        $this->assertIsArray($signature);
+        $result = $public->verify($message, $signature);
+        $this->assertTrue($result);
+    }
 }

@@ -24,13 +24,15 @@ use phpseclib4\Exception\InvalidStateException;
  * \phpseclib4\File\ASN1\Maps\KeyUsage
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<int, mixed>
+ * @implements \Iterator<int, mixed>
  */
 class BitString extends BaseString implements \ArrayAccess, \Countable, \Iterator
 {
     public array $mappedValue;
     public const TYPE = 3;
 
-    private function preCheck()
+    private function preCheck(): void
     {
         if (!isset($this->mappedValue)) {
             throw new InvalidStateException('mappedValue needs to be set for this functionality to be used');
@@ -103,6 +105,7 @@ class BitString extends BaseString implements \ArrayAccess, \Countable, \Iterato
         return isset($this->mappedValue[key($this->mappedValue)]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function toArray(): array
     {
         $this->preCheck();

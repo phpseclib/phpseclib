@@ -13,8 +13,14 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA;
 
-use phpseclib4\Crypt\{Common, RSA};
-use phpseclib4\Exception\{BadConfigurationException, KeyConstraintException, LengthException, UnsupportedAlgorithmException};
+use phpseclib4\Crypt\{Common, RSA, RSA\PrivateKey};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    KeyConstraintException,
+    LengthException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\Math\BigInteger;
 
 /**
@@ -25,8 +31,6 @@ use phpseclib4\Math\BigInteger;
 final class PublicKey extends RSA implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
-
-    private static bool $oidsLoaded = false;
 
     /**
      * Exponentiate
@@ -178,8 +182,12 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @see self::sign()
      */
-    public function verify(string $message, string $signature): bool
+    public function verify(string $message, string|array $signature): bool
     {
+        if (is_array($signature)) {
+            throw new UnexpectedValueException('$message must be a string, not an array');
+        }
+
         $result = $this->handleOpenSSL('openssl_verify', $message, $signature);
         if ($result !== null) {
             return $result;
@@ -196,7 +204,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
      */
-    private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false): string
+    private function rsaes_pkcs1_v1_5_encrypt(string $m): string
     {
         $mLen = strlen($m);
 
@@ -308,7 +316,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @see self::decrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         $result = $this->handleOpenSSL('openssl_public_encrypt', $plaintext);
         if ($result !== null) {
@@ -326,7 +334,7 @@ final class PublicKey extends RSA implements Common\PublicKey
     /**
      * Converts a public key to a private key
      */
-    public function asPrivateKey(): RSA
+    public function asPrivateKey(): PrivateKey
     {
         $new = new PrivateKey();
         $new->exponent = $this->exponent;

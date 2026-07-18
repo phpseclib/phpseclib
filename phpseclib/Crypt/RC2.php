@@ -64,6 +64,7 @@ class RC2 extends BlockCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC2::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 16; // = 128 bits
 
@@ -277,7 +278,7 @@ class RC2 extends BlockCipher
      * @throws LengthException if the key length isn't supported
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(#[SensitiveParameter] string $key, ?int $t1 = null): void
+    public function setKey(#[\SensitiveParameter] string $key, ?int $t1 = null): void
     {
         $this->orig_key = $key;
 
@@ -335,7 +336,7 @@ class RC2 extends BlockCipher
      *
      * @see self::decrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         if ($this->engine == self::ENGINE_OPENSSL) {
             $temp = $this->key;
@@ -472,6 +473,7 @@ class RC2 extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setupInlineCrypt()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

@@ -23,6 +23,7 @@ namespace phpseclib4\File\ASN1\Types;
 interface BaseType
 {
     public function enableForcedCache(): void;
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function disableForcedCache(): void;
     public function isCacheForced(): bool;
     public function setWrapping(string $wrapping): void;

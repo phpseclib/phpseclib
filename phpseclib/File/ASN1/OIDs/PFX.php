@@ -21,6 +21,7 @@ namespace phpseclib4\File\ASN1\OIDs;
  * OIDs from RFC7292
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PFX
 {

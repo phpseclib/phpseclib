@@ -78,21 +78,9 @@ class DES extends BlockCipher
      * Key Length (in bytes)
      *
      * @see Common\SymmetricKey::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 8;
-
-    /**
-     * The OpenSSL names of the cipher / modes
-     *
-     * @see Common\SymmetricKey::openssl_mode_names
-     */
-    protected array $openssl_mode_names = [
-        self::MODE_ECB => 'des-ecb',
-        self::MODE_CBC => 'des-cbc',
-        self::MODE_CFB => 'des-cfb',
-        self::MODE_OFB => 'des-ofb',
-        // self::MODE_CTR is undefined for DES
-    ];
 
     /**
      * Switch for DES/3DES encryption
@@ -579,7 +567,7 @@ class DES extends BlockCipher
      *
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
             throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
@@ -1236,6 +1224,7 @@ class DES extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setupInlineCrypt()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

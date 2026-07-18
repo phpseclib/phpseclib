@@ -26,6 +26,7 @@ use phpseclib4\Math\BigInteger;
  * ASN1 Signature Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class ASN1
 {

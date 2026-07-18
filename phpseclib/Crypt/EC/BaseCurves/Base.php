@@ -32,14 +32,6 @@ abstract class Base
     protected BigInteger $order;
 
     /**
-     * Returns a random integer
-     */
-    public function randomInteger(): Integer
-    {
-        return $this->factory->randomInteger();
-    }
-
-    /**
      * Converts a BigInteger to a \phpseclib4\Math\FiniteField\Integer integer
      */
     public function convertInteger(BigInteger $x): Integer
@@ -57,6 +49,8 @@ abstract class Base
 
     /**
      * Returns the length, in bits, of the modulo
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getLength(): int
     {
@@ -137,6 +131,8 @@ abstract class Base
 
     /**
      * Use a custom defined modular reduction function
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setReduction(\Closure $func): void
     {

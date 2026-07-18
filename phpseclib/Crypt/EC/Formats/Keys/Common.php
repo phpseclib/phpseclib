@@ -65,6 +65,8 @@ trait Common
      *
      * If the key contains an implicit curve phpseclib needs the curve
      * to be explicitly provided
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setImplicitCurve(BaseCurve $curve): void
     {
@@ -125,7 +127,7 @@ trait Common
                     }
                     $modulo[] = 0;
                     $curve->setModulo(...$modulo);
-                    $len = ceil($modulo[0] / 8);
+                    //$len = ceil($modulo[0] / 8);
                     $curve->setCoefficients(
                         Strings::bin2hex((string) $data['curve']['a']),
                         Strings::bin2hex((string) $data['curve']['b'])
@@ -145,8 +147,6 @@ trait Common
      * Extract points from a string
      *
      * Supports both compressed and uncompressed points
-     *
-     * @return object[]
      */
     public static function extractPoint(string $str, BaseCurve $curve): array
     {
