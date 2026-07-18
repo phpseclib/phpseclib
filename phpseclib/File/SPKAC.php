@@ -18,10 +18,10 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
 use phpseclib4\Crypt\{PublicKeyLoader, RSA};
 use phpseclib4\Exception\{NoKeyLoadedException, UnexpectedValueException};
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps, Types\BaseType};
 use phpseclib4\File\ASN1\Types\BitString;
 use phpseclib4\File\Common\Signable;
 
@@ -29,6 +29,8 @@ use phpseclib4\File\Common\Signable;
  * Pure-PHP SPKAC Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 {
@@ -69,6 +71,8 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Enable binary output (DER)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function enableBinaryOutput(): void
     {
@@ -77,12 +81,15 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Disable binary output (ie. enable PEM)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function disableBinaryOutput(): void
     {
         self::$binary = false;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasPublicKey(): bool
     {
         return $this->spkac['publicKeyAndChallenge']['spki'] instanceof PublicKey;
@@ -93,6 +100,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['publicKeyAndChallenge']['spki'] = $publicKey;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function removePublicKey(): void
     {
         $this->spkac['publicKeyAndChallenge']['spki'] = [
@@ -148,6 +156,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['publicKeyAndChallenge']['challenge'] = $challenge & str_repeat("\x7F", strlen($challenge));
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getChallenge(): string
     {
         $this->compile();
@@ -193,9 +202,9 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
     /**
      * Identify signature algorithm from private key
      *
-     * @throws UnsupportedAlgorithmException if the algorithm is unsupported
+     * @throws \phpseclib4\Exception\UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public function identifySignatureAlgorithm(PublicKey $key): void
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->spkac['publicKeyAndChallenge']['signature'] = $algorithm;
@@ -299,6 +308,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->spkac[$offset];
     }
 
@@ -317,6 +327,7 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         unset($this->spkac[$offset]);
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->spkac instanceof Constructed ? $this->spkac->keys() : array_keys($this->spkac);

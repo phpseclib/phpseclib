@@ -297,19 +297,16 @@ abstract class RSA extends AsymmetricKey
             }
         }
 
-        static $e;
-        if (!isset($e)) {
-            $e = new BigInteger(self::$defaultExponent);
-        }
-
-        $n = clone self::$one;
-        $exponents = $coefficients = $primes = [];
-        $lcm = [
-            'top' => clone self::$one,
-            'bottom' => false,
-        ];
+        $e = new BigInteger(self::$defaultExponent);
 
         do {
+            $n = clone self::$one;
+            $exponents = $coefficients = $primes = [];
+            $lcm = [
+                'top' => clone self::$one,
+                'bottom' => false,
+            ];
+
             for ($i = 1; $i <= $num_primes; $i++) {
                 if ($i != $num_primes) {
                     $primes[$i] = BigInteger::randomPrime($regSize);
@@ -339,7 +336,6 @@ abstract class RSA extends AsymmetricKey
 
             [$temp] = $lcm['top']->divide($lcm['bottom']);
             $gcd = $temp->gcd($e);
-            $i0 = 1;
         } while (!$gcd->equals(self::$one));
 
         $coefficients[2] = $primes[2]->modInverse($primes[1]);
@@ -387,8 +383,10 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * OnLoad Handler
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
-    protected static function onLoad(array $components): RSA
+    protected static function onLoad(array $components): static
     {
         $key = $components['isPublicKey'] ?
             new PublicKey() :
@@ -601,7 +599,7 @@ abstract class RSA extends AsymmetricKey
      * Used with signature production / verification and (if the encryption mode is self::PADDING_OAEP) encryption and
      * decryption.
      */
-    public function withHash(string $hash): RSA
+    public function withHash(string $hash): static
     {
         $new = clone $this;
 
@@ -638,7 +636,7 @@ abstract class RSA extends AsymmetricKey
      * The mask generation function is used by self::PADDING_OAEP and self::PADDING_PSS and although it's
      * best if Hash and MGFHash are set to the same thing this is not a requirement.
      */
-    public function withMGFHash(string $hash): RSA
+    public function withMGFHash(string $hash): static
     {
         $new = clone $this;
 
@@ -687,7 +685,7 @@ abstract class RSA extends AsymmetricKey
      *    Typical salt lengths in octets are hLen (the length of the output
      *    of the hash function Hash) and 0.
      */
-    public function withSaltLength(?int $sLen): RSA
+    public function withSaltLength(?int $sLen): static
     {
         $new = clone $this;
         $new->sLen = $sLen;
@@ -714,7 +712,7 @@ abstract class RSA extends AsymmetricKey
      *    the empty string; other uses of the label are outside the scope of
      *    this document.
      */
-    public function withLabel(string $label): RSA
+    public function withLabel(string $label): static
     {
         $new = clone $this;
         $new->label = $label;
@@ -734,7 +732,7 @@ abstract class RSA extends AsymmetricKey
      *
      * Example: $key->withPadding(RSA::ENCRYPTION_PKCS1 | RSA::SIGNATURE_PKCS1);
      */
-    public function withPadding(int $padding): RSA
+    public function withPadding(int $padding): static
     {
         $masks = [
             self::ENCRYPTION_OAEP,
@@ -809,7 +807,7 @@ abstract class RSA extends AsymmetricKey
      * Handles OpenSSL encryption / decryption / signature creation / verification
      */
     protected function handleOpenSSL(
-        #[SensitiveParameter] string $func,
+        #[\SensitiveParameter] string $func,
         string $message,
         ?string $signature = null
     ): bool|null|string {

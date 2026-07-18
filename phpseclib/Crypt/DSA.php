@@ -237,6 +237,8 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * OnLoad Handler
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {
@@ -305,7 +307,7 @@ abstract class DSA extends AsymmetricKey
      *
      * Valid values are: ASN1, SSH2, Raw
      */
-    public function withSignatureFormat(string $format): DSA
+    public function withSignatureFormat(string $format): static
     {
         $new = clone $this;
         $new->shortFormat = $format;
@@ -315,6 +317,8 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getSignatureFormat(): string
     {

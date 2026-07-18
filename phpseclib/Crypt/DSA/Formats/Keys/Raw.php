@@ -24,15 +24,18 @@ use phpseclib4\Math\BigInteger;
  * Raw DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class Raw
 {
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
-        #[SensitiveParameter] array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         switch (true) {
             case !isset($key['p']) || !isset($key['q']) || !isset($key['g']):

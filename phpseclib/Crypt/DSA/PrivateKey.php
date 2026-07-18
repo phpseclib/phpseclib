@@ -72,7 +72,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
      *
      * @see self::verify()
      */
-    public function sign(string|Signable $source): string
+    public function sign(string|Signable $source): string|array
     {
         $format = $this->sigFormat;
 
@@ -89,7 +89,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
             if ($source instanceof CSR && !$source->hasPublicKey()) {
                 $source->setPublicKey($public);
             }
-            $source->identifySignatureAlgorithm($public);
+            $source->identifySignatureAlgorithm($this);
             $message = $source->getSignableSection();
         } else {
             $message = $source;

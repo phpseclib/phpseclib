@@ -103,6 +103,8 @@ class Stream
 
     /**
      * The Constructor
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function __construct()
     {
@@ -124,6 +126,15 @@ class Stream
         $orig = $path;
         $url = parse_url($path) + ['port' => 22];
 
+        /**
+         * @var string $scheme
+         * @var string $host
+         * @var int $port
+         * @var string $user
+         * @var string $pass
+         * @var string $query
+         * @var string $fragment
+         */
         $keys = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'];
         foreach ($keys as $key) {
             if (isset($url[$key])) {
@@ -330,7 +341,7 @@ class Stream
         }
 
         try {
-            $result = $this->sftp->put($this->path, $data, SFTP::SOURCE_STRING, $this->pos);
+            $this->sftp->put($this->path, $data, SFTP::SOURCE_STRING, $this->pos);
         } catch (\Exception $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
@@ -408,36 +419,36 @@ class Stream
 
         try {
             switch ($option) {
-                case PHP_STREAM_META_TOUCH:
+                case STREAM_META_TOUCH:
                     $time = $var[0] ?? null;
                     $atime = $var[1] ?? null;
                     $this->sftp->touch($path, $time, $atime);
                     return true;
-                case PHP_STREAM_OWNER_NAME:
+                case STREAM_META_OWNER_NAME:
                     if ($this->getNegotiatedVersion() >= 4) {
                         $this->sftp->chown($path, $var);
                         return true;
                     }
                     return false;
-                case PHP_STREAM_GROUP_NAME:
+                case STREAM_META_GROUP_NAME:
                     if ($this->getNegotiatedVersion() >= 4) {
                         $this->sftp->chgrp($path, $var);
                         return true;
                     }
                     return false;
-                case PHP_STREAM_META_OWNER:
+                case STREAM_META_OWNER:
                     if ($this->getNegotiatedVersion() < 4) {
                         $this->sftp->chown($path, $var);
                         return true;
                     }
                     return false;
-                case PHP_STREAM_META_GROUP:
+                case STREAM_META_GROUP:
                     if ($this->getNegotiatedVersion() < 4) {
                         $this->sftp->chgrp($path, $var);
                         return true;
                     }
                     return false;
-                case PHP_STREAM_META_ACCESS:
+                case STREAM_META_ACCESS:
                     $this->sftp->chmod($path, $var);
                     return true;
             }
@@ -679,7 +690,7 @@ class Stream
      * might be worthwhile to reconstruct bits 12-16 (ie. the file type) if mode doesn't have them but we'll
      * cross that bridge when and if it's reached
      */
-    private function _url_stat(string $path, int $flags): bool
+    private function _url_stat(string $path, int $flags): array|bool
     {
         $path = $this->parse_path($path);
         if (!isset($path)) {
@@ -725,7 +736,7 @@ class Stream
     }
 
     /**
-     * Close an resource
+     * Close a resource
      */
     private function _stream_close(): void
     {

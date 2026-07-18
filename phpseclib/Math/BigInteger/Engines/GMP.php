@@ -21,6 +21,7 @@ use phpseclib4\Exception\BadConfigurationException;
  * GMP Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class GMP extends Engine
 {

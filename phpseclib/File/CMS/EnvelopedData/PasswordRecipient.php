@@ -23,8 +23,7 @@ use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
 {
-    private ?string $password = null;
-
+    /** @psalm-suppress PossiblyUnusedMethod */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
@@ -89,6 +88,7 @@ class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\PasswordRecipientInfo::MAP);

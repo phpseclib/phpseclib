@@ -83,6 +83,17 @@ abstract class AsymmetricKey
      */
     protected static ?string $configFile;
 
+    /**
+     * Algorithm Name
+     *
+     * This really shouldn't be needed. The child classes that extend AsymmetricKey define it so
+     * there's no need for this class to do so, however, if this class doesn't define it then psalm
+     * will complain
+     *
+     * @see self::load()
+     */
+    public const ALGORITHM = '';
+
     abstract public function toString(string $type, array $options = []): array|string;
 
     /**
@@ -120,9 +131,9 @@ abstract class AsymmetricKey
      * Load the key
      */
     public static function load(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
-    ): AsymmetricKey {
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): static {
         self::initialize_static_variables();
 
         $class = new \ReflectionClass(static::class);
@@ -162,8 +173,8 @@ abstract class AsymmetricKey
      * Loads a private key
      */
     public static function loadPrivateKey(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] string $password = ''
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] string $password = ''
     ): PrivateKey {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
@@ -191,7 +202,7 @@ abstract class AsymmetricKey
     /**
      * Loads parameters
      */
-    public static function loadParameters(string $key): AsymmetricKey
+    public static function loadParameters(string $key): static
     {
         try {
             $key = self::load($key);
@@ -209,9 +220,9 @@ abstract class AsymmetricKey
      */
     public static function loadFormat(
         string $type,
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
-    ): AsymmetricKey {
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): static {
         self::initialize_static_variables();
 
         $components = false;
@@ -236,8 +247,8 @@ abstract class AsymmetricKey
      */
     public static function loadPrivateKeyFormat(
         string $type,
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
     ): PrivateKey {
         $key = self::loadFormat($type, $key, $password);
         if (!$key instanceof PrivateKey) {
@@ -261,10 +272,10 @@ abstract class AsymmetricKey
     /**
      * Loads parameters
      */
-    public static function loadParametersFormat(string $type, string $key): AsymmetricKey
+    public static function loadParametersFormat(string $type, string $key): static
     {
         $key = self::loadFormat($type, $key);
-        if (!$key instanceof PrivateKey && !$key instanceof PublicKey) {
+        if ($key instanceof PrivateKey || $key instanceof PublicKey) {
             throw new NoKeyLoadedException('The key that was loaded was not a parameter');
         }
         return $key;
@@ -273,7 +284,7 @@ abstract class AsymmetricKey
     /**
      * Validate Plugin
      */
-    protected static function validatePlugin(string $format, string $type, ?string $method = null)
+    protected static function validatePlugin(string $format, string $type, ?string $method = null): string
     {
         $type = strtolower($type);
         if (!isset(self::$plugins[static::ALGORITHM][$format][$type])) {
@@ -329,6 +340,8 @@ abstract class AsymmetricKey
      * Sets the OpenSSL config file path
      *
      * Set to the empty string to use the default config file
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setOpenSSLConfigPath(string $path): void
     {
@@ -429,7 +442,7 @@ abstract class AsymmetricKey
     /**
      * Determines which hashing function should be used
      */
-    public function withHash(string $hash): AsymmetricKey
+    public function withHash(string $hash): static
     {
         $new = clone $this;
 
@@ -450,6 +463,11 @@ abstract class AsymmetricKey
     /**
      * Compute the pseudorandom k for signature generation,
      * using the process specified for deterministic DSA.
+     *
+     * Not currently used but the method exists in case we do
+     * want to use it at some point
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function computek(string $h1): string
     {

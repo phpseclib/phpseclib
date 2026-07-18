@@ -16,7 +16,7 @@ namespace phpseclib4\Crypt\EC;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\{Common, EC, Hash};
 use phpseclib4\Crypt\EC\BaseCurves\{Montgomery as MontgomeryCurve, TwistedEdwards as TwistedEdwardsCurve};
-use phpseclib4\Crypt\EC\Curves\Ed25519;
+use phpseclib4\Crypt\EC\Curves\{Ed25519, Ed448};
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
 use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException, UnexpectedValueException};
@@ -36,7 +36,7 @@ final class PublicKey extends EC implements Common\PublicKey
      *
      * @see self::verify()
      */
-    public function verify(string $message, string $signature): bool
+    public function verify(string $message, string|array $signature): bool
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
@@ -44,6 +44,14 @@ final class PublicKey extends EC implements Common\PublicKey
 
         $shortFormat = $this->shortFormat;
         $format = $this->sigFormat;
+
+        if ($shortFormat == 'Raw') {
+            if (is_string($signature)) {
+                throw new UnexpectedValueException('Raw signatures must be arrays');
+            }
+        } elseif (is_array($signature)) {
+            throw new UnexpectedValueException('The only signature format that takes in arrays is the Raw format');
+        }
 
         if (self::$forcedEngine === 'libsodium' && !$this->curve instanceof Ed25519) {
             throw new BadConfigurationException('Engine libsodium is only supported for Ed25519');
@@ -213,7 +221,8 @@ final class PublicKey extends EC implements Common\PublicKey
         $u1 = $this->curve->convertInteger($u1);
         $u2 = $this->curve->convertInteger($u2);
 
-        [$x1, $y1] = $this->curve->multiplyAddPoints(
+        // multiplyPoint() always returns [$x, $y]; only $x is needed here
+        [$x1, ] = $this->curve->multiplyAddPoints(
             [$this->curve->getBasePoint(), $this->QA],
             [$u1, $u2]
         );

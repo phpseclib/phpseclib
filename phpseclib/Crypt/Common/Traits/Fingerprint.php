@@ -37,7 +37,7 @@ trait Fingerprint
      */
     public function getFingerprint(string $algorithm = 'md5'): string
     {
-        $type = self::validatePlugin('Keys', 'OpenSSH', 'savePublicKey');
+        self::validatePlugin('Keys', 'OpenSSH', 'savePublicKey');
         $key = $this->toString('OpenSSH', ['binary' => true]);
         switch ($algorithm) {
             case 'sha256':

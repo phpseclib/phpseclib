@@ -165,7 +165,7 @@ class Rijndael extends BlockCipher
      * @throws LengthException if the key length isn't supported
      * @see setKeyLength()
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         switch (strlen($key)) {
             case 16:
@@ -532,6 +532,7 @@ class Rijndael extends BlockCipher
                     $this->dw[$row] = $temp;
                 }
 
+                /** @psalm-suppress LoopInvalidation */
                 $col = 0;
                 $row++;
             }
@@ -576,7 +577,6 @@ class Rijndael extends BlockCipher
      * @see self::encryptBlock()
      * @see self::setupInlineCrypt()
      * @see self::subWord()
-     * @return array &$tables
      */
     protected function &getTables(): array
     {
@@ -752,7 +752,8 @@ class Rijndael extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib4\Crypt\Common\SymmetricKey::setupInlineCrypt()
+     * @see Common\SymmetricKey::setup()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {
@@ -894,7 +895,7 @@ class Rijndael extends BlockCipher
      * @see self::decrypt()
      * @see parent::encrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         $this->setup();
 

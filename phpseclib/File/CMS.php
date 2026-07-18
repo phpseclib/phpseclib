@@ -18,12 +18,14 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedValueException};
-use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\{Constructed, Types\BaseType};
 
 /**
  * Pure-PHP CMS Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 abstract class CMS
 {
@@ -99,6 +101,7 @@ abstract class CMS
     }
 
     // this NEEDS to be public so that Constructed.php can call it
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function mapInCerts(Constructed $certs): void
     {
         ASN1::disableCacheInvalidation();
@@ -111,6 +114,7 @@ abstract class CMS
         ASN1::enableCacheInvalidation();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function mapInCRLs(Constructed $crls): void
     {
         ASN1::disableCacheInvalidation();
@@ -125,6 +129,8 @@ abstract class CMS
 
     /**
      * Enable binary output (DER)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function enableBinaryOutput(): void
     {
@@ -133,6 +139,8 @@ abstract class CMS
 
     /**
      * Disable binary output (ie. enable PEM)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function disableBinaryOutput(): void
     {

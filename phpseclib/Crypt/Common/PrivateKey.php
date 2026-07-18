@@ -22,7 +22,7 @@ use phpseclib4\File\Common\Signable;
  */
 interface PrivateKey
 {
-    public function sign(string|Signable $message): string;
+    public function sign(string|Signable $source): string|array;
     //public function decrypt($ciphertext);
     public function getPublicKey(): PublicKey;
     public function toString(string $type, array $options = []): string;
@@ -30,5 +30,5 @@ interface PrivateKey
     /**
      * @return static
      */
-    public function withPassword(#[SensitiveParameter] ?string $password = null): PrivateKey;
+    public function withPassword(#[\SensitiveParameter] ?string $password = null): PrivateKey;
 }

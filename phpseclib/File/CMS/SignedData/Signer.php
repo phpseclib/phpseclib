@@ -18,15 +18,20 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS\SignedData;
 
 use phpseclib4\Common\Functions\Arrays;
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
-use phpseclib4\File\ASN1\{Constructed, Maps};
-use phpseclib4\File\ASN1\Types\{BitString, OctetString};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\SignedData;
 use phpseclib4\File\Common\Signable;
 
+/**
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
+ */
 class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 {
     use \phpseclib4\File\Common\Traits\ASN1Signature;
@@ -72,8 +77,11 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public Constructed|array|null $signer;
     public ?SignedData $cms = null;
-    public Choice|Constructed|null $parent;
+    /** @psalm-suppress PossiblyUnusedProperty */
+    public Constructed|null $parent;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $signer = null)
@@ -221,6 +229,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         ASN1::enableCacheInvalidation();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function listSignedAttrs(): array
     {
         $names = [];
@@ -230,6 +239,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $names;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasSignedAttr(string $type): bool
     {
         return $this->getSignedAttr($type) !== null;
@@ -259,6 +269,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->signer['signedAttrs'][] = ['type' => $type, 'value' => [$value]];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function listUnsignedAttrs(): array
     {
         $names = [];
@@ -268,6 +279,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $names;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function hasUnsignedAttr(string $type): bool
     {
         return $this->getUnsignedAttr($type) !== null;
@@ -284,6 +296,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function setUnsignedAttr(string $type, mixed $value): void
     {
         $this->compile();
@@ -428,6 +441,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms->recalculateHashAlgorithms();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function validateSignature(bool $caonly = true): bool
     {
         if (count($this->signer['signedAttrs'])) {
@@ -508,7 +522,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
      *
      * @throws UnsupportedAlgorithmException if the algorithm is unsupported
      */
-    public function identifySignatureAlgorithm(PublicKey $key): void
+    public function identifySignatureAlgorithm(PrivateKey $key): void
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->signer['signatureAlgorithm'] = $algorithm;
@@ -597,6 +611,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->signer[$offset];
     }
 
@@ -650,6 +665,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->signer->valid();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->signer instanceof Constructed ? $this->signer->keys() : array_keys($this->signer);
@@ -669,7 +685,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public function hasEncoded(): bool
     {
-        $this->compile();
+        //$this->compile();
         return $this->signer->hasEncoded();
     }
 }

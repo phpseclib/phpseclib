@@ -40,6 +40,7 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * XML Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class XML
 {
@@ -57,10 +58,12 @@ abstract class XML
 
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         self::initialize_static_variables();
 
@@ -164,8 +167,6 @@ abstract class XML
 
     /**
      * Extract points from an XML document
-     *
-     * @return object[]
      */
     private static function extractPointRFC4050(\DOMXPath $xpath, BaseCurve $curve): array
     {
@@ -214,7 +215,7 @@ abstract class XML
             return self::loadCurveByParamRFC4050($xpath);
         }
 
-        $params = self::query($xpath, 'ecparameters', 'No parameters are present');
+        self::query($xpath, 'ecparameters', 'No parameters are present');
 
         $fieldTypes = [
             'prime-field' => ['fieldid/prime/p'],
@@ -244,6 +245,7 @@ abstract class XML
         switch ($type) {
             case 'prime-field':
                 $curve = new PrimeCurve();
+                /** @psalm-suppress UndefinedVariable $p */
                 $curve->setModulo(new BigInteger($p, 256));
                 $curve->setCoefficients(
                     new BigInteger($a, 256),
@@ -294,6 +296,7 @@ abstract class XML
             case 'prime-field':
                 $curve = new PrimeCurve();
 
+                /** @psalm-suppress UndefinedVariable $p */
                 $p = str_replace(["\r", "\n", ' ', "\t"], '', $p);
                 $curve->setModulo(new BigInteger($p));
 

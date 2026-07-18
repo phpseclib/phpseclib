@@ -15,7 +15,7 @@ namespace phpseclib4\Crypt\DSA;
 
 use phpseclib4\Crypt\{Common, DSA};
 use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\{BadConfigurationException, UnexpectedValueException};
 
 /**
  * DSA Public Key
@@ -31,7 +31,7 @@ final class PublicKey extends DSA implements Common\PublicKey
      *
      * @see self::verify()
      */
-    public function verify(string $message, string $signature): bool
+    public function verify(string $message, string|array $signature): bool
     {
         if (self::$forcedEngine === 'libsodium') {
             throw new BadConfigurationException('Engine libsodium is forced but unsupported for DSA');
@@ -41,7 +41,16 @@ final class PublicKey extends DSA implements Common\PublicKey
             throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
         }
 
+        $shortFormat = $this->shortFormat;
         $format = $this->sigFormat;
+
+        if ($shortFormat == 'Raw') {
+            if (is_string($signature)) {
+                throw new UnexpectedValueException('Raw signatures must be arrays');
+            }
+        } elseif (is_array($signature)) {
+            throw new UnexpectedValueException('The only signature format that takes in arrays is the Raw format');
+        }
 
         try {
             ['r' => $r, 's' => $s] = $format::load($signature);

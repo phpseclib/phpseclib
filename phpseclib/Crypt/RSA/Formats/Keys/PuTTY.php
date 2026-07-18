@@ -24,6 +24,7 @@ use phpseclib4\Math\BigInteger;
  * PuTTY Formatted RSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PuTTY extends Progenitor
 {
@@ -43,8 +44,8 @@ abstract class PuTTY extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password
     ): array {
         static $one;
         if (!isset($one)) {
@@ -56,7 +57,7 @@ abstract class PuTTY extends Progenitor
             return $components;
         }
         [
-            'type' => $type,
+            //'type' => $type,
             'comment' => $comment,
             'public' => $public,
             'private' => $private
@@ -79,15 +80,17 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,
         BigInteger $e,
-        #[SensitiveParameter] BigInteger $d,
-        #[SensitiveParameter] array $primes,
-        #[SensitiveParameter] array $exponents,
-        #[SensitiveParameter] array $coefficients,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if (count($primes) != 2) {
@@ -102,6 +105,8 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {

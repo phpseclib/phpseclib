@@ -12,8 +12,10 @@ namespace phpseclib4\Tests\Unit\Functions;
 
 use phpseclib4\Common\Functions\Arrays as ArrayFunctions;
 use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Tests\PhpseclibTestCase;
+use phpseclib4\File\X509;
 
-class Arrays extends PhpseclibTestCase
+class ArraysTest extends PhpseclibTestCase
 {
     public function testBadKeys(): void
     {
@@ -36,12 +38,15 @@ AAOBgQAhrNWuyjSJWsKrUtKyNGadeqvu5nzVfsJcKLt0AMkQH0IT/GmKHiSgAgDp
 ulvKGQSy068Bsn5fFNum21K5mvMSf3yinDtvmX3qUA12IxL/92ZzKbeVCq3Yi7Le
 IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 -----END CERTIFICATE-----';
+        $cert = X509::load($cert);
 
         $path = 'tbsCertificate/extensions/*/extnValue/*/distributionPoint/fullName/*/*';
+        /** @psalm-suppress UnusedClosureParam */
         ArrayFunctions::subArrayMapWithWildcards($cert, $path, fn($v) => 'zzz');
-        $this->assertSame('zzz', $cert['tbsCertificate']['extensions'][1]['extnValue'][0]['distributionPoint']['fullName'][0]['uniformResourceIdentifier']);
+        $this->assertEquals('zzz', $cert['tbsCertificate']['extensions'][1]['extnValue'][0]['distributionPoint']['fullName'][0]['uniformResourceIdentifier']);
 
         $path = 'tbsCertificate/subjectPublicKeyInfo/xxx';
+        /** @psalm-suppress UnusedClosureParam */
         ArrayFunctions::subArrayMapWithWildcards($cert, $path, fn($v) => 'zzz');
         $this->assertInstanceOf(PublicKey::class, $cert['tbsCertificate']['subjectPublicKeyInfo']);
     }

@@ -1,0 +1,6 @@
+<?php
+define('OPENSSL_KEYTYPE_ED25519', -1);
+define('OPENSSL_KEYTYPE_ED448', -1);
+define('OPENSSL_KEYTYPE_X25519', -1);
+define('OPENSSL_KEYTYPE_X448', -1);
+define('OPENSSL_PKCS1_PSS_PADDING', -1);

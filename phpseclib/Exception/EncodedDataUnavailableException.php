@@ -22,10 +22,4 @@ namespace phpseclib4\Exception;
  */
 class EncodedDataUnavailableException extends UnexpectedValueException
 {
-    public ?array $meta = null;
-
-    public function addMetadata(array $meta): void
-    {
-        $this->meta = $meta;
-    }
 }

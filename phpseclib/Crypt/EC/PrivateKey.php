@@ -95,7 +95,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
      *
      * @see self::verify()
      */
-    public function sign(string|Signable $source): string
+    public function sign(string|Signable $source): string|array
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
@@ -106,7 +106,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             if ($source instanceof CSR && !$source->hasPublicKey()) {
                 $source->setPublicKey($public);
             }
-            $source->identifySignatureAlgorithm($public);
+            $source->identifySignatureAlgorithm($this);
             $message = $source->getSignableSection();
         } else {
             $message = $source;
@@ -116,7 +116,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $order = $this->curve->getOrder();
 
         $shortFormat = $this->shortFormat;
-        $format = $this->sigFormat;
 
         if (self::$forcedEngine === 'libsodium' && !$this->curve instanceof Ed25519) {
             throw new BadConfigurationException('Engine libsodium is only supported for Ed25519');
@@ -261,7 +260,8 @@ final class PrivateKey extends EC implements Common\PrivateKey
 
         while (true) {
             $k = BigInteger::randomRange(self::$one, $order->subtract(self::$one));
-            [$x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
+            // multiplyPoint() always returns [$x, $y]; only $x is needed here
+            [$x, ] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
             $x = $x->toBigInteger();
             [, $r] = $x->divide($order);
             if ($r->equals(self::$zero)) {
@@ -282,20 +282,19 @@ final class PrivateKey extends EC implements Common\PrivateKey
         // suspect
         /*
         // if this were actually being used it'd probably be better if this lived in load() and createKey()
-        $this->q = $this->curve->getOrder();
-        $dA = $this->dA->toBigInteger();
-        $this->x = $dA;
+        $q = $this->curve->getOrder();
+        $x = $this->dA->toBigInteger();
 
         $h1 = $this->hash->hash($message);
         $k = $this->computek($h1);
-        [x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
+        [$x, $y] = $this->curve->multiplyPoint($this->curve->getBasePoint(), $k);
         $x = $x->toBigInteger();
-        [, $r] = $x->divide($this->q);
-        $kinv = $k->modInverse($this->q);
+        [, $r] = $x->divide($q);
+        $kinv = $k->modInverse($q);
         $h1 = $this->bits2int($h1);
         $temp = $h1->add($dA->multiply($r));
         $temp = $kinv->multiply($temp);
-        [, $s] = $temp->divide($this->q);
+        [, $s] = $temp->divide($q);
         */
 
         $signature = $this->formatSignature($r, $s);
@@ -350,7 +349,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
     /**
      * Returns a signature in the appropriate format
      */
-    private function formatSignature(BigInteger $r, BigInteger $s): string
+    private function formatSignature(BigInteger $r, BigInteger $s): string|array
     {
         $format = $this->sigFormat;
 

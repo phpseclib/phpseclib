@@ -35,6 +35,7 @@ use phpseclib4\Math\BigInteger;
  * PKCS#8 Formatted RSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -61,8 +62,8 @@ abstract class PKCS8 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $components = match (true) {
             str_contains($key, 'PUBLIC') => ['isPublicKey' => true],
@@ -95,11 +96,11 @@ abstract class PKCS8 extends Progenitor
     public static function savePrivateKey(
         BigInteger $n,
         BigInteger $e,
-        #[SensitiveParameter] BigInteger $d,
-        #[SensitiveParameter] array $primes,
-        #[SensitiveParameter] array $exponents,
-        #[SensitiveParameter] array $coefficients,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $key = PKCS1::savePrivateKey($n, $e, $d, $primes, $exponents, $coefficients);

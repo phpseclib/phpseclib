@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     xmlns="https://getpsalm.org/schema/config"
-    errorLevel="1"
-    errorBaseline="psalm_baseline.xml"
+    errorLevel="7"
     findUnusedCode="true"
     findUnusedPsalmSuppress="true"
     sealAllMethods="true"
@@ -15,7 +14,43 @@
         <directory name="../phpseclib"/>
         <directory name="../tests"/>
     </projectFiles>
+    <stubs>
+        <file name="stubs/openssl.php"/>
+    </stubs>
     <issueHandlers>
+        <MissingOverrideAttribute errorLevel="suppress" />
+        <UnsupportedPropertyReferenceUsage errorLevel="suppress" />
+        <UnusedForeachValue errorLevel="suppress" />
+        <UnusedVariable>
+            <errorLevel type="suppress">
+                <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
+                <file name="../phpseclib/File/ANSI.php"/>
+                <file name="../phpseclib/File/Common/Traits/ASN1Signature.php"/>
+                <file name="../phpseclib/File/Common/Traits/Extension.php"/>
+                <file name="../phpseclib/Net/SFTP.php"/>
+            </errorLevel>
+        </UnusedVariable>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/File/ASN1/Maps"/>
+                <directory name="../tests"/>
+            </errorLevel>
+        </UnusedClass>
+        <PossiblyUnusedMethod>
+            <errorLevel type="suppress">
+                <directory name="../tests"/>
+            </errorLevel>
+        </PossiblyUnusedMethod>
+        <UnusedParam>
+            <errorLevel type="suppress">
+                <file name="../phpseclib/Net/SFTP/Stream.php"/>
+            </errorLevel>
+        </UnusedParam>
+        <PossiblyUnusedParam>
+            <errorLevel type="suppress">
+                <directory name="../phpseclib/Math/BigInteger/Engines/BCMath"/>
+            </errorLevel>
+        </PossiblyUnusedParam>
         <Trace>
             <errorLevel type="error">
                 <directory name=".."/>

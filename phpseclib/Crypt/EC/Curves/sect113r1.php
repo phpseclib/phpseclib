@@ -18,6 +18,7 @@ namespace phpseclib4\Crypt\EC\Curves;
 use phpseclib4\Crypt\EC\BaseCurves\Binary;
 use phpseclib4\Math\BigInteger;
 
+/** @psalm-api */
 class sect113r1 extends Binary
 {
     public function __construct()

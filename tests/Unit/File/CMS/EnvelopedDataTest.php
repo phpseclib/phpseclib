@@ -351,9 +351,14 @@ HZ5LFXx7/Cul
         $x509 = new X509($ec->getPublicKey());
         $ec->sign($x509);
 
-        $rsa = RSA::createKey(2048);
+        $rsa = RSA::createKey(2048)->withPassword('dummy');
+        RSA\Formats\Keys\PKCS8::setIterationCount(1024);
         $x509a = new X509($rsa->getPublicKey());
         $rsa->sign($x509a);
+
+        // default is 2048
+        CMS\EnvelopedData\Recipient::setIterationCount(1024);
+        CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey::setIterationCount(4096);
 
         $key = random_bytes(16);
         $cms = new CMS\EncryptedData($plaintext, key: $key);

@@ -22,6 +22,7 @@ use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class KeyAgreeRecipient extends Recipient
 {
+    /** @psalm-suppress PossiblyUnusedMethod */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
@@ -56,6 +57,7 @@ class KeyAgreeRecipient extends Recipient
         ASN1::enableCacheInvalidation();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\KeyAgreeRecipientInfo::MAP);
@@ -82,6 +84,7 @@ class KeyAgreeRecipient extends Recipient
         }
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getEncryptedKeys(): array
     {
         $result = [];

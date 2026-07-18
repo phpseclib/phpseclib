@@ -183,6 +183,12 @@ IgMgAAQBQu3OdMu7sPorh3jArVsAqSjQVHFXoh5nutPQ7/4=
         PKCS1::useSpecifiedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
         PKCS8::useNamedCurve();
+
+        $this->assertFalse($key->hasPassword());
+        $key = $key->withPassword('password');
+        $this->assertTrue($key->hasPassword());
+        $key = $key->withoutPassword();
+        $this->assertFalse($key->hasPassword());
     }
 
     // openssl ecparam -name sect113r1 -genkey -noout -out sect113r1.pem
@@ -220,6 +226,7 @@ Ag8BAAAAAAAAANnM7Io55W8CAQIEOjA4AgEBBA8AXtfDMRsRTx8snPbWHquhIgMg
 AAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf/5keGa4=
 -----END PRIVATE KEY-----');
         $this->assertSameNL('sect113r1', $key->getCurve());
+        $this->assertSame(120, $key->getLength());
 
         // see testBinaryPKCS1PrivateKeySpecifiedCurve() for an
         // explanation of the differences between the above key
@@ -588,7 +595,7 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 //////////////////////////////////////////////8=
 -----END PRIVATE KEY-----';
 
-        $private = EC::loadFormat('PKCS8', $key);
+        EC::loadFormat('PKCS8', $key);
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github1712')]

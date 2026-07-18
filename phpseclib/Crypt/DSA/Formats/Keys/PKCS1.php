@@ -40,6 +40,7 @@ use phpseclib4\Math\BigInteger;
  * PKCS#1 Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -47,8 +48,8 @@ abstract class PKCS1 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $key = parent::loadHelper($key, $password);
 
@@ -123,8 +124,8 @@ abstract class PKCS1 extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $key = [
@@ -143,6 +144,8 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(
         BigInteger $p,

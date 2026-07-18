@@ -62,9 +62,9 @@ use phpseclib4\Crypt\{
     Twofish
 };
 use phpseclib4\Crypt\Common\{PrivateKey, SymmetricKey};
-use phpseclib4\Exception\{
-    ConnectionClosedException,
+use phpseclib4\Exception\{ConnectionClosedException,
     InvalidArgumentException,
+    InvalidModeException,
     InvalidPacketLengthException,
     InvalidStateException,
     LengthException,
@@ -75,8 +75,7 @@ use phpseclib4\Exception\{
     UnexpectedValueException,
     UnsupportedAlgorithmException,
     UnsupportedCurveException,
-    UnsupportedValueException
-};
+    UnsupportedValueException};
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Net\SSH2\{
     ChannelConnectionFailureReason,
@@ -1018,6 +1017,8 @@ class SSH2
      *
      * Possible $engine values:
      * OpenSSL, Eval, PHP
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setCryptoEngine(int $engine): void
     {
@@ -1030,6 +1031,8 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function sendIdentificationStringFirst(): void
     {
@@ -1042,6 +1045,8 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function sendIdentificationStringLast(): void
     {
@@ -1054,6 +1059,8 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function sendKEXINITFirst(): void
     {
@@ -1066,6 +1073,8 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function sendKEXINITLast(): void
     {
@@ -1378,7 +1387,7 @@ class SSH2
                     case MessageType::KEXINIT:
                         break 2;
                     case MessageType::DISCONNECT:
-                        return $this->handleDisconnect($kexinit_payload_server);
+                        $this->handleDisconnect($kexinit_payload_server);
                 }
                 $this->kex_buffer[] = $kexinit_payload_server;
             }
@@ -1388,7 +1397,7 @@ class SSH2
 
         $response = $kexinit_payload_server;
         Strings::shift($response, 1); // skip past the message number (it should be SSH_MSG_KEXINIT)
-        $server_cookie = Strings::shift($response, 16);
+        Strings::shift($response, 16); // skip past the server cookie
 
         [
             $this->kex_algorithms,
@@ -1401,7 +1410,7 @@ class SSH2
             $this->compression_algorithms_server_to_client,
             $this->languages_client_to_server,
             $this->languages_server_to_client,
-            $first_kex_packet_follows
+            //$first_kex_packet_follows
         ] = Strings::unpackSSH2('L10C', $response);
         if (in_array('kex-strict-s-v00@openssh.com', $this->kex_algorithms)) {
             if (!isset($this->session_id)) {
@@ -1529,7 +1538,7 @@ class SSH2
                 $this->updateLogHistory('UNKNOWN (34)', 'SSH_MSG_KEXDH_GEX_REQUEST');
 
                 $response = $this->get_binary_packet_or_close(MessageTypeExtra::KEXDH_GEX_GROUP);
-                [$type, $primeBytes, $gBytes] = Strings::unpackSSH2('Css', $response);
+                [, $primeBytes, $gBytes] = Strings::unpackSSH2('Css', $response);
                 $this->updateLogHistory('UNKNOWN (31)', 'SSH_MSG_KEXDH_GEX_GROUP');
 
                 $prime = new BigInteger($primeBytes, -256);
@@ -1572,7 +1581,7 @@ class SSH2
         $response = $this->get_binary_packet_or_close($serverKexReplyMessage);
 
         [
-            $type,
+            , // $type (which was already checked with get_binary_packet_or_close()
             $server_public_host_key,
             $theirPublicBytes,
             $this->signature
@@ -1907,7 +1916,7 @@ class SSH2
      *
      * @see self::_login()
      */
-    public function login(string $username, #[SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
+    public function login(string $username, #[\SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
     {
         if (!($this->bitmap & self::MASK_CONSTRUCTOR)) {
             $this->connect();
@@ -1938,7 +1947,7 @@ class SSH2
      *
      * @see self::_login_helper()
      */
-    protected function sublogin(string $username, #[SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
+    protected function sublogin(string $username, #[\SensitiveParameter] string|PrivateKey|array|Agent ...$args): bool
     {
         if (empty($args)) {
             return $this->login_helper($username);
@@ -1974,7 +1983,7 @@ class SSH2
                                 }
                             }
                             if ($hasArray && $hasString) {
-                                foreach ($args as $key => $arg) {
+                                foreach ($args as $arg) {
                                     if (is_array($arg)) {
                                         $newargs[] = $arg;
                                         break 2;
@@ -2014,7 +2023,7 @@ class SSH2
      */
     private function login_helper(
         string $username,
-        #[SensitiveParameter] string|PrivateKey|array|Agent|null $password = null
+        #[\SensitiveParameter] string|PrivateKey|array|Agent|null $password = null
     ): bool {
         if (!($this->bitmap & self::MASK_LOGIN_REQ)) {
             $packet = Strings::packSSH2('Cs', MessageType::SERVICE_REQUEST, 'ssh-userauth');
@@ -2034,8 +2043,7 @@ class SSH2
                 throw $e;
             }
 
-            [$type] = Strings::unpackSSH2('C', $response);
-            [$service] = Strings::unpackSSH2('s', $response);
+            [, $service] = Strings::unpackSSH2('Cs', $response);
 
             if ($service != 'ssh-userauth') {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
@@ -2155,7 +2163,7 @@ class SSH2
      *
      * See {@link http://tools.ietf.org/html/rfc4256 RFC4256} for details.  This is not a full-featured keyboard-interactive authenticator.
      */
-    private function keyboard_interactive_login(string $username, #[SensitiveParameter] string|array $password): bool
+    private function keyboard_interactive_login(string $username, #[\SensitiveParameter] string|array $password): bool
     {
         $packet = Strings::packSSH2(
             'Cs5',
@@ -2287,7 +2295,7 @@ class SSH2
      * {@internal It might be worthwhile, at some point, to protect against {@link http://tools.ietf.org/html/rfc4251#section-9.3.9 traffic analysis}
      *           by sending dummy SSH_MSG_IGNORE messages.}
      */
-    private function privatekey_login(string $username, #[SensitiveParameter] PrivateKey $privatekey): bool
+    private function privatekey_login(string $username, #[\SensitiveParameter] PrivateKey $privatekey): bool
     {
         $publickey = $privatekey->getPublicKey();
 
@@ -2446,6 +2454,8 @@ class SSH2
 
     /**
      * Get the output from stdError
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getStdError(): string
     {
@@ -2844,7 +2854,8 @@ class SSH2
      * returns that and then that that was passed into stopSubsystem() but that'll be saved for a future date and implemented
      * if there's sufficient demand for such a feature.
      *
-          * @see self::stopSubsystem()
+     * @see self::stopSubsystem()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function startSubsystem(string $subsystem): bool
     {
@@ -2877,6 +2888,8 @@ class SSH2
      * Stops a subsystem.
      *
      * @see self::startSubsystem()
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function stopSubsystem(): void
     {
@@ -3281,7 +3294,7 @@ class SSH2
                 }
             }
         }
-        $padding_length = 0;
+
         $payload = $packet->plain;
         ['padding_length' => $padding_length] = unpack('Cpadding_length', Strings::shift($payload, 1));
         if ($padding_length > 0) {
@@ -3316,15 +3329,16 @@ class SSH2
                     if ($cinfo > 7) {
                         throw new UnexpectedValueException("CINFO above 7 is not allowed ($cinfo)");
                     }
-                    $windowSize = 1 << ($cinfo + 8);
+                    //$windowSize = 1 << ($cinfo + 8);
 
                     $flg = ord($payload[1]);
-                    //$fcheck = $flg && 0x0F;
+                    //$fcheck = $flg & 0x0F;
+
                     if ((($cmf << 8) | $flg) % 31) {
                         throw new UnexpectedValueException('fcheck failed');
                     }
-                    $fdict = boolval($flg & 0x20);
-                    $flevel = ($flg & 0xC0) >> 6;
+                    //$fdict = boolval($flg & 0x20);
+                    //$flevel = ($flg & 0xC0) >> 6;
 
                     $this->decompress_context = inflate_init(ZLIB_ENCODING_RAW, ['window' => $cinfo + 8]);
                     $payload = substr($payload, 2);
@@ -3367,7 +3381,6 @@ class SSH2
         if (strlen($packet->raw) < $packet_length_header_size) {
             return;
         }
-        $packet_length = 0;
         $added_validation_length = 0; // indicates when the packet length header is included when validating packet length against block size
         if ($this->decrypt) {
             switch ($this->decryptName) {
@@ -3445,7 +3458,7 @@ class SSH2
     private function filter(string $payload): string
     {
         if (ord($payload[0]) == MessageType::DISCONNECT) {
-            return $this->handleDisconnect($payload);
+            $this->handleDisconnect($payload);
         }
 
         if (!isset($this->session_id) && $this->keyExchangeInProgress) {
@@ -3519,7 +3532,6 @@ class SSH2
                 case MessageType::CHANNEL_REQUEST:
                     if (strlen($payload) == 31) {
                         [
-                            'packet_type' => $packet_type,
                             'channel' => $channel,
                             'length' => $length
                         ] = unpack('cpacket_type/Nchannel/Nlength', $payload);
@@ -3736,6 +3748,8 @@ class SSH2
                         */
                         // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
                         [$data_type_code, $data] = Strings::unpackSSH2('Ns', $response);
+                        unset($data_type_code); // suppress psalm error
+
                         $this->stdErrorLog .= $data;
                         if ($skip_extended || $this->quiet_mode) {
                             continue 2;
@@ -3820,6 +3834,7 @@ class SSH2
                                 }
                                 return $this->get_channel_packet($client_channel, $skip_extended);
                         }
+                        /** @psalm-suppress UnevaluatedCode */
                         break;
                     case MessageType::CHANNEL_REQUEST:
                         switch ($type) {
@@ -3905,7 +3920,7 @@ class SSH2
      * @see self::_get_binary_packet()
      */
     protected function send_binary_packet(
-        #[SensitiveParameter] string $data,
+        #[\SensitiveParameter] string $data,
         ?string $logged = null
     ): void {
         if (!is_resource($this->fsock) || feof($this->fsock)) {
@@ -4078,6 +4093,9 @@ class SSH2
      */
     private function append_log(string $message_number, string $message): void
     {
+        if (!defined('NET_SSH2_LOGGING')) {
+            throw new InvalidModeException('Logging is not enabled');
+        }
         $this->append_log_helper(
             NET_SSH2_LOGGING,
             $message_number,
@@ -4109,6 +4127,7 @@ class SSH2
                 $message_number_log[] = $message_number;
                 break;
             case self::LOG_SIMPLE_REALTIME:
+            //case self::LOG_REALTIME_SIMPLE:
                 echo $message_number;
                 echo PHP_SAPI == 'cli' ? "\r\n" : '<br>';
                 @flush();
@@ -4146,6 +4165,9 @@ class SSH2
             // at the beginning of the file
             case self::LOG_REALTIME_FILE:
                 if (!isset($realtime_log_file)) {
+                    if (!defined('NET_SSH2_LOG_REALTIME_FILENAME')) {
+                        throw new InvalidModeException('NET_SSH2_LOG_REALTIME_FILENAME must be defined');
+                    }
                     // PHP doesn't seem to like using constants in fopen()
                     $filename = NET_SSH2_LOG_REALTIME_FILENAME;
                     $fp = fopen($filename, 'w');
@@ -4167,10 +4189,6 @@ class SSH2
                     $realtime_log_wrap = true;
                 }
                 fwrite($realtime_log_file, $entry);
-                break;
-            case self::LOG_REALTIME_SIMPLE:
-                echo $message_number;
-                echo PHP_SAPI == 'cli' ? "\r\n" : '<br>';
         }
     }
 
@@ -4181,7 +4199,7 @@ class SSH2
      */
     protected function send_channel_packet(
         int $client_channel,
-        #[SensitiveParameter] string $data
+        #[\SensitiveParameter] string $data
     ): void {
         if (
             isset($this->channel_buffers_write[$client_channel])
@@ -4300,6 +4318,8 @@ class SSH2
      * Returns a log of the packets that have been sent and received.
      *
      * Returns a string if NET_SSH2_LOGGING == self::LOG_COMPLEX, an array if NET_SSH2_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getLog(): array|string|null
     {
@@ -4386,6 +4406,8 @@ class SSH2
 
     /**
      * Returns a list of algorithms the server supports
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getServerAlgorithms(): array
     {
@@ -4657,6 +4679,8 @@ class SSH2
 
     /**
      * Force multiple channels (even if phpseclib has decided to disable them)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function forceMultipleChannels(): void
     {
@@ -4665,6 +4689,8 @@ class SSH2
 
     /**
      * Allows you to set the terminal
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setTerminal(string $term): void
     {
@@ -4782,6 +4808,8 @@ class SSH2
      *
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getBannerMessage(): string
     {
@@ -4873,6 +4901,8 @@ class SSH2
 
     /**
      * Returns the number of columns for the terminal window size.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getWindowColumns(): int
     {
@@ -4881,6 +4911,8 @@ class SSH2
 
     /**
      * Returns the number of rows for the terminal window size.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getWindowRows(): int
     {
@@ -4889,6 +4921,8 @@ class SSH2
 
     /**
      * Sets the number of columns for the terminal window size.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setWindowColumns(int $value): void
     {
@@ -4897,6 +4931,8 @@ class SSH2
 
     /**
      * Sets the number of rows for the terminal window size.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setWindowRows(int $value): void
     {
@@ -4905,6 +4941,8 @@ class SSH2
 
     /**
      * Sets the number of columns and rows for the terminal window size.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setWindowSize(int $columns = 80, int $rows = 24): void
     {
@@ -4914,10 +4952,7 @@ class SSH2
 
     /**
      * To String Magic Method
-     *
-     * @return string
      */
-    #[\ReturnTypeWillChange]
     public function __toString(): string
     {
         return $this->getResourceId();
@@ -4985,6 +5020,8 @@ class SSH2
      * Return the list of authentication methods that may productively continue authentication.
      *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getAuthMethodsToContinue(): ?array
     {
@@ -4993,6 +5030,8 @@ class SSH2
 
     /**
      * Enables "smart" multi-factor authentication (MFA)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function enableSmartMFA(): void
     {
@@ -5001,6 +5040,8 @@ class SSH2
 
     /**
      * Disables "smart" multi-factor authentication (MFA)
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function disableSmartMFA(): void
     {
@@ -5009,8 +5050,10 @@ class SSH2
 
     /**
      * How many bytes until the next key re-exchange?
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
-    public function bytesUntilKeyReexchange(int $bytes): void
+    public function setBytesUntilKeyReexchange(int $bytes): void
     {
         $this->doKeyReexchangeAfterXBytes = $bytes;
     }
