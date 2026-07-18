@@ -132,8 +132,8 @@ abstract class PKCS1 extends Progenitor
         $components = [];
         $components['curve'] = self::loadCurveByParam($key['parameters']);
         $components['dA'] = new BigInteger($key['privateKey'], 256);
-        $components['QA'] = isset($ecPrivate['publicKey']) ?
-            self::extractPoint($ecPrivate['publicKey'], $components['curve']) :
+        $components['QA'] = isset($key['publicKey']) ?
+            self::extractPoint($key['publicKey'], $components['curve']) :
             $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);
 
         return $components;
