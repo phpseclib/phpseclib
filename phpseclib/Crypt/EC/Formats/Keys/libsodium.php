@@ -90,8 +90,9 @@ abstract class libsodium
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
      */
-    public static function savePublicKey(Ed25519 $curve, array $publicKey): string
+    public static function savePublicKey(Ed25519 $curve, array $publicKey, array $options = []): string
     {
         return $curve->encodePoint($publicKey);
     }
@@ -107,7 +108,8 @@ abstract class libsodium
         Ed25519 $curve,
         array $publicKey,
         #[\SensitiveParameter] ?string $secret = null,
-        #[\SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
     ): string {
         if (!isset($secret)) {
             throw new UnsupportedValueException('Private Key does not have a secret set');

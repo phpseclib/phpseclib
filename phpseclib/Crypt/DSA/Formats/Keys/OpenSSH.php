@@ -65,8 +65,13 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a public key to the appropriate format
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = []): string
-    {
+    public static function savePublicKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y,
+        array $options = []
+    ): string {
         if ($q->getLength() != 160) {
             throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
