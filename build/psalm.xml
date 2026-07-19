@@ -30,6 +30,11 @@
                 <file name="../phpseclib/Net/SFTP.php"/>
             </errorLevel>
         </UnusedVariable>
+        <UndefinedMethod>
+            <errorLevel type="suppress">
+                <directory name="../tests"/>
+            </errorLevel>
+        </UndefinedMethod>
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="../phpseclib/File/ASN1/Maps"/>

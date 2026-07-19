@@ -145,6 +145,11 @@ abstract class TestCase extends PhpseclibTestCase
         $d = $a->multiply($c);
         [, $r] = $d->divide($b);
         $this->assertSame('1', (string) $r);
+
+        $a = $this->getInstance(500);
+        $b = $this->getInstance(100);
+        $result = $a->modInverse($b);
+        $this->assertNull($result);
     }
 
     public function testExtendedGCD(): void
