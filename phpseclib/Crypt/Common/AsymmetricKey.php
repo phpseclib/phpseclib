@@ -93,8 +93,10 @@ abstract class AsymmetricKey
      * @see self::load()
      */
     public const ALGORITHM = '';
+    protected static ?string $forcedEngine = null;
 
-    abstract public function toString(string $type, array $options = []): array|string;
+    abstract public function toString(string $type, array $options = []): string;
+    abstract protected static function onLoad(array $components): mixed;
 
     /**
      * The constructor
@@ -468,6 +470,7 @@ abstract class AsymmetricKey
      * want to use it at some point
      *
      * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function computek(string $h1): string
     {
@@ -509,6 +512,8 @@ abstract class AsymmetricKey
 
     /**
      * Integer to Octet String
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     private function int2octets(BigInteger $v): string
     {
@@ -525,6 +530,8 @@ abstract class AsymmetricKey
 
     /**
      * Bit String to Integer
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function bits2int(string $in): BigInteger
     {
@@ -539,6 +546,8 @@ abstract class AsymmetricKey
 
     /**
      * Bit String to Octet String
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     private function bits2octets(string $in): string
     {
