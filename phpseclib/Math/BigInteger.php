@@ -290,7 +290,7 @@ class BigInteger implements \JsonSerializable
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
      *
-     * @return BigInteger[]
+     * @return array{gcd: static, x: static, y: static}
      */
     public function extendedGCD(BigInteger $n): array
     {

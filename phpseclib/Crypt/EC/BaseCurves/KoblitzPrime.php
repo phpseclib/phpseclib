@@ -250,7 +250,10 @@ class KoblitzPrime extends Prime
      * Calculates the parameters needed from the Euclidean algorithm as discussed at
      * http://diamond.boisestate.edu/~liljanab/MATH308/GuideToECC.pdf#page=148
      *
-     * @return BigInteger[]
+     * @return list{
+     *     array{a: BigInteger, b: BigInteger},
+     *     array{a: BigInteger, b: BigInteger}
+     * }
      */
     protected static function extendedGCD(BigInteger $u, BigInteger $v): array
     {

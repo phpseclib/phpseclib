@@ -49,14 +49,14 @@ abstract class PKCS8 extends PKCS
     /**
      * OID Name
      *
-     * @var string
+     * @var string|list<string>
      */
     public const OID_NAME = '';
 
     /**
      * OID Value
      *
-     * @var string
+     * @var string|list<string>
      */
     public const OID_VALUE = '';
 
@@ -70,6 +70,8 @@ abstract class PKCS8 extends PKCS
      */
     private static bool $binary = false;
 
+    protected static bool $childOIDsLoaded;
+
     /**
      * Initialize static variables
      */
@@ -80,6 +82,7 @@ abstract class PKCS8 extends PKCS
         }
 
         if (!static::$childOIDsLoaded) {
+            /** @psalm-suppress InvalidArgument */
             ASN1::loadOIDs(is_array(static::OID_NAME) ?
                 array_combine(static::OID_NAME, static::OID_VALUE) :
                 [static::OID_NAME => static::OID_VALUE]);
