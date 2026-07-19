@@ -289,14 +289,14 @@ class Blowfish extends BlockCipher
      *
      * Holds the expanded key [p] and the key-depended s-boxes [sb]
      *
-     * @var int[]
+     * @var array{p: int[], sb: int[]}
      */
     private array $bctx;
 
     /**
      * Holds the last used key
      *
-     * @var int[]
+     * @var array{key: ?string}
      */
     private array $kl;
 
