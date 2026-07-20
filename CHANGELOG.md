@@ -2,7 +2,7 @@
 
 ## 2.0.55 - 2026-06-14
 
-- X509: add setURLFetchCallback() method
+- X509: add setURLFetchCallback() method (CVE-2026-55599)
 - ASN1: speed up OID calculations
 
 ## 2.0.54 - 2026-04-27
