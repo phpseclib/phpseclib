@@ -160,9 +160,9 @@ class Stream
             }
             $this->sftp = $host;
         } else {
-            if (isset($this->context)) {
-                $context = stream_context_get_options($this->context);
-            }
+            $context = isset($this->context) ?
+                stream_context_get_options($this->context) :
+                stream_context_get_options(stream_context_get_default());
             if (isset($context[$scheme]['session'])) {
                 $sftp = $context[$scheme]['session'];
             }
