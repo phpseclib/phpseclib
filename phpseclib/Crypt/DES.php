@@ -78,21 +78,9 @@ class DES extends BlockCipher
      * Key Length (in bytes)
      *
      * @see Common\SymmetricKey::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 8;
-
-    /**
-     * The OpenSSL names of the cipher / modes
-     *
-     * @see Common\SymmetricKey::openssl_mode_names
-     */
-    protected array $openssl_mode_names = [
-        self::MODE_ECB => 'des-ecb',
-        self::MODE_CBC => 'des-cbc',
-        self::MODE_CFB => 'des-cfb',
-        self::MODE_OFB => 'des-ofb',
-        // self::MODE_CTR is undefined for DES
-    ];
 
     /**
      * Switch for DES/3DES encryption
@@ -559,7 +547,7 @@ class DES extends BlockCipher
                 // quoting https://www.openssl.org/news/openssl-3.0-notes.html, OpenSSL 3.0.1
                 // "Moved all variations of the EVP ciphers CAST5, BF, IDEA, SEED, RC2, RC4, RC5, and DES to the legacy provider"
                 // in theory openssl_get_cipher_methods() should catch this but, on GitHub Actions, at least, it does not
-                if (defined('OPENSSL_VERSION_TEXT') && version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
+                if (defined('OPENSSL_VERSION_NUMBER') && OPENSSL_VERSION_NUMBER >= 0x30000010) {
                     return false;
                 }
                 $this->cipher_name_openssl_ecb = 'des-ecb';
@@ -579,7 +567,7 @@ class DES extends BlockCipher
      *
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         if (!($this instanceof TripleDES) && strlen($key) != 8) {
             throw new LengthException('Key of size ' . strlen($key) . ' not supported by this algorithm. Only keys of size 8 are supported');
@@ -1236,6 +1224,7 @@ class DES extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setupInlineCrypt()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

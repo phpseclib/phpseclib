@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Crypt\DSA;
 
+use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
@@ -62,9 +63,23 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $this->assertIsString("$dsa");
         $this->assertIsString($dsa->getPublicKey()->toString('PuTTY'));
         $this->assertIsString($dsa->getParameters()->toString('PuTTY'));
+        $length = ['L' => 2048, 'N' => 160];
+        $this->assertSame($length, $dsa->getLength());
 
         $dsa = $dsa->withPassword('password');
         $this->assertGreaterThan(0, strlen("$dsa"));
+
+        $arr = $dsa->toArray();
+        $this->assertIsArray($arr);
+        foreach (['p', 'q', 'g', 'y', 'x'] as $key) {
+            $this->assertArrayHasKey($key, $arr);
+        }
+
+        $arr = $dsa->getPublickey()->toArray();
+        $this->assertIsArray($arr);
+        foreach (['p', 'q', 'g', 'y'] as $key) {
+            $this->assertArrayHasKey($key, $arr);
+        }
     }
 
     public function testPKCS1Key(): void
@@ -96,6 +111,12 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $this->assertIsString("$dsa");
         $this->assertIsString($dsa->getPublicKey()->toString('PKCS1'));
         $this->assertIsString((string) $dsa->getParameters());
+
+        $this->assertFalse($dsa->hasPassword());
+        $dsa = $dsa->withPassword('password');
+        $this->assertTrue($dsa->hasPassword());
+        $dsa = $dsa->withoutPassword();
+        $this->assertFalse($dsa->hasPassword());
     }
 
     public function testParameters(): void
@@ -115,6 +136,13 @@ L1cwyXx0KMaaampd34MzOIHbC44SHY+cE3aVVUsnmt6Ur1nQaVYVszl+AO6m8bPm
         $this->assertInstanceOf(Parameters::class, $dsa);
         $this->assertSame($key, str_replace(["\n", "\r"], '', "$dsa"));
         $this->assertSame($key, str_replace(["\n", "\r"], '', (string) $dsa->getParameters()));
+
+        $dsa = DSA::loadParameters($key);
+        $this->assertInstanceOf(Parameters::class, $dsa);
+        $dsa = DSA::loadParametersFormat('PKCS1', $key);
+        $this->assertInstanceOf(Parameters::class, $dsa);
+        $dsa = PublicKeyLoader::loadParameters($key);
+        $this->assertInstanceOf(Parameters::class, $dsa);
     }
 
     public function testPKCS8Public(): void

@@ -21,6 +21,7 @@ namespace phpseclib4\Math\BigInteger\Engines;
  * Uses 64-bit integers if int size is 8 bits
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class PHP64 extends PHP
 {

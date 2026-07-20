@@ -25,6 +25,9 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, R
  */
 abstract class Engine implements \JsonSerializable
 {
+    public const ENGINE_DIR = '';
+    public const FAST_BITWISE = false;
+
     /* final */ protected const PRIMES = [
         3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,
         61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107, 109, 113, 127, 131, 137,
@@ -97,11 +100,6 @@ abstract class Engine implements \JsonSerializable
      * @see static::setPrecision()
      */
     protected ?Engine $bitmask = null;
-
-    /**
-     * Recurring Modulo Function
-     */
-    protected \Closure $reduce;
 
     /**
      * Default constructor
@@ -209,8 +207,6 @@ abstract class Engine implements \JsonSerializable
      * Sets engine type.
      *
      * Throws an exception if the type is invalid
-     *
-     * @param class-string<Engine> $engine
      */
     public static function setModExpEngine(string $engine): void
     {
@@ -351,8 +347,7 @@ abstract class Engine implements \JsonSerializable
      *
      * @return array{hex: string, precision?: int]
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->precision > 0) {
@@ -706,7 +701,7 @@ abstract class Engine implements \JsonSerializable
         $compare = $max->compare($min);
 
         if (!$compare) {
-            return $min->isPrime() ? $min : false;
+            return $min->isPrime() ? $min : null;
         } elseif ($compare < 0) {
             // if $min is bigger then $max, swap $min and $max
             $temp = $max;
@@ -981,7 +976,6 @@ abstract class Engine implements \JsonSerializable
                     $g = $g->subtract($step);
                     break;
                 case 0: // if guess is exactly the num we're done, we return the value
-                    $root = $g;
                     break 2;
             }
         }

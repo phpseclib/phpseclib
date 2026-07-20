@@ -26,6 +26,7 @@ use phpseclib4\Math\BigInteger;
  * OpenSSH Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class OpenSSH extends Progenitor
 {
@@ -38,8 +39,8 @@ abstract class OpenSSH extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $parsed = parent::load($key, $password);
 
@@ -64,8 +65,13 @@ abstract class OpenSSH extends Progenitor
     /**
      * Convert a public key to the appropriate format
      */
-    public static function savePublicKey(BigInteger $p, BigInteger $q, BigInteger $g, BigInteger $y, array $options = []): string
-    {
+    public static function savePublicKey(
+        BigInteger $p,
+        BigInteger $q,
+        BigInteger $g,
+        BigInteger $y,
+        array $options = []
+    ): string {
         if ($q->getLength() != 160) {
             throw new LengthException('SSH only supports keys with an N (length of Group Order q) of 160');
         }
@@ -96,8 +102,8 @@ abstract class OpenSSH extends Progenitor
         BigInteger $q,
         BigInteger $g,
         BigInteger $y,
-        #[SensitiveParameter] BigInteger $x,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $x,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $publicKey = self::savePublicKey($p, $q, $g, $y, ['binary' => true]);

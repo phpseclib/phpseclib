@@ -130,7 +130,7 @@ class ChaCha20Test extends PhpseclibTestCase
         $r = new \ReflectionClass($c::class);
         $m = $r->getMethod('createPoly1305Key');
 
-        $result = $m->invoke($c);
+        $m->invoke($c);
 
         $p = $r->getProperty('poly1305Key');
 

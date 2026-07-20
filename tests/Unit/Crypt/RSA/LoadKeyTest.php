@@ -1169,9 +1169,10 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
             'p' => $key['primes'][1],
             'q' => $key['primes'][2],
         ];
-        $key = PublicKeyLoader::loadPrivateKey($key);
-        $str2 = "$key";
+        $str2 = (string) PublicKeyLoader::loadPrivateKey($key);
+        $this->assertSame($str1, $str2);
 
+        $str2 = (string) RSA::loadFormat('Raw', $key);
         $this->assertSame($str1, $str2);
     }
 
@@ -1206,6 +1207,18 @@ Private-MAC: 7979eb6f604fb3e0bd191295479517f641598649167835402c6cbfde6cbf21ef';
 
         $key = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PrivateKey::class, $key);
+
+        PuTTY::setVersion(3);
+        $new1 = $key->toString('PuTTY');
+        PuTTY::setVersion(2);
+        $new2 = $key->toString('PuTTY', ['version' => 3]);
+        $this->assertSame($new1, $new2);
+
+        $this->assertFalse($key->hasPassword());
+        $key = $key->withPassword('password');
+        $this->assertTrue($key->hasPassword());
+        $key = $key->withoutPassword();
+        $this->assertFalse($key->hasPassword());
     }
 
     public function testPuTTYV3PW(): void
@@ -1572,5 +1585,42 @@ ec2eK8O4cJUmZn91oQFuJorjuVAa5GluyMGvCdxWeAQVH96xSG7lEg==
 -----END RSA PRIVATE KEY-----';
         $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load($key);
+    }
+
+    public function testOtherLoadingFunctions()
+    {
+        $formats = RSA::getSupportedKeyFormats();
+        $this->assertArrayHasKey('pkcs8', $formats);
+        $this->assertArrayHasKey('openssh', $formats);
+        $str = '-----BEGIN RSA PRIVATE KEY-----
+MIIBOgIBAAJBAKj34GkxFhD90vcNLYLInFEX6Ppy1tPf9Cnzj4p4WGeKLs1Pt8Qu
+KUpRKfFLfRYC9AIKjbJTWit+CqvjWYzvQwECAwEAAQJAIJLixBy2qpFoS4DSmoEm
+o3qGy0t6z09AIJtH+5OeRV1be+N4cDYJKffGzDa88vQENZiRm0GRq6a+HPGQMd2k
+TQIhAKMSvzIBnni7ot/OSie2TmJLY4SwTQAevXysE2RbFDYdAiEBCUEaRQnMnbp7
+9mxDXDf6AU0cN/RPBjb9qSHDcWZHGzUCIG2Es59z8ugGrDY+pxLQnwfotadxd+Uy
+v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
+/5OiPgoTdSy7bcF9IGpSE8ZgGKzgYQVZeN97YE00
+-----END RSA PRIVATE KEY-----';
+        PKCS8::requireDER();
+        try {
+            RSA::loadPrivateKey($str);
+            $this->assertFalse(true, 'Key loaded when it shouldn\'t have');
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(NoKeyLoadedException::class, $e);
+        }
+        PKCS8::requirePEM();
+        $key = RSA::loadPrivateKey($str);
+        $this->assertInstanceOf(PrivateKey::class, $key);
+        PKCS1::requireAny();
+        $key = RSA::loadPrivateKeyFormat('PKCS1', $str);
+        $this->assertInstanceOf(PrivateKey::class, $key);
+
+        $str = $key->getPublicKey()->toString('OpenSSH');
+        $key = RSA::loadPublicKey($str);
+        $this->assertInstanceOf(PublicKey::class, $key);
+        $key = RSA::loadPublicKeyFormat('OpenSSH', $str);
+        $this->assertInstanceOf(PublicKey::class, $key);
+        $key = PublicKeyLoader::loadPublicKey($str);
+        $this->assertInstanceOf(PublicKey::class, $key);
     }
 }

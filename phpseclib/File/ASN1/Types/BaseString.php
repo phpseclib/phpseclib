@@ -21,10 +21,13 @@ use phpseclib4\Exception\{BadMethodCallException, CharacterConversionException};
  * ASN.1 Base String
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class BaseString implements BaseType
 {
     use Common;
+
+    protected const SIZE = -1;
 
     public function __construct(public string $value)
     {
@@ -40,8 +43,6 @@ abstract class BaseString implements BaseType
      *
      * This is a lazy conversion, dealing only with character size.
      * No real conversion table is used.
-     *
-     * @return string
      */
     private function convert(string $class): self
     {
@@ -172,37 +173,37 @@ abstract class BaseString implements BaseType
         return defined('static::SIZE');
     }
 
-    public function toUTF8String(): self
+    public function toUTF8String(): UTF8String
     {
         return $this->convert(UTF8String::class);
     }
 
-    public function toBMPString(): self
+    public function toBMPString(): BMPString
     {
         return $this->convert(BMPString::class);
     }
 
-    public function toUniversalString(): self
+    public function toUniversalString(): UniversalString
     {
         return $this->convert(UniversalString::class);
     }
 
-    public function toPrintableString(): self
+    public function toPrintableString(): PrintableString
     {
         return $this->convert(PrintableString::class);
     }
 
-    public function toTeletexString(): self
+    public function toTeletexString(): TeletexString
     {
         return $this->convert(TeletexString::class);
     }
 
-    public function toIA5String(): self
+    public function toIA5String(): IA5String
     {
         return $this->convert(IA5String::class);
     }
 
-    public function toVisibleString(): self
+    public function toVisibleString(): VisibleString
     {
         return $this->convert(VisibleString::class);
     }

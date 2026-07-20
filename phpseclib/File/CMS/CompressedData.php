@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / CompressedData Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / CompressedData files.
  *
@@ -19,13 +19,15 @@ namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps, Types\BaseType};
 use phpseclib4\File\{ASN1, CMS};
 
 /**
  * Pure-PHP CMS / CompressedData Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class CompressedData implements \ArrayAccess, \Countable, \Iterator
 {
@@ -79,6 +81,7 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cms[$offset];
     }
 

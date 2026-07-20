@@ -64,6 +64,7 @@ class RC2 extends BlockCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC2::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 16; // = 128 bits
 
@@ -228,7 +229,7 @@ class RC2 extends BlockCipher
                 // quoting https://www.openssl.org/news/openssl-3.0-notes.html, OpenSSL 3.0.1
                 // "Moved all variations of the EVP ciphers CAST5, BF, IDEA, SEED, RC2, RC4, RC5, and DES to the legacy provider"
                 // in theory openssl_get_cipher_methods() should catch this but, on GitHub Actions, at least, it does not
-                if (defined('OPENSSL_VERSION_TEXT') && version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
+                if (defined('OPENSSL_VERSION_NUMBER') && OPENSSL_VERSION_NUMBER >= 0x30000010) {
                     return false;
                 }
                 $this->cipher_name_openssl_ecb = 'rc2-ecb';
@@ -277,7 +278,7 @@ class RC2 extends BlockCipher
      * @throws LengthException if the key length isn't supported
      * @see Common\SymmetricKey::setKey()
      */
-    public function setKey(#[SensitiveParameter] string $key, ?int $t1 = null): void
+    public function setKey(#[\SensitiveParameter] string $key, ?int $t1 = null): void
     {
         $this->orig_key = $key;
 
@@ -335,7 +336,7 @@ class RC2 extends BlockCipher
      *
      * @see self::decrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         if ($this->engine == self::ENGINE_OPENSSL) {
             $temp = $this->key;
@@ -472,6 +473,7 @@ class RC2 extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setupInlineCrypt()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

@@ -42,6 +42,7 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * PKCS#8 Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -57,7 +58,7 @@ abstract class PKCS8 extends Progenitor
     /**
      * OID Value
      *
-     * @var string
+     * @var array
      */
     public const OID_VALUE = ['1.2.840.10045.2.1', '1.3.101.112', '1.3.101.113', '1.3.101.110', '1.3.101.111'];
 
@@ -65,8 +66,8 @@ abstract class PKCS8 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         // initialize_static_variables() is defined in both the trait and the parent class
         // when it's defined in two places it's the traits one that's called
@@ -171,7 +172,7 @@ abstract class PKCS8 extends Progenitor
         return $components;
     }
 
-    private static function loadECDH(#[SensitiveParameter] array $key): array
+    private static function loadECDH(#[\SensitiveParameter] array $key): array
     {
         $components = [];
 
@@ -253,11 +254,11 @@ abstract class PKCS8 extends Progenitor
      * @param Integer[] $publicKey
      */
     public static function savePrivateKey(
-        #[SensitiveParameter] BigInteger $privateKey,
+        #[\SensitiveParameter] BigInteger $privateKey,
         BaseCurve $curve,
         array $publicKey,
-        #[SensitiveParameter] ?string $secret = null,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         self::initialize_static_variables();

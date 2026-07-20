@@ -30,15 +30,18 @@ use phpseclib4\Math\BigInteger;
  * XML Formatted RSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         if (!class_exists('DOMDocument')) {
             throw new BadConfigurationException('The dom extension is not setup correctly on this system');
@@ -119,15 +122,17 @@ abstract class XML
 
     /**
      * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,
         BigInteger $e,
-        #[SensitiveParameter] BigInteger $d,
-        #[SensitiveParameter] array $primes,
-        #[SensitiveParameter] array $exponents,
-        #[SensitiveParameter] array $coefficients,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] BigInteger $d,
+        #[\SensitiveParameter] array $primes,
+        #[\SensitiveParameter] array $exponents,
+        #[\SensitiveParameter] array $coefficients,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         if (count($primes) != 2) {
@@ -152,6 +157,8 @@ abstract class XML
 
     /**
      * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {

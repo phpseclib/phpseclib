@@ -576,7 +576,7 @@ abstract class SymmetricKey
      * Once enabled Poly1305 cannot be disabled. If $key is not passed then an attempt to call createPoly1305Key
      * will be made.
      */
-    public function setPoly1305Key(#[SensitiveParameter] ?string $key = null): void
+    public function setPoly1305Key(#[\SensitiveParameter] ?string $key = null): void
     {
         if ($this->mode == self::MODE_GCM) {
             throw new BadMethodCallException('Poly1305 cannot be used in GCM mode');
@@ -698,7 +698,7 @@ abstract class SymmetricKey
      *
      * {@internal Could, but not must, extend by the child Crypt_* class}
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         if (isset($this->explicit_key_length) && strlen($key) != $this->explicit_key_length) {
             throw new LengthException('Key length has already been set to ' . $this->explicit_key_length . ' bytes and this key is ' . strlen($key) . ' bytes');
@@ -727,7 +727,7 @@ abstract class SymmetricKey
      * @see Crypt/Hash.php
      */
     public function setPassword(
-        #[SensitiveParameter] string $password,
+        #[\SensitiveParameter] string $password,
         string $method = 'pbkdf2',
         int|string ...$func_args
     ): void {
@@ -891,7 +891,7 @@ abstract class SymmetricKey
      *
      * @see self::decrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         if ($this->paddable) {
             $plaintext = $this->pad($plaintext);
@@ -953,7 +953,6 @@ abstract class SymmetricKey
                         $pos = 0;
                     }
                     $len = strlen($plaintext);
-                    $i = 0;
                     if ($pos) {
                         $orig_pos = $pos;
                         $max = $this->block_size - $pos;
@@ -978,7 +977,6 @@ abstract class SymmetricKey
                         $ciphertext .= openssl_encrypt(substr($plaintext, 0, -$overflow) . str_repeat("\0", $this->block_size), $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA, $iv);
                         $iv = Strings::pop($ciphertext, $this->block_size);
 
-                        $size = $len - $overflow;
                         $block = $iv ^ substr($plaintext, -$overflow);
                         $iv = substr_replace($iv, $block, 0, $overflow);
                         $ciphertext .= $block;
@@ -1013,7 +1011,7 @@ abstract class SymmetricKey
                     if ($this->continuousBuffer) {
                         $this->encryptIV = $iv;
                     }
-                    break;
+                    return $ciphertext;
                 case self::MODE_OFB:
                     return $this->openssl_ofb_process($plaintext, $this->encryptIV, $this->enbuffer);
             }
@@ -1264,7 +1262,6 @@ abstract class SymmetricKey
                         $pos = 0;
                     }
                     $len = strlen($ciphertext);
-                    $i = 0;
                     if ($pos) {
                         $orig_pos = $pos;
                         $max = $this->block_size - $pos;
@@ -2250,6 +2247,7 @@ abstract class SymmetricKey
      * @see self::decrypt()
      * @see self::setupInlineCrypt()
      * @see self::encrypt()
+     * @psalm-suppress PossiblyUnusedParam
      */
     protected function createInlineCryptFunction(array $cipher_code): \Closure
     {
@@ -2709,7 +2707,7 @@ abstract class SymmetricKey
      *
      * On ARM CPUs converting floats to ints doesn't always work
      */
-    protected static function safe_intval(float $x): int
+    protected static function safe_intval(int|float $x): int
     {
         if (is_int($x)) {
             return $x;

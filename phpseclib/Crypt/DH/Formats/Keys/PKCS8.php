@@ -31,6 +31,7 @@ use phpseclib4\Math\BigInteger;
  * PKCS#8 Formatted DH Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -57,8 +58,8 @@ abstract class PKCS8 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $isPublic = str_contains($key, 'PUBLIC');
 
@@ -87,13 +88,15 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $prime,
         BigInteger $base,
         BigInteger $privateKey,
         BigInteger $publicKey,
-        #[SensitiveParameter] ?string $password = null,
+        #[\SensitiveParameter] ?string $password = null,
         array $options = []
     ): string {
         $params = [

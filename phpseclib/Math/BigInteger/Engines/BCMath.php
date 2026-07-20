@@ -22,6 +22,7 @@ use phpseclib4\Exception\BadConfigurationException;
  * BCMath Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class BCMath extends Engine
 {
@@ -478,10 +479,8 @@ class BCMath extends Engine
             return false;
         }
 
-        $value = $this->value;
-
         foreach (self::PRIMES as $prime) {
-            $r = bcmod($this->value, (string)$prime, 0);
+            $r = bcmod($this->value, (string) $prime, 0);
             if ($r == '0') {
                 return $this->value == $prime;
             }

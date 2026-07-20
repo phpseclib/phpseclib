@@ -18,6 +18,7 @@ namespace phpseclib4\Crypt\EC\Curves;
 use phpseclib4\Crypt\EC\BaseCurves\Prime;
 use phpseclib4\Math\BigInteger;
 
+/** @psalm-api */
 class prime192v2 extends Prime
 {
     public function __construct()

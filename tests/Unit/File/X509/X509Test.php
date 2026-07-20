@@ -15,6 +15,7 @@ use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\DSA;
 use phpseclib4\Crypt\EC;
+use phpseclib4\File\ASN1\ExcessivelyDeepData;
 use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Exception\UnsupportedFormatException;
@@ -618,7 +619,6 @@ A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
 +ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
 cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
 -----END CERTIFICATE-----';
-        $ca = X509::load($pemca);
 
         // Read the old certificate.
         X509::addCA($pemca);
@@ -754,7 +754,6 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
 -----END CERTIFICATE-----');
 
         $validateDate = new \ReflectionMethod($x509, 'validateDate');
-        $validateDate->setAccessible(true);
 
         $this->assertFalse($validateDate->invoke($x509, 'Nov 22, 2018'));
         $this->assertTrue($validateDate->invoke($x509, 'Nov 22, 2012'));
@@ -1018,7 +1017,7 @@ B2R6AB6/yrkwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA6ZB6
 A9bhRA0cVk7bAEU2c44CYg==
 -----END CERTIFICATE-----';
         $this->expectException(UnexpectedValueException::class);
-        $x509 = X509::load($cert)->toArray();
+        X509::load($cert)->toArray();
     }
 
     public function testLongTagOnBadCert2(): void
@@ -1113,7 +1112,7 @@ ut3+b2Xvzq8yzmHMFtLIJ6Afu1jJpqD82BUAFcvi5vhnP8M7b974R18WCOpgNQvXDI+2/8ZINeU=
         $a = pack('H*', $a);
 
         $this->expectException(UnexpectedValueException::class);
-        $x509 = X509::load($a)->toArray();
+        X509::load($a)->toArray();
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github1542')]
@@ -1661,7 +1660,6 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         });
 
         $validateNonRevokedStatus = new \ReflectionMethod($x509, 'validateNonRevokedStatus');
-        $validateNonRevokedStatus->setAccessible(true);
 
         $this->assertTrue($validateNonRevokedStatus->invoke($x509));
         $this->assertSame(0, $cacheHits);
@@ -1704,5 +1702,37 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $x509 = X509::load($cert);
         $this->expectException(ResourceLimitException::class);
         $x509->toArray();
+    }
+
+    public function testRecursiveDepth(): void
+    {
+        ASN1::setRecursionDepth(1);
+        $cert = '-----BEGIN CERTIFICATE-----
+MIICADCCAWmgAwIBAgIUJXQulcz5xkTam8UGC/yn6iVaiWwwDQYJKoZIhvcNAQEF
+BQAwHDEaMBgGA1UECgwRcGhwc2VjbGliIGRlbW8gQ0EwHhcNMTgwMTIxMTc0NzM0
+WhcNMTkwMTIxMTc0NzM0WjAcMRowGAYDVQQKDBFwaHBzZWNsaWIgZGVtbyBDQTCB
+nzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqSrTRQXbUXfHhXKuy+0cb5HnlBXH
+OEA2OqywyVKTxqdai/S+6ZfqytC+ukxkrPsGUzOGsAz9ne+R2Rtv/Szl+V8uKAG+
+2ktj4iw0JlWvNbdbAONm7N1AcWpPcOI3I+tt4HrAxunTdbBaalavf2eCTpzybtT1
+88HLo97eyeUCxUsCAwEAAaM/MD0wCwYDVR0PBAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFCS1BJ12nN8ObQWE4OgOOSH9DxTRMA0GCSqGSIb3DQEBBQUA
+A4GBAHkSnlJnlkwDEUcENKWFZpfNgZu9HUvEuLDVOnhvsdd2MDr8EbVbgMHYNWnV
++ZOS/dqbuCd9Vd27JsBC2YHklaq9/V5zMbrEBiMLo5P5WL9qrz0qbmK/aruP+VX7
+cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
+-----END CERTIFICATE-----';
+        try {
+            X509::load($cert)->toArray();
+            $this->fail('Expected ResourceLimitException');
+        } catch (ResourceLimitException) {
+        }
+        ASN1::enableBlobsOnBadDecodes();
+        $x509 = X509::load($cert)->toArray();
+        $this->assertInstanceOf(ExcessivelyDeepData::class, $x509['tbsCertificate']);
+        $this->assertInstanceOf(ExcessivelyDeepData::class, $x509['signatureAlgorithm']);
+        ASN1::setRecursionDepth(128);
+        ASN1::disableBlobsOnBadDecodes();
+        $x509 = X509::load($cert)->toArray();
+        $this->assertisArray($x509['tbsCertificate']);
+        $this->assertTrue(true);
     }
 }

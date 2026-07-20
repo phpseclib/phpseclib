@@ -25,12 +25,11 @@ namespace phpseclib4\File\ASN1;
  */
 class Element
 {
+    /** @psalm-suppress PossiblyUnusedProperty */
     public array $metadata = [];
 
     /**
      * Constructor
-     *
-     * @return Element
      */
     public function __construct(public string $value)
     {

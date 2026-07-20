@@ -24,6 +24,7 @@ namespace phpseclib4\File;
  * Pure-PHP ANSI Decoder
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class ANSI
 {
@@ -64,6 +65,8 @@ class ANSI
 
     /**
      * Old Column
+     *
+     * @psalm-suppress UnusedProperty
      */
     private int $old_x;
 

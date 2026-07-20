@@ -14,12 +14,11 @@ class Ed448PublicKey
 {
     use Common;
 
-    public static function load($key, #[SensitiveParameter] ?string $password = null): array
-    {
-        if (!Strings::is_stringable($key)) {
-            throw new UnexpectedValueException('Key should be a string - not a ' . gettype($key));
-        }
-
+    /** @psalm-suppress PossiblyUnusedParam */
+    public static function load(
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): array {
         if (strlen($key) != 57) {
             throw new LengthException('Key length should be 57 bytes');
         }

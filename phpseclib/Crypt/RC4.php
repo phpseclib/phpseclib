@@ -68,6 +68,7 @@ class RC4 extends StreamCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC4::setKeyLength()
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 128; // = 1024 bits
 
@@ -94,7 +95,7 @@ class RC4 extends StreamCipher
             // quoting https://www.openssl.org/news/openssl-3.0-notes.html, OpenSSL 3.0.1
             // "Moved all variations of the EVP ciphers CAST5, BF, IDEA, SEED, RC2, RC4, RC5, and DES to the legacy provider"
             // in theory openssl_get_cipher_methods() should catch this but, on GitHub Actions, at least, it does not
-            if (defined('OPENSSL_VERSION_TEXT') && version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
+            if (defined('OPENSSL_VERSION_NUMBER') && OPENSSL_VERSION_NUMBER >= 0x30000010) {
                 return false;
             }
             $this->cipher_name_openssl = 'rc4-40';
@@ -126,7 +127,7 @@ class RC4 extends StreamCipher
      *
      * Keys can be between 1 and 256 bytes long.
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         $length = strlen($key);
         if ($length < 1 || $length > 256) {
@@ -143,7 +144,7 @@ class RC4 extends StreamCipher
      * @see Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         if ($this->engine != self::ENGINE_INTERNAL) {
             return parent::encrypt($plaintext);

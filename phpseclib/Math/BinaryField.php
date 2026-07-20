@@ -25,6 +25,7 @@ use phpseclib4\Math\Common\FiniteField;
  * Binary Finite Fields
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class BinaryField extends FiniteField
 {

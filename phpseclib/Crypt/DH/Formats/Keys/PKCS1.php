@@ -32,6 +32,7 @@ use phpseclib4\Math\BigInteger;
  * "PKCS1" Formatted DH Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -39,8 +40,8 @@ abstract class PKCS1 extends Progenitor
      * Break a public or private key down into its constituent components
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         $key = parent::loadHelper($key, $password);
 
@@ -52,7 +53,7 @@ abstract class PKCS1 extends Progenitor
     /**
      * Convert EC parameters to the appropriate format
      */
-    public static function saveParameters(BigInteger $prime, BigInteger $base, array $options = []): string
+    public static function saveParameters(BigInteger $prime, BigInteger $base): string
     {
         $params = [
             'prime' => $prime,

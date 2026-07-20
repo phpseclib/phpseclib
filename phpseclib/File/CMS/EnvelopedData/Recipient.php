@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / PasswordRecipient Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / EnvelopedData / PasswordRecipient files.
  *
@@ -18,17 +18,25 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS\EnvelopedData;
 
 use phpseclib4\File\ASN1\Constructed;
-use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\File\ASN1\Types\{BaseType, Choice};
 use phpseclib4\File\CMS\EncryptedData;
 
+/**
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
+ */
 class Recipient implements \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;
 
     public Constructed|array|null $recipient;
     public ?EncryptedData $cms = null;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Choice $parent;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $recipient = null)
@@ -68,6 +76,7 @@ class Recipient implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->recipient[$offset];
     }
 
@@ -121,6 +130,7 @@ class Recipient implements \ArrayAccess, \Countable, \Iterator
         return $this->recipient->valid();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->recipient instanceof Constructed ? $this->recipient->keys() : array_keys($this->recipient);

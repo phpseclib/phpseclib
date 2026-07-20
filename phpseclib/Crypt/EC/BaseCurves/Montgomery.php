@@ -38,18 +38,22 @@ use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
  */
 class Montgomery extends Base
 {
+    public const SIZE = -1;
+
     /**
      * Prime Field Integer factory
      */
     protected PrimeField $factory;
 
     /**
-     * Cofficient for x
+     * Coefficient for x
      */
     protected PrimeInteger $a;
 
     /**
      * Constant used for point doubling
+     *
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected PrimeInteger $a24;
 
@@ -70,6 +74,8 @@ class Montgomery extends Base
 
     /**
      * The modulo
+     *
+     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $modulo;
 
@@ -91,6 +97,8 @@ class Montgomery extends Base
 
     /**
      * Set coefficients a
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setCoefficients(BigInteger $a): void
     {
@@ -107,6 +115,7 @@ class Montgomery extends Base
      * Set x and y coordinates for the base point
      *
      * @return PrimeInteger[]
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): array
     {
@@ -142,7 +151,7 @@ class Montgomery extends Base
      *
      * See https://tools.ietf.org/html/draft-ietf-tls-curve25519-01#appendix-A.1.3
      *
-     * @return FiniteField[][]
+     * @return PrimeInteger[][]
      */
     private function doubleAndAddPoint(array $p, array $q, PrimeInteger $x1): array
     {

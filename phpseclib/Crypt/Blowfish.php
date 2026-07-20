@@ -343,7 +343,7 @@ class Blowfish extends BlockCipher
             // quoting https://www.openssl.org/news/openssl-3.0-notes.html, OpenSSL 3.0.1
             // "Moved all variations of the EVP ciphers CAST5, BF, IDEA, SEED, RC2, RC4, RC5, and DES to the legacy provider"
             // in theory openssl_get_cipher_methods() should catch this but, on GitHub Actions, at least, it does not
-            if (defined('OPENSSL_VERSION_TEXT') && version_compare(preg_replace('#OpenSSL (\d+\.\d+\.\d+) .*#', '$1', OPENSSL_VERSION_TEXT), '3.0.1', '>=')) {
+            if (defined('OPENSSL_VERSION_NUMBER') && OPENSSL_VERSION_NUMBER >= 0x30000010) {
                 return false;
             }
             $this->cipher_name_openssl_ecb = 'bf-ecb';
@@ -380,9 +380,7 @@ class Blowfish extends BlockCipher
             // xor P1 with the first 32-bits of the key, xor P2 with the second 32-bits ...
             for ($data = 0, $k = 0; $k < 4; ++$k) {
                 $data = ($data << 8) | $key[$j];
-                if (++$j >= $keyl) {
-                    $j = 0;
-                }
+                $j = ($j + 1) % $keyl;
             }
             $this->bctx['p'][] = self::$parray[$i] ^ intval($data);
         }
@@ -448,7 +446,7 @@ class Blowfish extends BlockCipher
      * Performs OpenSSH-style bcrypt
      */
     public static function bcrypt_pbkdf(
-        #[SensitiveParameter] string $pass,
+        #[\SensitiveParameter] string $pass,
         string $salt,
         int $keylen,
         int $rounds
@@ -692,7 +690,8 @@ class Blowfish extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see Common\SymmetricKey::_setupInlineCrypt()
+     * @see Common\SymmetricKey::setup()
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected function setupInlineCrypt(): void
     {

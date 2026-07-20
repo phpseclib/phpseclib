@@ -22,6 +22,7 @@ use phpseclib4\Math\BigInteger\Engines\PHP\Base;
  * PHP Dynamic Barrett Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class EvalBarrett extends Base
 {
@@ -37,6 +38,8 @@ abstract class EvalBarrett extends Base
      *
      * This calls a dynamically generated loop unrolled function that's specific to a given modulo.
      * Array lookups are avoided as are if statements testing for how many bits the host OS supports, etc.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     protected static function reduce(array $n, array $m, string $class): array
     {
@@ -46,6 +49,8 @@ abstract class EvalBarrett extends Base
 
     /**
      * Generate Custom Reduction
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     protected static function generateCustomReduction(PHP $m, string $class): \Closure
     {
