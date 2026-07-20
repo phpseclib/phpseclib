@@ -113,7 +113,8 @@ class Agent
      */
     public function __construct(?string $address = null)
     {
-        $address = $_SERVER['SSH_AUTH_SOCK'] ??
+        $address = $address ??
+                   $_SERVER['SSH_AUTH_SOCK'] ??
                    $_ENV['SSH_AUTH_SOCK'] ??
                    throw new BadConfigurationException('SSH_AUTH_SOCK not found');
 
@@ -189,6 +190,8 @@ class Agent
 
     /**
      * Returns the SSH Agent identity matching a given public key or null if no identity is found
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function findIdentityByPublicKey(PublicKey $key): ?Identity
     {
@@ -206,6 +209,8 @@ class Agent
     /**
      * Signal that agent forwarding should
      * be requested when a channel is opened
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function startSSHForwarding(): void
     {
@@ -216,6 +221,8 @@ class Agent
 
     /**
      * Request agent forwarding of remote server
+     *
+     * @psalm-suppress UnusedReturnValue
      */
     private function request_forwarding(SSH2 $ssh): bool
     {

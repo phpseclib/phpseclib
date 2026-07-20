@@ -82,7 +82,7 @@ class Salsa20 extends StreamCipher
     /**
      * Sets the key.
      */
-    public function setKey(#[SensitiveParameter] string $key): void
+    public function setKey(#[\SensitiveParameter] string $key): void
     {
         switch (strlen($key)) {
             case 16:
@@ -101,7 +101,7 @@ class Salsa20 extends StreamCipher
     public function setNonce(string $nonce): void
     {
         if (strlen($nonce) != 8) {
-            throw new LengthException('Nonce of size ' . strlen($key) . ' not supported by this algorithm. Only an 64-bit nonce is supported');
+            throw new LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only an 64-bit nonce is supported');
         }
 
         $this->nonce = $nonce;
@@ -220,7 +220,7 @@ class Salsa20 extends StreamCipher
      * @see \phpseclib4\Crypt\Common\SymmetricKey::decrypt()
      * @see self::crypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         $ciphertext = $this->crypt($plaintext, self::ENCRYPT);
         if (isset($this->poly1305Key)) {

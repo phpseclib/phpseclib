@@ -31,8 +31,7 @@ abstract class Integer implements \JsonSerializable
      *
      * @return array{hex: string}
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         return ['hex' => $this->toHex(true)];
     }

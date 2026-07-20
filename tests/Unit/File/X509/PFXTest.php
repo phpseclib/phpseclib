@@ -26,6 +26,7 @@ class PFXTest extends PhpseclibTestCase
         // the PFX was generated with https://keystore-explorer.org/
         $temp = file_get_contents(__DIR__ . '/pfx1.der');
         $r = PFX::load($temp, 'password');
+        $r->removePassword();
 
         $linearized = $r->getAll();
         $this->assertCount(4, $linearized);
@@ -33,6 +34,12 @@ class PFXTest extends PhpseclibTestCase
         $this->assertInstanceOf(ECPrivateKey::class, $linearized[1]);
         $this->assertInstanceOf(X509::class, $linearized[2]);
         $this->assertInstanceOf(X509::class, $linearized[3]);
+
+        $privateKeys = $r->getPrivateKeys();
+        $this->assertCount(2, $privateKeys);
+
+        $this->assertIsArray($r->toArray());
+        $this->assertIsArray($r->keys());
 
         $friendly = $r->getFriendlyNames();
         $this->assertCount(3, $friendly);
@@ -97,8 +104,6 @@ class PFXTest extends PhpseclibTestCase
         $c = $r->pluckByLocalKeyID(hex2bin('54696d652031373439393330383338363932'));
         $this->assertCount(0, $c);
 
-        // new PFX's generate in this manner do not have a friendly names or labels and are not,
-        // by default, encrypted
         $new = $r->pfxFromFriendlyName('a');
         $linearized = $new->getAll();
         $this->assertCount(2, $linearized);
@@ -106,13 +111,6 @@ class PFXTest extends PhpseclibTestCase
         // hex2bin($ref) successfully decodes with the following:
         // openssl pkcs12 -info -in test.der -nodes
         $this->assertSame($ref, bin2hex("$new"));
-
-        $old = "$r";
-        $this->assertIsString($old);
-        $r->removePassword();
-        $new = "$r";
-        $this->assertIsString($new);
-        $this->assertNotEquals($old, $new);
     }
 
     public function testUnencryptedSimple(): void
@@ -128,7 +126,8 @@ class PFXTest extends PhpseclibTestCase
 
         $x509 = new X509(EC::createKey('nistp256')->getPublicKey());
         $old = "$x509";
-        $pfx->sign($x509);
+        $result = $pfx->sign($x509);
+        $this->assertIsString($result);
         $new = "$x509";
         $this->assertIsString($new);
         $this->assertNotEquals($old, $new);
@@ -173,9 +172,80 @@ class PFXTest extends PhpseclibTestCase
         $x509 = new X509($key->getPublicKey());
         $pfx->sign($x509);
 
-        $this->assertIsString("$pfx");
+        $pfx->removePassword();
+
+        $str = "$pfx";
+        $this->assertIsString($str);
+        // these will almost always be different for encrypted PFXs because, among other things, the salt
+        // for the MAC, is generated using random_bytes()
+        $this->assertSame($pfx->getEncoded(), $str);
 
         X509::addCA((string) $pfx->getCertificates()[0]);
         $this->assertTrue($x509->validateSignature());
+    }
+
+    public function testCreateEncryptedFromScratch(): void
+    {
+        $private = EC::createKey('secp256k1');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('CN=test');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $pfx = new PFX();
+        $pfx->removePassword();
+        $pfx->add($private);
+        $pfx->add($x509);
+        $pfx->setPassword('password');
+        $str = "$pfx";
+        $this->assertIsString($str);
+    }
+
+    public function testCreateEncryptedPasswordChange(): void
+    {
+        $private = EC::createKey('secp256k1');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('CN=test');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $pfx = new PFX();
+        $pfx->add($private);
+        $pfx->add($x509);
+        $pfx->setPassword('password');
+        $str = "$pfx";
+        $this->assertIsString($str);
+    }
+
+    public function testCreateEncryptedAltPFX(): void
+    {
+        $private = EC::createKey('secp256k1');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('CN=test2');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $pfx = new PFX();
+        $pfx->removePassword();
+        $pfx->add($private);
+        $pfx['authSafe']['content'][0]['content'][] = [
+            'bagId' => 'CertBag',
+            'bagValue' => [
+                'certId' => 'x509Certificate',
+                'certValue' => $x509,
+            ]
+        ];
+        /*
+        what $pfx->add($x509) does is this:
+
+        $pfx['authSafe']['content'][] = ...;
+
+        vs:
+
+        $pfx['authSafe']['content'][0]['content'][] = ...;
+        */
+        $pfx->setPassword('password');
+        $str = "$pfx";
+        $this->assertIsString($str);
     }
 }

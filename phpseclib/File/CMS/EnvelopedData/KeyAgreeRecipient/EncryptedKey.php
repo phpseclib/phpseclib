@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / KeyAgreeRecipient / EncryptedKey Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / EnvelopedData / KeyAgreeRecipient / EncryptedKey files.
  *
@@ -19,11 +19,16 @@ namespace phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient;
 
 use phpseclib4\Crypt\{EC, PublicKeyLoader};
 use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1\{Constructed, Maps};
+use phpseclib4\File\ASN1\{Constructed, Maps, Types\BaseType};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EncryptedData;
 use phpseclib4\File\CMS\EnvelopedData\{DerivableKey, KeyAgreeRecipient, SearchableKey};
 
+/**
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
+ */
 class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;
@@ -31,9 +36,11 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public Constructed|array $encryptedKey;
     public EncryptedData $cms;
     public KeyAgreeRecipient $recipient;
-    private EC\PrivateKey $kek;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Constructed $parent;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
+    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array $key)
@@ -58,6 +65,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $temp;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function withKey(#[\SensitiveParameter] EC\PrivateKey $key): self
     {
         $private = &$key;
@@ -134,6 +142,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function matchesX509(X509 $x509): bool
     {
         return $x509->isIssuerOf($this->encryptedKey['rid'], ['keyAgreement']);
@@ -164,6 +173,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->encryptedKey[$offset];
     }
 
@@ -217,6 +227,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $this->encryptedKey->valid();
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function keys(): array
     {
         return $this->encryptedKey instanceof Constructed ? $this->encryptedKey->keys() : array_keys($this->encryptedKey);

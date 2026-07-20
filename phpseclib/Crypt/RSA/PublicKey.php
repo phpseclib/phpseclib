@@ -13,20 +13,24 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\RSA;
 
-use phpseclib4\Crypt\{Common, RSA};
-use phpseclib4\Exception\{BadConfigurationException, KeyConstraintException, LengthException, UnsupportedAlgorithmException};
+use phpseclib4\Crypt\{Common, RSA, RSA\PrivateKey};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    KeyConstraintException,
+    LengthException,
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
+};
 use phpseclib4\Math\BigInteger;
 
 /**
- * Raw RSA Key Handler
+ * RSA Public Key
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
 final class PublicKey extends RSA implements Common\PublicKey
 {
     use Common\Traits\Fingerprint;
-
-    private static bool $oidsLoaded = false;
 
     /**
      * Exponentiate
@@ -178,44 +182,10 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @see self::sign()
      */
-    public function verify(string $message, string $signature): bool
+    public function verify(string $message, string|array $signature): bool
     {
-        /*
-        https://datatracker.ietf.org/doc/html/rfc4055#page-6 says the following:
-
-           There are two possible encodings for the AlgorithmIdentifier
-           parameters field associated with these object identifiers.  The two
-           alternatives arise from the loss of the OPTIONAL associated with the
-           algorithm identifier parameters when the 1988 syntax for
-           AlgorithmIdentifier was translated into the 1997 syntax.  Later the
-           OPTIONAL was recovered via a defect report, but by then many people
-           thought that algorithm parameters were mandatory.  Because of this
-           history some implementations encode parameters as a NULL element
-           while others omit them entirely.  The correct encoding is to omit the
-           parameters field; however, when RSASSA-PSS and RSAES-OAEP were
-           defined, it was done using the NULL parameters rather than absent
-           parameters.
-
-           All implementations MUST accept both NULL and absent parameters as
-           legal and equivalent encodings.
-
-        OpenSSL does NOT accept both - it REQUIRES NULL be present. phpseclib, however,
-        DOES accept both. at first, it didn't. at first, not knowing why some small number
-        of PKCS1 signatures ommitted NULL, i added the SIGNATURE_RELAXED_PKCS1 mode on
-        2015-08-26. https://phpseclib.com/docs/rsa#rsasignature_relaxed_pkcs1 talks more
-        about that mode. later, on 2021-04-05, there was CVE-2021-30130. consequently,
-        the SIGNATURE_PKCS1 mode was updated to accept either NULL or non-NULL.
-
-        because phpseclib accepts PKCS1 signatures that OpenSSL doesn't, OpenSSL isn't
-        used for PKCS1. if the OpenSSL extension is installed then it'll be used to perform
-        unpadded RSA (ie. modular exponentation), however, the actual PKCS1 construction
-        takes place in PHP code vs OpenSSL.
-
-        see https://security.stackexchange.com/questions/110330/encoding-of-optional-null-in-der
-        for an additional reference
-        */
-        if ($this->signaturePadding === self::SIGNATURE_PKCS1 && isset(self::$forcedEngine) && self::$forcedEngine !== 'PHP') {
-            throw new BadConfigurationException('Engine OpenSSL is forced but unavailable for RSA PKCS1 signature verification');
+        if (is_array($signature)) {
+            throw new UnexpectedValueException('$message must be a string, not an array');
         }
 
         $result = $this->handleOpenSSL('openssl_verify', $message, $signature);
@@ -234,7 +204,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * See {@link http://tools.ietf.org/html/rfc3447#section-7.2.1 RFC3447#section-7.2.1}.
      */
-    private function rsaes_pkcs1_v1_5_encrypt(string $m, bool $pkcs15_compat = false): string
+    private function rsaes_pkcs1_v1_5_encrypt(string $m): string
     {
         $mLen = strlen($m);
 
@@ -346,7 +316,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      *
      * @see self::decrypt()
      */
-    public function encrypt(#[SensitiveParameter] string $plaintext): string
+    public function encrypt(#[\SensitiveParameter] string $plaintext): string
     {
         $result = $this->handleOpenSSL('openssl_public_encrypt', $plaintext);
         if ($result !== null) {
@@ -364,7 +334,7 @@ final class PublicKey extends RSA implements Common\PublicKey
     /**
      * Converts a public key to a private key
      */
-    public function asPrivateKey(): RSA
+    public function asPrivateKey(): PrivateKey
     {
         $new = new PrivateKey();
         $new->exponent = $this->exponent;

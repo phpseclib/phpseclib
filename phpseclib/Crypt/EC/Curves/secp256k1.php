@@ -22,6 +22,7 @@ use phpseclib4\Crypt\EC\BaseCurves\KoblitzPrime;
 use phpseclib4\Math\BigInteger;
 
 //class secp256k1 extends Prime
+/** @psalm-api */
 class secp256k1 extends KoblitzPrime
 {
     public function __construct()

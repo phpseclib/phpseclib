@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / KEKRecipient Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / EnvelopedData / KEKRecipient files.
  *
@@ -23,8 +23,7 @@ use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class KEKRecipient extends Recipient implements DerivableKey
 {
-    private ?string $kek = null;
-
+    /** @psalm-suppress PossiblyUnusedMethod */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
@@ -60,6 +59,7 @@ class KEKRecipient extends Recipient implements DerivableKey
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\KEKRecipientInfo::MAP);

@@ -3,7 +3,7 @@
 /**
  * Pure-PHP CMS / EncryptedData Parser
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode CMS / CompressedData files.
  *
@@ -27,7 +27,7 @@ use phpseclib4\Exception\{
     UnexpectedValueException
 };
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{Choice, OID, OctetString};
+use phpseclib4\File\ASN1\Types\{BaseType, Choice, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\EnvelopedData\{
     DerivableKey,
@@ -43,6 +43,8 @@ use phpseclib4\File\CMS\EnvelopedData\{
 * Pure-PHP CMS / EncryptedData Parser
 *
 * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
 */
 class EncryptedData implements \ArrayAccess, \Countable, \Iterator
 {
@@ -52,7 +54,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public string $cek; // content encryption key
 
     public function __construct(
-        #[SensitiveParameter] string $data,
+        #[\SensitiveParameter] string $data,
         string $encryptionAlgorithm = 'aes128-CBC-PAD',
         #[\SensitiveParameter] ?string $key = null
     ) {
@@ -169,11 +171,13 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getAlgorithm(): string
     {
         return (string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm'];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function getKey(): string
     {
         return $this->cek;
@@ -195,6 +199,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cms[$offset];
     }
 
@@ -411,6 +416,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // return the first SearchableKey matching $keyIdentifier or null if none are found
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function findRecipient(string|X509 $keyIdentifier): ?SearchableKey
     {
         $recipients = $this->findRecipients($keyIdentifier);
@@ -452,7 +458,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public function deriveFromPassword(#[\SensitiveParameter] string $password): self
     {
         $this->compile();
-        $result = [];
         foreach ($this->cms['content']['recipientInfos'] as $recipient) {
             if (isset($recipient['pwri'])) {
                 try {
@@ -512,7 +517,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     public function createNewRecipientFromKeyWithIdentifier(
-        #[SensitiveParameter] string $key,
+        #[\SensitiveParameter] string $key,
         string $identifier,
         ?\DateTimeInterface $date = null
     ): KEKRecipient {
@@ -547,6 +552,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
+    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function createNewRecipientFromX509(X509 $x509, int $type = CMS::ISSUER_AND_DN): KeyTransRecipient|KeyAgreeRecipient
     {
         $publicKey = $x509->getPublicKey();
@@ -674,6 +680,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // from https://www.rfc-editor.org/rfc/rfc3217#section-3.1
+    /** @psalm-suppress PossiblyUnusedMethod */
     public static function wrapDES(#[\SensitiveParameter] string $kek, #[\SensitiveParameter] string $cek): string
     {
         $icv = substr(sha1($cek, true), 0, 8);
@@ -712,6 +719,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         $this->cms['content']['originatorInfo']['certs'][] = ['certificate' => $cert];
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function addCRL(CRL $crl): void
     {
         if (!isset($this->cms['content']['recipientInfos'])) {

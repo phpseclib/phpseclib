@@ -259,7 +259,7 @@ abstract class DH extends AsymmetricKey
      * Compute Shared Secret
      */
     public static function computeSecret(
-        #[SensitiveParameter] PrivateKey|EC\PrivateKey|string $private,
+        #[\SensitiveParameter] PrivateKey|EC\PrivateKey|string $private,
         PublicKey|EC\PublicKey|BigInteger|string $public
     ): BigInteger|string {
         if ($private instanceof PrivateKey) { // DH\PrivateKey
@@ -343,9 +343,9 @@ abstract class DH extends AsymmetricKey
      * Load the key
      */
     public static function load(
-        #[SensitiveParameter] string|array $key,
-        #[SensitiveParameter] ?string $password = null
-    ): AsymmetricKey {
+        #[\SensitiveParameter] string|array $key,
+        #[\SensitiveParameter] ?string $password = null
+    ): static {
         try {
             return EC::load($key, $password);
         } catch (NoKeyLoadedException $e) {
@@ -356,6 +356,8 @@ abstract class DH extends AsymmetricKey
 
     /**
      * OnLoad Handler
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {
@@ -383,7 +385,7 @@ abstract class DH extends AsymmetricKey
     /**
      * Determines which hashing function should be used
      */
-    public function withHash(string $hash): AsymmetricKey
+    public function withHash(string $hash): static
     {
         throw new BadMethodCallException('DH does not use a hash algorithm');
     }
@@ -404,7 +406,7 @@ abstract class DH extends AsymmetricKey
      *
      * @see self::getPublicKey()
      */
-    public function getParameters(): AsymmetricKey
+    public function getParameters(): Parameters
     {
         $type = DH::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 

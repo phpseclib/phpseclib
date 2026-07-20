@@ -5,7 +5,7 @@
  *
  * The PFX RFC is quite terrible, as discussed in https://www.cs.auckland.ac.nz/~pgut001/pubs/pfx.html
  *
- * PHP version 8
+ * PHP version 8.1+
  *
  * Encode and decode PFX files.
  *
@@ -28,13 +28,15 @@ use phpseclib4\Exception\{
     UnsupportedAlgorithmException
 };
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{BaseString, OctetString};
+use phpseclib4\File\ASN1\Types\{BaseString, BaseType, OctetString};
 use phpseclib4\File\Common\Signable;
 
 /**
  * Pure-PHP PFX (PKCS#12) Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, BaseType>
+ * @implements \Iterator<string, Basetype>
  */
 class PFX implements \ArrayAccess, \Countable, \Iterator
 {
@@ -47,7 +49,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             'content' => []
         ]
     ];
-    private ?string $password = null;
+    private ?string $password = '';
 
     // same as OpenSSL
     // setting this to null will mean that a MAC isn't included
@@ -69,8 +71,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     }
 
     public static function load(
-        #[SensitiveParameter] string|array|Constructed $pfx,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string|array|Constructed $pfx,
+        #[\SensitiveParameter] ?string $password = null
     ): self {
         $temp = new self();
         $temp->pfx = is_string($pfx) ? self::loadString($pfx, $password) : $pfx;
@@ -79,8 +81,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     }
 
     private static function loadString(
-        #[SensitiveParameter] string $pfx,
-        #[SensitiveParameter] ?string $password
+        #[\SensitiveParameter] string $pfx,
+        #[\SensitiveParameter] ?string $password
     ): Constructed {
         ASN1::disableCacheInvalidation();
 
@@ -138,6 +140,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the default hash algorithm
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setHashAlgorithm(string $algo): void
     {
@@ -164,6 +168,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the iteration count
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setIterationCount(int $count): void
     {
@@ -172,6 +178,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the salt length
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function setSaltLength(int $length): void
     {
@@ -180,7 +188,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     // PrivateKey objects are designed to be immutable hence their use of withPassword()
     // PFX is *not* designed to be immutable
-    public function setPassword(#[SensitiveParameter] ?string $password = null): void
+    public function setPassword(#[\SensitiveParameter] ?string $password = null): void
     {
         if (!isset($password)) {
             $this->removePassword();
@@ -233,19 +241,21 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 foreach ($value['content'] as $subkey => $subvalue) {
                     $subvalue = $value['content'][$subkey];
                     if ($subvalue['bagId'] == 'CertBag') {
-                        foreach ($subvalue['bagAttributes'] as $attr) {
-                            switch ($attr['type']) {
-                                case 'pkcs-9-at-localKeyId':
-                                    $var = 'localKeyIDs';
-                                    break;
-                                case 'pkcs-9-at-friendlyName':
-                                    $var = 'friendlyNames';
-                                    break;
-                                default:
-                                    continue 2;
-                            }
-                            foreach ($attr['value'] as $attrValue) {
-                                $$var[count($certs)][] = $attrValue;
+                        if (isset($subvalue['bagAttributes'])) {
+                            foreach ($subvalue['bagAttributes'] as $attr) {
+                                switch ($attr['type']) {
+                                    case 'pkcs-9-at-localKeyId':
+                                        $var = 'localKeyIDs';
+                                        break;
+                                    case 'pkcs-9-at-friendlyName':
+                                        $var = 'friendlyNames';
+                                        break;
+                                    default:
+                                        continue 2;
+                                }
+                                foreach ($attr['value'] as $attrValue) {
+                                    $$var[count($certs)][] = $attrValue;
+                                }
                             }
                         }
                         $certs[] = $subvalue['bagValue']['certValue'];
@@ -262,7 +272,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 unset($value);
             }
             foreach ($certs as $i => $cert) {
-                $this->add($cert, friendlyName: $friendlyNames[$i], localKeyID: $localKeyIDs[$i]);
+                $this->add($cert, friendlyName: $friendlyNames[$i] ?? null, localKeyID: $localKeyIDs[$i] ?? null);
             }
         }
         $this->password = $password;
@@ -302,7 +312,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
      * @var string|BaseString|string[]|BaseString[]|null $localKeyID
      */
     public function add(
-        #[SensitiveParameter] X509|PrivateKey $obj,
+        #[\SensitiveParameter] X509|PrivateKey $obj,
         string|BaseString|array|null $friendlyName = null,
         string|BaseString|array|null $localKeyID = null
     ): void {
@@ -480,6 +490,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
+        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->pfx[$offset];
     }
 
@@ -684,15 +695,18 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     public function pfxFromFriendlyName(string|BaseString $value): self
     {
         $temp = new self();
+        $temp->password = $this->password;
         foreach ($this->pluckByFriendlyName($value) as $object) {
             $temp->add($object);
         }
         return $temp;
     }
 
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function pfxFromLocalKeyID(string|BaseString $value): self
     {
         $temp = new self();
+        $temp->password = $this->password;
         foreach ($this->pluckByLocalKeyID($value) as $object) {
             $temp->add($object);
         }

@@ -87,23 +87,6 @@ abstract class EC extends AsymmetricKey
     private string $curveName;
 
     /**
-     * Curve Order
-     *
-     * Used for deterministic ECDSA
-     */
-    protected BigInteger $q;
-
-    /**
-     * Alias for the private key
-     *
-     * Used for deterministic ECDSA. AsymmetricKey expects $x. I don't like x because
-     * with x you have x * the base point yielding an (x, y)-coordinate that is the
-     * public key. But the x is different depending on which side of the equal sign
-     * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     */
-    protected BigInteger $x;
-
-    /**
      * Context
      */
     protected ?string $context = null;
@@ -310,8 +293,10 @@ abstract class EC extends AsymmetricKey
 
     /**
      * OnLoad Handler
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
-    protected static function onLoad(array $components): EC
+    protected static function onLoad(array $components): static
     {
         if (!isset($components['dA']) && !isset($components['QA'])) {
             $new = new Parameters();
@@ -426,7 +411,7 @@ abstract class EC extends AsymmetricKey
     // multiplication is concerned, neither value affects the resultant x value
     public static function convertPointToPublicKey(
         string $curveName,
-        #[SensitiveParameter] string $secret,
+        #[\SensitiveParameter] string $secret,
         bool $toPublicKey = true
     ): PublicKey|string {
         $curveName = self::getCurveCase($curveName);
@@ -460,7 +445,7 @@ abstract class EC extends AsymmetricKey
      *
      * @see self::getPublicKey()
      */
-    public function getParameters(string $type = 'PKCS1'): ?Parameters
+    public function getParameters(string $type = 'PKCS1'): Parameters
     {
         $type = self::validatePlugin('Keys', $type, 'saveParameters');
 
@@ -476,7 +461,7 @@ abstract class EC extends AsymmetricKey
      *
      * Valid values are: ASN1, SSH2, Raw
      */
-    public function withSignatureFormat(string $format): EC
+    public function withSignatureFormat(string $format): static
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');
@@ -490,6 +475,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getSignatureFormat(): string
     {
@@ -504,7 +491,7 @@ abstract class EC extends AsymmetricKey
      * @see self::verify()
      * @see self::sign()
      */
-    public function withContext(?string $context = null): EC
+    public function withContext(?string $context = null): static
     {
         if (!$this->curve instanceof TwistedEdwardsCurve) {
             throw new BadMethodCallException('Only Ed25519 and Ed448 support contexts');
@@ -525,6 +512,8 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getContext(): string
     {
@@ -534,7 +523,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Determines which hashing function should be used
      */
-    public function withHash(string $hash): AsymmetricKey
+    public function withHash(string $hash): static
     {
         if ($this->curve instanceof MontgomeryCurve) {
             throw new BadMethodCallException('Montgomery Curves cannot be used to create signatures');

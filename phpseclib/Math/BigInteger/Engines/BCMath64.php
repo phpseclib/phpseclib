@@ -28,6 +28,7 @@ use phpseclib4\Exception\BadConfigurationException;
  * BCMath64 Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class BCMath64 extends BCMath
 {

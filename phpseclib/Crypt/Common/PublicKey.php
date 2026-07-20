@@ -20,7 +20,7 @@ namespace phpseclib4\Crypt\Common;
  */
 interface PublicKey
 {
-    public function verify(string $message, string $signature): bool;
+    public function verify(string $message, string|array $signature): bool;
     //public function encrypt(string $plaintext): string;
     public function toString(string $type, array $options = []): string;
     public function getFingerprint(string $algorithm): string;

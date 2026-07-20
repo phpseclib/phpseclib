@@ -37,6 +37,7 @@ use phpseclib4\Math\BigInteger\Engines\Engine;
  * numbers.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class BigInteger implements \JsonSerializable
 {
@@ -376,8 +377,7 @@ class BigInteger implements \JsonSerializable
      *
      * @return array{hex: string, precision?: int]
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
+    public function jsonSerialize(): mixed
     {
         $result = ['hex' => $this->toHex(true)];
         if ($this->getPrecision() > 0) {
@@ -656,7 +656,7 @@ class BigInteger implements \JsonSerializable
     /**
      * Clone
      */
-    public function __clone(): void
+    public function __clone()
     {
         $this->value = clone $this->value;
     }

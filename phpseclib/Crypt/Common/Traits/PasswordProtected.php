@@ -35,7 +35,7 @@ trait PasswordProtected
      *
      * @return static
      */
-    public function withPassword(#[SensitiveParameter] ?string $password = null): self
+    public function withPassword(#[\SensitiveParameter] ?string $password = null): self
     {
         $new = clone $this;
         $new->password = $password;

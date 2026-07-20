@@ -21,6 +21,7 @@ namespace phpseclib4\Math\BigInteger\Engines;
  * Uses 64-bit floats if int size is 4 bits
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 class PHP32 extends PHP
 {

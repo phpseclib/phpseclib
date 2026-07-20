@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.55 - 2026-06-14
+
+- RSA: signature verification with PKCS1 with failed when the parameters field was absent
+
 ## 3.0.54 - 2026-06-14
 
 - X509: add setURLFetchCallback() method

@@ -29,15 +29,18 @@ use phpseclib4\Math\BigInteger;
  * XML Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         if (!class_exists('DOMDocument')) {
             throw new BadConfigurationException('The dom extension is not setup correctly on this system');
@@ -112,6 +115,8 @@ abstract class XML
      * Convert a public key to the appropriate format
      *
      * See https://www.w3.org/TR/xmldsig-core/#sec-DSAKeyValue
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(
         BigInteger $p,

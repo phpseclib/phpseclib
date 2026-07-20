@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Math\BigInteger\Engines\PHP;
 
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Math\BigInteger\Engines\{Engine, PHP};
 use phpseclib4\Math\BigInteger\Engines\PHP\Reductions\PowerOfTwo;
 
@@ -40,8 +41,11 @@ abstract class Montgomery extends Base
      * @param class-string<T> $class
      * @return T
      */
-    protected static function slidingWindow(PHP $x, PHP $e, PHP $n, string $class): PHP
+    protected static function slidingWindow(Engine $x, Engine $e, Engine $n, string $class): PHP
     {
+        if (!$x instanceof PHP || !$e instanceof PHP || !$n instanceof PHP) {
+            throw new InvalidArgumentException('Montgomery exponentiation only works with PHP engines');
+        }
         // is the modulo odd?
         if ($n->value[0] & 1) {
             return parent::slidingWindow($x, $e, $n, $class);

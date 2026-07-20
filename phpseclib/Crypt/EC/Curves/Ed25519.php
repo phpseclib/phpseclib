@@ -20,6 +20,7 @@ use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException, Unsup
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
+/** @psalm-api */
 class Ed25519 extends TwistedEdwards
 {
     public const HASH = 'sha512';
@@ -38,7 +39,8 @@ class Ed25519 extends TwistedEdwards
     public function __construct()
     {
         // 2^255 - 19
-        $this->setModulo(new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED', 16));
+        $modulo = new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED', 16);
+        $this->setModulo($modulo);
         $this->setCoefficients(
             // -1
             new BigInteger('7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEC', 16), // a
@@ -52,12 +54,11 @@ class Ed25519 extends TwistedEdwards
         $this->setOrder(new BigInteger('1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED', 16));
         // algorithm 14.47 from http://cacr.uwaterloo.ca/hac/about/chap14.pdf#page=16
         /*
-        $this->setReduction(function($x) {
+        $this->setReduction(function(BigInteger $x) use ($modulo) {
             $parts = $x->bitwise_split(255);
-            $className = $this->className;
 
             if (count($parts) > 2) {
-                [, $r] = $x->divide($className::$modulo);
+                [, $r] = $x->divide($modulo);
                 return $r;
             }
 
@@ -88,8 +89,8 @@ class Ed25519 extends TwistedEdwards
                 $r = $r->add($ri);
             }
 
-            while ($r->compare($className::$modulo) > 0) {
-                $r = $r->subtract($className::$modulo);
+            while ($r->compare($modulo) > 0) {
+                $r = $r->subtract($modulo);
             }
             return $r;
         });
@@ -253,8 +254,7 @@ class Ed25519 extends TwistedEdwards
         }
 
         // from https://tools.ietf.org/html/rfc8032#page-12
-
-        [$x1, $y1, $z1, $t1] = $p;
+        [$x1, $y1, $z1] = $p; // $p has a fourth parameter as well - $t1
 
         $a = $x1->multiply($x1);
         $b = $y1->multiply($y1);

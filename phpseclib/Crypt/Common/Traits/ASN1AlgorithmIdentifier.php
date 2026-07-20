@@ -201,7 +201,7 @@ trait ASN1AlgorithmIdentifier
 
     private static function getCryptoObjectFromAlgorithmIdentifier(
         array|Constructed $data,
-        #[SensitiveParameter] string $password
+        #[\SensitiveParameter] string $password
     ): SymmetricKey {
         $meta = [];
         $algorithm = (string) $data['algorithm'];
@@ -275,7 +275,7 @@ trait ASN1AlgorithmIdentifier
 
     protected static function setupPBKDF2(
         array|Constructed $keyDerivationFunc,
-        #[SensitiveParameter] string $password,
+        #[\SensitiveParameter] string $password,
         SymmetricKey $cipher
     ): void {
         switch ($keyDerivationFunc['algorithm']) {

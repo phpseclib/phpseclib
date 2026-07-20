@@ -20,7 +20,7 @@ use phpseclib4\File\CSR;
 use phpseclib4\Math\BigInteger;
 
 /**
- * Raw RSA Key Handler
+ * RSA Private Key
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  */
@@ -259,14 +259,14 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      *
      * @see self::verify()
      */
-    public function sign(string|Signable $source): string
+    public function sign(string|Signable $source): string|array
     {
         if ($source instanceof Signable) {
             $public = $this->getPublicKey();
             if ($source instanceof CSR && !$source->hasPublicKey()) {
                 $source->setPublicKey($public);
             }
-            $source->identifySignatureAlgorithm($public);
+            $source->identifySignatureAlgorithm($this);
             $message = $source->getSignableSection();
         } else {
             $message = $source;
@@ -362,7 +362,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
         // EME-OAEP decoding
 
         $lHash = $this->hash->hash($this->label);
-        $y = ord($em[0]);
+        //$y = ord($em[0]);
         $maskedSeed = substr($em, 1, $this->hLen);
         $maskedDB = substr($em, $this->hLen + 1);
         $seedMask = $this->mgf1($maskedDB, $this->hLen);

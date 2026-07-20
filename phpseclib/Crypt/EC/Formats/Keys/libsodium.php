@@ -33,6 +33,7 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * libsodium Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ * @psalm-api
  */
 abstract class libsodium
 {
@@ -45,10 +46,12 @@ abstract class libsodium
 
     /**
      * Break a public or private key down into its constituent components
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
-        #[SensitiveParameter] string $key,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] string $key,
+        #[\SensitiveParameter] ?string $password = null
     ): array {
         switch (strlen($key)) {
             case 32:
@@ -87,8 +90,9 @@ abstract class libsodium
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
      */
-    public static function savePublicKey(Ed25519 $curve, array $publicKey): string
+    public static function savePublicKey(Ed25519 $curve, array $publicKey, array $options = []): string
     {
         return $curve->encodePoint($publicKey);
     }
@@ -97,13 +101,15 @@ abstract class libsodium
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
-        #[SensitiveParameter] BigInteger $privateKey,
+        #[\SensitiveParameter] BigInteger $privateKey,
         Ed25519 $curve,
         array $publicKey,
-        #[SensitiveParameter] ?string $secret = null,
-        #[SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] ?string $secret = null,
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
     ): string {
         if (!isset($secret)) {
             throw new UnsupportedValueException('Private Key does not have a secret set');
