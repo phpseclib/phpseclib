@@ -2,7 +2,7 @@
 
 ## 1.0.30 - 2026-06-14
 
-- X509: add setURLFetchCallback() method
+- X509: add setURLFetchCallback() method (CVE-2026-55599)
 
 ## 1.0.29 - 2026-04-27
 
