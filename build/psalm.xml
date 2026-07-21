@@ -21,6 +21,7 @@
         <MissingOverrideAttribute errorLevel="suppress" />
         <UnsupportedPropertyReferenceUsage errorLevel="suppress" />
         <UnusedForeachValue errorLevel="suppress" />
+        <UndefinedMethod errorLevel="suppress" />
         <UnusedVariable>
             <errorLevel type="suppress">
                 <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
@@ -30,11 +31,6 @@
                 <file name="../phpseclib/Net/SFTP.php"/>
             </errorLevel>
         </UnusedVariable>
-        <UndefinedMethod>
-            <errorLevel type="suppress">
-                <directory name="../tests"/>
-            </errorLevel>
-        </UndefinedMethod>
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="../phpseclib/File/ASN1/Maps"/>
