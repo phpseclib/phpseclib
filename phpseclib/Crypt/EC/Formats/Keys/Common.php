@@ -37,11 +37,6 @@ use phpseclib4\Math\BigInteger;
 trait Common
 {
     /**
-     * Child OIDs loaded
-     */
-    protected static bool $childOIDsLoaded = false;
-
-    /**
      * Use Named Curves
      */
     private static bool $useNamedCurves = true;

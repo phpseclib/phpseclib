@@ -58,11 +58,6 @@ abstract class PSS extends Progenitor
     private static bool $oidsLoaded = false;
 
     /**
-     * Child OIDs loaded
-     */
-    protected static bool $childOIDsLoaded = false;
-
-    /**
      * Initialize static variables
      */
     private static function initialize_static_variables(): void
