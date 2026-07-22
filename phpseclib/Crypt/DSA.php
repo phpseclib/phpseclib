@@ -237,8 +237,6 @@ abstract class DSA extends AsymmetricKey
 
     /**
      * OnLoad Handler
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {

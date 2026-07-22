@@ -84,7 +84,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Curve Name
      */
-    private string $curveName;
+    protected string $curveName;
 
     /**
      * Context
@@ -229,7 +229,7 @@ abstract class EC extends AsymmetricKey
             if ($curve == 'ed25519') {
                 $kp = sodium_crypto_sign_keypair();
 
-                $privatekey = EC::loadFormat('libsodium', sodium_crypto_sign_secretkey($kp));
+                $privatekey = EC::loadPrivateKeyFormat('libsodium', sodium_crypto_sign_secretkey($kp));
                 //$publickey = EC::loadFormat('libsodium', sodium_crypto_sign_publickey($kp));
 
                 $privatekey->curveName = 'Ed25519';
@@ -282,7 +282,7 @@ abstract class EC extends AsymmetricKey
         while (openssl_error_string() !== false) {
         }
         // some versions of OpenSSL / PHP return PKCS1 keys, others return PKCS8 keys
-        $privatekey = EC::load($privateKeyStr);
+        $privatekey = EC::loadPrivateKey($privateKeyStr);
         $privatekey->curveName = match ($curveName) {
             'prime256v1' => 'secp256r1',
             'prime192v1' => 'secp192r1',
@@ -293,8 +293,6 @@ abstract class EC extends AsymmetricKey
 
     /**
      * OnLoad Handler
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): static
     {
@@ -304,16 +302,16 @@ abstract class EC extends AsymmetricKey
             return $new;
         }
 
-        $new = isset($components['dA']) ?
-            new PrivateKey() :
-            new PublicKey();
-        $new->curve = $components['curve'];
-        $new->QA = $components['QA'];
-
         if (isset($components['dA'])) {
+            $new = new PrivateKey();
             $new->dA = $components['dA'];
             $new->secret = $components['secret'];
+        } else {
+            $new = new PublicKey();
         }
+
+        $new->curve = $components['curve'];
+        $new->QA = $components['QA'];
 
         if ($new->curve instanceof TwistedEdwardsCurve) {
             return $new->withHash($components['curve']::HASH);

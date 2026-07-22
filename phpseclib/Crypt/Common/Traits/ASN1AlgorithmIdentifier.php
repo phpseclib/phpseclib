@@ -265,10 +265,11 @@ trait ASN1AlgorithmIdentifier
                 $cipher->setMetaData('meta', $meta);
                 self::setupPBKDF2($keyDerivationFunc, $password, $cipher);
                 return $cipher;
-            case 'id-PBMAC1':
-                //$temp = ASN1::decodeBER($data['parameters']);
-                //$value = ASN1::map($temp[0], Maps\PBMAC1params::MAP)->toArray();
-                // since i can't find any implementation that does PBMAC1 it is unsupported
+            //case 'id-PBMAC1':
+            //    $temp = ASN1::decodeBER($data['parameters']);
+            //    $value = ASN1::map($temp[0], Maps\PBMAC1params::MAP)->toArray();
+            //    // since i can't find any implementation that does PBMAC1 it is unsupported
+            default:
                 throw new UnsupportedAlgorithmException('Only PBES1 and PBES2 PKCS#8 keys are supported.');
         }
     }
