@@ -74,7 +74,7 @@ class Ed448 extends TwistedEdwards
             if ($sign) {
                 throw new UnexpectedValueException('Unable to recover X coordinate (x2 = 0)');
             }
-            return clone $this->zero;
+            return [clone $this->zero, $y];
         }
         // find the square root
         $exp = $this->getModulo()->add(new BigInteger(1));

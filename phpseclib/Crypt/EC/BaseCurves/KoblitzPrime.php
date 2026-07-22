@@ -99,7 +99,7 @@ class KoblitzPrime extends Prime
                 $inv->subtract($s),
             ];
 
-            $lhs = $this->multiplyPoint($this->p, $lambdas[0])[0];
+            $lhs = $this->multiplyPoint($this->p, $lambdas[0]->toBigInteger())[0];
             $rhs = $this->p[0]->multiply($this->beta);
             $lambda = $lhs->equals($rhs) ? $lambdas[0] : $lambdas[1];
 

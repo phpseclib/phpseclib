@@ -17,6 +17,7 @@ namespace phpseclib4\Crypt\EC\BaseCurves;
 
 use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException};
 use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\Common\FiniteField;
 use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**
@@ -33,6 +34,8 @@ abstract class Base
 
     /**
      * Converts a BigInteger to a \phpseclib4\Math\FiniteField\Integer integer
+     *
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function convertInteger(BigInteger $x): Integer
     {
@@ -41,6 +44,8 @@ abstract class Base
 
     /**
      * Returns the length, in bytes, of the modulo
+     *
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getLengthInBytes(): int
     {
@@ -51,6 +56,7 @@ abstract class Base
      * Returns the length, in bits, of the modulo
      *
      * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function getLength(): int
     {
@@ -133,6 +139,7 @@ abstract class Base
      * Use a custom defined modular reduction function
      *
      * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function setReduction(\Closure $func): void
     {
