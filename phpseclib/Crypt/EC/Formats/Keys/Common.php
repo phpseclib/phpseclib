@@ -43,6 +43,8 @@ trait Common
 
     private static bool $oidsLoaded = false;
 
+    private static ?BaseCurve $implicitCurve;
+
     /**
      * Initialize static variables
      */
@@ -60,10 +62,8 @@ trait Common
      *
      * If the key contains an implicit curve phpseclib needs the curve
      * to be explicitly provided
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
-    public static function setImplicitCurve(BaseCurve $curve): void
+    public static function setImplicitCurve(?BaseCurve $curve): void
     {
         self::$implicitCurve = $curve;
     }

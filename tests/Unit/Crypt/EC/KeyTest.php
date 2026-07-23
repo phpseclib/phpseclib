@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\Crypt\EC;
 
 use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\EC\Curves\secp384r1;
 use phpseclib4\Crypt\EC\Formats\Keys\OpenSSH;
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS8;
@@ -771,5 +772,29 @@ kbZNIHu+PaE0osExnxdlkiC+VYqhRANCAAS8yEueJvIAnCk++0rsD8X9dk3hAmyb
         $sig = $priv->sign('ddd');
 
         $this->assertTrue($key->getPublicKey()->withSignatureFormat('IEEE')->verify('ddd', $sig));
+    }
+
+    public function testImplicitCurve(): void
+    {
+        PKCS1::setImplicitCurve(new secp384r1());
+
+        /*
+        $temp = ['implicitCurve' => new ExplicitNull()];
+        $output = ASN1::encodeDER($temp, Maps\ECParameters::MAP);
+        echo base64_encode($output);
+        */
+
+        $key = '-----BEGIN EC PARAMETERS-----
+BQA=
+-----END EC PARAMETERS-----
+-----BEGIN EC PRIVATE KEY-----
+MIGkAgEBBDBPoZHEeuf9UjjhevAbGxWwsmmWw34vkxJwtZ0AknmSUAHo0OAowJSQ
+Stf/0U65RhWgBwYFK4EEACKhZANiAASVZJGIs6m/TZhbFoTwBtpvU1JcyixD2YI3
+5YnoIx/6Q1oqJg1vrrmUoXaeEpaO6JH8RgItTl9lYMdmOk5309WJka6tI1QAAK3+
+Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
+-----END EC PRIVATE KEY-----';
+
+        $key = EC::loadFormat('PKCS1', $key);
+        $this->assertIsString("$key");
     }
 }
