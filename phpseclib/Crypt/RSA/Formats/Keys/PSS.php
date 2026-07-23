@@ -103,6 +103,7 @@ abstract class PSS extends Progenitor
             $decoded = ASN1::decodeBER((string) $key[$type . 'KeyAlgorithm']['parameters']);
             $params = ASN1::map($decoded, Maps\RSASSA_PSS_params::MAP);
         } else {
+            /** @var array<string, mixed> $params */
             $params = [];
         }
 

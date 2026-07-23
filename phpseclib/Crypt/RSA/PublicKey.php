@@ -219,6 +219,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         $psLen = $this->k - $mLen - 3;
         $ps = '';
         while (strlen($ps) != $psLen) {
+            /** @psalm-suppress InvalidArgument */
             $temp = random_bytes($psLen - strlen($ps));
             $temp = str_replace("\x00", '', $temp);
             $ps .= $temp;

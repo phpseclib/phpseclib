@@ -322,7 +322,6 @@ class Twofish extends BlockCipher
      * The Key Length (in bytes)
      *
      * @see self::setKeyLength()
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 16;
 
