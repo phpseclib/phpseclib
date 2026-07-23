@@ -45,7 +45,7 @@ abstract class Base
     /**
      * Returns the length, in bytes, of the modulo
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function getLengthInBytes(): int
     {
