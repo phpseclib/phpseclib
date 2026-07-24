@@ -95,7 +95,7 @@ class ASN1Test extends PhpseclibTestCase
     }
 
     /**
-     * on older versions of \phpseclib4\File\ASN1 this would produce a null instead of an array
+     * on older versions of \phpseclib3\File\ASN1 this would produce a null instead of an array
      */
     #[\PHPUnit\Framework\Attributes\Group('github275')]
     public function testIncorrectString(): void
@@ -239,10 +239,19 @@ class ASN1Test extends PhpseclibTestCase
                '4P3wep6uNMLnLzXJmUaAMaopjE+MOcai/t6T9Vg4pERF5Waqwg5ibAbVGK19HuS4LiKiaY3JsyYBuNkEDwiqM7i1Ekw3V+' .
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
+        // crealm is supposed to be an OCTET STRING, per the definition, however, in the DER, it's a
+        // GENERAL STRING so phpseclib v4 can't find it. phpseclib v3 doesn't mind it, however, because
+        // v3 (apparently) doesn't do type checks on explicitly optional parameters
+
+        ASN1::enableBlobsOnBadDecodes();
+
         $decoded = ASN1::decodeBER(base64_decode($str));
         $result = ASN1::map($decoded, $AS_REP)->toArray();
 
         $this->assertIsArray($result);
+        $this->assertCount(3, $result);
+
+        ASN1::disableBlobsOnBadDecodes();
     }
 
     public function testMaps(): void

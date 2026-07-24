@@ -27,7 +27,7 @@ use phpseclib4\Exception\{
     UnexpectedValueException,
     UnsupportedAlgorithmException
 };
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
 use phpseclib4\File\ASN1\Types\{BaseString, BaseType, OctetString};
 use phpseclib4\File\Common\Signable;
 
@@ -35,8 +35,8 @@ use phpseclib4\File\Common\Signable;
  * Pure-PHP PFX (PKCS#12) Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class PFX implements \ArrayAccess, \Countable, \Iterator
 {

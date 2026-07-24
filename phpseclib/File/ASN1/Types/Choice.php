@@ -16,7 +16,12 @@ declare(strict_types=1);
 namespace phpseclib4\File\ASN1\Types;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\{BadMethodCallException, InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Exception\{
+    BadMethodCallException,
+    InvalidArgumentException,
+    UnexpectedValueException,
+    UnsupportedValueException
+};
 use phpseclib4\File\ASN1\Constructed;
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
@@ -113,7 +118,10 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
 
     public function getEncodedLength(): int
     {
-        return $this->value instanceof BaseType ? $this->value->getEncodedLength() : '';
+        if (!$this->value instanceof BaseType) {
+            throw new UnsupportedValueException('Unable to get encoded length of non-Base type');
+        }
+        return $this->value->getEncodedLength();
     }
 
     public function offsetExists(mixed $offset): bool

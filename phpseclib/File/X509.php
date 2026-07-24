@@ -36,7 +36,7 @@ use phpseclib4\Exception\{
     NoKeyLoadedException,
     UnexpectedValueException
 };
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
 use phpseclib4\File\ASN1\Types\{
     BaseString,
     BaseType,
@@ -53,8 +53,8 @@ use phpseclib4\Math\BigInteger;
  * Pure-PHP X.509 Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 {

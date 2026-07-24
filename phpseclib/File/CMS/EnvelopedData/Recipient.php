@@ -17,14 +17,14 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS\EnvelopedData;
 
-use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\{Constructed, MalformedData};
 use phpseclib4\File\ASN1\Types\{BaseType, Choice};
 use phpseclib4\File\CMS\EncryptedData;
 
 /**
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class Recipient implements \ArrayAccess, \Countable, \Iterator
 {

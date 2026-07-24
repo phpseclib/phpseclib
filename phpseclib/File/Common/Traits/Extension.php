@@ -186,8 +186,11 @@ trait Extension
         ASN1::enableCacheInvalidation();
     }
 
-    private static function mapOutExtensionsHelper(array|Constructed &$extensions): void
+    private static function mapOutExtensionsHelper(array|Constructed|Element &$extensions): void
     {
+        if ($extensions instanceof Element) {
+            return;
+        }
         $keys = is_array($extensions) ? array_keys($extensions) : $extensions->keys();
         foreach ($keys as $i) {
             switch (true) {

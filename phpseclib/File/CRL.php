@@ -23,7 +23,7 @@ namespace phpseclib4\File;
 use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
 use phpseclib4\File\ASN1\Maps\CRLReason;
 use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
 use phpseclib4\File\Common\Signable;
@@ -33,8 +33,8 @@ use phpseclib4\Math\BigInteger;
  * Pure-PHP CRL Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
 {

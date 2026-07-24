@@ -26,7 +26,7 @@ use phpseclib4\Exception\{
     LengthException,
     UnexpectedValueException
 };
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
 use phpseclib4\File\ASN1\Types\{BaseType, Choice, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\EnvelopedData\{
@@ -40,12 +40,12 @@ use phpseclib4\File\CMS\EnvelopedData\{
 };
 
 /**
-* Pure-PHP CMS / EncryptedData Parser
-*
-* @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
-*/
+ * Pure-PHP CMS / EncryptedData Parser
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
+ */
 class EncryptedData implements \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;

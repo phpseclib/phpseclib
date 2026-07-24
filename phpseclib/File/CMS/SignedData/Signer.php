@@ -21,7 +21,7 @@ use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
-use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
 use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\SignedData;
@@ -29,8 +29,8 @@ use phpseclib4\File\Common\Signable;
 
 /**
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 {
@@ -146,9 +146,9 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         };
     }
 
-    private static function mapOutAttrs(string $idx, array|Constructed &$info): void
+    private static function mapOutAttrs(string $idx, array|Constructed|Element &$info): void
     {
-        if (!isset($info[$idx]) || $info[$idx] instanceof Element) {
+        if ($info instanceof Element || !isset($info[$idx]) || $info[$idx] instanceof Element) {
             return;
         }
         $attrs = &$info[$idx];

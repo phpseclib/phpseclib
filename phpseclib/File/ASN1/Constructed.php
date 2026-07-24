@@ -39,8 +39,8 @@ use phpseclib4\File\CMS\SignedData\Signer;
  * ASN.1 Constructed Array Object
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<int|string, BaseType>
- * @implements \Iterator<int|string, Basetype>
+ * @implements \ArrayAccess<int|string, mixed>
+ * @implements \Iterator<int|string, mixed>
  */
 class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
 {
@@ -267,6 +267,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             // https://github.com/phpseclib/phpseclib/issues/1388
             case ASN1::TYPE_GENERALIZED_TIME:
             case ASN1::TYPE_UTC_TIME:
+                if (!$this->parent instanceof Constructed) {
+                    throw new InvalidStateException('The only parent to a constructed time tag should be Constructed');
+                }
                 $this->parent->decoded[$this->key] = ASN1::map($decoded[0], $mapping);
                 $this->decoded = [];
                 break;
@@ -278,6 +281,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 $excessivelyDeepData = false;
                 foreach ($decoded as $content) {
                     if ($content['content'] instanceof Constructed) {
+                        /** @var Choice */
                         $temp = ASN1::map($content, [
                             'type' => ASN1::TYPE_CHOICE,
                             'children' => [
@@ -320,6 +324,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 $this->decoded = [];
                 break;
             case ASN1::TYPE_SEQUENCE:
+                /** @var array<string, mixed> $children */
                 $children = $mapping['children'];
 
                 if (isset($mapping['min']) && isset($mapping['max'])) {
@@ -345,7 +350,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                         if ($candidate) {
                             // Got the match: use it.
                             $map[$key] = $candidate;
-                            if (isset($rules[$key]) && !$map[$key] instanceof MalformedData && !$map[$key] instanceof ExcessivelyDeepData) {
+                            if (isset($rules[$key]) && !$map[$key] instanceof Element) {
                                 if (!is_callable($rules[$key])) {
                                     $map[$key]->rules = $rules[$key];
                                 } else {
@@ -354,6 +359,12 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                                 }
                             }
                             break;
+                        // if there are more elements than we're expecting
+                        } elseif ($j === count($keys)) {
+                            if (ASN1::isBlobsOnBadDecodesEnabled()) {
+                                break 2;
+                            }
+                            throw new UnexpectedValueException('Found data that doesn\'t map to any key (' . implode(', ', array_keys($map)) . ')');
                         } elseif (isset($child['default'])) {
                             $map[$key] = self::fillInDefault($child);
                         } elseif (!isset($child['optional'])) {
@@ -381,7 +392,8 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     }
                 }
 
-                if ($j < count($decoded)) {
+                // if there were less elements than we were expecting
+                if (!ASN1::isBlobsOnBadDecodesEnabled() && $j < count($decoded)) {
                     throw new UnexpectedValueException('There were ' . count($decoded) . ' elements found in the decoded data but we\'re only expecting ' . count($keys) . ' (' . implode(', ', array_keys($map)) . ')');
                 }
 
@@ -418,7 +430,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
 
                         // Got the match: use it.
                         $map[$key] = $candidate;
-                        if (isset($rules[$key])) {
+                        if ($map[$key] instanceof Constructed && isset($rules[$key])) {
                             $map[$key]->rules = $rules[$key];
                         }
                         break;
@@ -462,7 +474,11 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             case ASN1::TYPE_SEQUENCE:
                 $encoded = ASN1::encodeDER($child['default'], array_diff_key($child, ['default' => 1]));
                 $decoded = ASN1::decodeBER($encoded);
-                return ASN1::map($decoded, $child);
+                $result = ASN1::map($decoded, $child);
+                if ($result instanceof Element) {
+                    throw new InvalidStateException('Maps shouldn\'t have default values that decode to an Element');
+                }
+                return $result;
         }
         //return $child['default'];
         throw new UnexpectedValueException('An unsupported default type was encountered');
@@ -839,11 +855,12 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 $result[$key] = $value;
             } catch (\Exception $e) {
                 if (ASN1::isBlobsOnBadDecodesEnabled()) {
-                    $result[$key] = new MalformedData(
-                        $value instanceof Choice ?
-                            $value->value->encoded :
-                            $value->encoded
-                    );
+                    $value = match ($value::class) {
+                        Choice::class => $value->value->encoded,
+                        Constructed::class => $value->encoded,
+                        default => throw new UnexpectedValueException($value::class . ' found - expecting Choice or Constructed')
+                    };
+                    $result[$key] = new MalformedData($value);
                     continue;
                 }
                 throw $e;
