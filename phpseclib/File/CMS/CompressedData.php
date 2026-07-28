@@ -19,7 +19,7 @@ namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\BadConfigurationException;
-use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps, Types\BaseType};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\{ASN1, CMS};
 
 /**

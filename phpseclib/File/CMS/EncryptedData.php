@@ -27,7 +27,7 @@ use phpseclib4\Exception\{
     UnexpectedValueException
 };
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{BaseType, Choice, OID, OctetString};
+use phpseclib4\File\ASN1\Types\{Choice, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\EnvelopedData\{
     DerivableKey,

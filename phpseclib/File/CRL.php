@@ -23,9 +23,9 @@ namespace phpseclib4\File;
 use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Maps\CRLReason;
-use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
+use phpseclib4\File\ASN1\Types\{BitString, OctetString};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\Math\BigInteger;
 

@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS\EnvelopedData;
 
-use phpseclib4\File\ASN1\{Constructed, MalformedData};
-use phpseclib4\File\ASN1\Types\{BaseType, Choice};
+use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\Types\Choice;
 use phpseclib4\File\CMS\EncryptedData;
 
 /**

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedValueException};
-use phpseclib4\File\ASN1\{Constructed, MalformedData, Types\BaseType};
+use phpseclib4\File\ASN1\Constructed;
 
 /**
  * Pure-PHP CMS Parser

@@ -17,12 +17,12 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS;
 
-use phpseclib4\Common\Functions\{Arrays, Strings};
-use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
+use phpseclib4\Common\Functions\Strings;
+use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{BadMethodCallException, UnexpectedValueException, UnsupportedAlgorithmException};
-use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
-use phpseclib4\File\ASN1\Types\{BaseType, OID, OctetString};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\Common\Signable;

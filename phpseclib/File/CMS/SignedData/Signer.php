@@ -21,7 +21,7 @@ use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
-use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\SignedData;

@@ -27,8 +27,8 @@ use phpseclib4\Exception\{
     UnexpectedValueException,
     UnsupportedAlgorithmException
 };
-use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
-use phpseclib4\File\ASN1\Types\{BaseString, BaseType, OctetString};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
+use phpseclib4\File\ASN1\Types\{BaseString, OctetString};
 use phpseclib4\File\Common\Signable;
 
 /**

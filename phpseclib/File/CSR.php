@@ -24,7 +24,7 @@ use phpseclib4\Common\Functions\{Arrays, Strings};
 use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
 use phpseclib4\Crypt\{PublicKeyLoader, RSA};
 use phpseclib4\Exception\{InvalidStateException, NoKeyLoadedException, UnexpectedValueException};
-use phpseclib4\File\ASN1\{Constructed, Element, MalformedData, Maps};
+use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\{BaseType, BaseString, BitString, PrintableString, UTF8String};
 use phpseclib4\File\Common\Signable;
 
