@@ -424,6 +424,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms['content']['signerInfos'][] = $signer;
         $signer->parent = $this->cms['content']['signerInfos'];
         $signer->key = count($this->cms['content']['signerInfos']) - 1;
+        /** @psalm-suppress InvalidPropertyFetch */
         $signer->depth = $this->cms['content']['signerInfos']->depth + 1;
     }
 

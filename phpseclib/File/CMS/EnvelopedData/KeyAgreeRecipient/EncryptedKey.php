@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient;
 
-use phpseclib4\Crypt\{EC, PublicKeyLoader};
+use phpseclib4\Crypt\{EC, DH};
 use phpseclib4\Exception\UnsupportedAlgorithmException;
-use phpseclib4\File\ASN1\{Constructed, MalformedData, Maps, Types\BaseType};
+use phpseclib4\File\ASN1\{Constructed, Maps};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EncryptedData;
 use phpseclib4\File\CMS\EnvelopedData\{DerivableKey, KeyAgreeRecipient, SearchableKey};
@@ -85,9 +85,10 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         $mapped = ASN1::map($decoded, Maps\SubjectPublicKeyInfo::MAP);
         $originatorKey['algorithm']['parameters'] = $mapped['algorithm']['parameters'];
         $encoded = ASN1::encodeDER($originatorKey, Maps\OriginatorPublicKey::MAP);
-        $public = PublicKeyLoader::load($encoded);
+        /** @var EC\PublicKey $public */
+        $public = EC::loadPublicKey($encoded);
 
-        $secret = \phpseclib4\Crypt\DH::computeSecret($private, $public);
+        $secret = DH::computeSecret($private, $public);
 
         $dhAlgo = (string) $this->recipient['keyEncryptionAlgorithm']['algorithm'];
         // in standard DH you multiply the private and public key together to get the secret

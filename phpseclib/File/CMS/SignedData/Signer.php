@@ -199,6 +199,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
+    /** @psalm-suppress UndefinedPropertyAssignment */
     public static function mapInAttrs(Constructed $attr): void
     {
         if (self::extensionMatch('id-aa-timeStampToken', $attr['type'])) {
@@ -224,6 +225,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
             $attr['value'][$i]->parent = $attr['value'];
             $attr['value'][$i]->key = $i;
+            /** @psalm-suppress InvalidPropertyFetch */
             $attr['value'][$i]->depth = $attr['value']->depth + 1;
         }
         ASN1::enableCacheInvalidation();
@@ -579,6 +581,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 // the following errors out and idk why
                 //$attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0]['directoryName'] = $x509['tbsCertificate']['issuer'];
                 // consequently we do this:
+                /** @psalm-suppress InvalidArrayOffset */
                 $attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0] = ['directoryName' => $x509['tbsCertificate']['issuer']];
                 $attr['value'][0]['certs'][0]['issuerSerial']['serialNumber'] = $x509['tbsCertificate']['serialNumber'];
                 break;
