@@ -168,7 +168,7 @@ trait ASN1AlgorithmIdentifier
     }
 
     /**
-     * Returns a SymmetricKey object baesd on a PBES2 $algo
+     * Returns a SymmetricKey object based on a PBES2 $algo
      */
     protected static function getPBES2EncryptionObject(string $algo): SymmetricKey
     {
