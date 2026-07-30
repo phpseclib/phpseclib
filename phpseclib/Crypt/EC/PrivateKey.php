@@ -19,7 +19,12 @@ use phpseclib4\Crypt\EC\BaseCurves\{Montgomery as MontgomeryCurve, TwistedEdward
 use phpseclib4\Crypt\EC\Curves\{Curve25519, Ed25519};
 use phpseclib4\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib4\Crypt\EC\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException, UnexpectedValueException};
+use phpseclib4\Exception\{
+    BadConfigurationException,
+    BadMethodCallException,
+    UnexpectedValueException,
+    UnsupportedValueException
+};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\File\CSR;
 use phpseclib4\Math\BigInteger;
@@ -261,6 +266,9 @@ final class PrivateKey extends EC implements Common\PrivateKey
                     $signature = $this->formatSignature($r, $s);
 
                     if ($source instanceof Signable) {
+                        if (is_array($signature)) {
+                            throw new UnsupportedValueException('The Raw signature format cannot be used with Signable objects');
+                        }
                         $source->setSignature($signature);
                     }
 
@@ -321,6 +329,9 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $signature = $this->formatSignature($r, $s);
 
         if ($source instanceof Signable) {
+            if (is_array($signature)) {
+                throw new UnsupportedValueException('The Raw signature format cannot be used with Signable objects');
+            }
             $source->setSignature($signature);
         }
 

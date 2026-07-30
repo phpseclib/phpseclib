@@ -15,7 +15,7 @@ namespace phpseclib4\Crypt\DSA;
 
 use phpseclib4\Crypt\{Common, DSA};
 use phpseclib4\Crypt\DSA\Formats\Signature\ASN1 as ASN1Signature;
-use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\{BadConfigurationException, UnsupportedValueException};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\File\CSR;
 use phpseclib4\Math\BigInteger;
@@ -113,6 +113,9 @@ final class PrivateKey extends DSA implements Common\PrivateKey
                     $s = $loaded['s'];
 
                     if ($source instanceof Signable) {
+                        if (is_array($signature)) {
+                            throw new UnsupportedValueException('The Raw signature format cannot be used with Signable objects');
+                        }
                         $source->setSignature($signature);
                     }
 
