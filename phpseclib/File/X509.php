@@ -459,6 +459,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             throw new UnexpectedValueException('Unable to decode subjectPublicKeyInfo');
         }
 
+        /** @var AsymmetricKey&PublicKey $publicKey */
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];
         //if ($publicKey instanceof RSA && $publicKey->getLoadedFormat() == 'PKCS8') {
         //    return $publicKey->withPadding(RSA::SIGNATURE_PKCS1);
