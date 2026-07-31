@@ -459,7 +459,7 @@ abstract class EC extends AsymmetricKey
     /**
      * Determines the signature padding mode
      *
-     * Valid values are: ASN1, SSH2, Raw
+     * Valid values are: ASN1, IEEE, SSH2, Raw
      */
     public function withSignatureFormat(string $format): static
     {
