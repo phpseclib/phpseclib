@@ -85,6 +85,7 @@ Need Support?
 
 ## Additional Thanks
 
+- [HeroDevs](https://www.herodevs.com/sustainability-fund)
 - Allan Simon
 - [Anna Filina](https://afilina.com/)
 - delovelady
