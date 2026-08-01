@@ -42,6 +42,11 @@ class BCMath extends Engine
     public const ENGINE_DIR = 'BCMath';
 
     /**
+     * Holds the BigInteger's value
+     */
+    protected string $value;
+
+    /**
      * Test for engine validity
      *
      * @see parent::__construct()

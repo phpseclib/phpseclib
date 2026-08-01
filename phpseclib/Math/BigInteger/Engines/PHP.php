@@ -74,6 +74,11 @@ abstract class PHP extends Engine
     public const ENGINE_DIR = 'PHP';
 
     /**
+     * Holds the BigInteger's value
+     */
+    protected string|array $value;
+
+    /**
      * Default constructor
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
