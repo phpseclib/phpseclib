@@ -62,7 +62,7 @@ SSH-2, SFTP, X.509, an arbitrary-precision integer arithmetic library, Ed25519 /
 * PHP4 compatible
 * Composer compatible (PSR-0 autoloading)
 * Install using Composer: `composer require phpseclib/phpseclib:~1.0`
-* [Download 1.0.25 as ZIP](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.25.zip/download)
+* [Download 1.0.25 as ZIP](http://sourceforge.net/projects/phpseclib/files/phpseclib1.0.30.zip/download)
 
 ## Security contact information
 
@@ -85,6 +85,7 @@ Need Support?
 
 ## Additional Thanks
 
+- [HeroDevs](https://www.herodevs.com/sustainability-fund)
 - Allan Simon
 - [Anna Filina](https://afilina.com/)
 - delovelady
