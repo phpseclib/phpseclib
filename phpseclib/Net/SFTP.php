@@ -3046,6 +3046,9 @@ class SFTP extends SSH2
     {
         $packet = $this->get_sftp_packet();
         if (count($packet_types) > 0 && !in_array($this->packet_type, $packet_types)) {
+            if ($this->is_timeout) {
+                throw new TimeoutException('SFTP packet timed out');
+            }
             $expected = [];
             foreach ($packet_types as $packet_type) {
                 $expected[] = 'SSH_FXP_' . SFTPPacketType::getConstantNameByValue($packet_type);
