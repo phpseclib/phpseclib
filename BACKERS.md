@@ -19,4 +19,4 @@ phpseclib ongoing development is made possible by [Tidelift](https://tidelift.co
 - [blakemckeeby](https://github.com/blakemckeeby)
 - [ssddanbrown](https://github.com/ssddanbrown)
 - Stefan Beck
-- Greg Mayes
+- [Greg Mayes](https://github.com/GregMayes)
