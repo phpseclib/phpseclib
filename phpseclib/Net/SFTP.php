@@ -381,8 +381,8 @@ class SFTP extends SSH2
         if ($response === false) {
             // from PuTTY's psftp.exe
             $command = "test -x /usr/lib/sftp-server && exec /usr/lib/sftp-server\n" .
-                       "test -x /usr/local/lib/sftp-server && exec /usr/local/lib/sftp-server\n" .
-                       "exec sftp-server";
+                "test -x /usr/local/lib/sftp-server && exec /usr/local/lib/sftp-server\n" .
+                "exec sftp-server";
             // we don't do $this->exec($command, false) because exec() operates on a different channel and plus the SSH_MSG_CHANNEL_OPEN that exec() does
             // is redundant
             $packet = Strings::packSSH2(
@@ -700,7 +700,7 @@ class SFTP extends SSH2
             switch ($dir) {
                 case '..':
                     array_pop($new);
-                    // no break
+                // no break
                 case '.':
                     break;
                 default:
@@ -723,7 +723,7 @@ class SFTP extends SSH2
         // assume current dir if $dir is empty
         if ($dir === '') {
             $dir = './';
-        // suffix a slash if needed
+            // suffix a slash if needed
         } elseif ($dir[-1] != '/') {
             $dir .= '/';
         }
@@ -968,7 +968,7 @@ class SFTP extends SSH2
                 case 'mode':
                     $a[$sort] &= 0o7777;
                     $b[$sort] &= 0o7777;
-                    // no break
+                // no break
                 default:
                     if ($a[$sort] === $b[$sort]) {
                         break;
@@ -2590,7 +2590,7 @@ class SFTP extends SSH2
         $stop = microtime(true);
         if (defined('NET_SFTP_LOGGING')) {
             $packet_type = '-> SSH_FXP_' . SFTPPacketType::getConstantNameByValue($type) .
-                           ' (' . round($stop - $start, 4) . 's)';
+                ' (' . round($stop - $start, 4) . 's)';
             $this->append_log($packet_type, $data);
         }
     }
@@ -2702,7 +2702,7 @@ class SFTP extends SSH2
 
         if (defined('NET_SFTP_LOGGING')) {
             $packet_type = '<- SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type) .
-                           ' (' . round($stop - $start, 4) . 's)';
+                ' (' . round($stop - $start, 4) . 's)';
             $this->append_log($packet_type, $packet);
         }
 
