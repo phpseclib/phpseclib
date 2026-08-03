@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.56 - 2026-08-02
+
+- RSA: don't use OpenSSL for PSS on OpenSSL < 3.1.0 (#2156)
+- SFTP: throw TimeoutExceptions on timeout vs UnexpectedValueException (#2152)
+- SFTP/Stream: use default context if one isn't explicitly provided (#2154)
+
 ## 3.0.55 - 2026-06-14
 
 - RSA: signature verification with PKCS1 with failed when the parameters field was absent
