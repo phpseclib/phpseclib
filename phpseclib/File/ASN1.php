@@ -548,7 +548,7 @@ abstract class ASN1
     {
         foreach ($mapping['children'] as $key => $option) {
             switch (true) {
-                case isset($option['constant']) && $option['constant'] == $decoded['constant']:
+                case isset($option['constant']) && isset($decoded['constant']) && $option['constant'] == $decoded['constant']:
                 case !isset($option['constant']) && $option['type'] == $decoded['type']:
                     return new Choice($key, self::map($decoded, $option, $rules[$key] ?? []));
             }
