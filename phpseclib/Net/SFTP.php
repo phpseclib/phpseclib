@@ -586,6 +586,8 @@ class SFTP extends SSH2
 
     /**
      * Returns the current directory name
+     *
+     * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
     public function pwd(): string
     {
@@ -924,7 +926,7 @@ class SFTP extends SSH2
      *
      * Intended for use with uasort()
      */
-    private function comparator(array $a, array $b): ?int
+    private function comparator(array $a, array $b): int
     {
         switch (true) {
             case $a['filename'] === '.' || $b['filename'] === '.':
@@ -976,7 +978,7 @@ class SFTP extends SSH2
                     return $order === SORT_ASC ? $a[$sort] - $b[$sort] : $b[$sort] - $a[$sort];
             }
         }
-        return null;
+        return 0;
     }
 
     /**
@@ -2167,9 +2169,9 @@ class SFTP extends SSH2
     /**
      * Gets last access time of file
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress PossiblyUnusedMethod, InvalidReturnStatement, InvalidReturnType
      */
-    public function fileatime(string $path): int
+    public function fileatime(string $path): int|float
     {
         return $this->get_stat_cache_prop($path, 'atime');
     }
@@ -2177,15 +2179,17 @@ class SFTP extends SSH2
     /**
      * Gets file modification time
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress PossiblyUnusedMethod, InvalidReturnStatement, InvalidReturnType
      */
-    public function filemtime(string $path): int
+    public function filemtime(string $path): int|float
     {
         return $this->get_stat_cache_prop($path, 'mtime');
     }
 
     /**
      * Gets file permissions
+     *
+     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileperms(string $path): int
     {
@@ -2195,7 +2199,7 @@ class SFTP extends SSH2
     /**
      * Gets file owner
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress PossiblyUnusedMethod, InvalidReturnStatement, InvalidReturnType
      */
     public function fileowner(string $path): int|string
     {
@@ -2207,7 +2211,7 @@ class SFTP extends SSH2
     /**
      * Gets file group
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-suppress PossiblyUnusedMethod, InvalidReturnStatement, InvalidReturnType
      */
     public function filegroup(string $path): int|string
     {
@@ -2219,7 +2223,7 @@ class SFTP extends SSH2
     /**
      * Recursively go through rawlist() output to get the total filesize
      */
-    private static function recursiveFilesize(array $files): int
+    private static function recursiveFilesize(array $files): int|float
     {
         $size = 0;
         foreach ($files as $name => $file) {
@@ -2235,8 +2239,10 @@ class SFTP extends SSH2
 
     /**
      * Gets file size
+     *
+     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
-    public function filesize(string $path, bool $recursive = false): int
+    public function filesize(string $path, bool $recursive = false): int|float
     {
         return !$recursive || $this->filetype($path) != 'dir' ?
             $this->get_stat_cache_prop($path, 'size') :
@@ -2261,21 +2267,21 @@ class SFTP extends SSH2
     }
 
     /**
-     * Return a stat properity
+     * Return a stat property
      *
      * Uses cache if appropriate.
      */
-    private function get_stat_cache_prop(string $path, string $prop): int|string
+    private function get_stat_cache_prop(string $path, string $prop): int|float|string
     {
         return $this->get_xstat_cache_prop($path, $prop, 'stat');
     }
 
     /**
-     * Return an lstat properity
+     * Return an lstat property
      *
      * Uses cache if appropriate.
      */
-    private function get_lstat_cache_prop(string $path, string $prop): int|string
+    private function get_lstat_cache_prop(string $path, string $prop): int|float|string
     {
         return $this->get_xstat_cache_prop($path, $prop, 'lstat');
     }
@@ -2753,7 +2759,7 @@ class SFTP extends SSH2
             return null;
         }
 
-        return match (NET_SFTP_LOGGING ?? -1) {
+        return match (NET_SFTP_LOGGING) {
             self::LOG_COMPLEX => $this->format_log($this->packet_log, $this->packet_type_log),
             default => $this->packet_type_log
         };
@@ -2968,7 +2974,19 @@ class SFTP extends SSH2
      * The function statvfs() returns information about a mounted filesystem.
      * @see https://man7.org/linux/man-pages/man3/statvfs.3.html
      *
-     * @return array{bsize: int, frsize: int, blocks: int, bfree: int, bavail: int, files: int, ffree: int, favail: int, fsid: int, flag: int, namemax: int}
+     * @return array{
+     *     bsize:   int|float,
+     *     frsize:  int|float,
+     *     blocks:  int|float,
+     *     bfree:   int|float,
+     *     bavail:  int|float,
+     *     files:   int|float,
+     *     ffree:   int|float,
+     *     favail:  int|float,
+     *     fsid:    int|float,
+     *     flag:    int|float,
+     *     namemax: int|float
+     * }
      */
     public function statvfs(string $path): array
     {
@@ -3006,10 +3024,21 @@ class SFTP extends SSH2
          * uint64        f_namemax    maximum filename length
          */
 
-        return array_combine(
-            ['bsize', 'frsize', 'blocks', 'bfree', 'bavail', 'files', 'ffree', 'favail', 'fsid', 'flag', 'namemax'],
-            Strings::unpackSSH2('QQQQQQQQQQQ', $response)
-        );
+        /** @var list<int|float> $v */
+        $v = Strings::unpackSSH2('QQQQQQQQQQQ', $response);
+        return [
+            'bsize'   => $v[0],
+            'frsize'  => $v[1],
+            'blocks'  => $v[2],
+            'bfree'   => $v[3],
+            'bavail'  => $v[4],
+            'files'   => $v[5],
+            'ffree'   => $v[6],
+            'favail'  => $v[7],
+            'fsid'    => $v[8],
+            'flag'    => $v[9],
+            'namemax' => $v[10],
+        ];
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */
