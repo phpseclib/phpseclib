@@ -533,4 +533,179 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         $arr2 = ['cRLSign', 'keyCertSign'];
         $this->assertSame($arr, $arr2);
     }
+
+    /**
+     * a CHOICE that is itself tagged is identified by its own context tag - not by
+     * its alternatives. sibling children whose CHOICE definitions are identical
+     * (eg. issuerLogo [1] / subjectLogo [2] in RFC 9399's LogotypeExtn) can only be
+     * told apart that way. previously the tag was ignored and the first child won.
+     */
+    public function testTaggedChoiceUsesItsOwnTag(): void
+    {
+        $inner = [
+            'type' => ASN1::TYPE_CHOICE,
+            'children' => [
+                'alpha' => [
+                    'constant' => 0,
+                    'optional' => true,
+                    'implicit' => true,
+                    'type' => ASN1::TYPE_SEQUENCE,
+                    'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                ],
+                'beta' => [
+                    'constant' => 1,
+                    'optional' => true,
+                    'implicit' => true,
+                    'type' => ASN1::TYPE_SEQUENCE,
+                    'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                ],
+            ],
+        ];
+        $map = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'first' => ['constant' => 1, 'optional' => true, 'explicit' => true] + $inner,
+                'second' => ['constant' => 2, 'optional' => true, 'explicit' => true] + $inner,
+            ],
+        ];
+
+        // SEQUENCE { [2] EXPLICIT { [0] IMPLICIT SEQUENCE { INTEGER 5 } } }
+        $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa2\x05\xa0\x03\x02\x01\x05"), $map);
+
+        $this->assertSame(['second'], $result->keys());
+        $this->assertSame('alpha', $result['second']->index);
+        $this->assertSame('5', (string) $result['second']['alpha']['n']);
+
+        // ...and the [1] sibling still resolves to itself
+        $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa1\x05\xa0\x03\x02\x01\x05"), $map);
+
+        $this->assertSame(['first'], $result->keys());
+    }
+
+    /**
+     * this would previously yield a PHP Warning, as the CHOICE alternatives were
+     * compared against a context tag that isn't there
+     */
+    public function testTaggedChoiceWithUntaggedAlternative(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'only' => [
+                    'constant' => 2,
+                    'optional' => true,
+                    'explicit' => true,
+                    'type' => ASN1::TYPE_CHOICE,
+                    'children' => [
+                        // the tagged alternative comes first on purpose
+                        'tagged' => [
+                            'constant' => 1,
+                            'optional' => true,
+                            'implicit' => true,
+                            'type' => ASN1::TYPE_SEQUENCE,
+                            'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                        ],
+                        'untagged' => [
+                            'type' => ASN1::TYPE_SEQUENCE,
+                            'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        // SEQUENCE { [2] EXPLICIT { SEQUENCE { INTEGER 5 } } }
+        $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa2\x05\x30\x03\x02\x01\x05"), $map);
+
+        $this->assertSame('untagged', $result['only']->index);
+    }
+
+    /**
+     * a CHOICE that is itself tagged is identified by its own context tag - not by
+     * its alternatives. sibling children whose CHOICE definitions are identical
+     * (eg. issuerLogo [1] / subjectLogo [2] in RFC 9399's LogotypeExtn) can only be
+     * told apart that way. previously the tag was ignored and the first child won.
+     */
+    public function testTaggedChoiceUsesItsOwnTag()
+    {
+        $inner = [
+            'type' => ASN1::TYPE_CHOICE,
+            'children' => [
+                'alpha' => [
+                    'constant' => 0,
+                    'optional' => true,
+                    'implicit' => true,
+                    'type' => ASN1::TYPE_SEQUENCE,
+                    'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                ],
+                'beta' => [
+                    'constant' => 1,
+                    'optional' => true,
+                    'implicit' => true,
+                    'type' => ASN1::TYPE_SEQUENCE,
+                    'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                ],
+            ],
+        ];
+        $map = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'first' => ['constant' => 1, 'optional' => true, 'explicit' => true] + $inner,
+                'second' => ['constant' => 2, 'optional' => true, 'explicit' => true] + $inner,
+            ],
+        ];
+
+        // SEQUENCE { [2] EXPLICIT { [0] IMPLICIT SEQUENCE { INTEGER 5 } } }
+        $decoded = ASN1::decodeBER("\x30\x07\xa2\x05\xa0\x03\x02\x01\x05");
+        $result = ASN1::asn1map($decoded[0], $map);
+
+        $this->assertSame(['second'], array_keys($result));
+        $this->assertSame(['alpha'], array_keys($result['second']));
+        $this->assertSame('5', (string) $result['second']['alpha']['n']);
+
+        // ...and the [1] sibling still resolves to itself
+        $decoded = ASN1::decodeBER("\x30\x07\xa1\x05\xa0\x03\x02\x01\x05");
+        $result = ASN1::asn1map($decoded[0], $map);
+
+        $this->assertSame(['first'], array_keys($result));
+    }
+
+    /**
+     * on older versions of \phpseclib3\File\ASN1 this would yield a PHP Warning, as the
+     * CHOICE alternatives were compared against a context tag that isn't there
+     */
+    public function testTaggedChoiceWithUntaggedAlternative()
+    {
+        $map = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'only' => [
+                    'constant' => 2,
+                    'optional' => true,
+                    'explicit' => true,
+                    'type' => ASN1::TYPE_CHOICE,
+                    'children' => [
+                        // the tagged alternative comes first on purpose
+                        'tagged' => [
+                            'constant' => 1,
+                            'optional' => true,
+                            'implicit' => true,
+                            'type' => ASN1::TYPE_SEQUENCE,
+                            'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                        ],
+                        'untagged' => [
+                            'type' => ASN1::TYPE_SEQUENCE,
+                            'children' => ['n' => ['type' => ASN1::TYPE_INTEGER]],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        // SEQUENCE { [2] EXPLICIT { SEQUENCE { INTEGER 5 } } }
+        $decoded = ASN1::decodeBER("\x30\x07\xa2\x05\x30\x03\x02\x01\x05");
+        $result = ASN1::asn1map($decoded[0], $map);
+
+        $this->assertSame(['untagged'], array_keys($result['only']));
+    }
 }
