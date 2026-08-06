@@ -504,6 +504,8 @@ class ASN1Test extends PhpseclibTestCase
      * its alternatives. sibling children whose CHOICE definitions are identical
      * (eg. issuerLogo [1] / subjectLogo [2] in RFC 9399's LogotypeExtn) can only be
      * told apart that way. previously the tag was ignored and the first child won.
+     *
+     * @group github2158
      */
     public function testTaggedChoiceUsesItsOwnTag()
     {
@@ -552,6 +554,8 @@ class ASN1Test extends PhpseclibTestCase
     /**
      * on older versions of \phpseclib3\File\ASN1 this would yield a PHP Warning, as the
      * CHOICE alternatives were compared against a context tag that isn't there
+     *
+     * @group github2158
      */
     public function testTaggedChoiceWithUntaggedAlternative()
     {
