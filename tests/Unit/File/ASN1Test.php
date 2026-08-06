@@ -540,6 +540,7 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
      * (eg. issuerLogo [1] / subjectLogo [2] in RFC 9399's LogotypeExtn) can only be
      * told apart that way. previously the tag was ignored and the first child won.
      */
+    #[\PHPUnit\Framework\Attributes\Group('github2158')]
     public function testTaggedChoiceUsesItsOwnTag(): void
     {
         $inner = [
@@ -586,6 +587,7 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
      * this would previously yield a PHP Warning, as the CHOICE alternatives were
      * compared against a context tag that isn't there
      */
+    #[\PHPUnit\Framework\Attributes\Group('github2158')]
     public function testTaggedChoiceWithUntaggedAlternative(): void
     {
         $map = [
