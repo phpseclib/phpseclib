@@ -998,8 +998,6 @@ class SFTP extends SSH2
      *    Separates directories from files but doesn't do any sorting beyond that
      * $sftp->setListOrder();
      *    Don't do any sort of sorting
-     *
-     * @param string ...$args
      */
     public function setListOrder(string|int ...$args): void
     {
