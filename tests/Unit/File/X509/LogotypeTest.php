@@ -268,4 +268,67 @@ class LogotypeTest extends PhpseclibTestCase
 
         $this->assertSame($der, $reencoded);
     }
+
+    /**
+     * Verified Mark Certificates, fetched on 2026-08-08 from the BIMI DNS records
+     * of the domains below. BIMI is what puts a sender's logo beside their mail,
+     * and these certificates are what backs that logo with a registered trademark
+     * - in practice the only place the logotype extension turns up in quantity.
+     *
+     * three different issuing CAs, so the structure is not one vendor's habit:
+     *
+     *   vmc-ebay.pem      ebay.com     DigiCert Verified Mark RSA4096 SHA256 2021 CA1
+     *   vmc-badoo.pem     badoo.com    Sectigo Limited VMC Issuing RSA CA 1
+     *   vmc-rabobank.pem  rabobank.nl  DigiCert Verified Mark Europe RSA4096 SHA256 2023 CA1
+     *
+     * deliberately no assertion on the validity dates - these expire in 2027 and
+     * the test should not go red when they do.
+     */
+    public function testRealWorldCertificates(): void
+    {
+        foreach (['vmc-ebay.pem', 'vmc-badoo.pem', 'vmc-rabobank.pem'] as $file) {
+            $pem = file_get_contents(__DIR__ . '/' . $file);
+            $cert = X509::load($pem);
+
+            $extension = null;
+            foreach ($cert['tbsCertificate']['extensions'] as $candidate) {
+                if ("$candidate[extnId]" === 'id-pe-logotype') {
+                    $extension = $candidate;
+                }
+            }
+
+            $this->assertNotNull($extension, $file);
+            // "This extension MUST NOT be marked critical" - RFC 9399, section 4.1
+            $this->assertFalse($extension['critical']->value, $file);
+
+            $value = $extension['extnValue'];
+
+            // every one of these puts its logo in subjectLogo. before tagged CHOICE
+            // children were matched on their own tag they all came back as issuerLogo
+            $this->assertSame(['subjectLogo'], $value->keys(), $file);
+            $this->assertSame('direct', $value['subjectLogo']->index, $file);
+
+            $details = $value['subjectLogo']['direct']['image'][0]['imageDetails'];
+            $this->assertSame('image/svg+xml', (string) $details['mediaType'], $file);
+
+            // the logo is embedded rather than linked, and gzipped, as RFC 9399
+            // section 7 requires of SVG carried in a data URL
+            $uri = (string) $details['logotypeURI'][0];
+            $this->assertStringStartsWith('data:image/svg+xml;base64,', $uri, $file);
+            $this->assertStringContainsString(
+                '<svg',
+                (string) gzdecode(base64_decode(explode(',', $uri, 2)[1])),
+                $file
+            );
+
+            $this->assertNotEmpty("$details[logotypeHash][0][hashValue]", $file);
+
+            // and the whole certificate survives a round trip untouched
+            $this->assertSame(
+                bin2hex((string) base64_decode(preg_replace('#-.*-|\s#', '', $pem))),
+                bin2hex((string) base64_decode(preg_replace('#-.*-|\s#', '', (string) $cert))),
+                $file
+            );
+        }
+    }
 }
