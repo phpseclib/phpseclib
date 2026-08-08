@@ -90,6 +90,7 @@ class BlowfishTest extends PhpseclibTestCase
         $this->assertEquals($result, $expected, "Failed asserting that $plaintext yielded expected output in $engine engine");
     }
 
+    /** @psalm-suppress InvalidArrayOffset */
     public function testKeySizes(): void
     {
         $objects = $engines = [];

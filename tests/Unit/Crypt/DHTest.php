@@ -126,6 +126,7 @@ i2REGZNPWmF3SRPrtq/4urrDRU0F2eQks7qnTkrauPK1/UvE1gwbqWrWgBko+6L+
 Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
 /gTm
 -----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $theirPub);
         $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
     }
 
@@ -176,6 +177,8 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
 
         $ourPrivate = $theirPrivate;
 
+        $this->assertInstanceOf(EC\PublicKey::class, $theirPublic);
+
         $key = DH::computeSecret($ourPrivate, $theirPublic);
 
         $aes = new AES('ctr');
@@ -201,7 +204,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
                     // create private keys
                     $parties = [];
                     for ($i = 0; $i < $numParties; $i++) {
-                        $parties[] = EC::createKey('Curve25519');
+                        $parties[] = EC::createKey($curve);
                     }
 
                     // create shared secrets

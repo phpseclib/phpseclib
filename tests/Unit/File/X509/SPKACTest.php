@@ -45,6 +45,7 @@ class SPKACTest extends PhpseclibTestCase
 
         $pubKey = $spkac->getPublicKey();
 
+        /** @psalm-suppress InvalidCast */
         $this->assertIsString("$pubKey");
     }
 
