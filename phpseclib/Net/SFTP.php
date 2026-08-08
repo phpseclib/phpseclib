@@ -1618,7 +1618,7 @@ class SFTP extends SSH2
      *
      * {@internal ASCII mode for SFTPv4/5/6 can be supported by adding a new function - \phpseclib4\Net\SFTP::setMode().}
      *
-     * @param  resource|string $data
+     * @param  resource|string|\Closure $data
      */
     public function put(
         string $remote_file,
