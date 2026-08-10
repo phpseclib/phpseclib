@@ -99,7 +99,7 @@ class KoblitzPrime extends Prime
                 $inv->subtract($s),
             ];
 
-            $lhs = $this->multiplyPoint($this->p, $lambdas[0])[0];
+            $lhs = $this->multiplyPoint($this->p, $lambdas[0]->toBigInteger())[0];
             $rhs = $this->p[0]->multiply($this->beta);
             $lambda = $lhs->equals($rhs) ? $lambdas[0] : $lambdas[1];
 
@@ -250,7 +250,10 @@ class KoblitzPrime extends Prime
      * Calculates the parameters needed from the Euclidean algorithm as discussed at
      * http://diamond.boisestate.edu/~liljanab/MATH308/GuideToECC.pdf#page=148
      *
-     * @return BigInteger[]
+     * @return list{
+     *     array{a: BigInteger, b: BigInteger},
+     *     array{a: BigInteger, b: BigInteger}
+     * }
      */
     protected static function extendedGCD(BigInteger $u, BigInteger $v): array
     {

@@ -58,11 +58,6 @@ abstract class PSS extends Progenitor
     private static bool $oidsLoaded = false;
 
     /**
-     * Child OIDs loaded
-     */
-    protected static bool $childOIDsLoaded = false;
-
-    /**
      * Initialize static variables
      */
     private static function initialize_static_variables(): void
@@ -108,6 +103,7 @@ abstract class PSS extends Progenitor
             $decoded = ASN1::decodeBER((string) $key[$type . 'KeyAlgorithm']['parameters']);
             $params = ASN1::map($decoded, Maps\RSASSA_PSS_params::MAP);
         } else {
+            /** @var array<string, mixed> $params */
             $params = [];
         }
 

@@ -30,7 +30,8 @@ use phpseclib4\Crypt\EC\BaseCurves\{
 use phpseclib4\Exception\{
     BadConfigurationException,
     UnexpectedValueException,
-    UnsupportedCurveException
+    UnsupportedCurveException,
+    UnsupportedValueException
 };
 use phpseclib4\File\ASN1\OIDs\Curves;
 use phpseclib4\Math\BigInteger;
@@ -458,5 +459,7 @@ abstract class XML
                    '</' . $pre . 'ECParameters>';
             return $xml;
         }
+
+        throw new UnsupportedValueException('Only named and specified curves are supported.');
     }
 }

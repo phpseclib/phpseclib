@@ -44,6 +44,8 @@ abstract class OpenSSH
      */
     protected static bool $binary = false;
 
+    protected static array $types = [];
+
     /**
      * Sets the default comment
      */

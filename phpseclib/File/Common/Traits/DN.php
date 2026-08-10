@@ -58,15 +58,22 @@ trait DN
         ASN1::enableCacheInvalidation();
     }
 
-    private static function mapOutDNsInner(array|Constructed &$dns): void
+    private static function mapOutDNsInner(array|Constructed|Element &$dns): void
     {
+        if ($dns instanceof Element) {
+            return;
+        }
         $size = count($dns);
         for ($i = 0; $i < $size; $i++) {
-            if (!isset($dns[$i])) {
+            if (!isset($dns[$i]) || !is_countable($dns[$i])) {
                 continue;
             }
 
             for ($j = 0; $j < count($dns[$i]); $j++) {
+                if ($dns[$i][$j] instanceof Element) {
+                    continue;
+                }
+
                 $type = $dns[$i][$j]['type'];
                 $value = &$dns[$i][$j]['value'];
 

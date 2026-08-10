@@ -365,8 +365,11 @@ abstract class RSA extends AsymmetricKey
         $privatekey->k = $bits >> 3;
         $privatekey->publicExponent = $e;
         $privatekey->exponent = $d;
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->primes = $primes;
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->exponents = $exponents;
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->coefficients = $coefficients;
 
         /*
@@ -383,8 +386,6 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * OnLoad Handler
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): static
     {
@@ -396,7 +397,7 @@ abstract class RSA extends AsymmetricKey
         $key->publicExponent = $components['publicExponent'];
         $key->k = $key->modulus->getLengthInBytes();
 
-        if ($components['isPublicKey'] || !isset($components['privateExponent'])) {
+        if ($key instanceof PublicKey || !isset($components['privateExponent'])) {
             $key->exponent = $key->publicExponent;
         } else {
             $key->privateExponent = $components['privateExponent'];
@@ -805,6 +806,10 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * Handles OpenSSL encryption / decryption / signature creation / verification
+     *
+     * @template T of string
+     * @param T $func
+     * @return (T is 'openssl_verify' ? bool|null : string|null)
      */
     protected function handleOpenSSL(
         #[\SensitiveParameter] string $func,
@@ -1005,14 +1010,14 @@ abstract class RSA extends AsymmetricKey
             }
         }
 
-        if (!isset($this->primes) || empty($this->primes)) {
-            return $type::savePublicKey($this->modulus, $this->exponent, $options);
+        if ($this instanceof PrivateKey && count($this->primes ?? [])) {
+            return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
         }
 
-        return $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
+        return $type::savePublicKey($this->modulus, $this->exponent, $options);
 
         /*
-        $key = $type::savePrivateKey($this->modulus, $this->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
+        $key = $type::savePrivateKey($this->modulus, $th is->publicExponent, $this->exponent, $this->primes, $this->exponents, $this->coefficients, $this->password, $options);
         if ($key !== false || count($this->primes) == 2) {
             return $key;
         }
@@ -1042,19 +1047,19 @@ abstract class RSA extends AsymmetricKey
 
     public function toArray(): array
     {
-        if (!isset($this->primes) || empty($this->primes)) {
+        if ($this instanceof PrivateKey && count($this->primes ?? [])) {
             return [
                 'e' => clone $this->publicExponent,
                 'n' => clone $this->modulus,
+                'd' => clone $this->exponent,
+                'primes' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->primes),
+                'exponents' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->exponents),
+                'coefficients' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->coefficients),
             ];
         }
         return [
             'e' => clone $this->publicExponent,
             'n' => clone $this->modulus,
-            'd' => clone $this->exponent,
-            'primes' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->primes),
-            'exponents' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->exponents),
-            'coefficients' => array_map(fn (BigInteger $var): BigInteger => clone $var, $this->coefficients),
         ];
     }
 }

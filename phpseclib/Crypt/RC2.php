@@ -64,7 +64,6 @@ class RC2 extends BlockCipher
      * Key Length (in bytes)
      *
      * @see \phpseclib4\Crypt\RC2::setKeyLength()
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 16; // = 128 bits
 

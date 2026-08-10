@@ -65,6 +65,7 @@ class SFTPStreamTest extends SFTPTestCase
             'sftp' => ['session' => $this->sftp],
         ]);
         $fp = fopen($this->buildUrl('fooo.txt'), 'wb', false, $context);
+        $this->assertIsResource($fp);
         $read = [$fp];
         $write = $except = null;
         stream_select($read, $write, $except, 0);

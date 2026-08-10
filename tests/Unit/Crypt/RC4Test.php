@@ -213,6 +213,7 @@ class RC4Test extends PhpseclibTestCase
         $this->assertEquals(bin2hex(substr($result, -16)), $expected, "Failed asserting that key $key yielded expected output at offset $offset in $engine engine");
     }
 
+    /** @psalm-suppress InvalidArrayOffset */
     public function testKeySizes(): void
     {
         $objects = $engines = [];

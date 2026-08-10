@@ -29,8 +29,8 @@ use phpseclib4\File\Common\Signable;
 
 /**
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 {
@@ -146,9 +146,9 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         };
     }
 
-    private static function mapOutAttrs(string $idx, array|Constructed &$info): void
+    private static function mapOutAttrs(string $idx, array|Constructed|Element &$info): void
     {
-        if (!isset($info[$idx]) || $info[$idx] instanceof Element) {
+        if ($info instanceof Element || !isset($info[$idx]) || $info[$idx] instanceof Element) {
             return;
         }
         $attrs = &$info[$idx];
@@ -199,6 +199,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
+    /** @psalm-suppress UndefinedPropertyAssignment */
     public static function mapInAttrs(Constructed $attr): void
     {
         if (self::extensionMatch('id-aa-timeStampToken', $attr['type'])) {
@@ -224,6 +225,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
             $attr['value'][$i]->parent = $attr['value'];
             $attr['value'][$i]->key = $i;
+            /** @psalm-suppress InvalidPropertyFetch */
             $attr['value'][$i]->depth = $attr['value']->depth + 1;
         }
         ASN1::enableCacheInvalidation();
@@ -579,6 +581,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 // the following errors out and idk why
                 //$attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0]['directoryName'] = $x509['tbsCertificate']['issuer'];
                 // consequently we do this:
+                /** @psalm-suppress InvalidArrayOffset */
                 $attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0] = ['directoryName' => $x509['tbsCertificate']['issuer']];
                 $attr['value'][0]['certs'][0]['issuerSerial']['serialNumber'] = $x509['tbsCertificate']['serialNumber'];
                 break;

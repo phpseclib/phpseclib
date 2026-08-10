@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Functional\Net;
 
 use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Net\SSH2;
 use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
@@ -35,6 +36,7 @@ class SSH2LoginTest extends PhpseclibFunctionalTestCase
         $username = $this->getEnv('SSH_USERNAME');
         $password = $this->getEnv('SSH_PASSWORD');
         $key = PublicKeyLoader::load(file_get_contents($this->getEnv('PHPSECLIB_SSH_HOME') . '/.ssh/id_rsa'));
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertTrue(
             $ssh->login($username, $password, $key),
             'SSH2 login using 2FA (keyboard interactive + publickey) auth failed.'

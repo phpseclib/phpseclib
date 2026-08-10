@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File\CMS;
 
+use phpseclib4\Exception\LengthException;
 use phpseclib4\File\CMS;
 use phpseclib4\File\ASN1\Types\OID;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -47,5 +48,12 @@ MFAGCSqGSIb3DQEHBqBDMEECAQAwPAYJKoZIhvcNAQcBMB0GCWCGSAFlAwQBKgQQ
 lHt+YbD7A18NJVeJgx0R9IAQKnjC5UnRa0hP1rdkZs+Y5Q==
 -----END CMS-----');
         $this->assertEquals(32, $cms->getKeyLengthInBytes());
+    }
+
+    public function testKeyLengthWithPassword(): void
+    {
+        $this->expectException(LengthException::class);
+        $cms = new CMS\EncryptedData('hello, world!', 'aes256-CBC-PAD');
+        $cms->createNewRecipientFromPassword('correct horse battery staple', 'aes128-CBC-PAD');
     }
 }

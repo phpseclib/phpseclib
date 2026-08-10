@@ -568,7 +568,7 @@ class Hash
     /**
      * 32-bit safe 64-bit Addition with 2x 64-bit strings
      *
-     * @return int $x * $y
+     * @return string $x + $y
      */
     private static function add32_64(string $x, string $y): string
     {
@@ -584,7 +584,7 @@ class Hash
     /**
      * 32-bit safe 32-bit Addition with 2x 32-bit strings
      *
-     * @return int $x * $y
+     * @return int $x + $y
      */
     private static function add32(int $x, int $y): int
     {

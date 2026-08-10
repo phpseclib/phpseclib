@@ -1735,4 +1735,14 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         $this->assertisArray($x509['tbsCertificate']);
         $this->assertTrue(true);
     }
+
+    public function testBadElements(): void
+    {
+        $x509 = new X509();
+        $x509['tbsCertificate']['extensions'] = new Element('zzzzzzzzzzzz');
+        $x509 = "$x509";
+        $this->assertIsString($x509);
+        $this->expectException(UnexpectedValueException::class);
+        X509::load($x509)->toArray();
+    }
 }

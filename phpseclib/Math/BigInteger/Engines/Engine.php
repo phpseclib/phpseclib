@@ -45,7 +45,7 @@ abstract class Engine implements \JsonSerializable
     /**
      * BigInteger(0)
      *
-     * @var array<class-string<static>, static>
+     * @var array<class-string<static>, ?static>
      */
     protected static array $zero = [];
 
@@ -78,11 +78,6 @@ abstract class Engine implements \JsonSerializable
     protected static array $isValidEngine;
 
     /**
-     * Holds the BigInteger's value
-     */
-    protected \GMP|string|array $value;
-
-    /**
      * Holds the BigInteger's sign
      */
     protected bool $is_negative = false;
@@ -98,6 +93,7 @@ abstract class Engine implements \JsonSerializable
      * Precision Bitmask
      *
      * @see static::setPrecision()
+     * @var ?static
      */
     protected ?Engine $bitmask = null;
 
@@ -666,6 +662,7 @@ abstract class Engine implements \JsonSerializable
         }
 
         $temp = new $class();
+        /** @psalm-suppress UndefinedPropertyAssignment */
         $temp->value = static::reduce($result, $n_value, $class);
 
         return $temp;
@@ -765,7 +762,7 @@ abstract class Engine implements \JsonSerializable
             http://crypto.stackexchange.com/questions/5708/creating-a-small-number-from-a-cryptographically-secure-random-string
         */
         $random_max = new static(chr(1) . str_repeat("\0", $size), 256);
-        $random = new static(random_bytes($size), 256);
+        $random = new static($size ? random_bytes($size) : '', 256);
 
         [$max_multiple] = $random_max->divide($max);
         $max_multiple = $max_multiple->multiply($max);
@@ -1049,6 +1046,7 @@ abstract class Engine implements \JsonSerializable
                 return $r;
             };');
         }
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $n = $this->value;
         return eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
             $r = new $class();

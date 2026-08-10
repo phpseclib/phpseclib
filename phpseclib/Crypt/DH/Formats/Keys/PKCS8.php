@@ -50,11 +50,6 @@ abstract class PKCS8 extends Progenitor
     public const OID_VALUE = '1.2.840.113549.1.3.1';
 
     /**
-     * Child OIDs loaded
-     */
-    protected static bool $childOIDsLoaded = false;
-
-    /**
      * Break a public or private key down into its constituent components
      */
     public static function load(

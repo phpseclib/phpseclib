@@ -32,8 +32,8 @@ use phpseclib4\File\Common\Signable;
  * Pure-PHP CSR Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 {
@@ -174,8 +174,11 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         self::mapOutAttributesHelper($attributes);
     }
 
-    private static function mapOutAttributesHelper(array|Constructed &$attributes): void
+    private static function mapOutAttributesHelper(array|Constructed|Element &$attributes): void
     {
+        if ($attributes instanceof Element) {
+            return;
+        }
         $keys = is_array($attributes) ? array_keys($attributes) : $attributes->keys();
         foreach ($keys as $i) {
             if ($attributes[$i] instanceof Element || $attributes[$i]['value'] instanceof Element) {

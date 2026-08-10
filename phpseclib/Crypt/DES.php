@@ -78,7 +78,6 @@ class DES extends BlockCipher
      * Key Length (in bytes)
      *
      * @see Common\SymmetricKey::setKeyLength()
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected int $key_length = 8;
 

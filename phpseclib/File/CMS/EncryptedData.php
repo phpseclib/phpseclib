@@ -27,7 +27,7 @@ use phpseclib4\Exception\{
     UnexpectedValueException
 };
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{BaseType, Choice, OID, OctetString};
+use phpseclib4\File\ASN1\Types\{Choice, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\EnvelopedData\{
     DerivableKey,
@@ -40,12 +40,12 @@ use phpseclib4\File\CMS\EnvelopedData\{
 };
 
 /**
-* Pure-PHP CMS / EncryptedData Parser
-*
-* @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
-*/
+ * Pure-PHP CMS / EncryptedData Parser
+ *
+ * @author  Jim Wigginton <terrafrost@php.net>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
+ */
 class EncryptedData implements \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;
@@ -494,7 +494,14 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         // see https://datatracker.ietf.org/doc/html/rfc3211
         $keyCheck = ~substr($this->cek, 0, 3);
         $contentCipher = self::getPBES2EncryptionObject((string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm']);
-        $padding = random_bytes(max($keyCipher->getBlockLengthInBytes(), 2 * $contentCipher->getBlockLengthInBytes()) - strlen($this->cek) - 4);
+        $length = max(
+            $keyCipher->getBlockLengthInBytes(),
+            2 * $contentCipher->getBlockLengthInBytes()
+        ) - strlen($this->cek) - 4;
+        if ($length < 0) {
+            throw new LengthException('The content encryption key should be the same length or shorter than the key encryption key');
+        }
+        $padding = $length ? random_bytes($length) : '';
         $cekBlock = chr(strlen($this->cek)) . $keyCheck . $this->cek . $padding;
 
         $encryptedKey = $keyCipher->encrypt($cekBlock);
@@ -627,6 +634,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
+    /** @psalm-suppress InvalidPropertyFetch */
     private function placeRecipient(Recipient $recipient, string $type): void
     {
         if (isset($this->cms['content']['recipientInfos'])) {

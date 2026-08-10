@@ -41,6 +41,11 @@ class GMP extends Engine
     public const ENGINE_DIR = 'GMP';
 
     /**
+     * Holds the BigInteger's value
+     */
+    protected string|\GMP $value;
+
+    /**
      * Test for engine validity
      *
      * @see parent::__construct()
@@ -416,6 +421,8 @@ class GMP extends Engine
 
     /**
      * Performs some post-processing for randomRangePrime
+     *
+     * @psalm-suppress UndefinedPropertyFetch
      */
     protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max): ?GMP
     {

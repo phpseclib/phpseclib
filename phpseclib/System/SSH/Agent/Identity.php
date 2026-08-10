@@ -248,7 +248,7 @@ class Identity implements PrivateKey
             if ($source instanceof CSR && !$source->hasPublicKey()) {
                 $source->setPublicKey($this->getPublicKey());
             }
-            $source->identifySignatureAlgorithm($this->getPublicKey());
+            $source->identifySignatureAlgorithm($this);
             $message = $source->getSignableSection();
         } else {
             $message = $source;

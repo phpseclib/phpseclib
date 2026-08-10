@@ -82,6 +82,7 @@ trait KeyDerivation
         return $cek;
     }
 
+    /** @psalm-suppress UndefinedPropertyFetch, InvalidPropertyFetch */
     public function decrypt(): string
     {
         if ($this instanceof EncryptedData) {
