@@ -1,12 +1,18 @@
 # Changelog
 
+## 3.0.56 - 2026-08-02
+
+- RSA: don't use OpenSSL for PSS on OpenSSL < 3.1.0 (#2156)
+- SFTP: throw TimeoutExceptions on timeout vs UnexpectedValueException (#2152)
+- SFTP/Stream: use default context if one isn't explicitly provided (#2154)
+
 ## 3.0.55 - 2026-06-14
 
 - RSA: signature verification with PKCS1 with failed when the parameters field was absent
 
 ## 3.0.54 - 2026-06-14
 
-- X509: add setURLFetchCallback() method
+- X509: add setURLFetchCallback() method (CVE-2026-55599)
 
 ## 3.0.53 - 2026-06-09
 
@@ -376,7 +382,7 @@
 
 ## 2.0.55 - 2026-06-14
 
-- X509: add setURLFetchCallback() method
+- X509: add setURLFetchCallback() method (CVE-2026-55599)
 - ASN1: speed up OID calculations
 
 ## 2.0.54 - 2026-04-27
@@ -797,7 +803,7 @@
 
 ## 1.0.30 - 2026-06-14
 
-- X509: add setURLFetchCallback() method
+- X509: add setURLFetchCallback() method (CVE-2026-55599)
 
 ## 1.0.29 - 2026-04-27
 

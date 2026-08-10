@@ -153,6 +153,8 @@ abstract class MSBLOB
 
     /**
      * Convert a private key to the appropriate format.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,
@@ -161,7 +163,8 @@ abstract class MSBLOB
         #[\SensitiveParameter] array $primes,
         #[\SensitiveParameter] array $exponents,
         #[\SensitiveParameter] array $coefficients,
-        #[\SensitiveParameter] ?string $password = null
+        #[\SensitiveParameter] ?string $password = null,
+        array $options = []
     ): string {
         if (count($primes) != 2) {
             throw new InvalidArgumentException('MSBLOB does not support multi-prime RSA keys');
@@ -188,8 +191,10 @@ abstract class MSBLOB
 
     /**
      * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e): string
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {
         $n = strrev($n->toBytes());
         $e = str_pad(strrev($e->toBytes()), 4, "\0");

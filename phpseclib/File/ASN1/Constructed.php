@@ -538,6 +538,13 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 // Can only match if no constant expected and type matches or is generic.
                 $maymatch = !isset($child['constant']) && array_search($child['type'], [$temp['type'], ASN1::TYPE_ANY, ASN1::TYPE_CHOICE]) !== false;
             }
+        } elseif (isset($child['constant'])) {
+            // a CHOICE that is itself tagged is identified by that tag. its alternatives
+            // can't be used to tell it apart from a sibling with the same CHOICE definition
+            // (eg. issuerLogo [1] / subjectLogo [2] in RFC 9399's LogotypeExtn).
+            $maymatch = isset($temp['constant']) &&
+                $child['constant'] == $temp['constant'] &&
+                $tempClass == ASN1::CLASS_CONTEXT_SPECIFIC;
         }
 
         if ($maymatch) {

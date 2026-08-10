@@ -143,8 +143,10 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
-    public static function savePublicKey(BigInteger $n, BigInteger $e): string
+    public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {
         $key = [
             'modulus' => $n,
