@@ -57,13 +57,15 @@ trait Extension
             'id-ce-subjectDirectoryAttributes' => Maps\SubjectDirectoryAttributes::MAP,
             'id-pe-qcStatements' => Maps\QCStatements::MAP,
 
+            // from https://datatracker.ietf.org/doc/html/rfc9399
+            'id-pe-logotype' => Maps\LogotypeExtn::MAP,
+
             'netscape-cert-type' => Maps\netscape_cert_type::MAP,
             'netscape-comment' => Maps\netscape_comment::MAP,
             'netscape-ca-policy-url' => Maps\netscape_ca_policy_url::MAP,
 
             // the following OIDs are unsupported but we don't want them to give notices when calling saveX509().
 
-            'id-pe-logotype' => true, // http://www.ietf.org/rfc/rfc3709.txt
             'entrustVersInfo' => true,
             // http://support.microsoft.com/kb/287547
             '1.3.6.1.4.1.311.20.2' => true, // szOID_ENROLL_CERTTYPE_EXTENSION

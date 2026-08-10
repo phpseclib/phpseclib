@@ -31,6 +31,7 @@ abstract class X509
         //'id-qt' => '1.3.6.1.5.5.7.2',
         //'id-kp' => '1.3.6.1.5.5.7.3',
         //'id-ad' => '1.3.6.1.5.5.7.48',
+        //'id-logo' => '1.3.6.1.5.5.7.20',
         'id-qt-cps' => '1.3.6.1.5.5.7.2.1',
         'id-qt-unotice' => '1.3.6.1.5.5.7.2.2',
         'id-ad-ocsp' => '1.3.6.1.5.5.7.48.1',
@@ -172,8 +173,12 @@ abstract class X509
         'netscape-cert-type' => '2.16.840.1.113730.1.1',
         'netscape-comment' => '2.16.840.1.113730.1.13',
         'netscape-ca-policy-url' => '2.16.840.1.113730.1.8',
-        // the following are X.509 extensions not supported by phpseclib
+        // Logotypes, from https://datatracker.ietf.org/doc/html/rfc9399
         'id-pe-logotype' => '1.3.6.1.5.5.7.1.12',
+        'id-logo-loyalty' => '1.3.6.1.5.5.7.20.1',
+        'id-logo-background' => '1.3.6.1.5.5.7.20.2',
+        'id-logo-certImage' => '1.3.6.1.5.5.7.20.3',
+        // the following are X.509 extensions not supported by phpseclib
         'entrustVersInfo' => '1.2.840.113533.7.65.0',
         'verisignPrivate' => '2.16.840.1.113733.1.6.9',
         // for Certificate Signing Requests
