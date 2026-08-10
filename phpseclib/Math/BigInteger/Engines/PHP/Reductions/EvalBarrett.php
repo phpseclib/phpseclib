@@ -62,7 +62,7 @@ abstract class EvalBarrett extends Base
                 $lhs->value = $x;
                 $rhs = new ' . $class . '();
                 $rhs->value = [' .
-                implode(',', array_map(self::class . '::float2string', $m->value)) . '];
+                implode(',', array_map(self::float2string(...), $m->value)) . '];
                 [, $temp] = $lhs->divide($rhs);
                 return $temp->value;
             ';
@@ -115,7 +115,7 @@ abstract class EvalBarrett extends Base
                 $rhs = new ' . $class . '();
                 $lhs->value = $n;
                 $rhs->value = [' .
-                implode(',', array_map(self::class . '::float2string', $m)) . '];
+                implode(',', array_map(self::float2string(...), $m)) . '];
                 [, $temp] = $lhs->divide($rhs);
                 return $temp->value;
             }

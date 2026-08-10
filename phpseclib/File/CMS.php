@@ -18,14 +18,12 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedValueException};
-use phpseclib4\File\ASN1\{Constructed, Types\BaseType};
+use phpseclib4\File\ASN1\Constructed;
 
 /**
  * Pure-PHP CMS Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
  */
 abstract class CMS
 {

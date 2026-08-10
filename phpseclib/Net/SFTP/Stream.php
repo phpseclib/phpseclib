@@ -159,7 +159,7 @@ class Stream
 
         if (isset($this->context)) {
             $context = stream_context_get_params($this->context);
-            if (isset($context['notification'])) {
+            if (isset($context['notification']) && is_callable($context['notification'])) {
                 $this->notification = $context['notification'];
             }
         }
@@ -311,7 +311,7 @@ class Stream
         //}
 
         try {
-            $result = $this->sftp->get($this->path, false, $this->pos, $count);
+            $result = $this->sftp->get($this->path, null, $this->pos, $count);
         } catch (\Exception $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);
@@ -451,6 +451,8 @@ class Stream
                 case STREAM_META_ACCESS:
                     $this->sftp->chmod($path, $var);
                     return true;
+                default:
+                    return false;
             }
         } catch (\Exception $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
@@ -461,13 +463,13 @@ class Stream
     }
 
     /**
-     * Retrieve the underlaying resource
+     * Retrieve the underlying resource
      *
-     * @return resource
+     * @return resource|false
      */
     private function _stream_cast(int $cast_as)
     {
-        return $this->sftp->fsock;
+        return is_resource($this->sftp->fsock) ? $this->sftp->fsock : false;
     }
 
     /**
@@ -716,6 +718,7 @@ class Stream
             $this->sftp->truncate($this->path, $new_size);
             $this->eof = false;
             $this->size = $new_size;
+            return true;
         } catch (FileSystemException $e) {
             if (isset($this->notification) && is_callable($this->notification)) {
                 call_user_func($this->notification, STREAM_NOTIFY_FAILURE, STREAM_NOTIFY_SEVERITY_ERR, $e->getMessage(), $e->getCode(), 0, 0);

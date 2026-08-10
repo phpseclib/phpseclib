@@ -96,7 +96,7 @@ class BitString extends BaseString implements \ArrayAccess, \Countable, \Iterato
     public function rewind(): void
     {
         $this->preCheck();
-        rewind($this->mappedValue);
+        reset($this->mappedValue);
     }
 
     public function valid(): bool

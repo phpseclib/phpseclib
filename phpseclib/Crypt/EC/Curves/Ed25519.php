@@ -118,7 +118,7 @@ class Ed25519 extends TwistedEdwards
             if ($sign) {
                 throw new UnexpectedValueException('Unable to recover X coordinate (x2 = 0)');
             }
-            return clone $this->zero;
+            return [clone $this->zero, $y];
         }
         // find the square root
         /* we don't do $x2->squareRoot() because, quoting from

@@ -145,6 +145,11 @@ abstract class TestCase extends PhpseclibTestCase
         $d = $a->multiply($c);
         [, $r] = $d->divide($b);
         $this->assertSame('1', (string) $r);
+
+        $a = $this->getInstance(500);
+        $b = $this->getInstance(100);
+        $result = $a->modInverse($b);
+        $this->assertNull($result);
     }
 
     public function testExtendedGCD(): void
@@ -546,5 +551,12 @@ E252896950917476ECE5E8FC27D5F053D6018D91B502C4787558A002B9283DA7', 16);
     {
         $a = $this->getInstance('');
         $this->assertSame(0, $a->getLengthInBytes());
+    }
+
+    public function testBitwiseSplit()
+    {
+        $a = $this->getInstance();
+        $b = $a->bitwise_split(1);
+        $this->assertSame(0, count($b));
     }
 }

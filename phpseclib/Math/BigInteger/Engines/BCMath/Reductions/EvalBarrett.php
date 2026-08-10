@@ -50,6 +50,7 @@ abstract class EvalBarrett extends Base
      */
     protected static function generateCustomReduction(BCMath $m, string $class): \Closure
     {
+        $m = $m->value;
         $m_length = strlen($m);
 
         if ($m_length < 5) {

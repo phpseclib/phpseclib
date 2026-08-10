@@ -30,7 +30,7 @@ abstract class Arrays
      * This is kinda like Laravel's Arr::set() / Arr::get() method with their dot notation
      * except that / is used as the component separator instead
      */
-    public static function &subArray(array|\ArrayAccess|null &$root, string $path, bool $create = false): array|\ArrayAccess|null
+    public static function &subArray(array|\ArrayAccess|null &$root, string $path, bool $create = false): mixed
     {
         $false = null;
 

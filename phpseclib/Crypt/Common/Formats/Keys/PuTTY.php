@@ -41,6 +41,8 @@ abstract class PuTTY
      */
     public const PUBLIC_HANDLER = '';
 
+    protected static array $types = [];
+
     /**
      * Default comment
      */
@@ -124,6 +126,7 @@ abstract class PuTTY
 
         if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
             $lines = preg_split('#[\r\n]+#', $key);
+            /** @psalm-suppress InvalidArrayOffset */
             switch (true) {
                 case $lines[0] != '---- BEGIN SSH2 PUBLIC KEY ----':
                     throw new UnexpectedValueException('Key doesn\'t start with ---- BEGIN SSH2 PUBLIC KEY ----');

@@ -16,6 +16,7 @@ use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\TimeoutException;
 use phpseclib4\Net\SSH2;
 use phpseclib4\Tests\PhpseclibTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class SSH2UnitTest extends PhpseclibTestCase
 {
@@ -372,6 +373,7 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(0, self::getVar($ssh, 'bitmap'));
     }
 
+    /** @psalm-suppress InvalidReturnType, InvalidReturnStatement */
     protected function createSSHMock(): SSH2
     {
         return $this->getMockBuilder('phpseclib4\Net\SSH2')

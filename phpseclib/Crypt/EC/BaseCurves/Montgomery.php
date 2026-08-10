@@ -114,10 +114,9 @@ class Montgomery extends Base
     /**
      * Set x and y coordinates for the base point
      *
-     * @return PrimeInteger[]
      * @psalm-suppress PossiblyUnusedMethod
      */
-    public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): array
+    public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): void
     {
         if (!isset($this->factory)) {
             throw new InvalidStateException('setModulo needs to be called before this method');

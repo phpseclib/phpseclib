@@ -37,7 +37,7 @@ abstract class Montgomery extends Base
     /**
      * Performs modular exponentiation.
      *
-     * @template T of Engine
+     * @template T of PHP
      * @param class-string<T> $class
      * @return T
      */

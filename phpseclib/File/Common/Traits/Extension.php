@@ -186,8 +186,11 @@ trait Extension
         ASN1::enableCacheInvalidation();
     }
 
-    private static function mapOutExtensionsHelper(array|Constructed &$extensions): void
+    private static function mapOutExtensionsHelper(array|Constructed|Element &$extensions): void
     {
+        if ($extensions instanceof Element) {
+            return;
+        }
         $keys = is_array($extensions) ? array_keys($extensions) : $extensions->keys();
         foreach ($keys as $i) {
             switch (true) {
@@ -255,8 +258,10 @@ trait Extension
                 case 'id-pe-qcStatements':
                     $oldValue = $value instanceof Constructed ? $value->toArray() : $value;
                     $path = '*';
+                    /** @psalm-suppress InvalidReturnType */
                     Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Constructed|Element|array {
                         if ($val instanceof Element || "$val[statementId]" != 'id-etsi-qcs-QcLimitValue') {
+                            /** @psalm-suppress InvalidReturnStatement */
                             return $val;
                         }
                         if ($val instanceof BaseType) {
@@ -266,6 +271,7 @@ trait Extension
                             $val['statementInfo'] = ASN1::map(ASN1::decodeBER($temp), Maps\QcEuLimitValue::MAP);
                         }
                         $val['statementInfo']->enableForcedCache();
+                        /** @psalm-suppress InvalidReturnStatement */
                         return $val;
                     });
             }

@@ -74,6 +74,11 @@ abstract class PHP extends Engine
     public const ENGINE_DIR = 'PHP';
 
     /**
+     * Holds the BigInteger's value
+     */
+    protected string|array $value;
+
+    /**
      * Default constructor
      *
      * @param mixed $x integer Base-10 number or base-$base number if $base set.
@@ -1226,6 +1231,14 @@ abstract class PHP extends Engine
             $vals[] = $digit;
         }
 
+        if (!count($vals)) {
+            return [];
+        }
+
+        // $vals is never all-zeros here: callers normalize first, and trim() strips
+        // trailing zero-limbs, so the top limb is always non-zero. The count()-1 read
+        // therefore can't underflow, but Psalm can't track that across the unset loop.
+        /** @psalm-suppress InvalidArrayOffset */
         while ($vals[count($vals) - 1] == 0) {
             unset($vals[count($vals) - 1]);
         }

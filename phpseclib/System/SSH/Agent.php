@@ -35,7 +35,7 @@ declare(strict_types=1);
 namespace phpseclib4\System\SSH;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Crypt\Common\PublicKey;
+use phpseclib4\Crypt\Common\{AsymmetricKey, PublicKey};
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\{
     BadConfigurationException,
@@ -193,7 +193,7 @@ class Agent
      *
      * @psalm-suppress PossiblyUnusedMethod
      */
-    public function findIdentityByPublicKey(PublicKey $key): ?Identity
+    public function findIdentityByPublicKey(PublicKey&AsymmetricKey $key): ?Identity
     {
         $identities = $this->requestIdentities();
         $key = (string) $key;

@@ -131,6 +131,8 @@ abstract class SymmetricKey
      */
     public const MODE_STREAM = 6;
 
+    protected int $key_length = -1;
+
     /**
      * Mode Map
      *
@@ -1005,6 +1007,7 @@ abstract class SymmetricKey
                     for ($i = 0; $i < $len; ++$i) {
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->decryptIV);
                         $ciphertext .= $plaintext[$i] ^ $xor;
+                        /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
                     }
 
@@ -1312,6 +1315,7 @@ abstract class SymmetricKey
                     for ($i = 0; $i < $len; ++$i) {
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA, $this->decryptIV);
                         $plaintext .= $ciphertext[$i] ^ $xor;
+                        /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
                     }
 
@@ -2717,8 +2721,10 @@ abstract class SymmetricKey
             return intval($x);
         }
 
-        return (fmod($x, 0x80000000) & 0x7FFFFFFF) |
-            ((fmod(floor($x / 0x80000000), 2) & 1) << 31);
+        return (int) (
+            (fmod($x, 0x80000000) & 0x7FFFFFFF) |
+            ((fmod(floor($x / 0x80000000), 2) & 1) << 31)
+        );
     }
 
     /**

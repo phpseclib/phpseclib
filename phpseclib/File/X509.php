@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace phpseclib4\File;
 
 use phpseclib4\Common\Functions\{Arrays, Strings};
-use phpseclib4\Crypt\Common\{PublicKey, PrivateKey};
+use phpseclib4\Crypt\Common\{AsymmetricKey, PublicKey, PrivateKey};
 use phpseclib4\Crypt\{EC, Hash, PublicKeyLoader, RSA};
 use phpseclib4\Exception\{
     BadMethodCallException,
@@ -39,7 +39,6 @@ use phpseclib4\Exception\{
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\{
     BaseString,
-    BaseType,
     BitString,
     Boolean,
     Choice,
@@ -53,8 +52,8 @@ use phpseclib4\Math\BigInteger;
  * Pure-PHP X.509 Parser
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @implements \ArrayAccess<string, BaseType>
- * @implements \Iterator<string, Basetype>
+ * @implements \ArrayAccess<string, mixed>
+ * @implements \Iterator<string, mixed>
  */
 class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 {
@@ -454,12 +453,13 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withLabel($label);
     }
 
-    public function getPublicKey(): PublicKey
+    public function getPublicKey(): AsymmetricKey&PublicKey
     {
         if (!$this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey) {
             throw new UnexpectedValueException('Unable to decode subjectPublicKeyInfo');
         }
 
+        /** @var AsymmetricKey&PublicKey $publicKey */
         $publicKey = $this->cert['tbsCertificate']['subjectPublicKeyInfo'];
         //if ($publicKey instanceof RSA && $publicKey->getLoadedFormat() == 'PKCS8') {
         //    return $publicKey->withPadding(RSA::SIGNATURE_PKCS1);

@@ -259,26 +259,9 @@ abstract class DH extends AsymmetricKey
      * Compute Shared Secret
      */
     public static function computeSecret(
-        #[\SensitiveParameter] PrivateKey|EC\PrivateKey|string $private,
+        #[\SensitiveParameter] PrivateKey|EC\PrivateKey $private,
         PublicKey|EC\PublicKey|BigInteger|string $public
     ): BigInteger|string {
-        if ($private instanceof PrivateKey) { // DH\PrivateKey
-            switch (true) {
-                case $public instanceof PublicKey:
-                    if (!$private->prime->equals($public->prime) || !$private->base->equals($public->base)) {
-                        throw new InvalidArgumentException('The public and private key do not share the same prime and / or base numbers');
-                    }
-                    return $public->publicKey->powMod($private->privateKey, $private->prime)->toBytes(true);
-                case is_string($public):
-                    $public = new BigInteger($public, -256);
-                    // no break
-                case $public instanceof BigInteger:
-                    return $public->powMod($private->privateKey, $private->prime)->toBytes(true);
-                default:
-                    throw new InvalidArgumentException('$public needs to be an instance of DH\PublicKey, a BigInteger or a string');
-            }
-        }
-
         if ($private instanceof EC\PrivateKey) {
             $privateCurve = $private->getCurve();
             switch (true) {
@@ -337,6 +320,23 @@ abstract class DH extends AsymmetricKey
                     throw new InvalidArgumentException('$public needs to be an instance of EC\PublicKey or a string (an encoded coordinate)');
             }
         }
+
+        // at this point $private is an instanceof DH\PrivateKey
+
+        switch (true) {
+            case $public instanceof PublicKey:
+                if (!$private->prime->equals($public->prime) || !$private->base->equals($public->base)) {
+                    throw new InvalidArgumentException('The public and private key do not share the same prime and / or base numbers');
+                }
+                return $public->publicKey->powMod($private->privateKey, $private->prime)->toBytes(true);
+            case is_string($public):
+                $public = new BigInteger($public, -256);
+            // no break
+            case $public instanceof BigInteger:
+                return $public->powMod($private->privateKey, $private->prime)->toBytes(true);
+            default:
+                throw new InvalidArgumentException('$public needs to be an instance of DH\PublicKey, a BigInteger or a string');
+        }
     }
 
     /**
@@ -356,25 +356,21 @@ abstract class DH extends AsymmetricKey
 
     /**
      * OnLoad Handler
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     protected static function onLoad(array $components): Parameters|PrivateKey|PublicKey
     {
         if (!isset($components['privateKey']) && !isset($components['publicKey'])) {
             $new = new Parameters();
+        } elseif (isset($components['privateKey'])) {
+            $new = new PrivateKey();
+            $new->privateKey = $components['privateKey'];
         } else {
-            $new = isset($components['privateKey']) ?
-                new PrivateKey() :
-                new PublicKey();
+            $new = new PublicKey();
         }
 
         $new->prime = $components['prime'];
         $new->base = $components['base'];
 
-        if (isset($components['privateKey'])) {
-            $new->privateKey = $components['privateKey'];
-        }
         if (isset($components['publicKey'])) {
             $new->publicKey = $components['publicKey'];
         }

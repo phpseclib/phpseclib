@@ -36,7 +36,9 @@ use phpseclib4\Exception\{
     FileSystemException,
     InvalidArgumentException,
     InvalidStateException,
-    UnexpectedSSHMessageException
+    TimeoutException,
+    UnexpectedSSHMessageException,
+    UnexpectedValueException
 };
 
 /**
@@ -96,12 +98,7 @@ class SCP extends SSH2
         }
 
         $this->initExec('scp -t ' . escapeshellarg($remote_file)); // -t = to
-
-        $temp = $this->get_channel_packet(self::CHANNEL_EXEC, true);
-        if ($temp !== chr(0)) {
-            $this->close_channel(self::CHANNEL_EXEC, true);
-            throw new UnexpectedSSHMessageException('Expected but did not receive a null packet');
-        }
+        $this->get_scp_response();
 
         $packet_size = $this->packet_size_client_to_server[self::CHANNEL_EXEC] - 4;
 
@@ -142,12 +139,7 @@ class SCP extends SSH2
 
         $temp = 'C0644 ' . $size . ' ' . $remote_file . "\n";
         $this->send_channel_packet(self::CHANNEL_EXEC, $temp);
-
-        $temp = $this->get_channel_packet(self::CHANNEL_EXEC, true);
-        if ($temp !== chr(0)) {
-            $this->close_channel(self::CHANNEL_EXEC, true);
-            throw new UnexpectedSSHMessageException('Expected but did not receive a null packet');
-        }
+        $this->get_scp_response();
 
         $sent = 0;
         while ($sent < $size) {
@@ -185,14 +177,7 @@ class SCP extends SSH2
         $this->initExec('scp -f ' . escapeshellarg($remote_file)); // -f = from
 
         $this->send_channel_packet(self::CHANNEL_EXEC, chr(0));
-
-        $info = $this->get_channel_packet(self::CHANNEL_EXEC, true);
-        // per https://goteleport.com/blog/scp-familiar-simple-insecure-slow/ non-zero responses mean there are errors
-        if ($info[0] === chr(1) || $info[0] == chr(2)) {
-            $type = $info[0] === chr(1) ? 'warning' : 'error';
-            $this->close_channel(self::CHANNEL_EXEC, true);
-            throw new FileSystemException("Received a $type from server: " . substr($info, 1));
-        }
+        $info = $this->get_scp_response();
 
         $this->send_channel_packet(self::CHANNEL_EXEC, chr(0));
 
@@ -219,20 +204,20 @@ class SCP extends SSH2
 
         $size = 0;
         while (true) {
-            $data = $this->get_channel_packet(self::CHANNEL_EXEC, true);
+            $data = $this->get_scp_response(false);
             // SCP usually seems to split stuff out into 16k chunks
             $length = strlen($data);
             $size += $length;
             $end = $size > $info['size'];
             if ($end) {
                 $diff = $size - $info['size'];
-                $offset = $length - $diff;
+                $offset = (int) ($length - $diff);
                 if ($data[$offset] === chr(0)) {
                     $data = substr($data, 0, -$diff);
                 } else {
                     $type = $data[$offset] === chr(1) ? 'warning' : 'error';
                     $this->close_channel(self::CHANNEL_EXEC, true);
-                    throw new FileSystemException("Received a $type from server: " . substr($info, 1));
+                    throw new FileSystemException("Received a $type from server: " . substr($data, 1));
                 }
             }
 
@@ -259,5 +244,22 @@ class SCP extends SSH2
 
         // if $content isn't set that means a file was written to
         return $content;
+    }
+
+    private function get_scp_response(bool $check_for_null = true): string
+    {
+        $response = $this->get_channel_packet(self::CHANNEL_EXEC, true);
+        if (is_bool($response)) {
+            throw $this->is_timeout ?
+                new TimeoutException('SCP get() timed out') :
+                new UnexpectedValueException('Error reading additional SCP data');
+        }
+        // per https://goteleport.com/blog/scp-familiar-simple-insecure-slow/ non-zero responses mean there are errors
+        if ($check_for_null && in_array($response[0], ["\1", "\2"])) {
+            $type = $response[0] === chr(1) ? 'warning' : 'error';
+            $this->close_channel(self::CHANNEL_EXEC, true);
+            throw new FileSystemException("Received a $type from server: " . substr($response, 1));
+        }
+        return $response;
     }
 }

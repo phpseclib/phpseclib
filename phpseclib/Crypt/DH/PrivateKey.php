@@ -31,11 +31,6 @@ final class PrivateKey extends DH
     protected BigInteger $privateKey;
 
     /**
-     * Public Key
-     */
-    protected BigInteger $publicKey;
-
-    /**
      * Returns the public key
      */
     public function getPublicKey(): PublicKey

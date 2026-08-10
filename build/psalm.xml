@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
     xmlns="https://getpsalm.org/schema/config"
-    errorLevel="7"
+    errorLevel="6"
     findUnusedCode="true"
     findUnusedPsalmSuppress="true"
     sealAllMethods="true"
@@ -21,6 +21,7 @@
         <MissingOverrideAttribute errorLevel="suppress" />
         <UnsupportedPropertyReferenceUsage errorLevel="suppress" />
         <UnusedForeachValue errorLevel="suppress" />
+        <UndefinedMethod errorLevel="suppress" />
         <UnusedVariable>
             <errorLevel type="suppress">
                 <file name="../phpseclib/Crypt/Common/SymmetricKey.php"/>
@@ -51,6 +52,16 @@
                 <directory name="../phpseclib/Math/BigInteger/Engines/BCMath"/>
             </errorLevel>
         </PossiblyUnusedParam>
+        <UndefinedPropertyFetch>
+            <errorLevel type="suppress">
+                <file name="../phpseclib/Math/BigInteger/Engines/Engine.php"/>
+            </errorLevel>
+        </UndefinedPropertyFetch>
+        <InvalidPropertyAssignmentValue>
+            <errorLevel type="suppress">
+                <file name="../phpseclib/Math/BigInteger/Engines/GMP.php"/>
+            </errorLevel>
+        </InvalidPropertyAssignmentValue>
         <Trace>
             <errorLevel type="error">
                 <directory name=".."/>

@@ -41,12 +41,12 @@ class Prime extends Base
     protected PrimeField $factory;
 
     /**
-     * Cofficient for x^1
+     * Coefficient for x^1
      */
     protected PrimeInteger $a;
 
     /**
-     * Cofficient for x^0
+     * Coefficient for x^0
      */
     protected PrimeInteger $b;
 
