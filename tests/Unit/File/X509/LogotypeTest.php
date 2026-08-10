@@ -33,6 +33,7 @@ class LogotypeTest extends PhpseclibTestCase
         'logotypeURI' => ['https://example.com/logo.svg'],
     ];
 
+    /** @psalm-suppress InvalidReturnType, InvalidReturnStatement */
     private static function roundtrip(array $value): \phpseclib4\File\ASN1\Types\BaseType
     {
         $der = ASN1::encodeDER($value, LogotypeExtn::MAP);
