@@ -916,7 +916,10 @@ abstract class RSA extends AsymmetricKey
                             $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) :
                             $func($message, $signature, $key, $hash);
 
-                        if ($func === 'openssl_verify' && $result !== -1 && $result !== false) {
+                        if ($func === 'openssl_verify') {
+                            if ($result === -1 || $result === false) {
+                                throw new BadConfigurationException('Engine OpenSSL is forced but was unable to verify signature because of ' . openssl_error_string());
+                            }
                             return (bool) $result;
                         }
                         if ($result) {
