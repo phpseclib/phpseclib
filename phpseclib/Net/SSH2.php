@@ -673,9 +673,12 @@ class SSH2
     /**
      * Timeout
      *
+     * Is overwritten by the constructor BUT if you're mocking the object
+     * the constructor may be bypassed, hence our setting it to -1 initially
+     *
      * @see SSH2::setTimeout()
      */
-    protected ?int $timeout = null;
+    protected int $timeout = -1;
 
     /**
      * Current Timeout
@@ -2136,7 +2139,8 @@ class SSH2
                 [$message] = Strings::unpackSSH2('s', $response);
                 $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . $message;
 
-                return $this->disconnect_helper(DisconnectReason::AUTH_CANCELLED_BY_USER);
+                $this->disconnect_helper(DisconnectReason::AUTH_CANCELLED_BY_USER);
+                return false;
             case MessageType::USERAUTH_FAILURE:
                 // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
                 // multi-factor authentication
@@ -2535,7 +2539,7 @@ class SSH2
      * If $callback is set to false then \phpseclib4\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of (SCP.php uses it)
      *
-     * @psalm-return ($callback is callable ? bool : string|bool)
+     * @psalm-return ($callback is callable ? null : string)
      */
     public function exec(string $command, ?\Closure $callback = null): ?string
     {
@@ -2553,18 +2557,16 @@ class SSH2
         $output = '';
         while (true) {
             $temp = $this->get_channel_packet(self::CHANNEL_EXEC);
-            switch (true) {
-                case $temp === true:
-                    return $callback ? null : $output;
-                default:
-                    if ($callback) {
-                        if ($callback($temp) === true) {
-                            $this->close_channel(self::CHANNEL_EXEC);
-                            return null;
-                        }
-                    } else {
-                        $output .= $temp;
-                    }
+            if ($temp === true) {
+                return $callback ? null : $output;
+            }
+            if ($callback) {
+                if ($callback($temp) === true) {
+                    $this->close_channel(self::CHANNEL_EXEC);
+                    return null;
+                }
+            } else {
+                $output .= $temp;
             }
         }
     }
@@ -4894,7 +4896,8 @@ class SSH2
         }
 
         if (!$key->verify($this->exchange_hash, $signature)) {
-            return $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
+            $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
+            return null;
         };
 
         return $this->signature_format . ' ' . $server_public_host_key;

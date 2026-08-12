@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
-use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\{BadConfigurationException, UnsupportedValueException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\{ASN1, CMS};
 
@@ -32,7 +32,7 @@ use phpseclib4\File\{ASN1, CMS};
 class CompressedData implements \ArrayAccess, \Countable, \Iterator
 {
     private Constructed|array $cms;
-    private ?string $decompressed;
+    private string $decompressed;
 
     /**
      * @param string $data
@@ -181,7 +181,11 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
             if (!function_exists('zlib_decode')) {
                 throw new BadConfigurationException('zlib_decode() is not available');
             }
-            $this->decompressed = zlib_decode((string) $this->cms['content']['encapContentInfo']['eContent']);
+            $result = zlib_decode((string) $this->cms['content']['encapContentInfo']['eContent']);
+            if ($result === false) {
+                throw new UnsupportedValueException('zlib_decode() returned false');
+            }
+            $this->decompressed = $result;
         }
         return $this->decompressed;
     }
