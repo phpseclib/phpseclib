@@ -43,6 +43,7 @@ use phpseclib4\Crypt\EC\{Parameters, PrivateKey, PublicKey};
 use phpseclib4\Exception\{
     BadConfigurationException,
     BadMethodCallException,
+    InvalidStateException,
     LengthException,
     UnsupportedCurveException
 };
@@ -509,12 +510,15 @@ abstract class EC extends AsymmetricKey
     }
 
     /**
-     * Returns the signature format currently being used
+     * Returns the context
      *
      * @psalm-suppress PossiblyUnusedMethod
      */
     public function getContext(): string
     {
+        if (!isset($this->context)) {
+            throw new BadMethodCallException('No context has been set');
+        }
         return $this->context;
     }
 

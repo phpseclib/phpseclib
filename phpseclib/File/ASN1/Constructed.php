@@ -751,7 +751,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         return $this->encoded;
     }
 
-    public function keys(): ?array
+    public function keys(): array
     {
         if (!$this->mapping) {
             throw new InvalidStateException('map() has not been ran; if you want to get the array keys do ->toArray()');
