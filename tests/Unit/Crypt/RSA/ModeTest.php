@@ -579,6 +579,7 @@ ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
         $pubkey = PublicKeyLoader::loadPublicKey($pubkeyPEM);
         assert($pubkey instanceof RSA);
 
+        // php8.5 openssl can verify pss
         $public = $pubkey->withHash('sha256')
             ->withMGFHash('sha256')
             ->withPssSaltLengthAuto(false)
