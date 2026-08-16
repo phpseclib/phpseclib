@@ -539,7 +539,7 @@ zUlir0ACPypC1Q==
 
         RSA::forceEngine();
     }
-    
+
     public function testPSSVerify(): void
     {
         $pubkeyPEM = "-----BEGIN PUBLIC KEY-----
