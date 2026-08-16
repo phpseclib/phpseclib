@@ -151,7 +151,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         $db = $maskedDB ^ $dbMask;
         $db[0] = ~chr(256 - (1 << ($emBits & 7))) & $db[0];
         if ($this->pssSaltLengthAuto) {
-            $pslen = mb_stripos($db, chr(0x01), 0, 'UTF-8');
+            $pslen = mb_stripos($db, chr(0x01));
             if ($pslen === false) {
                 return false;
             }
