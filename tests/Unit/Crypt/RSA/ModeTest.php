@@ -557,7 +557,7 @@ ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
 
         $public = $pubkey->withHash('sha256')
             ->withMGFHash('sha256')
-            // ->withPssSaltLengthAuto(false)
+            ->withPssSaltLengthAuto(true)
             ->withPadding(RSA::SIGNATURE_PSS);
         $sig = $public->verify($msg, $signed);
 
