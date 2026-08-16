@@ -33,7 +33,7 @@ final class PublicKey extends RSA implements Common\PublicKey
     use Common\Traits\Fingerprint;
 
     /**
-     * PSS find salt
+     * PSS find salt auto
      */
     protected bool $pssSaltLengthAuto = true;
 
