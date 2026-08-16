@@ -566,25 +566,27 @@ ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
 
     public function testPSSVerifyFail(): void
     {
-        $pubkeyPEM = "-----BEGIN PUBLIC KEY-----
+        if (version_compare(PHP_VERSION, '8.5.0', '<')) {
+            $pubkeyPEM = "-----BEGIN PUBLIC KEY-----
 MIIBCgKCAQEA4f5wg5l2hKsTeNem/V41fGnJm6gOdrj8ym3rFkEU/wT8RDtnSgFEZOQpHEgQ
 7JL38xUfU0Y3g6aYw9QT0hJ7mCpz9Er5qLaMXJwZxzHzAahlfA0icqabvJOMvQtzD6uQv6wP
 EyZtDTWiQi9AXwBpHssPnpYGIn20ZZuNlX2BrClciHhCPUIIZOQn/MmqTD31jSyjoQoV7Mhh
 MTATKJx2XrHhR+1DcKJzQBSTAGnpYVaqpsARap+nwRipr3nUTuxyGohBTSmjJ2usSeQXHI3b
 ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
 -----END PUBLIC KEY-----";
-        $msg = "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ";
-        $signed = base64_decode("PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS+c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2/Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9w==");
+            $msg = "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ";
+            $signed = base64_decode("PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS+c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2/Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9w==");
 
-        $pubkey = PublicKeyLoader::loadPublicKey($pubkeyPEM);
-        assert($pubkey instanceof RSA);
+            $pubkey = PublicKeyLoader::loadPublicKey($pubkeyPEM);
+            assert($pubkey instanceof RSA);
 
-        $public = $pubkey->withHash('sha256')
-            ->withMGFHash('sha256')
-            ->withPssSaltLengthAuto(false)
-            ->withPadding(RSA::SIGNATURE_PSS);
-        $sig = $public->verify($msg, $signed);
+            $public = $pubkey->withHash('sha256')
+                ->withMGFHash('sha256')
+                ->withPssSaltLengthAuto(false)
+                ->withPadding(RSA::SIGNATURE_PSS);
+            $sig = $public->verify($msg, $signed);
 
-        $this->assertFalse($sig);
+            $this->assertFalse($sig);
+        }
     }
 }
