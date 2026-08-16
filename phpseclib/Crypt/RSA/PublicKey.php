@@ -153,13 +153,16 @@ final class PublicKey extends RSA implements Common\PublicKey
         $dbMask = $this->mgf1($h, $emLen - $this->hLen - 1);
         $db = $maskedDB ^ $dbMask;
         $db[0] = ~chr(256 - (1 << ($emBits & 7))) & $db[0];
+
         if ($this->pssSaltLengthAuto) {
-            $pslen = mb_stripos($db, chr(0x01));
+            $pslen = mb_strpos($db, chr(0x01));
             if ($pslen === false) {
                 return false;
             }
+
             $sLen = strlen($db) - $pslen - 1;
         }
+
         $temp = $emLen - $this->hLen - $sLen - 2;
         if (substr($db, 0, $temp) != str_repeat(chr(0), $temp) || ord($db[$temp]) != 1) {
             return false;
