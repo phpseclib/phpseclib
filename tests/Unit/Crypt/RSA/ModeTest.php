@@ -605,7 +605,7 @@ rHXnb/9xmF9KEwZA24g3uCbt5uK10jdmkcidoLPHP+cZ9ayvN65ta8B/juiwzkn6
 uuk8YRF798dsPnNqloIge/Mm6N+RmzGSjlqfqQQg4dQn6eU706Azo/CdRPNXnf8U
 TQIDAQAB
 -----END PUBLIC KEY-----";
-        $msg = "phpseclib message";
+        $msg    = "phpseclib message";
         $signed = hex2bin("832b5f16641139bf18607342bd6a1a9e068fe237f3f31f236f96cbe5b4fb86e6505d25b625bf3608f71fa874a5098c0229c063cdb339c9b96b6d50ba7355011994a8e64cf43327d97bb992d11d4c3f831436766b865c29b48bd7d555d718ad6dd8b4187ef5110056478d904b259af282e774bd29d4dd3a3d70fa4e70175682faf72c151b8729ed72cfdba379dd79fdf0ca1ef9dd431eb7eebcfbbc041e427156729c621e09aa001677ad6b2d3811851381f262a6e3e1e06ceb7bda570277874fd2f6800ecde8cff66afa5ad9df7edc89705040c94edcf5b94c6a49d1aec5ce216f63ae29291d91121014e537f2b4912029b693f8319f06b0788d31e8b396b17f");
 
         $pubkey = PublicKeyLoader::loadPublicKey($pubkeyPEM);
