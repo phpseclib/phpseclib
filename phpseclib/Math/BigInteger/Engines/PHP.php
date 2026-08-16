@@ -158,7 +158,7 @@ abstract class PHP extends Engine
         while (count($temp->value)) {
             [$temp, $mod] = $temp->divide($divisor);
             $result = str_pad(
-                (string) $mod->value[0] ?? '',
+                (string) ($mod->value[0] ?? ''),
                 static::MAX10LEN,
                 '0',
                 STR_PAD_LEFT
