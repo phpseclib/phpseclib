@@ -155,7 +155,7 @@ final class PublicKey extends RSA implements Common\PublicKey
             if ($pslen === false) {
                 return false;
             }
-            $sLen = strlen($db) - $pslen -1;
+            $sLen = strlen($db) - $pslen - 1;
         }
         $temp = $emLen - $this->hLen - $sLen - 2;
         if (substr($db, 0, $temp) != str_repeat(chr(0), $temp) || ord($db[$temp]) != 1) {
