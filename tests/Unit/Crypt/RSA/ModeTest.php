@@ -542,53 +542,23 @@ zUlir0ACPypC1Q==
     
     public function testPSSVerify(): void
     {
-        $prikeyPEM = "-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQD2Krfw7XGOKS7g
-PHi7jX3d8xXGbOoz1CXgRDtm22nQatzGqTbyPuC02Ae/O2zKgZP41tBT6OLWsuCv
-RU0pE+AC0MAFvyD0jg2qpOyP4Ye5hBF7DFk0oQeVqMEj4p4T06JheYMw3mD1Tro9
-k51MXCy/fsQ0wnzVYJh24cjMrM5Li0XNKGRO0aLjAQConjZNebX/Q9/XqP4wjJyL
-/btwSLusdedv/3GYX0oTBkDbiDe4Ju3m4rXSN2aRyJ2gs8c/5xn1rK83rm1rwH+O
-6LDOSfq66TxhEXv3x2w+c2qWgiB78ybo35GbMZKOWp+pBCDh1Cfp5TvToDOj8J1E
-81ed/xRNAgMBAAECggEBAOr/9QGHa3RvVFS05f0GIjaULSF0MFCyIkZqXNrgc6+H
-lKQCPnYcGKAL67lfnYflE8HmMJMqLAMSWPR5kCO62YtWhTn3MBrG0b0qHLtubgdo
-UNfK/g4D/B2fMGJ1oLsEumubeOZaJO2J7rmCBhQzmnRlLCHB2TJKOMKk4PCjt3zc
-5K33aFNf3N+NvnbsD38WeKXnOx6bIRJhPSqkS+Ck0NmHr0d7Ga9qoiH3/AAIcjoE
-Lzs3Don6+v7tAOqH9tfhhWY9E05O8dJH+vDlktRq9ctCXQaOK2UqLsYENPIPgtFj
-cys5/2U5OsmmgltPPCyZkdCEkdY+BTMnlNncpUznFwECgYEA/+Z0f7N4C77RH247
-4nAR3eRRu9HsuRQeHsbg0X/ARHvJCZ6dwPGj7n2XkTVg/cI7IJUxcoKMBKzvfAP3
-rVQ9JVpSliyuJcJ4IW/xxBDVMR/9T4uD4ht4BzjppCW5ffPSGGTPViUrmcorbVj/
-UhrV/BC2G/IXFkBedpw72JIGnX0CgYEA9kNKtS33iILtID0871c8Pi+q0xABPipJ
-Ax1G+9M7nYM6vAGwHflil4Shg8S1g5IFn9p2zu+WaXbT3JfvgVAkEPS0+pHXcXEa
-WraF6Pvbbw1xSMPla23wezLMOvt+hTsQGRQCLa7ZCyruvghCHxvAbJawyuQKViEd
-4Mw6QfEHSxECgYBHDKFD43xtJmnBpEWUNTGAvifDUiG7sU47lVROVn33hbbnqNZ7
-/5tYWB6A/qUTT55DCalU9dISakGD2UYnJcBkYpOThoxDh577Ca3CljnbDdqy/zV6
-zc2hk7erD55UziGDDFpUvLVCWdN85Lze+vx2o90sHScz0mNn4zDqjICxsQKBgF/4
-MXESDNlCTK63rruHP47sfKHsJs/XIsT37+XLl/v2XDlQXxYPTgDGSztSuXogudhm
-Bs72R6OqDz50Z335gVSqSK0tkMxAy4h2gREetZE9p9w3m3yWR5V7YmPKBrBdKBTd
-20t6TFMx1AByr3H4GrE2uIcY/345Qa+NZ1azW6hBAoGAT+7KzpWJw/jUWbgtEHlA
-nJR05Iu4RPzXZh2D9xZHWZ6hIQMd8Eg/wI5/5xfoWbq3exhRODY4zVlmVwSSiiNG
-7vS6P/BIYEM4q4Uv9+dPccUaVBP6Nf+u8CZUMPzvWMkXTHIhPKOoVhfRg8luzulJ
-ccx6QUrMWw06MLxvvr+7bcs=
------END PRIVATE KEY-----";
         $pubkeyPEM = "-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA9iq38O1xjiku4Dx4u419
-3fMVxmzqM9Ql4EQ7Zttp0Grcxqk28j7gtNgHvztsyoGT+NbQU+ji1rLgr0VNKRPg
-AtDABb8g9I4NqqTsj+GHuYQRewxZNKEHlajBI+KeE9OiYXmDMN5g9U66PZOdTFws
-v37ENMJ81WCYduHIzKzOS4tFzShkTtGi4wEAqJ42TXm1/0Pf16j+MIyci/27cEi7
-rHXnb/9xmF9KEwZA24g3uCbt5uK10jdmkcidoLPHP+cZ9ayvN65ta8B/juiwzkn6
-uuk8YRF798dsPnNqloIge/Mm6N+RmzGSjlqfqQQg4dQn6eU706Azo/CdRPNXnf8U
-TQIDAQAB
+MIIBCgKCAQEA4f5wg5l2hKsTeNem/V41fGnJm6gOdrj8ym3rFkEU/wT8RDtnSgFEZOQpHEgQ
+7JL38xUfU0Y3g6aYw9QT0hJ7mCpz9Er5qLaMXJwZxzHzAahlfA0icqabvJOMvQtzD6uQv6wP
+EyZtDTWiQi9AXwBpHssPnpYGIn20ZZuNlX2BrClciHhCPUIIZOQn/MmqTD31jSyjoQoV7Mhh
+MTATKJx2XrHhR+1DcKJzQBSTAGnpYVaqpsARap+nwRipr3nUTuxyGohBTSmjJ2usSeQXHI3b
+ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
 -----END PUBLIC KEY-----";
-        $msg = "phpseclib message";
-        $signed = hex2bin("832b5f16641139bf18607342bd6a1a9e068fe237f3f31f236f96cbe5b4fb86e6505d25b625bf3608f71fa874a5098c0229c063cdb339c9b96b6d50ba7355011994a8e64cf43327d97bb992d11d4c3f831436766b865c29b48bd7d555d718ad6dd8b4187ef5110056478d904b259af282e774bd29d4dd3a3d70fa4e70175682faf72c151b8729ed72cfdba379dd79fdf0ca1ef9dd431eb7eebcfbbc041e427156729c621e09aa001677ad6b2d3811851381f262a6e3e1e06ceb7bda570277874fd2f6800ecde8cff66afa5ad9df7edc89705040c94edcf5b94c6a49d1aec5ce216f63ae29291d91121014e537f2b4912029b693f8319f06b0788d31e8b396b17f");
+        $msg = "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ";
+        $signed = base64_decode("PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS+c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2/Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9w==");
 
         $pubkey = PublicKeyLoader::loadPublicKey($pubkeyPEM);
         assert($pubkey instanceof RSA);
 
-        $public = $pubkey->withHash('sha384')
-            ->withMGFHash('sha384')
-            ->withPadding(RSA::SIGNATURE_PSS)
-            ->withPssSaltLengthAuto(true);
+        $public = $pubkey->withHash('sha256')
+            ->withMGFHash('sha256')
+            // ->withPssSaltLengthAuto(false)
+            ->withPadding(RSA::SIGNATURE_PSS);
         $sig = $public->verify($msg, $signed);
 
         $this->assertTrue($sig);
@@ -597,24 +567,22 @@ TQIDAQAB
     public function testPSSVerifyFail(): void
     {
         $pubkeyPEM = "-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA9iq38O1xjiku4Dx4u419
-3fMVxmzqM9Ql4EQ7Zttp0Grcxqk28j7gtNgHvztsyoGT+NbQU+ji1rLgr0VNKRPg
-AtDABb8g9I4NqqTsj+GHuYQRewxZNKEHlajBI+KeE9OiYXmDMN5g9U66PZOdTFws
-v37ENMJ81WCYduHIzKzOS4tFzShkTtGi4wEAqJ42TXm1/0Pf16j+MIyci/27cEi7
-rHXnb/9xmF9KEwZA24g3uCbt5uK10jdmkcidoLPHP+cZ9ayvN65ta8B/juiwzkn6
-uuk8YRF798dsPnNqloIge/Mm6N+RmzGSjlqfqQQg4dQn6eU706Azo/CdRPNXnf8U
-TQIDAQAB
+MIIBCgKCAQEA4f5wg5l2hKsTeNem/V41fGnJm6gOdrj8ym3rFkEU/wT8RDtnSgFEZOQpHEgQ
+7JL38xUfU0Y3g6aYw9QT0hJ7mCpz9Er5qLaMXJwZxzHzAahlfA0icqabvJOMvQtzD6uQv6wP
+EyZtDTWiQi9AXwBpHssPnpYGIn20ZZuNlX2BrClciHhCPUIIZOQn/MmqTD31jSyjoQoV7Mhh
+MTATKJx2XrHhR+1DcKJzQBSTAGnpYVaqpsARap+nwRipr3nUTuxyGohBTSmjJ2usSeQXHI3b
+ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
 -----END PUBLIC KEY-----";
-        $msg    = "phpseclib message";
-        $signed = hex2bin("832b5f16641139bf18607342bd6a1a9e068fe237f3f31f236f96cbe5b4fb86e6505d25b625bf3608f71fa874a5098c0229c063cdb339c9b96b6d50ba7355011994a8e64cf43327d97bb992d11d4c3f831436766b865c29b48bd7d555d718ad6dd8b4187ef5110056478d904b259af282e774bd29d4dd3a3d70fa4e70175682faf72c151b8729ed72cfdba379dd79fdf0ca1ef9dd431eb7eebcfbbc041e427156729c621e09aa001677ad6b2d3811851381f262a6e3e1e06ceb7bda570277874fd2f6800ecde8cff66afa5ad9df7edc89705040c94edcf5b94c6a49d1aec5ce216f63ae29291d91121014e537f2b4912029b693f8319f06b0788d31e8b396b17f");
+        $msg = "eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ";
+        $signed = base64_decode("PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS+c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2/Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9w==");
 
         $pubkey = PublicKeyLoader::loadPublicKey($pubkeyPEM);
         assert($pubkey instanceof RSA);
 
-        $public = $pubkey->withHash('sha384')
-            ->withMGFHash('sha384')
-            ->withPadding(RSA::SIGNATURE_PSS)
-            ->withPssSaltLengthAuto(false);
+        $public = $pubkey->withHash('sha256')
+            ->withMGFHash('sha256')
+            ->withPssSaltLengthAuto(false)
+            ->withPadding(RSA::SIGNATURE_PSS);
         $sig = $public->verify($msg, $signed);
 
         $this->assertFalse($sig);

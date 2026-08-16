@@ -37,7 +37,7 @@ final class PublicKey extends RSA implements Common\PublicKey
      */
     protected bool $pssSaltLengthAuto = true;
 
-    public function withPssSaltLengthAuto(bool $status = true)
+    public function withPssSaltLengthAuto(bool $status = true): static
     {
         $new = clone $this;
         
