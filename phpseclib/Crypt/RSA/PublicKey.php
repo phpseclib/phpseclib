@@ -117,7 +117,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         // be output.
 
         $emLen = ($emBits + 7) >> 3; // ie. ceil($emBits / 8);
-        $sLen = $this->sLen ?? $this->hLen;
+        $sLen = static::$autoSaltLength ? 0 : ($this->sLen ?? $this->hLen);
 
         $mHash = $this->hash->hash($m);
         if ($emLen < $this->hLen + $sLen + 2) {
@@ -137,11 +137,17 @@ final class PublicKey extends RSA implements Common\PublicKey
         $dbMask = $this->mgf1($h, $emLen - $this->hLen - 1);
         $db = $maskedDB ^ $dbMask;
         $db[0] = ~chr(256 - (1 << ($emBits & 7))) & $db[0];
-        $temp = $emLen - $this->hLen - $sLen - 2;
-        if (substr($db, 0, $temp) != str_repeat(chr(0), $temp) || ord($db[$temp]) != 1) {
+
+        // PS is a run of zero bytes terminated by a single 0x01
+        $psLen = strspn($db, "\0");
+        if ($psLen == strlen($db) || $db[$psLen] != chr(0x01)) {
             return false;
         }
-        $salt = substr($db, $temp + 1); // should be $sLen long
+        if (!static::$autoSaltLength && $psLen != $emLen - $this->hLen - $sLen - 2) {
+            return false;
+        }
+
+        $salt = substr($db, $psLen + 1); // should be $sLen long
         $m2 = "\0\0\0\0\0\0\0\0" . $mHash . $salt;
         $h2 = $this->hash->hash($m2);
         return hash_equals($h, $h2);
