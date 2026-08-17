@@ -229,6 +229,13 @@ abstract class RSA extends AsymmetricKey
     protected static $enableBlinding = true;
 
     /**
+     * Enable automatic salt length determination
+     *
+     * @var bool
+     */
+    protected static $autoSaltLength = true;
+
+    /**
      * Smallest Prime
      *
      * Per <http://cseweb.ucsd.edu/~hovav/dist/survey.pdf#page=5>, this number ought not result in primes smaller
@@ -932,6 +939,16 @@ abstract class RSA extends AsymmetricKey
         static::$enableBlinding = false;
     }
 
+    public static function enableSaltLengthDiscovery()
+    {
+        static::$autoSaltLength = true;
+    }
+
+    public static function disableSaltLengthDiscovery()
+    {
+        static::$autoSaltLength = false;
+    }
+
     /**
      * Handles OpenSSL encryption / decryption / signature creation / verification
      *
@@ -965,6 +982,7 @@ abstract class RSA extends AsymmetricKey
                 throw new BadConfigurationException('Engine OpenSSL is forced but unavailable for RSA');
             }
             if ($this->$paddingType === self::SIGNATURE_PSS) {
+                $create = $func === 'openssl_sign';
                 switch (true) {
                     case !defined('OPENSSL_PKCS1_PSS_PADDING'):
                         $error = 'Engine OpenSSL is forced but PSS encryption requires PHP >= 8.5.0';
@@ -972,13 +990,15 @@ abstract class RSA extends AsymmetricKey
                     case $this->hash->getHash() !== $this->mgfHash->getHash():
                         $error = 'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match';
                         break;
-                    case $this->getSaltLength() !== $this->hLen:
+                    case !$create && !static::$autoSaltLength:
+                        $error = 'Engine OpenSSL is forced but auto calculation of the salt length is disabled';
+                    case $create && $this->getSaltLength() !== $this->hLen:
                         $error = 'Engine OpenSSL is forced but can\'t be used because the salt length doesn\'t match the hash length';
                         break;
-                    case 'openssl_sign' && $this->getLength() < 8 * (2 * $this->getSaltLength() + 2):
+                    case $create && $this->getLength() < 8 * (2 * $this->getSaltLength() + 2):
                         $error = 'Engine OpenSSL is forced but can\'t be used for PSS signing because the key is too small for OpenSSL to use the configured salt length';
                         break;
-                    case 'openssl_sign' && OPENSSL_VERSION_NUMBER < 0x30100000:
+                    case $create && OPENSSL_VERSION_NUMBER < 0x30100000:
                         $error = 'Engine OpenSSL is forced but can\'t be used for PSS signing because OpenSSL < 3.1.0 defaults to the maximum salt length instead of the hash length';
                         break;
                 }
