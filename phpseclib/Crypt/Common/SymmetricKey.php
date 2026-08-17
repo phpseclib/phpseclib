@@ -2682,7 +2682,6 @@ abstract class SymmetricKey
 
                     return $this->unpad($_plaintext);
                     ';
-                break;
         }
 
         // Before discrediting this, please read the following:

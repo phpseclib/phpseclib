@@ -26,7 +26,7 @@ use phpseclib4\File\CMS\EncryptedData;
  * @implements \ArrayAccess<string, mixed>
  * @implements \Iterator<string, mixed>
  */
-class Recipient implements \ArrayAccess, \Countable, \Iterator
+abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
 {
     use \phpseclib4\File\Common\Traits\KeyDerivation;
 
