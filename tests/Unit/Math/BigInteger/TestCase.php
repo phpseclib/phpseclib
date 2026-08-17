@@ -132,7 +132,7 @@ abstract class TestCase extends PhpseclibTestCase
         // divisor returned the modulus itself, which is never a valid residue.
         // The GMP and BCMath engines returned 0 here; the PHP engines did not.
         foreach ([['-256', '256'], ['-7', '7'], ['-256', '2'], ['-7', '1']] as [$a, $b]) {
-            [$q, $r] = $this->getInstance($a)->divide($this->getInstance($b));
+            [, $r] = $this->getInstance($a)->divide($this->getInstance($b));
             $this->assertSame('0', (string) $r, "$a / $b should leave no remainder");
             $this->assertNotSame($b, (string) $r, "$a / $b returned the divisor as the residue");
         }
