@@ -43,7 +43,11 @@ class LogotypeTest extends PhpseclibTestCase
 
     /**
      * the extension is wired up in the Extension trait, so it has to survive a
-     * trip through an actual certificate - not just through the map
+     * trip through an actual certificate - not just through the map.
+     *
+     * the criticality argument is deliberately omitted so that the default from
+     * getExtensionCriticalValue() is what gets exercised - RFC 9399, section 4.1
+     * says the extension MUST NOT be marked critical
      */
     public function testExtensionInCertificate(): void
     {
@@ -54,19 +58,21 @@ class LogotypeTest extends PhpseclibTestCase
         $cert->makeCA();
         $cert->setExtension(
             'id-pe-logotype',
-            ['subjectLogo' => ['direct' => ['image' => [['imageDetails' => self::DETAILS]]]]],
-            false
+            ['subjectLogo' => ['direct' => ['image' => [['imageDetails' => self::DETAILS]]]]]
         );
         $key->sign($cert);
 
         $value = null;
+        $critical = null;
         foreach (X509::load("$cert")['tbsCertificate']['extensions'] as $extension) {
             if ("$extension[extnId]" === 'id-pe-logotype') {
                 $value = $extension['extnValue'];
+                $critical = $extension['critical'];
             }
         }
 
         $this->assertNotNull($value);
+        $this->assertFalse($critical->value);
         $this->assertSame(['subjectLogo'], $value->keys());
         $this->assertSame('direct', $value['subjectLogo']->index);
         $this->assertSame(
