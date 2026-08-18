@@ -35,7 +35,6 @@ namespace phpseclib3\System\SSH;
 use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Crypt\Common\PublicKey;
 use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Crypt\RSA;
 use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Net\SSH2;
 use phpseclib3\System\SSH\Agent\Identity;

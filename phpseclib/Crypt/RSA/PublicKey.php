@@ -17,7 +17,6 @@ use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Exception\UnsupportedAlgorithmException;
 use phpseclib3\Exception\UnsupportedFormatException;
 use phpseclib3\File\ASN1;

@@ -31,7 +31,6 @@
 
 namespace phpseclib3\Net;
 
-use phpseclib3\Common\Functions\Strings;
 use phpseclib3\Exception\FileNotFoundException;
 
 /**
@@ -44,13 +43,13 @@ class SCP extends SSH2
     /**
      * Reads data from a local file.
      *
-     * @see \phpseclib3\Net\SCP::put()
+     * @see SCP::put()
      */
     const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
      *
-     * @see \phpseclib3\Net\SCP::put()
+     * @see SCP::put()
      */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
     const SOURCE_STRING = 2;

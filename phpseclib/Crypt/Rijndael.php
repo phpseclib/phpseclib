@@ -262,7 +262,7 @@ class Rijndael extends BlockCipher
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * Common\SymmetricKey::__construct()
      * @param int $engine
      * @return bool
      */
@@ -511,7 +511,7 @@ class Rijndael extends BlockCipher
     /**
      * Setup the key (expansion)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setupKey()
+     * Common\SymmetricKey::setupKey()
      */
     protected function setupKey()
     {
@@ -828,7 +828,7 @@ class Rijndael extends BlockCipher
     /**
      * Setup the performance-optimized function for de/encrypt()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::setupInlineCrypt()
+     * Common\SymmetricKey::setupInlineCrypt()
      */
     protected function setupInlineCrypt()
     {

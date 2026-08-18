@@ -60,76 +60,76 @@ abstract class SymmetricKey
      * Set to -1 since that's what Crypt/Random.php uses to index the CTR mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Counter_.28CTR.29
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_CTR = -1;
     /**
      * Encrypt / decrypt using the Electronic Code Book mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Electronic_codebook_.28ECB.29
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_ECB = 1;
     /**
      * Encrypt / decrypt using the Code Book Chaining mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_CBC = 2;
     /**
      * Encrypt / decrypt using the Cipher Feedback mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher_feedback_.28CFB.29
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_CFB = 3;
     /**
      * Encrypt / decrypt using the Cipher Feedback mode (8bit)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_CFB8 = 7;
     /**
      * Encrypt / decrypt using the Output Feedback mode (8bit)
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_OFB8 = 8;
     /**
      * Encrypt / decrypt using the Output Feedback mode.
      *
      * @link http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Output_feedback_.28OFB.29
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_OFB = 4;
     /**
      * Encrypt / decrypt using Galois/Counter mode.
      *
      * @link https://en.wikipedia.org/wiki/Galois/Counter_Mode
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_GCM = 5;
     /**
      * Encrypt / decrypt using streaming mode.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * SymmetricKey::encrypt()
+     * SymmetricKey::decrypt()
      */
     const MODE_STREAM = 6;
 
     /**
      * Mode Map
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const MODE_MAP = [
         'ctr'    => self::MODE_CTR,
@@ -146,44 +146,44 @@ abstract class SymmetricKey
     /**
      * Base value for the internal implementation $engine switch
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const ENGINE_INTERNAL = 1;
     /**
      * Base value for the eval() implementation $engine switch
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const ENGINE_EVAL = 2;
     /**
      * Base value for the mcrypt implementation $engine switch
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const ENGINE_MCRYPT = 3;
     /**
      * Base value for the openssl implementation $engine switch
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const ENGINE_OPENSSL = 4;
     /**
      * Base value for the libsodium implementation $engine switch
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const ENGINE_LIBSODIUM = 5;
     /**
      * Base value for the openssl / gcm implementation $engine switch
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * SymmetricKey::__construct()
      */
     const ENGINE_OPENSSL_GCM = 6;
 
     /**
      * Engine Reverse Map
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::getEngine()
+     * SymmetricKey::getEngine()
      */
     const ENGINE_MAP = [
         self::ENGINE_INTERNAL    => 'PHP',

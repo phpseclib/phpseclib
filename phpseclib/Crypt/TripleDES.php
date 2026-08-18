@@ -58,7 +58,7 @@ class TripleDES extends DES
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib3\Crypt\TripleDES::setKeyLength()
+     * @see TripleDES::setKeyLength()
      * @var int
      */
     protected $key_length = 24;

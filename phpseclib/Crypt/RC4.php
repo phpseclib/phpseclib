@@ -52,19 +52,19 @@ use phpseclib3\Crypt\Common\StreamCipher;
 class RC4 extends StreamCipher
 {
     /**
-     * @see \phpseclib3\Crypt\RC4::_crypt()
+     * @see RC4::_crypt()
      */
     const ENCRYPT = 0;
 
     /**
-     * @see \phpseclib3\Crypt\RC4::_crypt()
+     * @see RC4::_crypt()
      */
     const DECRYPT = 1;
 
     /**
      * Key Length (in bytes)
      *
-     * @see \phpseclib3\Crypt\RC4::setKeyLength()
+     * @see RC4::setKeyLength()
      * @var int
      */
     protected $key_length = 128; // = 1024 bits

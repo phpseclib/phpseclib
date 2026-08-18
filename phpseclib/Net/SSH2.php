@@ -118,10 +118,10 @@ class SSH2
      *     open request, and 'sender channel' is the channel number allocated by
      *     the other side.
      *
-     * @see \phpseclib3\Net\SSH2::send_channel_packet()
-     * @see \phpseclib3\Net\SSH2::get_channel_packet()
+     * @see SSH2::send_channel_packet()
+     * @see SSH2::get_channel_packet()
      */
-    const CHANNEL_EXEC          = 1; // PuTTy uses 0x100
+    const CHANNEL_EXEC          = 1; // PuTTY uses 0x100
     const CHANNEL_SHELL         = 2;
     const CHANNEL_SUBSYSTEM     = 3;
     const CHANNEL_AGENT_FORWARD = 4;
@@ -130,13 +130,13 @@ class SSH2
     /**
      * Returns the message numbers
      *
-     * @see \phpseclib3\Net\SSH2::getLog()
+     * @see SSH2::getLog()
      */
     const LOG_SIMPLE = 1;
     /**
      * Returns the message content
      *
-     * @see \phpseclib3\Net\SSH2::getLog()
+     * @see SSH2::getLog()
      */
     const LOG_COMPLEX = 2;
     /**
@@ -158,20 +158,20 @@ class SSH2
     /**
      * Make sure that the log never gets larger than this
      *
-     * @see \phpseclib3\Net\SSH2::getLog()
+     * @see SSH2::getLog()
      */
     const LOG_MAX_SIZE = 1048576; // 1024 * 1024
 
     /**
      * Returns when a string matching $expect exactly is found
      *
-     * @see \phpseclib3\Net\SSH2::read()
+     * @see SSH2::read()
      */
     const READ_SIMPLE = 1;
     /**
      * Returns when a string matching the regular expression $expect is found
      *
-     * @see \phpseclib3\Net\SSH2::read()
+     * @see SSH2::read()
      */
     const READ_REGEX = 2;
     /**
@@ -180,7 +180,7 @@ class SSH2
      * Some data packets may only contain a single character so it may be necessary
      * to call read() multiple times when using this option
      *
-     * @see \phpseclib3\Net\SSH2::read()
+     * @see SSH2::read()
      */
     const READ_NEXT = 3;
 

@@ -23,7 +23,6 @@
 
 namespace phpseclib3\Crypt\EC\Formats\Keys;
 
-use phpseclib3\Math\Common\FiniteField\Integer;
 use phpseclib3\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
 use phpseclib3\Crypt\EC\BaseCurves\Base as BaseCurve;
 use phpseclib3\Crypt\EC\BaseCurves\Montgomery as MontgomeryCurve;
@@ -32,10 +31,10 @@ use phpseclib3\Crypt\EC\Curves\Curve25519;
 use phpseclib3\Crypt\EC\Curves\Curve448;
 use phpseclib3\Crypt\EC\Curves\Ed25519;
 use phpseclib3\Crypt\EC\Curves\Ed448;
-use phpseclib3\Exception\UnsupportedCurveException;
 use phpseclib3\File\ASN1;
 use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
+use phpseclib3\Math\Common\FiniteField\Integer;
 
 /**
  * PKCS#8 Formatted EC Key Handler
@@ -245,7 +244,7 @@ abstract class PKCS8 extends Progenitor
      *
      * @param BigInteger $privateKey
      * @param BaseCurve $curve
-     * @param \phpseclib3\Math\Common\FiniteField\Integer[] $publicKey
+     * @param Integer[] $publicKey
      * @param string $secret optional
      * @param string $password optional
      * @param array $options optional

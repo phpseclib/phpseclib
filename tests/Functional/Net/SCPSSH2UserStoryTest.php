@@ -72,12 +72,12 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         );
         $this->assertContains(
             filesize($localFilename),
-            array(self::$exampleDataLength, self::$exampleDataLength + 1),
+            [self::$exampleDataLength, self::$exampleDataLength + 1],
             'Failed asserting that filesize matches expected data size.'
         );
         $this->assertContains(
             file_get_contents($localFilename),
-            array(self::$exampleData, self::$exampleData . "\0"),
+            [self::$exampleData, self::$exampleData . "\0"],
             'Failed asserting that file content matches expected content.'
         );
         return $scp;

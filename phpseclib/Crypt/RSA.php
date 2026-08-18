@@ -792,7 +792,6 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * Returns the MGF hash algorithm currently being used
-     *
      */
     public function getMGFHash()
     {
@@ -992,6 +991,7 @@ abstract class RSA extends AsymmetricKey
                         break;
                     case !$create && !static::$autoSaltLength:
                         $error = 'Engine OpenSSL is forced but auto calculation of the salt length is disabled';
+                        break;
                     case $create && $this->getSaltLength() !== $this->hLen:
                         $error = 'Engine OpenSSL is forced but can\'t be used because the salt length doesn\'t match the hash length';
                         break;

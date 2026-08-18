@@ -28,14 +28,9 @@ use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\DH\Parameters;
 use phpseclib3\Crypt\DH\PrivateKey;
 use phpseclib3\Crypt\DH\PublicKey;
-use phpseclib3\Crypt\EC\Curves\Curve25519;
-use phpseclib3\Crypt\EC\Curves\Curve448;
-use phpseclib3\Crypt\EC\Formats\Keys\PKCS1;
 use phpseclib3\Exception\BadConfigurationException;
 use phpseclib3\Exception\NoKeyLoadedException;
 use phpseclib3\Exception\UnsupportedOperationException;
-use phpseclib3\File\ASN1;
-use phpseclib3\File\ASN1\Maps;
 use phpseclib3\Math\BigInteger;
 
 /**

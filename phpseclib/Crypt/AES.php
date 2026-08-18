@@ -59,7 +59,7 @@ class AES extends Rijndael
      *
      * Since \phpseclib3\Crypt\AES extends \phpseclib3\Crypt\Rijndael, this function is, technically, available, but it doesn't do anything.
      *
-     * @see \phpseclib3\Crypt\Rijndael::setBlockLength()
+     * @see Rijndael::setBlockLength()
      * @param int $length
      * @throws \BadMethodCallException anytime it's called
      */

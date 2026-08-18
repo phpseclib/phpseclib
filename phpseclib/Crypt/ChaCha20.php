@@ -35,7 +35,7 @@ class ChaCha20 extends Salsa20
      *
      * This is mainly just a wrapper to set things up for \phpseclib3\Crypt\Common\SymmetricKey::isValidEngine()
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::__construct()
+     * @see SymmetricKey::__construct()
      * @param int $engine
      * @return bool
      */
@@ -73,7 +73,7 @@ class ChaCha20 extends Salsa20
     /**
      * Encrypts a message.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::decrypt()
+     * @see SymmetricKey::decrypt()
      * @see self::crypt()
      * @param string $plaintext
      * @return string $ciphertext
@@ -95,7 +95,7 @@ class ChaCha20 extends Salsa20
      * $this->decrypt($this->encrypt($plaintext)) == $this->encrypt($this->encrypt($plaintext)).
      * At least if the continuous buffer is disabled.
      *
-     * @see \phpseclib3\Crypt\Common\SymmetricKey::encrypt()
+     * @see SymmetricKey::encrypt()
      * @see self::crypt()
      * @param string $ciphertext
      * @return string $plaintext

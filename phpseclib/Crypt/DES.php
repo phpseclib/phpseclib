@@ -53,15 +53,15 @@ class DES extends BlockCipher
     /**
      * Contains $keys[self::ENCRYPT]
      *
-     * @see \phpseclib3\Crypt\DES::setupKey()
-     * @see \phpseclib3\Crypt\DES::processBlock()
+     * @see DES::setupKey()
+     * @see DES::processBlock()
      */
     const ENCRYPT = 0;
     /**
      * Contains $keys[self::DECRYPT]
      *
-     * @see \phpseclib3\Crypt\DES::setupKey()
-     * @see \phpseclib3\Crypt\DES::processBlock()
+     * @see DES::setupKey()
+     * @see DES::processBlock()
      */
     const DECRYPT = 1;
 
