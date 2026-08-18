@@ -332,6 +332,8 @@ trait Extension
             'id-ce-policyMappings' => false,
             'id-ce-issuerAltName' => false,
             'id-ce-subjectDirectoryAttributes' => false,
+            // "This extension MUST NOT be marked critical" - RFC 9399, section 4.1
+            'id-pe-logotype' => false,
             'id-ce-cRLDistributionPoints' => false,
             'id-ce-freshestCRL' => false,
             'id-pe-authorityInfoAccess' => false,
