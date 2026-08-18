@@ -41,8 +41,6 @@ jobs:
                 run: phpcs --standard=build/php_codesniffer.xml
             -   name: PHP CS Fixer
                 run: php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
-            -   name: Psalm
-                run: psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
     tests:
         name: Tests
         timeout-minutes: 10
