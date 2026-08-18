@@ -204,10 +204,8 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * Enable automatic salt length determination
-     *
-     * @var bool
      */
-    protected static $autoSaltLength = true;
+    protected static bool $autoSaltLength = true;
 
     /**
      * Smallest Prime
@@ -811,12 +809,12 @@ abstract class RSA extends AsymmetricKey
         static::$enableBlinding = false;
     }
 
-    public static function enableSaltLengthDiscovery()
+    public static function enableSaltLengthDiscovery(): void
     {
         static::$autoSaltLength = true;
     }
 
-    public static function disableSaltLengthDiscovery()
+    public static function disableSaltLengthDiscovery(): void
     {
         static::$autoSaltLength = false;
     }

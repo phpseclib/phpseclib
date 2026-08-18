@@ -540,6 +540,7 @@ zUlir0ACPypC1Q==
         RSA::forceEngine();
     }
 
+    #[\PHPUnit\Framework\Attributes\Group('github2164')]
     public function testLongSaltLengthPSS()
     {
         $public = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
