@@ -248,4 +248,23 @@ class PFXTest extends PhpseclibTestCase
         $str = "$pfx";
         $this->assertIsString($str);
     }
+
+    public function testCreateLoadPFX(): void
+    {
+        $pfx = new PFX();
+        $pfx->setPassword('');
+
+        $private = EC::createKey('nistp256');
+
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('CN=test');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $pfx->add($private);
+        $pfx->add($x509);
+
+        $pfx = PFX::load("$pfx", '')->toArray();
+        $this->assertIsArray($pfx);
+    }
 }
