@@ -129,7 +129,7 @@ abstract class TestCase extends PhpseclibTestCase
         // When the division is exact the remainder is already 0, and adding the
         // divisor returned the modulus itself, which is never a valid residue.
         // The GMP and BCMath engines returned 0 here; the PHP engines did not.
-        foreach (array(array('-256', '256'), array('-7', '7'), array('-256', '2'), array('-7', '1')) as $pair) {
+        foreach ([['-256', '256'], ['-7', '7'], ['-256', '2'], ['-7', '1']] as $pair) {
             list($a, $b) = $pair;
             list(, $r) = $this->getInstance($a)->divide($this->getInstance($b));
             $this->assertSame('0', (string) $r, "$a / $b should leave no remainder");
