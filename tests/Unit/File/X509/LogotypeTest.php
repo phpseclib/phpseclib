@@ -43,7 +43,11 @@ class LogotypeTest extends PhpseclibTestCase
 
     /**
      * the extension is wired up in the Extension trait, so it has to survive a
-     * trip through an actual certificate - not just through the map
+     * trip through an actual certificate - not just through the map.
+     *
+     * the criticality argument is deliberately omitted so that the default from
+     * getExtensionCriticalValue() is what gets exercised - RFC 9399, section 4.1
+     * says the extension MUST NOT be marked critical
      */
     public function testExtensionInCertificate(): void
     {
@@ -54,19 +58,21 @@ class LogotypeTest extends PhpseclibTestCase
         $cert->makeCA();
         $cert->setExtension(
             'id-pe-logotype',
-            ['subjectLogo' => ['direct' => ['image' => [['imageDetails' => self::DETAILS]]]]],
-            false
+            ['subjectLogo' => ['direct' => ['image' => [['imageDetails' => self::DETAILS]]]]]
         );
         $key->sign($cert);
 
         $value = null;
+        $critical = null;
         foreach (X509::load("$cert")['tbsCertificate']['extensions'] as $extension) {
             if ("$extension[extnId]" === 'id-pe-logotype') {
                 $value = $extension['extnValue'];
+                $critical = $extension['critical'];
             }
         }
 
         $this->assertNotNull($value);
+        $this->assertFalse($critical->value);
         $this->assertSame(['subjectLogo'], $value->keys());
         $this->assertSame('direct', $value['subjectLogo']->index);
         $this->assertSame(
@@ -330,6 +336,64 @@ class LogotypeTest extends PhpseclibTestCase
                 bin2hex((string) base64_decode(preg_replace('#-.*-|\s#', '', (string) $cert))),
                 $file
             );
+        }
+    }
+
+    /**
+     * the BIMI mark attributes in these certificates' subject DNs, which without
+     * their OIDs registered come out as bare numbers. only the four below appear
+     * in real certificates I could find - wordMark, legalEntityIdentifier and the
+     * statute* attributes are specified but do not seem to be issued anywhere.
+     */
+    public function testMarkAttributesInSubjectDN(): void
+    {
+        $expected = [
+            'vmc-ebay.pem' => [
+                'markType = Registered Mark',
+                'trademarkCountryOrRegionName = US',
+                'trademarkRegistration = 4408423',
+            ],
+            'vmc-badoo.pem' => [
+                'trademarkOfficeName = Intellectual Property Office',
+                'trademarkCountryOrRegionName = GB',
+                'trademarkRegistration = UK00004062752',
+            ],
+        ];
+
+        foreach ($expected as $file => $attributes) {
+            $dn = X509::load(file_get_contents(__DIR__ . '/' . $file))
+                ->getSubjectDN(X509::DN_STRING);
+
+            foreach ($attributes as $attribute) {
+                $this->assertStringContainsString($attribute, $dn, $file);
+            }
+
+            $this->assertStringNotContainsString('1.3.6.1.4.1.53087', $dn, $file);
+        }
+    }
+
+    /**
+     * the VMC policy identifier, which every Verified Mark Certificate asserts
+     * next to the issuing CA's own policy. it is a certificate policy rather
+     * than a DN attribute, hence certificatePolicies instead of the subject DN
+     */
+    public function testPolicyIdentifierInCertificatePolicies(): void
+    {
+        foreach (['vmc-ebay.pem', 'vmc-badoo.pem', 'vmc-rabobank.pem'] as $file) {
+            $cert = X509::load(file_get_contents(__DIR__ . '/' . $file));
+
+            $policies = [];
+            foreach ($cert['tbsCertificate']['extensions'] as $extension) {
+                if ("$extension[extnId]" !== 'id-ce-certificatePolicies') {
+                    continue;
+                }
+
+                foreach ($extension['extnValue'] as $policy) {
+                    $policies[] = "$policy[policyIdentifier]";
+                }
+            }
+
+            $this->assertContains('certificateGeneralPolicyIdentifier', $policies, $file);
         }
     }
 }

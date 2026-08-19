@@ -75,7 +75,14 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         #[\SensitiveParameter] ?string $password = null
     ): self {
         $temp = new self();
-        $temp->pfx = is_string($pfx) ? self::loadString($pfx, $password) : $pfx;
+        try {
+            $temp->pfx = is_string($pfx) ? self::loadString($pfx, $password) : $pfx;
+        } catch (PasswordNeededException $e) {
+            if (isset($password)) {
+                throw $e;
+            }
+            $temp->pfx = self::loadString($pfx, $password = '');
+        }
         $temp->password = $password;
         return $temp;
     }
@@ -442,7 +449,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         $hashAlgorithm = $options['hashAlgorithm'] ?? self::$defaultHashAlgorithm;
         $saltLength = $options['saltLength'] ?? self::$defaultSaltLength;
         $iterationCount = $options['iterationCount'] ?? self::$defaultIterationCount;
-        if ($hashAlgorithm && $this->password) {
+        if ($hashAlgorithm && isset($this->password)) {
             $salt = random_bytes($saltLength);
             $hash = new Hash($hashAlgorithm);
             $hash->setPassword($this->password, $salt, $iterationCount);
