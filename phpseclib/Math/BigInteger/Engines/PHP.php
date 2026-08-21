@@ -284,7 +284,7 @@ abstract class PHP extends Engine
     /**
      * Performs subtraction.
      */
-    public static function subtractHelper(array $x_value, bool $x_negative, array $y_value, bool $y_negative): array
+    protected static function subtractHelper(array $x_value, bool $x_negative, array $y_value, bool $y_negative): array
     {
         $x_size = count($x_value);
         $y_size = count($y_value);
