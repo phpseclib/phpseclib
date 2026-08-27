@@ -1829,7 +1829,7 @@ class SFTP extends SSH2
      * Downloads a file from the SFTP server.
      *
      * Returns a string containing the contents of $remote_file if $local_file is left undefined.
-     * If $local_file is defined, returns true on success.
+     * If $local_file is defined, writes the file locally and returns null.
      *
      * $offset and $length can be used to download files in chunks.
      *
