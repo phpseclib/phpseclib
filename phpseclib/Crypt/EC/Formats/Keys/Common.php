@@ -410,7 +410,7 @@ trait Common
         if ($forcedEngine === 'libsodium') {
             $useLibsodium = true;
             if (!$curve instanceof Curve25519) {
-                throw new \RuntimeException('Engine libsodium is forced but is not supported for Curve448');
+                throw new BadConfigurationException('Engine libsodium is forced but is not supported for Curve448');
             }
             if (!function_exists('sodium_crypto_box_publickey_from_secretkey')) {
                 throw new BadConfigurationException('Engine libsodium is forced but not available');
