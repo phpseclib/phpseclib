@@ -80,7 +80,7 @@ abstract class PKCS1 extends Progenitor
         // a separate file than the exponent.
         //
         // this isn't an issue for PKCS8 DSA public keys because those keys have the parameters
-        // included. eg. \phpseclib3\File\ASN1\Maps\SubjectPublicKeyInfo has "algorithm" and
+        // included. eg. \phpseclib4\File\ASN1\Maps\SubjectPublicKeyInfo has "algorithm" and
         // "subjectPublicKey" and "algorithm", in turn, has "algorithm" and "parameters". y
         // is saved as "subjectPublicKey" and p, q and g are saved as "parameters".
         //

@@ -12,7 +12,7 @@
  * <?php
  *    include 'vendor/autoload.php';
  *
- *    $scp = new \phpseclib3\Net\SCP('www.domain.tld');
+ *    $scp = new \phpseclib4\Net\SCP('www.domain.tld');
  *    if (!$scp->login('username', 'password')) {
  *        exit('Login Failed');
  *    }
@@ -51,13 +51,13 @@ class SCP extends SSH2
     /**
      * Reads data from a local file.
      *
-     * @see \phpseclib3\Net\SCP::put()
+     * @see \phpseclib4\Net\SCP::put()
      */
     public const SOURCE_LOCAL_FILE = 1;
     /**
      * Reads data from a string.
      *
-     * @see \phpseclib3\Net\SCP::put()
+     * @see \phpseclib4\Net\SCP::put()
      */
     // this value isn't really used anymore but i'm keeping it reserved for historical reasons
     public const SOURCE_STRING = 2;
