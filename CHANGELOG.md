@@ -2,7 +2,7 @@
 
 ## 4.0.1 - 2026-08-26
 
-- Curve25519/448: improve timing attack resistance
+- Curve25519/448: improve timing attack resistance (CVE-2026-84308)
 
 ## 4.0.0 - 2026-08-22
 
