@@ -62,7 +62,8 @@ use phpseclib4\Crypt\{
     Twofish
 };
 use phpseclib4\Crypt\Common\{PrivateKey, SymmetricKey};
-use phpseclib4\Exception\{ConnectionClosedException,
+use phpseclib4\Exception\{
+    ConnectionClosedException,
     InvalidArgumentException,
     InvalidModeException,
     InvalidPacketLengthException,
@@ -70,12 +71,14 @@ use phpseclib4\Exception\{ConnectionClosedException,
     LengthException,
     NoSupportedAlgorithmsException,
     ServiceUnavailableException,
+    SSHChannelExitSignalException,
     TimeoutException,
     UnexpectedSSHMessageException,
     UnexpectedValueException,
     UnsupportedAlgorithmException,
     UnsupportedCurveException,
-    UnsupportedValueException};
+    UnsupportedValueException
+};
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Net\SSH2\{
     ChannelConnectionFailureReason,
@@ -220,10 +223,9 @@ class SSH2
     /**
      * Error information
      *
-     * @see self::getErrors()
-     * @see self::getLastError()
+     * @see self::getDebugMessages()
      */
-    private array $errors = [];
+    private array $debugMessages = [];
 
     /**
      * Server Identifier
@@ -231,6 +233,13 @@ class SSH2
      * @see self::getServerIdentification()
      */
     protected string $server_identifier;
+
+    /**
+     * Raw Server Identifier
+     *
+     * @see self::getRawServerIdentification()
+     */
+    protected string $raw_server_identifier;
 
     /**
      * Key Exchange Algorithms
@@ -564,6 +573,13 @@ class SSH2
      * @see self::get_channel_packet()
      */
     protected array $channel_status = [];
+
+    /**
+     * Exit Signal Exceptions
+     *
+     * @see self::get_channel_packet()
+     */
+    protected array $exit_signal_exceptions = [];
 
     /**
      * The identifier of the interactive channel which was opened most recently
@@ -1214,18 +1230,14 @@ class SSH2
             throw new ConnectionClosedException('Connection closed by server; are you sure you\'re connected to an SSH server?');
         }
 
-        $extra = $matches[1];
-
         // earlier the SSH specs were quoted.
         // "The server MAY send other lines of data before sending the version string." they said.
         // the implication of this is that the lines of data before the server string are *not* a part of it
         // getting this right is important because the correct server identifier needs to be fed into the
         // exchange hash for the shared keys to be calculated correctly
+        $this->raw_server_identifier = $data;
         $data = explode("\r\n", trim($data, "\r\n"));
         $this->server_identifier = $data[count($data) - 1];
-        if (strlen($extra)) {
-            $this->errors[] = $data;
-        }
 
         if (version_compare($matches[3], '1.99', '<')) {
             $this->bitmap = 0;
@@ -2137,10 +2149,8 @@ class SSH2
                 $this->updateLogHistory('SSH_MSG_USERAUTH_INFO_REQUEST', 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ');
 
                 [$message] = Strings::unpackSSH2('s', $response);
-                $this->errors[] = 'SSH_MSG_USERAUTH_PASSWD_CHANGEREQ: ' . $message;
-
                 $this->disconnect_helper(DisconnectReason::AUTH_CANCELLED_BY_USER);
-                return false;
+                throw new ServiceUnavailableException("The server is wanting you to change the password ($message)");
             case MessageType::USERAUTH_FAILURE:
                 // can we use keyboard-interactive authentication?  if not then either the login is bad or the server employees
                 // multi-factor authentication
@@ -2387,7 +2397,6 @@ class SSH2
                     return $this->privatekey_login($username, $privatekey);
                 }
                 $this->auth_methods_to_continue = $auth_methods;
-                $this->errors[] = 'SSH_MSG_USERAUTH_FAILURE';
                 return false;
             case MessageTypeExtra::USERAUTH_PK_OK:
                 // we'll just take it on faith that the public key blob and the public key algorithm name are as
@@ -2556,7 +2565,12 @@ class SSH2
 
         $output = '';
         while (true) {
-            $temp = $this->get_channel_packet(self::CHANNEL_EXEC);
+            try {
+                $temp = $this->get_channel_packet(self::CHANNEL_EXEC);
+            } catch (SSHChannelExitSignalException $e) {
+                $e->partialOutput = $output;
+                throw $e;
+            }
             if ($temp === true) {
                 return $callback ? null : $output;
             }
@@ -2807,7 +2821,13 @@ class SSH2
             if ($pos !== false) {
                 return Strings::shift($this->interactiveBuffer, $pos + strlen($match));
             }
-            $response = $this->get_channel_packet($channel);
+            try {
+                $response = $this->get_channel_packet($channel);
+            } catch (SSHChannelExitSignalException $e) {
+                $e->partialOutput = $this->interactiveBuffer;
+                $this->interactiveBuffer = '';
+                throw $e;
+            }
             if ($response === true) {
                 return Strings::shift($this->interactiveBuffer, strlen($this->interactiveBuffer));
             }
@@ -3120,6 +3140,7 @@ class SSH2
         $this->channel_id_last_interactive = 0;
         $this->channel_buffers = [];
         $this->channel_buffers_write = [];
+        $this->exit_signal_exceptions = [];
     }
 
     /**
@@ -3450,8 +3471,7 @@ class SSH2
     {
         Strings::shift($payload, 1);
         [$reason_code, $message] = Strings::unpackSSH2('Ns', $payload);
-
-        $this->errors[] = 'SSH_MSG_DISCONNECT: ' .
+        $this->debugMessages[] = 'DISCONNECT: ' .
             DisconnectReason::findConstantNameByValue($reason_code) .
             "\r\n$message";
         $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
@@ -3482,7 +3502,7 @@ class SSH2
             case MessageType::DEBUG:
                 Strings::shift($payload, 2); // second byte is "always_display"
                 [$message] = Strings::unpackSSH2('s', $payload);
-                $this->errors[] = "SSH_MSG_DEBUG: $message";
+                $this->debugMessages[] = "DEBUG: $message";
                 $payload = $this->get_binary_packet();
                 break;
             case MessageType::UNIMPLEMENTED:
@@ -3556,7 +3576,7 @@ class SSH2
                 case MessageType::GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
                     Strings::shift($payload, 1);
                     [$request_name, $want_reply] = Strings::unpackSSH2('sb', $payload);
-                    $this->errors[] = "SSH_MSG_GLOBAL_REQUEST: $request_name";
+                    $this->debugMessages[] = "GLOBAL_REQUEST ($request_name) made by the server and REQUEST_FAILURE sent in response";
                     if ($want_reply) {
                         $this->send_binary_packet(pack('C', MessageType::REQUEST_FAILURE));
                     }
@@ -3717,6 +3737,12 @@ class SSH2
             }
         }
 
+        if (isset($this->exit_signal_exceptions[$client_channel])) {
+            $e = $this->exit_signal_exceptions[$client_channel];
+            unset($this->exit_signal_exceptions[$client_channel]);
+            throw $e;
+        }
+
         while (true) {
             try {
                 $response = $this->get_binary_packet();
@@ -3780,21 +3806,24 @@ class SSH2
                                 [
                                     , // FALSE
                                     $signal_name,
-                                    , // core dumped
+                                    $core_dumped,
                                     $error_message
                                 ] = Strings::unpackSSH2('bsbs', $response);
-
-                                $this->errors[] = "SSH_MSG_CHANNEL_REQUEST (exit-signal): $signal_name";
-                                if (strlen($error_message)) {
-                                    $this->errors[count($this->errors) - 1] .= "\r\n$error_message";
-                                }
-                                if (isset($this->channel_status[$channel]) && $this->channel_status[$channel] != MessageType::CHANNEL_CLOSE) {
-                                    if ($this->channel_status[$channel] != MessageType::CHANNEL_EOF) {
+                                $e = new SSHChannelExitSignalException($signal_name, $core_dumped, $error_message);
+                                $oldStatus = $this->channel_status[$channel];
+                                if (isset($this->channel_status[$channel]) && $oldStatus != MessageType::CHANNEL_CLOSE) {
+                                    if ($oldStatus != MessageType::CHANNEL_EOF) {
                                         $this->send_binary_packet(pack('CN', MessageType::CHANNEL_EOF, $this->server_channels[$channel]));
                                     }
                                     $this->send_binary_packet(pack('CN', MessageType::CHANNEL_CLOSE, $this->server_channels[$channel]));
 
                                     $this->channel_status[$channel] = MessageType::CHANNEL_CLOSE;
+                                }
+                                if ($oldStatus != MessageType::CHANNEL_CLOSE) {
+                                    if ($client_channel == $channel) {
+                                        throw $e;
+                                    }
+                                    $this->exit_signal_exceptions[$channel] = $e;
                                 }
                                 continue 3;
                             case 'exit-status':
@@ -4385,6 +4414,16 @@ class SSH2
     }
 
     /**
+     * Get Debug Messages
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public function getDebugMessages(): array
+    {
+        return $this->debugMessages;
+    }
+
+    /**
      * Helper function for agent->on_channel_open()
      *
      * Used when channels are created to inform agent
@@ -4416,6 +4455,23 @@ class SSH2
         $this->connect();
 
         return $this->server_identifier;
+    }
+
+    /**
+     * Return the raw server identification.
+     *
+     * Quoting the SSH2 specs, "the server MAY send other lines of data before sending the version
+     * string." The implication is that lines preceeeding the version string are *not* part of the
+     * version string. getServerIdentification() returns the server string. This function returns
+     * the server string and the lines preceeding it.
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public function getRawServerIdentification(): string
+    {
+        $this->connect();
+
+        return $this->raw_server_identifier;
     }
 
     /**

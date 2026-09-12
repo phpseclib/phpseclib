@@ -43,6 +43,7 @@ use phpseclib4\Exception\{
     InvalidModeException,
     InvalidStateException,
     ServiceUnavailableException,
+    SSHChannelExitSignalException,
     TimeoutException,
     UnexpectedSFTPPacketException,
     UnexpectedValueException,
@@ -1903,7 +1904,14 @@ class SFTP extends SSH2
                     $this->get_sftp_packet($packets_sent - $i);
                     continue;
                 } else {
-                    $response = $this->get_sftp_packet($packets_sent - $i);
+                    try {
+                        $response = $this->get_sftp_packet($packets_sent - $i);
+                    } catch (SSHChannelExitSignalException $e) {
+                        if (!isset($local_file)) {
+                            $e->partialOutput = $content;
+                        }
+                        throw $e;
+                    }
                 }
 
                 switch ($this->packet_type) {

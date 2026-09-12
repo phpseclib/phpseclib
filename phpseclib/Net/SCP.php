@@ -36,6 +36,7 @@ use phpseclib4\Exception\{
     FileSystemException,
     InvalidArgumentException,
     InvalidStateException,
+    SSHChannelExitSignalException,
     TimeoutException,
     UnexpectedSSHMessageException,
     UnexpectedValueException
@@ -204,7 +205,14 @@ class SCP extends SSH2
 
         $size = 0;
         while (true) {
-            $data = $this->get_scp_response(false);
+            try {
+                $data = $this->get_scp_response(false);
+            } catch (SSHChannelExitSignalException $e) {
+                if (is_null($local_file)) {
+                    $e->partialOutput = $content;
+                }
+                throw $e;
+            }
             // SCP usually seems to split stuff out into 16k chunks
             $length = strlen($data);
             $size += $length;
