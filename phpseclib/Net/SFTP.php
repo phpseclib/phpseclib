@@ -1944,9 +1944,14 @@ class SFTP extends SSH2
                             $this->init_sftp_connection();
                             throw new ConnectionClosedException('Connection closed while downloading file');
                         } else {
+                            try {
+                                $type = 'SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type);
+                            } catch (InvalidArgumentException) {
+                                $type = '# ' . $this->packet_type;
+                            }
                             throw new UnexpectedSFTPPacketException(
                                 'Expected SSH_FXP_DATA or SSH_FXP_STATUS. ' .
-                                'Got packet type: SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type)
+                                "Got packet type: $type"
                             );
                         }
                 }
@@ -3089,9 +3094,12 @@ class SFTP extends SSH2
                 $expected[] = 'SSH_FXP_' . SFTPPacketType::getConstantNameByValue($packet_type);
             }
             $expected = implode(' or ', $expected);
-            throw new UnexpectedSFTPPacketException(
-                "Expected $expected. Got packet type: SSH_FXP_" . SFTPPacketType::getConstantNameByValue($this->packet_type)
-            );
+            try {
+                $type = 'SSH_FXP_' . SFTPPacketType::getConstantNameByValue($this->packet_type);
+            } catch (InvalidArgumentException) {
+                $type = '# ' . $this->packet_type;
+            }
+            throw new UnexpectedSFTPPacketException("Expected $expected. Got packet type: $type");
         }
         if ($this->packet_type == SFTPPacketType::STATUS) {
             if (is_null($expectedStatus)) {

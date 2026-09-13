@@ -3174,8 +3174,22 @@ class SSH2
             $packet = $this->get_binary_packet();
             if (count($message_types) > 0 && !in_array(ord($packet[0]), $message_types)) {
                 $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
-                throw new UnexpectedSSHMessageException('Bad message type. Expected: #'
-                    . implode(', #', $message_types) . '. Got: #' . ord($packet[0]));
+                foreach ($message_types as &$type) {
+                    try {
+                        $type = 'SSH_MSG_' . MessageType::getConstantNameByValue($type);
+                    } catch (InvalidArgumentException) {
+                        $type = "# $type";
+                    }
+                }
+                unset($type);
+                $type = ord($packet[0]);
+                try {
+                    $type = 'SSH_MSG_' . MessageType::getConstantNameByValue($type);
+                } catch (InvalidArgumentException) {
+                    $type = "# $type";
+                }
+                throw new UnexpectedSSHMessageException('Bad message type. Expected: '
+                    . implode(', ', $message_types) . ". Got: $type");
             }
             return $packet;
         } catch (TimeoutException) {
@@ -3946,6 +3960,10 @@ class SSH2
                     break;
                 default:
                     $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
+                    try {
+                        $type = 'SSH_MSG_' . MessageType::getConstantNameByValue($type);
+                    } catch (InvalidArgumentException) {
+                    }
                     throw new UnexpectedSSHMessageException("Error reading channel data ($type)");
             }
         }
