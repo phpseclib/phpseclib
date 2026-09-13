@@ -30,7 +30,8 @@ class SSHChannelExitSignalException extends UnexpectedValueException
         public readonly bool $coreDumped,
         public readonly string $errorMessage
     ) {
-        $message = 'Channel closed by server due to ' . $signalName;
+        $message = 'Channel closed by server due to ';
+        $message .= ctype_upper($signalName) ? 'SIG' . $signalName : 'signal ' . $signalName;
         if ($coreDumped) {
             $message .= ' (core dumped)';
         }
