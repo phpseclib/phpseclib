@@ -176,7 +176,7 @@ abstract class AsymmetricKey
      */
     public static function loadPrivateKey(
         #[\SensitiveParameter] string|array $key,
-        #[\SensitiveParameter] string $password = ''
+        #[\SensitiveParameter] ?string $password = null
     ): PrivateKey {
         $key = self::load($key, $password);
         if (!$key instanceof PrivateKey) {
