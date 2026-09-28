@@ -1899,7 +1899,17 @@ class SSH2
         $temp = unpack('Nlength', substr($this->signature, 0, 4));
         $this->signature_format = substr($this->signature, 4, $temp['length']);
 
-        $keyBytes = self::encode_shared_secret(DH::computeSecret($ourPrivate, $theirPublicBytes));
+        $keyBytes = DH::computeSecret($ourPrivate, $theirPublicBytes);
+        /*
+          "Unnecessary leading bytes with the value 0 or 255 MUST NOT be
+           included.  The value zero MUST be stored as a string with zero
+           bytes of data."
+          -- https://www.rfc-editor.org/info/rfc4251/#section-5 (mpint section)
+        */
+        $keyBytes = ltrim($keyBytes, "\0");
+        if (strlen($keyBytes) && ($keyBytes[0] & "\x80") === "\x80") {
+            $keyBytes = "\0$keyBytes";
+        }
 
         $this->exchange_hash = Strings::packSSH2(
             's5',
@@ -2250,29 +2260,6 @@ class SSH2
         }
 
         return false;
-    }
-
-    /**
-     * Encodes a shared secret as the body of an mpint
-     *
-     * The (EC)DH shared secret K goes into the exchange hash as an mpint, which
-     * has no leading zero bytes other than the one needed before a set high bit
-     * (RFC4251 section 5). Curve25519 and the NIST curves return K as a
-     * fixed-length string, so it can start with any number of zero bytes, and
-     * OpenSSH removes all of them. Removing only one made the exchange hash, and
-     * so every key, differ from the server's whenever K started 00 00 followed
-     * by a byte under 0x80.
-     *
-     * @link https://www.rfc-editor.org/rfc/rfc8731#section-3.1
-     * @link https://www.rfc-editor.org/rfc/rfc5656#section-4
-     */
-    private static function encode_shared_secret($keyBytes)
-    {
-        $keyBytes = ltrim($keyBytes, "\0");
-        if (strlen($keyBytes) && ($keyBytes[0] & "\x80") === "\x80") {
-            $keyBytes = "\0$keyBytes";
-        }
-        return $keyBytes;
     }
 
     /**
