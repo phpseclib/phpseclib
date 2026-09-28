@@ -52,6 +52,31 @@ class SSH2UnitTest extends PhpseclibTestCase
         }
     }
 
+    public static function encodeSharedSecretDataProvider(): array
+    {
+        return [
+            'no leading zero, high bit clear' => ['7f01', '7f01'],
+            'no leading zero, high bit set' => ['8001', '008001'],
+            'one leading zero, high bit clear' => ['007f01', '7f01'],
+            'one leading zero, high bit set' => ['008001', '008001'],
+            'two leading zeros, high bit clear' => ['00007f01', '7f01'],
+            'two leading zeros, high bit set' => ['00008001', '008001'],
+            'four leading zeros' => ['0000000001', '01'],
+            // an X25519 output: K = 00 00 69 ..., which OpenSSH encodes as 69 ...
+            'curve25519 secret, two leading zeros' => [
+                '0000698a41882ef1f4275b944d1789effa49dc96a85d0abc9eb238b0f3b2a738',
+                '698a41882ef1f4275b944d1789effa49dc96a85d0abc9eb238b0f3b2a738',
+            ],
+        ];
+    }
+
+    #[DataProvider('encodeSharedSecretDataProvider')]
+    public function testEncodeSharedSecret(string $secret, string $expected): void
+    {
+        $encode = new \ReflectionMethod(SSH2::class, 'encode_shared_secret');
+        $this->assertSame($expected, bin2hex($encode->invoke(null, hex2bin($secret))));
+    }
+
     #[DataProvider('formatLogDataProvider')]
     public function testFormatLog(array $message_log, array $message_number_log, $expected): void
     {
