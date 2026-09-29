@@ -1619,9 +1619,14 @@ class SSH2
         $this->signature_format = substr($this->signature, 4, $temp['length']);
 
         $keyBytes = DH::computeSecret($ourPrivate, $theirPublicBytes);
-        if (($keyBytes & "\xFF\x80") === "\x00\x00") {
-            $keyBytes = substr($keyBytes, 1);
-        } elseif (($keyBytes[0] & "\x80") === "\x80") {
+        /*
+          "Unnecessary leading bytes with the value 0 or 255 MUST NOT be
+           included.  The value zero MUST be stored as a string with zero
+           bytes of data."
+          -- https://www.rfc-editor.org/info/rfc4251/#section-5 (mpint section)
+        */
+        $keyBytes = ltrim($keyBytes, "\0");
+        if (strlen($keyBytes) && ($keyBytes[0] & "\x80") === "\x80") {
             $keyBytes = "\0$keyBytes";
         }
 
