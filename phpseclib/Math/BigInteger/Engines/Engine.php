@@ -102,7 +102,7 @@ abstract class Engine implements \JsonSerializable
      *
      * $base is ignored if $x is an int or an instance of \GMP
      *
-     * @param int|numeric-string|\GMP $x integer Base-10 number or base-$base number if $base set.
+     * @param int|string|\GMP $x integer Base-10 number or base-$base number if $base set.
      */
     public function __construct(int|string|\GMP $x = '0', int $base = 10)
     {
@@ -344,7 +344,7 @@ abstract class Engine implements \JsonSerializable
      *
      * Will be called, automatically, when json_encode() is called on a BigInteger object.
      *
-     * @return array{hex: string, precision?: int]
+     * @return array{hex: string, precision?: int}
      */
     public function jsonSerialize(): mixed
     {

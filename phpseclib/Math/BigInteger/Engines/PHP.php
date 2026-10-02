@@ -81,7 +81,7 @@ abstract class PHP extends Engine
     /**
      * Default constructor
      *
-     * @param mixed $x integer Base-10 number or base-$base number if $base set.
+     * @param int|string|\GMP $x integer Base-10 number or base-$base number if $base set.
      * @see parent::__construct()
      */
     public function __construct(int|string|\GMP $x = 0, int $base = 10)
@@ -780,8 +780,8 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros
      *
-     * @param list<static> $value
-     * @return list<static>
+     * @param list<int> $value
+     * @return list<int>
      */
     protected static function trim(array $value): array
     {
@@ -923,8 +923,8 @@ abstract class PHP extends Engine
     /**
      * Performs squaring
      *
-     * @param list<static> $x
-     * @return list<static>
+     * @param list<int> $x
+     * @return list<int>
      */
     protected static function square(array $x): array
     {
