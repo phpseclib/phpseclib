@@ -63,8 +63,9 @@
     "require-dev": {
         "ext-xml": "*",
         "brianium/paratest": "7.28.0",
-        "phpunit/phpunit": "13.4.7",
         "php-parallel-lint/php-parallel-lint": "1.4.0",
+        "phpstan/phpstan": "2.3.7",
+        "phpunit/phpunit": "13.4.7",
         "squizlabs/php_codesniffer": "4.0.4",
         "vimeo/psalm": "7.6.0"
     },

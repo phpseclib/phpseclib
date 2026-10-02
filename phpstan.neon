@@ -1,0 +1,18 @@
+parameters:
+    level: 5
+
+    paths:
+        - phpseclib
+        - tests
+
+    phpVersion: 80200
+
+    reportUnmatchedIgnoredErrors: true
+    checkMissingOverrideMethodAttribute: false
+
+    ignoreErrors:
+        -
+            identifier: property.onlyWritten
+            rawMessage: 'Property phpseclib4\File\ANSI::$old_x is never read, only written.'
+            path: phpseclib/File/ANSI.php
+            count: 1 
