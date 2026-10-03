@@ -115,6 +115,51 @@ M0OBYZe9ntgapIKsumKkfhOzo65F41fsyi2n6U8gLE0m6QYy+bMI0ElWXfjDA5eT
         $this->assertTrue($cms->validateSignature(false));
     }
 
+    /**
+     * ESSCertIDv2's issuerSerial is OPTIONAL and OpenSSL's TSA never sets it
+     *
+     * @see https://github.com/phpseclib/phpseclib/issues/2178
+     */
+    public function testValidateSignatureESSCertIDv2WithoutIssuerSerial(): void
+    {
+        // openssl ts -reply -config tsa.cnf -section tsa_config -queryfile req.tsq -out resp.tsr
+        // openssl ts -reply -in resp.tsr -token_out -out token.der
+        $cms = CMS::load('-----BEGIN CMS-----
+MIIFsAYJKoZIhvcNAQcCoIIFoTCCBZ0CAQMxDzANBglghkgBZQMEAgEFADBuBgsq
+hkiG9w0BCRABBKBfBF0wWwIBAQYEKgMEATAxMA0GCWCGSAFlAwQCAQUABCBYkbW1
+ItXfCG0P8LEQ+9nSG7T8cWOvNNCChqLoRva+AwIBAhgPMjAyNjEwMDMwNjQ3NDJa
+AgkAsz5zxmWqHkugggMTMIIDDzCCAfegAwIBAgIUT/SnnktA+R8CmW2qv76SSt9o
+ld8wDQYJKoZIhvcNAQELBQAwFDESMBAGA1UEAwwJUmVwcm8gVFNBMCAXDTI2MTAw
+MzA2NDc0MloYDzIxMjYwOTA5MDY0NzQyWjAUMRIwEAYDVQQDDAlSZXBybyBUU0Ew
+ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCr+3DgIwyukYsD2cFvTNIJ
+JYgiVWps1J3eu+BXPufahMuKwUiErcn5SzKpeUQVIYSVrOOYPnYu6BuFyYuT0PfA
+FC/+NeFO+VAV8wnTQxYYub9udtJ5nYz5+626DM9r3PaPxl1pCI4d7Zz04vpFyqoz
+qCIWF0sp+XhyNTbvV8v8rRfwOEJupOnQIHLTlIurc6nOhs980YF1AjrG3qvUMKlS
+GyiuEWqAw8OH10ZAsI0L0s3eN0j8WE7eKSoPnnwkILsaczafh/H3jUVPOO9DGv46
+6tDCo4Vs14bhfCbB0M5Nv42bEcQJw9QQv4UrJYd9DILiNjy95pAYH0mD1i2ABjkx
+AgMBAAGjVzBVMAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgeAMBYGA1UdJQEB
+/wQMMAoGCCsGAQUFBwMIMB0GA1UdDgQWBBSEUAtMXpVKclNwk5u4AXCIZ2AdvTAN
+BgkqhkiG9w0BAQsFAAOCAQEANFa/DKeR/zUP6E2CiGQeCTwI93ahbfdluYmWakwX
+Pob4fRRfUs28qV8UudLNOQhFTemqr72mvuk/STnEHZD6+4yUEspYpOfav6mZoxj2
+33y8/Uqr7xephZP6vhFnoRZ2/JaJ3/csEjbZaMoknVFUFqD6rqZ2JkmiUxuCzEDe
+XFUHWEBL+1jVqPRHg6DNfx0BYsQWE/2A9mENJLIaYqUuPy8s4U3CRPCf48suAOn9
+xXNrPH0bOmvDMjylcV1St70qNcfbDG/vp6DGLQAJvdEeQYbfaEYdjd8bhoEVteI+
+P3zydz3DyKqZtLMWTACXOM6iqSQ+VGrDah9YnQ4JubFClzGCAf4wggH6AgEBMCww
+FDESMBAGA1UEAwwJUmVwcm8gVFNBAhRP9KeeS0D5HwKZbaq/vpJK32iV3zANBglg
+hkgBZQMEAgEFAKCBpDAaBgkqhkiG9w0BCQMxDQYLKoZIhvcNAQkQAQQwHAYJKoZI
+hvcNAQkFMQ8XDTI2MTAwMzA2NDc0MlowLwYJKoZIhvcNAQkEMSIEICXmSTfMMogG
+lKGXyNzjS3712he9X17Rf13WAugBAweNMDcGCyqGSIb3DQEJEAIvMSgwJjAkMCIE
+IJp3xhM9G4AAicwHtOU0qOMP5ztT5eArDVDalIFMS5kPMA0GCSqGSIb3DQEBAQUA
+BIIBAKiDDyHzQ8QtSB2nySVSScEkvGnnX9G7gc9aRHnhiWzqpuf0sdxTPRX7yYSS
+tkSHkfCOfqikpVrCrb2s6UR2wJ45e+CM+c1FuuVs1J7NxOnNQaNhaWR/dCz1AfBK
+QkqScXPpkyKNLXPfHxk851yiahQZkYUHsWyz499QvI7XWwxnsgq/6zfczGa89GrK
+sJ1CVHXXcQAQsHj1zfQBFkYGYKS5exxUW1otQGPZDJIZjE0LdHWza7FcC6ycPS2x
+vS8KiSj0cOaPyM118NTr+eo2GCXldx0y6O+yarGeOrjVLfRYwsogFU2CVeV4cM/R
+M5zf67ZD/aMKjGQWlD8lZla4WMw=
+-----END CMS-----');
+        $this->assertTrue($cms->validateSignature(false));
+    }
+
     public function testDetachedSigWithTwoDetachedCerts(): void
     {
         // openssl cms -sign -in test.txt -out cms-signed.pem -outform PEM -signer small.pub -inkey small.priv -md sha1 -signer small2.pub -inkey small2.priv -md sha1 -nocerts -nosmimecap
