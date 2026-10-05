@@ -1176,4 +1176,28 @@ abstract class Engine implements \JsonSerializable
         $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
         return $this->normalize(new static($left ^ $right, -256));
     }
+
+    abstract protected function initialize(int $base): void;
+
+    abstract protected function make_odd(): void;
+
+    abstract public static function isValidEngine(): bool;
+
+    abstract public function toString(): string;
+
+    abstract public function toBytes(bool $twos_compliment = false): string;
+
+    abstract public function isOdd(): bool;
+
+    abstract public function isNegative(): bool;
+
+    abstract public function testBit(int $x): bool;
+
+    abstract public function abs(): Engine;
+
+    abstract public function negate(): Engine;
+
+    abstract public function bitwise_leftShift(int $shift): Engine;
+
+    abstract public function bitwise_rightShift(int $shift): Engine;
 }
