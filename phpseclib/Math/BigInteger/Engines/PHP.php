@@ -23,6 +23,12 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException};
  *
  * @author  Jim Wigginton <terrafrost@php.net>
  * @psalm-api
+ *
+ * @method self add(self $y)
+ * @method self subtract(self $y)
+ * @method self multiply(self $x)
+ * @method array{self, self} divide(self $y)
+ * @method ?self modInverse(self $n)
  */
 abstract class PHP extends Engine
 {

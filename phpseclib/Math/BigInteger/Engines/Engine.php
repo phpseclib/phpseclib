@@ -22,6 +22,28 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, R
  * Base Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ *
+ * @method Engine add(Engine $y)
+ * @method Engine subtract(Engine $y)
+ * @method Engine multiply(Engine $x)
+ * @method array{Engine, Engine} divide(Engine $y)
+ * @method ?Engine modInverse(Engine $n)
+ * @method array{gcd: Engine, x: Engine, y: Engine} extendedGCD(Engine $n)
+ * @method Engine gcd(Engine $n)
+ * @method ?Engine modPow(Engine $e, Engine $n)
+ * @method ?Engine powMod(Engine $e, Engine $n)
+ * @method int compare(Engine $y)
+ * @method bool equals(Engine $x)
+ * @method Engine bitwise_and(Engine $x)
+ * @method Engine bitwise_or(Engine $x)
+ * @method Engine bitwise_xor(Engine $x)
+ * @method bool between(Engine $min, Engine $max)
+ * @method Engine pow(Engine $n)
+ * @method static Engine randomRange(Engine $min, Engine $max)
+ * @method static ?Engine randomRangePrime(Engine $min, Engine $max)
+ * @method static Engine min(Engine ...$nums)
+ * @method static Engine max(Engine ...$nums)
+ * @method static int scan1divide(Engine $r)
  */
 abstract class Engine implements \JsonSerializable
 {
