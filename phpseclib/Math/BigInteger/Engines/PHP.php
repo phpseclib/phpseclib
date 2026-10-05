@@ -710,7 +710,9 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @return static
+     * @template T of PHP
+     * @param T $result
+     * @return T
      */
     protected function normalize(PHP $result): PHP
     {
