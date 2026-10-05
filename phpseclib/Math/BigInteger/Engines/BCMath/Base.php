@@ -46,6 +46,8 @@ abstract class Base extends BCMath
 
     /**
      * Performs modular exponentiation.
+     *
+     * @param class-string<BCMath> $class
      */
     protected static function powModHelper(BCMath $x, BCMath $e, BCMath $n, string $class): BCMath
     {
