@@ -330,12 +330,16 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 $hash = 'sha1';
             }
             $expectedHash = (string) $expected['certHash'];
-            $expectedCert = [
-                'issuerAndSerialNumber' => [
-                    'issuer' => $expected['issuerSerial']['issuer'][0]['directoryName'],
-                    'serialNumber' => $expected['issuerSerial']['serialNumber'],
-                ]
-            ];
+            // issuerSerial is OPTIONAL (RFC 2634 § 5.4.1 / RFC 5035 § 4); when it's absent the certHash
+            // alone identifies the certificate
+            if (isset($expected['issuerSerial'])) {
+                $expectedCert = [
+                    'issuerAndSerialNumber' => [
+                        'issuer' => $expected['issuerSerial']['issuer'][0]['directoryName'],
+                        'serialNumber' => $expected['issuerSerial']['serialNumber'],
+                    ]
+                ];
+            }
             $hash = new Hash($hash);
         }
         if (isset($expected)) {
