@@ -620,9 +620,11 @@ abstract class ASN1
                             if (isset($constant) && isset($temp['constant'])) {
                                 // Can only match if constants and class match.
                                 $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
-                            } else {
+                            } elseif (!isset($constant) && !isset($temp['constant'])) {
                                 // Can only match if no constant expected and type matches or is generic.
                                 $maymatch = !isset($child['constant']) && array_search($child['type'], [$temp['type'], self::TYPE_ANY, self::TYPE_CHOICE]) !== false;
+                            } else {
+                                $maymatch = false;
                             }
                         } elseif (isset($child['constant'])) {
                             // a CHOICE that is itself tagged is identified by that tag. its alternatives
