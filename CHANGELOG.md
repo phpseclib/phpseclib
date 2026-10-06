@@ -2,7 +2,7 @@
 
 ## 4.0.1 - 2026-08-26
 
-- Curve25519/448: improve timing attack resistance
+- Curve25519/448: improve timing attack resistance (CVE-2026-84308)
 
 ## 4.0.0 - 2026-08-22
 
@@ -19,7 +19,7 @@
 - RSA: fix for openssl_verify calls that error out (#2161)
 - RSA/PublicKey: implement salt length discovery for PSS verification (#2164)
 - BigInteger/PHP: don't return the divisor as the common residue (#2165)
-- Curve25519/448: improve timing attack resistance
+- Curve25519/448: improve timing attack resistance (CVE-2026-84308)
 
 ## 3.0.56 - 2026-08-02
 

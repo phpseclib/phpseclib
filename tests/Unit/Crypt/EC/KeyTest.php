@@ -797,4 +797,10 @@ Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
         $key = EC::loadFormat('PKCS1', $key);
         $this->assertIsString("$key");
     }
+
+    public function testUnencryptedKeyGeneration(): void
+    {
+        $private = (string) EC::createKey('nistp256');
+        $this->assertStringNotContainsString(' ENCRYPTED ', $private);
+    }
 }

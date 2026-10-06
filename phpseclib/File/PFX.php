@@ -161,7 +161,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             case 'sha224':
             case 'sha256':
             case 'sha384':
-            case 'sha224':
+            case 'sha512':
             case 'sha512/224':
             case 'sha512/256':
             case 'sha3/224':
