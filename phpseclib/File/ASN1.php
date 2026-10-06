@@ -725,9 +725,11 @@ class File_ASN1
                             if (isset($constant) && isset($temp['constant'])) {
                                 // Can only match if constants and class match.
                                 $maymatch = $constant == $temp['constant'] && $childClass == $tempClass;
-                            } else {
+                            } elseif (!isset($constant) && !isset($temp['constant'])) {
                                 // Can only match if no constant expected and type matches or is generic.
                                 $maymatch = !isset($child['constant']) && array_search($child['type'], array($temp['type'], FILE_ASN1_TYPE_ANY, FILE_ASN1_TYPE_CHOICE)) !== false;
+                            } else {
+                                $maymatch = false;
                             }
                         }
                     }
