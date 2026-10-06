@@ -117,9 +117,8 @@ M0OBYZe9ntgapIKsumKkfhOzo65F41fsyi2n6U8gLE0m6QYy+bMI0ElWXfjDA5eT
 
     /**
      * ESSCertIDv2's issuerSerial is OPTIONAL and OpenSSL's TSA never sets it
-     *
-     * @see https://github.com/phpseclib/phpseclib/issues/2178
      */
+    #[\PHPUnit\Framework\Attributes\Group('github2178')]
     public function testValidateSignatureESSCertIDv2WithoutIssuerSerial(): void
     {
         // openssl ts -reply -config tsa.cnf -section tsa_config -queryfile req.tsq -out resp.tsr
