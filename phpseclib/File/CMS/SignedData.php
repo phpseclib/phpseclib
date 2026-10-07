@@ -593,15 +593,19 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $this->compile();
 
-        $matches = 0;
+        $expected = count($this->cms['content']['signerInfos']);
+        if (!$expected) {
+            return false;
+        }
 
+        $matches = 0;
         foreach ($this->cms['content']['signerInfos'] as $signer) {
             if ($signer->validateSignature($caonly)) {
                 $matches++;
             }
         }
 
-        return count($this->cms['content']['signerInfos']) == $matches;
+        return $expected == $matches;
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */

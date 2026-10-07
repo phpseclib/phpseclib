@@ -457,4 +457,11 @@ ybcPA9iklr0wAwYBAAMBAA==
         $this->assertTrue($signer->hasEncoded());
         $this->assertTrue($cms->hasEncoded());
     }
+
+    #[\PHPUnit\Framework\Attributes\Group('github2178')]
+    public function testNoSignatureValidation(): void
+    {
+        $cms = new CMS\SignedData('');
+        $this->assertFalse($cms->validateSignature(false));
+    }
 }
