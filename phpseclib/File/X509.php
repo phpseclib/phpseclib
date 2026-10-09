@@ -1411,7 +1411,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         if ($count == 0) {
             self::$urlFetchDeadline = microtime(true) + self::$urlFetchTimeout;
         }
-        $cert = static::fetchURL($url, self::$urlFetchDeadline);
+        $cert = self::fetchURL($url, self::$urlFetchDeadline);
         if (!isset($cert)) {
             return false;
         }
@@ -1529,7 +1529,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             }
         }
 
-        if (!(static::$urlFetchCallback)($host, $ip, $port, $parts['scheme'])) {
+        if (!(self::$urlFetchCallback)($host, $ip, $port, $parts['scheme'])) {
             return null;
         }
 
@@ -1604,7 +1604,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public static function setURLFetchCallback(\Closure $func): void
     {
-        static::$urlFetchCallback = $func;
+        self::$urlFetchCallback = $func;
     }
 
     /**

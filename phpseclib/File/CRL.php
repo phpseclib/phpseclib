@@ -204,7 +204,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     /** @psalm-api */
     public function hasIssuerDNProp(string $propName): bool
     {
-        return static::hasDNPropsInternal($this->crl['tbsCertList']['issuer'], $propName);
+        return self::hasDNPropsInternal($this->crl['tbsCertList']['issuer'], $propName);
     }
 
     public function getIssuerDNProps(string $propName): array

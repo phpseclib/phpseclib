@@ -362,11 +362,11 @@ abstract class XML
             throw new UnsupportedCurveException('TwistedEdwards and Montgomery Curves are not supported');
         }
 
-        if (empty(static::$namespace)) {
+        if (empty(self::$namespace)) {
             $pre = $post = '';
         } else {
-            $pre = static::$namespace . ':';
-            $post = ':' . static::$namespace;
+            $pre = self::$namespace . ':';
+            $post = ':' . self::$namespace;
         }
 
         if (self::$rfc4050) {

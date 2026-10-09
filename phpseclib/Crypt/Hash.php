@@ -505,8 +505,8 @@ class Hash
         for ($i = 0; $i < count($m) - 1; $i++) {
             $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
             $y .= PHP_INT_SIZE == 8 ?
-                static::nh64($k, $m[$i], $length) :
-                static::nh32($k, $m[$i], $length);
+                self::nh64($k, $m[$i], $length) :
+                self::nh32($k, $m[$i], $length);
         }
 
         //
@@ -520,8 +520,8 @@ class Hash
         $m[$i] = pack('N*', ...unpack('V*', $m[$i])); // ENDIAN-SWAP
 
         $y .= PHP_INT_SIZE == 8 ?
-            static::nh64($k, $m[$i], $length * 8) :
-            static::nh32($k, $m[$i], $length * 8);
+            self::nh64($k, $m[$i], $length * 8) :
+            self::nh32($k, $m[$i], $length * 8);
 
         return $y;
     }
@@ -1132,7 +1132,7 @@ class Hash
         $padLength = $block_size - (strlen($p) % $block_size);
         $num_ints = $block_size >> 2;
 
-        $p .= static::sha3_pad($padLength, $padType);
+        $p .= self::sha3_pad($padLength, $padType);
 
         $s = [
             [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
@@ -1155,7 +1155,7 @@ class Hash
                     $x++;
                 }
             }
-            static::processSHA3Block32($s);
+            self::processSHA3Block32($s);
         }
 
         $z = '';
@@ -1167,7 +1167,7 @@ class Hash
                 $i++;
                 if ($i == 5) {
                     $i = 0;
-                    static::processSHA3Block32($s);
+                    self::processSHA3Block32($s);
                 }
             }
         }
@@ -1226,7 +1226,7 @@ class Hash
                     $s[0][$i][0] ^ $s[1][$i][0] ^ $s[2][$i][0] ^ $s[3][$i][0] ^ $s[4][$i][0],
                     $s[0][$i][1] ^ $s[1][$i][1] ^ $s[2][$i][1] ^ $s[3][$i][1] ^ $s[4][$i][1],
                 ];
-                $rotated[] = static::rotateLeft32($parity[$i], 1);
+                $rotated[] = self::rotateLeft32($parity[$i], 1);
             }
 
             $temp = [
@@ -1248,7 +1248,7 @@ class Hash
             // rho and pi steps
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
-                    $st[(2 * $i + 3 * $j) % 5][$j] = static::rotateLeft32($s[$j][$i], $rotationOffsets[$j][$i]);
+                    $st[(2 * $i + 3 * $j) % 5][$j] = self::rotateLeft32($s[$j][$i], $rotationOffsets[$j][$i]);
                 }
             }
 
@@ -1311,7 +1311,7 @@ class Hash
         $block_size = $r >> 3;
         $padLength = $block_size - (strlen($p) % $block_size);
 
-        $p .= static::sha3_pad($padLength, $padType);
+        $p .= self::sha3_pad($padLength, $padType);
 
         $s = [
             [0, 0, 0, 0, 0],
@@ -1333,7 +1333,7 @@ class Hash
                     $x++;
                 }
             }
-            static::processSHA3Block64($s);
+            self::processSHA3Block64($s);
         }
 
         $z = '';
@@ -1345,7 +1345,7 @@ class Hash
                 $i++;
                 if ($i == 5) {
                     $i = 0;
-                    static::processSHA3Block64($s);
+                    self::processSHA3Block64($s);
                 }
             }
         }
@@ -1400,11 +1400,11 @@ class Hash
                 $parity[] = $s[0][$i] ^ $s[1][$i] ^ $s[2][$i] ^ $s[3][$i] ^ $s[4][$i];
             }
             $temp = [
-                $parity[4] ^ static::rotateLeft64($parity[1], 1),
-                $parity[0] ^ static::rotateLeft64($parity[2], 1),
-                $parity[1] ^ static::rotateLeft64($parity[3], 1),
-                $parity[2] ^ static::rotateLeft64($parity[4], 1),
-                $parity[3] ^ static::rotateLeft64($parity[0], 1),
+                $parity[4] ^ self::rotateLeft64($parity[1], 1),
+                $parity[0] ^ self::rotateLeft64($parity[2], 1),
+                $parity[1] ^ self::rotateLeft64($parity[3], 1),
+                $parity[2] ^ self::rotateLeft64($parity[4], 1),
+                $parity[3] ^ self::rotateLeft64($parity[0], 1),
             ];
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
@@ -1417,7 +1417,7 @@ class Hash
             // rho and pi steps
             for ($i = 0; $i < 5; $i++) {
                 for ($j = 0; $j < 5; $j++) {
-                    $st[(2 * $i + 3 * $j) % 5][$j] = static::rotateLeft64($s[$j][$i], $rotationOffsets[$j][$i]);
+                    $st[(2 * $i + 3 * $j) % 5][$j] = self::rotateLeft64($s[$j][$i], $rotationOffsets[$j][$i]);
                 }
             }
 
