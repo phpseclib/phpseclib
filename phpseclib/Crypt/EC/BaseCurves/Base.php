@@ -23,6 +23,8 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * Base
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ *
+ * @method array getBasePoint()
  */
 abstract class Base
 {
