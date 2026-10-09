@@ -410,6 +410,8 @@ abstract class XML
                     $xml .= '<' . $pre . 'PrimeFieldParamsType>' . "\r\n" .
                            '<' . $pre . 'P>' . $temp['fieldID']['parameters'] . '</' . $pre . 'P>' . "\r\n" .
                            '</' . $pre . 'PrimeFieldParamsType>' . "\r\n";
+                    // encodeParameters emits explicit prime-field parameters only for PrimeCurve instances.
+                    /** @var PrimeCurve $curve */
                     $a = $curve->getA();
                     $b = $curve->getB();
                     [$x, $y] = $curve->getBasePoint();
