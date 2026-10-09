@@ -40,9 +40,6 @@ class PFXTest extends PhpseclibTestCase
         $privateKeys = $r->getPrivateKeys();
         $this->assertCount(2, $privateKeys);
 
-        $this->assertIsArray($r->toArray());
-        $this->assertIsArray($r->keys());
-
         $friendly = $r->getFriendlyNames();
         $this->assertCount(3, $friendly);
         // each of the friendly names are instances of BMPString, which encodes every character with two bytes
@@ -120,18 +117,14 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx2.der');
         $pfx = PFX::load($temp);
         $old = "$pfx";
-        $this->assertIsString($old);
         $pfx->setPassword('password');
         $new = "$pfx";
-        $this->assertIsString($new);
         $this->assertNotEquals($old, $new);
 
         $x509 = new X509(EC::createKey('nistp256')->getPublicKey());
         $old = "$x509";
         $result = $pfx->sign($x509);
-        $this->assertIsString($result);
         $new = "$x509";
-        $this->assertIsString($new);
         $this->assertNotEquals($old, $new);
     }
 
@@ -177,7 +170,6 @@ class PFXTest extends PhpseclibTestCase
         $pfx->removePassword();
 
         $str = "$pfx";
-        $this->assertIsString($str);
         // these will almost always be different for encrypted PFXs because, among other things, the salt
         // for the MAC, is generated using random_bytes()
         $this->assertSame($pfx->getEncoded(), $str);

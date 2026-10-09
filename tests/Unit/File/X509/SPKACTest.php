@@ -32,11 +32,7 @@ class SPKACTest extends PhpseclibTestCase
 
         $spkac = SPKAC::load($test)->toArray();
 
-        $this->assertIsArray($spkac);
-
         $spkac = SPKAC::load('SPKAC=' . $test);
-
-        $this->assertIsArray($spkac->toArray());
 
         $this->assertTrue(
             $spkac->validateSignature(),

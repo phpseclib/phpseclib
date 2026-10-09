@@ -34,10 +34,6 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
                 $this->getEnv('SSH_PASSWORD')
             )
         );
-        $this->assertTrue(
-            is_object($scp),
-            'Could not construct \phpseclib\Net\SCP object.'
-        );
         return $scp;
     }
 

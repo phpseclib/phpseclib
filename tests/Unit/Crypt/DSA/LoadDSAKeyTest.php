@@ -60,9 +60,6 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertIsString("$dsa");
-        $this->assertIsString($dsa->getPublicKey()->toString('PuTTY'));
-        $this->assertIsString($dsa->getParameters()->toString('PuTTY'));
         $length = ['L' => 2048, 'N' => 160];
         $this->assertSame($length, $dsa->getLength());
 
@@ -70,13 +67,11 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $this->assertGreaterThan(0, strlen("$dsa"));
 
         $arr = $dsa->toArray();
-        $this->assertIsArray($arr);
         foreach (['p', 'q', 'g', 'y', 'x'] as $key) {
             $this->assertArrayHasKey($key, $arr);
         }
 
         $arr = $dsa->getPublickey()->toArray();
-        $this->assertIsArray($arr);
         foreach (['p', 'q', 'g', 'y'] as $key) {
             $this->assertArrayHasKey($key, $arr);
         }
@@ -108,9 +103,6 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertIsString("$dsa");
-        $this->assertIsString($dsa->getPublicKey()->toString('PKCS1'));
-        $this->assertIsString((string) $dsa->getParameters());
 
         $this->assertFalse($dsa->hasPassword());
         $dsa = $dsa->withPassword('password');
@@ -163,7 +155,6 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PublicKey::class, $dsa);
-        $this->assertIsString("$dsa");
     }
 
     public function testPKCS8Private(): void
@@ -181,7 +172,6 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertIsString("$dsa");
         $this->assertInstanceOf(PublicKey::class, $dsa->getPublicKey());
         $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
     }

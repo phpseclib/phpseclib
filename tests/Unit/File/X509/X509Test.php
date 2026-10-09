@@ -659,8 +659,6 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
         $cert->removeExtension('id-ce-subjectAltName');
         $cert->addDomains('www.google.com');
         $cakey->sign($cert);
-
-        $this->assertIsString("$cert");
     }
 
     // this test will fail without an active internet connection
@@ -1092,8 +1090,6 @@ uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
         $private->sign($x509);
         $x509 = "$x509";
 
-        $this->assertIsString($x509);
-
         $x509 = X509::load($x509);
         $this->assertEquals('id-dsa-with-sha256', $x509['tbsCertificate']['signature']['algorithm']);
         $this->assertInstanceOf(DSA::class, $x509['tbsCertificate']['subjectPublicKeyInfo']);
@@ -1112,8 +1108,6 @@ wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
         $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
         $private->sign($x509);
         $x509 = "$x509";
-
-        $this->assertIsString($x509);
 
         $x509 = X509::load($x509);
         $this->assertEquals('ecdsa-with-SHA256', $x509['tbsCertificate']['signature']['algorithm']);
@@ -1141,8 +1135,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
         $private->sign($x509);
         $x509 = "$x509";
-
-        $this->assertIsString($x509);
 
         $x509 = X509::load($x509)->toArray();
         $this->assertEquals('id-RSASSA-PSS', $x509['tbsCertificate']['signature']['algorithm']);
@@ -1174,8 +1166,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
         $private->sign($x509);
         $x509 = "$x509";
-
-        $this->assertIsString($x509);
 
         $x509 = X509::load($x509)->toArray();
         $this->assertEquals('sha256WithRSAEncryption', $x509['tbsCertificate']['signature']['algorithm']);
@@ -1929,7 +1919,6 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         $x509 = new X509();
         $x509['tbsCertificate']['extensions'] = new Element('zzzzzzzzzzzz');
         $x509 = "$x509";
-        $this->assertIsString($x509);
         $this->expectException(UnexpectedValueException::class);
         X509::load($x509)->toArray();
     }

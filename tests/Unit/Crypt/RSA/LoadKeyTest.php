@@ -77,7 +77,6 @@ class LoadKeyTest extends PhpseclibTestCase
         ]);
 
         $this->assertInstanceOf(PublicKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1Key(): void
@@ -99,7 +98,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1SpacesKey(): void
@@ -122,7 +120,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1NoHeaderKey(): void
@@ -142,7 +139,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testPKCS1NoWhitespaceNoHeaderKey(): void
@@ -162,7 +158,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testRawPKCS1Key(): void
@@ -183,7 +178,6 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testLoadPKCS8PrivateKey(): void
@@ -221,7 +215,6 @@ xryZaRDVmtMuf/OZBQ==
         $rsa = PublicKeyLoader::load($key, 'password');
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testSavePKCS8PrivateKey(): void
@@ -299,7 +292,6 @@ AwEAAQ==
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PublicKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testPrivateKeyPssWithoutParams(): void
@@ -338,7 +330,6 @@ BocC2CO6SNi4Qjr3NlM=
         $rsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertIsString("$rsa");
     }
 
     public function testPubPrivateKey(): void

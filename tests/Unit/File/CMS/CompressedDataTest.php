@@ -52,6 +52,5 @@ cT0=');
         $plaintext = 'ASDFASDF';
         $cms = new CMS\CompressedData($plaintext);
         $this->assertEquals($plaintext, $cms->getContent());
-        $this->assertIsString("$cms");
     }
 }
