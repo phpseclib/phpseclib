@@ -1260,7 +1260,9 @@ qL1996ArZnIyIcn+OeOgEriypYL9GUkFdJX1jhEHJuZY
         $issuer->setDNProp('id-at-organizationName', 'phpseclib CA cert');
 
         $x509 = new X509();
-        $x509->sign($issuer, $subject);
+        $r = $x509->sign($issuer, $subject);
+
+        $this->assertIsArray($r);
     }
 
     /**
