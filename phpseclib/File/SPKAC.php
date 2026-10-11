@@ -141,7 +141,10 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $rules['publicKeyAndChallenge']['spki'] = function (Constructed &$spkac) {
             try {
                 $spkac = PublicKeyLoader::load($spkac->getEncoded());
-            } catch (NoKeyLoadedException $e) {
+                if ($spkac instanceof RSA && $spkac->getLoadedFormat() == 'PKCS8') {
+                    $spkac = $spkac->withPadding(RSA::SIGNATURE_PKCS1);
+                }
+            } catch (NoKeyLoadedException) {
             }
         };
 
@@ -241,9 +244,9 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         $publicKey = $this->spkac['publicKeyAndChallenge']['spki'];
-        if ($publicKey instanceof RSA && $publicKey->getLoadedFormat() == 'PKCS8') {
-            return $publicKey->withPadding(RSA::SIGNATURE_PKCS1);
-        }
+        //if ($publicKey instanceof RSA && $publicKey->getLoadedFormat() == 'PKCS8') {
+        //    return $publicKey->withPadding(RSA::SIGNATURE_PKCS1);
+        //}
         return $publicKey;
     }
 
