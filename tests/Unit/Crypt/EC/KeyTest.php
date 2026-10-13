@@ -38,6 +38,7 @@ Stf/0U65RhWgBwYFK4EEACKhZANiAASVZJGIs6m/TZhbFoTwBtpvU1JcyixD2YI3
 5YnoIx/6Q1oqJg1vrrmUoXaeEpaO6JH8RgItTl9lYMdmOk5309WJka6tI1QAAK3+
 Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
 -----END EC PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp384r1', $key->getCurve());
     }
 
@@ -49,6 +50,7 @@ MHQCAQEEIEzUawcXqUsQhaEQ51JLeOIY0ddzlO2nNgwDk32ETqwkoAcGBSuBBAAK
 oUQDQgAEFuVcVb9iCUhg2cknHPE+BouHGhQ39ORjMaMI3T4RfRxr6dj5HAXdEqVZ
 1W94KMe30ndmTndcJ8BPeT1Dd15FdQ==
 -----END EC PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp256k1', $key->getCurve());
         //PKCS1::useNamedCurve();
         $this->assertSameNL($expected, $key->toString('PKCS1'));
@@ -65,6 +67,7 @@ o8RlXaT7/A4RCKj9F7RIpoVUGZxH0I/7ENS4AiEA/////////////////////rqu
 3OavSKA7v9JejNA2QUECAQGhRANCAASCTRhjXqmdbqphSdxNkfTNAOmDW5cZ5fnZ
 ys0Tk4pUv/XdiMZtVCGTNsotGeFbT5X64JkP/BFi3PVqjwy2VhOc
 -----END EC PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp256k1', $key->getCurve());
 
         // this key and the above key have a few small differences.
@@ -99,6 +102,7 @@ MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgAYCXwnhqMT6fCIKIkQ0w
 cac7QqHrn4TCQMF9a+im74WhRANCAATwCjyGuP8xQbvVjznqazL36oeAnD32I+X2
 +wscW3OmyTDpk41HaWYPh+j+BoufsSkCwf8dBRGEQbCieZbbZogy
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp256k1', $key->getCurve());
         $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
@@ -116,6 +120,7 @@ IKFfw3vfd5pqA5SZOTFtpr7hdJoKP/rmTPMCggkAOA35oUQDQgAEnX66+UCzUW3T
 /fkLGIIfZjJm5bIMwAV85LpDom2hI441JRx+/W4WqtGuW+B/LABS6ZHp+qzepThC
 HsjS3Q9Pew==
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp256k1', $key->getCurve());
 
         // see testPKCS1PrivateKeySpecifiedCurve for an explanation
@@ -142,6 +147,7 @@ AFLpken6rN6lOEIeyNLdD097
 MEECAQEEDwBZdP4eSzKk/uQa6jdtfKAHBgUrgQQABKEiAyAABAHqCoNb++mK5qvE
 c4rCzQEuI19czqvXpEPcAWSXew==
 -----END EC PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('sect113r1', $key->getCurve());
 
         // the difference between this and the above key is that
@@ -166,6 +172,7 @@ AxUAEOcjqxTWluZ2h1YVF1b+v4/LSakEHwQAnXNhbzX0qxQH1zViwQ8ApSgwJ3lY
 7oTRMV7TGIYCDwEAAAAAAAAA2czsijnlbwIBAqEiAyAABAFC7c50y7uw+iuHeMCt
 WwCpKNBUcVeiHme609Dv/g==
 -----END EC PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('sect113r1', $key->getCurve());
 
         // this key and the above key have a few small differences.
@@ -201,6 +208,7 @@ IgMgAAQBQu3OdMu7sPorh3jArVsAqSjQVHFXoh5nutPQ7/4=
 MFECAQAwEAYHKoZIzj0CAQYFK4EEAAQEOjA4AgEBBA8A5OuqAY8HYoFOaz9mE6mh
 IgMgAAQASF3rOTPXvH0QdRBvsrMBdLMf27yd8AWABrZTxvI=
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('sect113r1', $key->getCurve());
 
         // the difference between this and the above key is that
@@ -226,6 +234,7 @@ AgMCAgEJMDcEDjCIJQym58f+ZJzoWCD3BA7ovuTT4iYHRBiL4OnHIwMVABDnI6sU
 Ag8BAAAAAAAAANnM7Io55W8CAQIEOjA4AgEBBA8AXtfDMRsRTx8snPbWHquhIgMg
 AAQA9xdWGJ6vV23+vkdq0C8BLJVg5E3amMyf/5keGa4=
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('sect113r1', $key->getCurve());
         $this->assertSame(120, $key->getLength());
 
@@ -255,6 +264,7 @@ AhfAVhCIS2O5xscpFnj500EDFQBNaW5naHVhUXWYW9OtutohtDqX4gQjBACBuvkf
 35gzxA+cGBNDY4OZB4xufqOMAB9zyBNLG0754VACEQQAAAAAAAAAAjEjlTqUZLVN
 AgECoSYDJAAEBEIolGjo5lnsYqNagqYPOaEGOglkllDO2aWPtB6n+x/WXw==
 -----END EC PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('sect131r1', $key->getCurve());
 
         // see testBinaryPKCS1PrivateKeySpecifiedCurve() for an
@@ -279,6 +289,7 @@ BjoJZJZQztmlj7Qep/sf1l8=
 MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
 -----END PUBLIC KEY-----';
         $key = PublicKeyLoader::load($expected);
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
@@ -291,6 +302,7 @@ MCowBQYDK2VwAyEAGb9ECWmEzf6FQbrBZ9w7lshQhqowtrbLDFw4rXAxZuE=
 MC4CAQAwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC
 -----END PRIVATE KEY-----';
         $key = PublicKeyLoader::load($expected);
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL($expected, $key->toString('PKCS8'));
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
@@ -301,6 +313,7 @@ MHICAQEwBQYDK2VwBCIEINTuctv5E1hK1bbY8fdp+K06/nwoy/HU++CXqI9EdVhC
 oB8wHQYKKoZIhvcNAQkJFDEPDA1DdXJkbGUgQ2hhaXJzgSEAGb9ECWmEzf6FQbrB
 Z9w7lshQhqowtrbLDFw4rXAxZuE=
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
 
@@ -311,6 +324,7 @@ Z9w7lshQhqowtrbLDFw4rXAxZuE=
 MFMCAQEwBwYDK2VwBQAEIgQg1O5y2/kTWErVttjx92n4rTr+fCjL8dT74Jeoj0R1
 WEKBIQAZv0QJaYTN/oVBusFn3DuWyFCGqjC2tssMXDitcDFm4Q==
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL('Ed25519', $key->getPublicKey()->getCurve());
     }
@@ -324,6 +338,7 @@ MEMwBQYDK2VxAzoAsA7zbld48IfDhm7Qd6FYrvnljtjhPRRqZi04NWyj8VXrWe1x
 BMLQFJEE0JDmKayUWpUWsRXwmb6A
 -----END PUBLIC KEY-----';
         $key = PublicKeyLoader::load($expected);
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('Ed448', $key->getCurve());
         $this->assertSameNL($expected, $key->toString('PKCS8'));
     }
@@ -337,6 +352,7 @@ MEcCAQAwBQYDK2VxBDsEOettXaJYob4hJNKJNOD+FfMvdesLKNp0KwochI6AKmAb
 tWhtkn99WOjd1PsGMh9zz2Vhdg3MwasOMQ==
 -----END PRIVATE KEY-----';
         $key = PublicKeyLoader::load($expected);
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL($expected, $key->toString('PKCS8'));
         $this->assertSameNL('Ed448', $key->getCurve());
         $this->assertSameNL('Ed448', $key->getPublicKey()->getCurve());
@@ -355,12 +371,14 @@ Private-Lines: 1
 AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
 Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef
 ');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp256r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
         $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBJEXCsWA8s18m25MJlVE1urbXPYFi4q8oMbb2H0kE2f5WPxizsKXRmb1J68paXQizryL9fC4FTqICJ1+UnaPfk0= ecdsa-key-20181105');
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('secp256r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
@@ -381,12 +399,14 @@ AAAAMQCEMkGMDg6N7bUqdvLXe0YmY4qBSi8hmAuMvU38RDoVFVmV+R4RYmMueyrX
 be9Oyus=
 Private-MAC: 97a990a3d5f6b8f268d4be9c4ab9ebfd8fa79849
 ');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp384r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
         $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBOI53wHG3CdcAJZq5PXWZAEAxxsNVFQlQgOX9toWEOgqQF5LbK2nWLKRvaHMzocUXaTYZDccSS0ATZFPT3j1Er1LU9cu4PHpyS07v262jdzkxIvKCPcAeISuV80MC7rHog== ecdsa-key-20181105');
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('secp384r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
@@ -408,12 +428,14 @@ AAAAQgHJl8/dIArolFymdzhagXCfd2l8UF3CQXWGVGDQ0R04nnntlyztYiVdRXXK
 r84NnzS7dJcAsR9YaUOZ69NRKNiUAQ==
 Private-MAC: 6d49ce289b85549a43d74422dd8bb3ba8798c72c
 ');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('secp521r1', $key->getCurve());
 
         PuTTY::setComment('ecdsa-key-20181105');
         $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAF1Eg0MjaJwooFj6HCNh4RWbvmQRY+sdczJyBdT3EaTc/6IUcCfW7w7rAeRp2CDdE9RlAVD8IuLqW7DJH06Xeov8wBO5G6jUqXu0rlHsOSiC6VcCxBJuWVNB1IorHnS7PX0f6HdLlIEme73P77drqpn5YY0XLtP6hFrF7H5XfCxpNyaJA== ecdsa-key-20181105');
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('secp521r1', $key->getCurve());
 
         OpenSSH::setComment('ecdsa-key-20181105');
@@ -432,12 +454,14 @@ Private-Lines: 1
 AAAAIAHu1uI7dxFzo/SleEI2CekXKmgqlXwOgvfaRWxiX4Jd
 Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
 ');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
 
         PuTTY::setComment('ed25519-key-20181105');
         $this->assertSameNL($expected, $key->toString('PuTTY'));
 
         $key = PublicKeyLoader::load($expected = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC6I6RyYAqtBcWXws9EDqGbhFtc5rKG4NMn/G7temQtu ed25519-key-20181105');
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
 
         OpenSSH::setComment('ed25519-key-20181105');
@@ -453,10 +477,12 @@ Private-MAC: 8a06821a1c8b8b40fc40f876e543c4ea3fb81bb9
         $kp = sodium_crypto_sign_keypair();
 
         $key = EC::loadFormat('libsodium', $expected = sodium_crypto_sign_secretkey($kp));
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL($expected, $key->toString('libsodium'));
 
         $key = EC::loadFormat('libsodium', $expected = sodium_crypto_sign_publickey($kp));
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
         $this->assertSameNL($expected, $key->toString('libsodium'));
     }
@@ -471,6 +497,7 @@ eQAAAAtzc2gtZWQyNTUxOQAAACCpm7dS1/WDTW+uuhp2+aFLPKaJle6+oJqDGLXhlQAX4A
 AAAEDltCTSbrr42IS4hhkS6ly0W2XItRQwxjLT+03bIyA+V6mbt1LX9YNNb666Gnb5oUs8
 pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
 -----END OPENSSH PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $this->assertSameNL('Ed25519', $key->getCurve());
 
         // testing this key is a little difficult because of this format's
@@ -481,6 +508,7 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
         // none-the-less, because of the randomized component we can't easily
         // see if the key string is equal to another known string
         $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
+        $this->assertInstanceOf(PrivateKey::class, $key2);
         $this->assertSameNL('Ed25519', $key2->getCurve());
     }
 
@@ -496,6 +524,7 @@ pomV7r6gmoMYteGVABfgAAAAD3ZhZ3JhbnRAdmFncmFudAECAwQFBg==
   <Y Value="102403352136827775240910267217779508359028642524881540878079119895764161434936" />
 </PublicKey>
 </ECDSAKeyValue>');
+        $this->assertInstanceOf(PublicKey::class, $key);
         $this->assertSameNL('secp256r1', $key->getCurve());
 
         XML::enableRFC4050Syntax();
@@ -533,6 +562,7 @@ AQIDBA==
 -----END OPENSSH PRIVATE KEY-----';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
         $this->assertInstanceOf(PrivateKey::class, $key2);
@@ -541,6 +571,7 @@ AQIDBA==
 
         $key = 'ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOTa1sOLJA/OWNH4ssiwzMmLCqR8eQZK1S3eQ7TQUoyhi/dEl8/qap0TcTek9xPlwGDjIH4rNixgPHC4FzTehBw= root@vagrant';
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $this->assertTrue($key->verify('zzz', $sig));
     }
@@ -556,11 +587,13 @@ lEIq93iMVzIArjGaKrFDAAAADHJvb3RAdmFncmFudAE=
 -----END OPENSSH PRIVATE KEY-----';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $sig = $key->sign('zzz');
         $sig2 = $key->withSignatureFormat('SSH2')->sign('zzz');
 
         $key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKGEJnCqQiHjcB9RE86BvJh5lEIq93iMVzIArjGaKrFD root@vagrant';
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $this->assertTrue($key->verify('zzz', $sig));
         $this->assertTrue($key->withSignatureFormat('SSH2')->verify('zzz', $sig2));
@@ -633,15 +666,16 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
           "crv":"P-256",
           "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
           "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
-          "d":"870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE",
-          "use":"enc",
-          "kid":"1"}
-       ]
-     }';
+           "d":"870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE",
+           "use":"enc",
+           "kid":"1"}
+        ]
+      }';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'use' => 'enc',
@@ -657,15 +691,16 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
          {"kty":"EC",
           "crv":"P-256",
           "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
-          "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
-          "use":"enc",
-          "kid":"1"}
-       ]
-     }';
+           "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+           "use":"enc",
+           "kid":"1"}
+        ]
+      }';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'use' => 'enc',
@@ -685,12 +720,13 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
 
         $key = '   {"kty":"OKP","crv":"Ed25519",
    "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
-   "d":"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A"}';
+    "d":"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A"}';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
         $keyWithoutWS = '{"keys":[' . $keyWithoutWS . ']}';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK'));
 
@@ -699,12 +735,13 @@ MIIEDwIBADATBgcqhkjOPQIBBggqhkjOPQMBBwSCA/MwggPvAgEBBIID6P//////
         $sig = $key->sign($plaintext);
 
         $key = '   {"kty":"OKP","crv":"Ed25519",
-   "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"}';
+    "x":"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo"}';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
         $keyWithoutWS = '{"keys":[' . $keyWithoutWS . ']}';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK'));
 
@@ -736,7 +773,9 @@ cN6W+k8UvGf+Y/lDWNbFitQocabsDUvSN0edHH3UKP5QPTz4cOlyIPMrXQ==
     public function testIEEESignature(): void
     {
         $key = '{"alg":"ES256","crv":"P-256","ext":true,"key_ops":["verify"],"kty":"EC","x":"FKwqyGd4i2NAl8RUXCCBRCAIbcpeGyfyXwgA_AWHb8Y","y":"njxhw5O6zGVkBlcPDKYj0E-6VO1giHTUkJWBhgKNqd8"}';
-        $key = PublicKeyLoader::load($key)->withSignatureFormat('IEEE')->withHash('sha384');
+        $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
+        $key = $key->withSignatureFormat('IEEE')->withHash('sha384');
 
         $signature = 'a4f61518323bac50b4f87a0f766ebb10d1db25358a0a20a98dab20be4e9c3be2d77ff5a8415cfce2967999c73d2a49b2d8c01990f72c04d99ebe3c4ebf75b4e9';
         $signature = pack('H*', $signature);
@@ -767,6 +806,7 @@ MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg7+qVCtyt+tV2hTou
 kbZNIHu+PaE0osExnxdlkiC+VYqhRANCAAS8yEueJvIAnCk++0rsD8X9dk3hAmyb
 4lv6WkjCQU5iksxIG/E60L8IeDZX8+oNzHPjNN5/6MBk0ISrGKyFhlH1
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $priv = $key->withSignatureFormat('IEEE');
         $sig = $priv->sign('ddd');

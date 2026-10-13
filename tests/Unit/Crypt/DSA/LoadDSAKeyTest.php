@@ -263,6 +263,7 @@ dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
 -----END OPENSSH PRIVATE KEY-----';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
         $this->assertInstanceOf(PrivateKey::class, $key2);
@@ -271,6 +272,7 @@ dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
 
         $key = 'ssh-dss AAAAB3NzaC1kc3MAAACBAOkTX/vVXq65p4SptoDOgSwDWR0kFmH0iff9WUJfC+UnrPPwpLNtDGsLjmw7vL18zAPlDJYSmFV4hc781J9xmEr9IP8P43VnHnYq7YoQVNvd0CF80Z73KGysBUjlbITiVLap57l8s2eHXfyFgB03sQ1GhQBDcjoeT0cAif6W0cyZAAAAFQD3mI93EcveKSSZl3VflaFAVMj72wAAAIEAxyfU91Z1SYTwPgo/qDSurgoASVlz3TiZhf5sdA0xc42bgGuxJyff+I5/fvQRqJSCSiaj4JI/YfxLeksE1uJBbsDNL1MZPvzYWUb9td/yRIwVvsjMC4WZAx6i4tmjjQDAcS/s+l3OtezoZFDS/AmU2iqhQBSL0wyF7EPOkYxs2OoAAACBAJTUm4lkPOmT5wGAR1FNEbHqYlmQ/28c/ty1SGAplwA9LJ3yR43yBAKm+Zm4rUAO13/6lcHFtAEA9vX6nzACCoNTibz4sV/aKAq1vyZ/yqn+CHFXTz9PN/lZ9wNY/E56x2U3jyottKZSCw7uCr/W+h15sxIdx25XglOryLHkTLzt root@vagrant';
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $this->assertTrue($key->verify('zzz', $sig));
     }

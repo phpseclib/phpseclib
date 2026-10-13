@@ -68,8 +68,10 @@ class CreateKeyTest extends PhpseclibTestCase
         }
 
         $rsa = RSA::load($privatekey->toString('PKCS1'));
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
         $signature = $rsa->sign('zzz');
         $rsa = RSA::load($rsa->getPublicKey()->toString('PKCS1'));
+        $this->assertInstanceOf(PublicKey::class, $rsa);
         $this->assertTrue($rsa->verify('zzz', $signature));
 
         RSA::setSmallestPrime(4096);

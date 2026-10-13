@@ -12,6 +12,8 @@ namespace phpseclib4\Tests\Unit\File\X509;
 
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
+use phpseclib4\Crypt\RSA\PrivateKey;
+use phpseclib4\Crypt\RSA\PublicKey;
 use phpseclib4\File\CSR;
 use phpseclib4\File\ASN1;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -114,7 +116,9 @@ L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
 X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
 U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
------END RSA PRIVATE KEY-----')
+-----END RSA PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
+        $rsa = $rsa
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('sha1');
         $csr = new CSR($rsa->getPublicKey());
@@ -156,8 +160,10 @@ fUQvcGEA9FSQ8Y0nfF9vzzcCjLtOI6xJluYL9XCk8WVEBEawA2zmHWTzzuHFHHEM
 7qncJric4bulCQ0CmNiv+IUnyoLHzaef79+q+7ohi6mYYDP9dmdlj/Yd7Ndae3wt
 2qzmm8yz+tnp3rOpfrHvQLBK5C7g/qaM2jBguSsj
 -----END CERTIFICATE REQUEST-----');
-        $this->assertTrue(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
-        $this->assertFalse(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+        $publicKey = $csr->getPublicKey();
+        $this->assertInstanceOf(PublicKey::class, $publicKey);
+        $this->assertTrue(boolval($publicKey->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertFalse(boolval($publicKey->getPadding() & RSA::SIGNATURE_PSS));
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github1675')]
@@ -180,8 +186,10 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
 +3qWznvQLPSZVSEp03EViSh82fuRxa+6B/W5ur43FERi/5sakzI1kMcvYDO/pord
 12M26xz/hpPfs5yFls/NPzW3o7PSkvFJhSrGmgg=
 -----END CERTIFICATE REQUEST-----');
-        $this->assertFalse(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
-        $this->assertTrue(boolval($csr->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+        $publicKey = $csr->getPublicKey();
+        $this->assertInstanceOf(PublicKey::class, $publicKey);
+        $this->assertFalse(boolval($publicKey->getPadding() & RSA::SIGNATURE_PKCS1));
+        $this->assertTrue(boolval($publicKey->getPadding() & RSA::SIGNATURE_PSS));
     }
 
     public function testAttributes(): void

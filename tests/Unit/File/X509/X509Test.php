@@ -253,6 +253,7 @@ TQDJcOBY0qgBTEFqbazr7PScJR/0X8m0eLYS/XqkPi3kYaHLpr3RcsVbmwg9hVtx
 aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
 4vca9v/F2hGVJuHIMJ8mguwYlNYzh2NqoIDJTtgOkBmt
 -----END RSA PRIVATE KEY-----');
+        $this->assertInstanceOf(RSA\PrivateKey::class, $privKey);
         $privKey = $privKey
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('sha1');
@@ -621,7 +622,9 @@ keSg3sfr4VWT545guJlTe+6vvelxbPFIXCXnyVLoePBYZtEe8FQhIBxd3EQHsxuJ
 iSoMCxKCa8r5P1DrxKaJAkBBP87OdahRq0CBQjTFg0wmPs66PoTXA4hZvSxV77CO
 tMPj6Pas7Muejogm6JkmxXC/uT6Tzfknd0B3XSmtDzGL
 -----END RSA PRIVATE KEY-----';
-        $cakey = PublicKeyLoader::load($pemcakey)
+        $cakey = PublicKeyLoader::load($pemcakey);
+        $this->assertInstanceOf(RSA\PrivateKey::class, $cakey);
+        $cakey = $cakey
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('sha1');
         $pemca = '-----BEGIN CERTIFICATE-----
@@ -1085,6 +1088,7 @@ fjs3u44AnBdGdZzlKVXXobtpt4Nwq9elof+9iwdjKqki6A9h0NWS1w9zjZ21n3Yq
 uhPlgkgknwIgdDqqKIAF60ouiynsbU53ERS0TwpjeFiYGA48SwYW3Nk=
 -----END DSA PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
+        $this->assertInstanceOf(DSA\PrivateKey::class, $private);
         $x509 = new X509($private->getPublicKey());
         $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
         $private->sign($x509);
@@ -1104,6 +1108,7 @@ MENv2e0W3cE6gRmETxEvTBAxRTShRANCAARdg5FlgVy16RLosh7Ly9rkIuRAJZnD
 wkwhE/JaQAEHq2PHnEmvwyBiJcHSdLXkcLzYlg19Ho0BPqVKdulx8GAk
 -----END PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
+        $this->assertInstanceOf(EC\PrivateKey::class, $private);
         $x509 = new X509($private->getPublicKey());
         $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
         $private->sign($x509);
@@ -1131,6 +1136,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
 -----END RSA PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
+        $this->assertInstanceOf(RSA\PrivateKey::class, $private);
         $x509 = new X509($private->getPublicKey());
         $x509->addDNProp('id-at-organizationName', 'phpseclib demo cert');
         $private->sign($x509);
@@ -1159,7 +1165,9 @@ X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
 U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
 -----END RSA PRIVATE KEY-----';
-        $private = PublicKeyLoader::load($private)
+        $private = PublicKeyLoader::load($private);
+        $this->assertInstanceOf(RSA\PrivateKey::class, $private);
+        $private = $private
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('sha256');
         $x509 = new X509($private->getPublicKey());
@@ -1458,6 +1466,7 @@ CL6PqVQYO3S6DI4uPngGwxauvbnC6lsl2OYBpVyAUl2fprmhhwE2ISSF7cYdA+Qk
 52CTxJj75d7fkutTpSXSj/hz91Gmjv5MDBTti1VLoM7uu9v038Mt6yPq+7mYbxlj
 qL1996ArZnIyIcn+OeOgEriypYL9GUkFdJX1jhEHJuZY
 -----END ENCRYPTED PRIVATE KEY-----', 'demo');
+        $this->assertInstanceOf(RSA\PrivateKey::class, $private);
 
         $subject = new X509($private->getPublicKey());
         $subject->addDNProp('id-at-organizationName', 'phpseclib demo cert');
@@ -1628,8 +1637,9 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $CAPrivKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgYZs/Y9XurjuN8SQ5
 7Fyy1mTgHjFsdt0/3mOH7pfUbh6hRANCAASnmS1cmSu9dHOYrBg9aJRBs3PLPK62
-u0s8T1gmnGIpKMyrHC3Sh6V2UczDODqpMXYiAsP6iPhiaq/3MmuhA0UA
------END PRIVATE KEY-----');
+ u0s8T1gmnGIpKMyrHC3Sh6V2UczDODqpMXYiAsP6iPhiaq/3MmuhA0UA
+ -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(EC\PrivateKey::class, $CAPrivKey);
         $CAPubKey = $CAPrivKey->getPublicKey();
 
         $ca = new X509($CAPubKey);
@@ -1665,8 +1675,9 @@ FfUY+VIMsC15BgwZJE1Zrvb937Y0fVfFU64h+GPw03/U6GuQ2snxYL6rPqASIs13
 lBzCxDOYWwbQFvqdaocuiCxX3/hkBRCLd1xOMIFhAoGAanaZkg7wogxseU0CDQWr
 ek+8xhvMsVmSs20JhR0WWUxNxZblKCJOMTzDnNxTajl8OeGfHLJER20aubB08/Fh
 3XTCUzLk69tfwhvGTVorZ+bQTAM1X18nzD89J03g/IaHxxR/nyB39Yq8yqNvuP0D
-Zf+6b317dHQhk60gz+CIt8s=
------END PRIVATE KEY-----');
+ Zf+6b317dHQhk60gz+CIt8s=
+ -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(RSA\PrivateKey::class, $privKey);
         $privKey = $privKey->withPadding(RSA::SIGNATURE_PKCS1);
         $pubKey = $privKey->getPublicKey();
 
@@ -1861,7 +1872,9 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $private->sign($x509);
 
         $x509 = X509::load("$x509");
-        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PSS));
+        $publicKey = $x509->getPublicKey();
+        $this->assertInstanceOf(RSA\PublicKey::class, $publicKey);
+        $this->assertTrue(boolval($publicKey->getPadding() & RSA::SIGNATURE_PSS));
 
         $private = $private->withPadding(RSA::SIGNATURE_PKCS1);
         $x509 = new X509($private->getPublicKey());
@@ -1870,7 +1883,9 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $private->sign($x509);
 
         $x509 = X509::load("$x509");
-        $this->assertTrue(boolval($x509->getPublicKey()->getPadding() & RSA::SIGNATURE_PKCS1));
+        $publicKey = $x509->getPublicKey();
+        $this->assertInstanceOf(RSA\PublicKey::class, $publicKey);
+        $this->assertTrue(boolval($publicKey->getPadding() & RSA::SIGNATURE_PKCS1));
     }
 
     public function testOIDBomb(): void

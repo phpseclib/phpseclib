@@ -233,7 +233,9 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
         // utilizing test vector from https://tools.ietf.org/html/rfc7748#section-6.1
 
         $alicePrivate = EC::loadFormat('MontgomeryPrivate', pack('H*', '77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a'));
+        $this->assertInstanceOf(EC\PrivateKey::class, $alicePrivate);
         $bobPrivate = EC::loadFormat('MontgomeryPrivate', pack('H*', '5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb'));
+        $this->assertInstanceOf(EC\PrivateKey::class, $bobPrivate);
 
         $alicePublic = $alicePrivate->getPublicKey();
         $bobPublic = $bobPrivate->getPublicKey();
@@ -263,11 +265,13 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
             '9a8f4925d1519f5775cf46b04b5800d4ee9ee8bae8bc5565d498c28d' .
             'd9c9baf574a9419744897391006382a6f127ab1d9ac2d8c0a598726b'
         ));
+        $this->assertInstanceOf(EC\PrivateKey::class, $alicePrivate);
         $bobPrivate = EC::loadFormat('MontgomeryPrivate', pack(
             'H*',
             '1c306a7ac2a0e2e0990b294470cba339e6453772b075811d8fad0d1d' .
             '6927c120bb5ee8972b0d3e21374c9c921b09d1b0366f10b65173992d'
         ));
+        $this->assertInstanceOf(EC\PrivateKey::class, $bobPrivate);
 
         $alicePublic = $alicePrivate->getPublicKey();
         $bobPublic = $bobPrivate->getPublicKey();

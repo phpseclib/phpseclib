@@ -343,8 +343,9 @@ gPiUWOPatVkt7+Bs3h5Ramxh7XjBOXeulmCpGSynXNcpZ/06+vofGi/2MlpQZNhH
 Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
 -----END RSA PUBLIC KEY-----';
 
-        $rsa = PublicKeyLoader::load($key)->asPrivateKey();
-        $this->assertInstanceOf(PrivateKey::class, $rsa);
+        $rsa = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
+        $rsa = $rsa->asPrivateKey();
         $this->assertIsString($rsa->sign('zzz'));
     }
 
@@ -585,7 +586,9 @@ NNj0BDlf38hOtkhDzz/hkYb+EBYLLvldhgsD0OvRNy8yhz7EjaUqLCB0juIN4QIB
 AAIBAAIBAAIBAAIBAA==
 -----END RSA PRIVATE KEY-----';
 
-        $rsa = PublicKeyLoader::load($key)
+        $rsa = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
+        $rsa = $rsa
             ->withHash('md5')
             ->withMGFHash('md5')
             ->withPadding(RSA::SIGNATURE_PKCS1);
@@ -599,6 +602,7 @@ AAIBAAIBAAIBAAIBAA==
     public function pkcs8tester($key, $pass): void
     {
         $rsa = PublicKeyLoader::load($key, $pass);
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
         $r = PKCS8::load($key, $pass);
         PKCS8::setEncryptionAlgorithm((string) $r['meta']['algorithm']);
         if (isset($r['meta']['cipher'])) {
@@ -619,6 +623,7 @@ AAIBAAIBAAIBAAIBAA==
         }
 
         $rsa2 = PublicKeyLoader::load($newkey, $pass);
+        $this->assertInstanceOf(PrivateKey::class, $rsa2);
 
         // comparing $key to $newkey won't work since phpseclib randomly generates IV's and salt's
         // so we'll strip the encryption
@@ -1063,6 +1068,7 @@ Vyaqr/WTPzxdXJAAAADHJvb3RAdmFncmFudAECAwQFBg==
 -----END OPENSSH PRIVATE KEY-----';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
         $this->assertInstanceOf(PrivateKey::class, $key2);
@@ -1071,6 +1077,7 @@ Vyaqr/WTPzxdXJAAAADHJvb3RAdmFncmFudAECAwQFBg==
 
         $key = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDS8/TfgDLaowESNlVxYcLOSEPS1SAeBTIu5S2s8oRlTTrBD9ZyGSJBdsPR2ADGVmhD9lHQ3dbhjSpkIqC4msZ+2yPLJyIpyOY9BdW+V4sUfQUO5BOO8koyIThDSkJYdpsP2SWUtZU5gn+LAFqcGlSfj90BBoYWMtCNEsgBFMjo1kYDGYhoFv5wjyxz6rMHRZ9swYzT7wA7nJ5pmdEm10YCH0AcM4dP5Xqu5t1hWyhgEgd2UCfNy/4RJSFBhgk7Jb+rah3ovwgXn5ZU9CLPyc17fOeNFyT5P8pJjpfx9L9XJ+ZAOOSZIxSTePe4HrWo3NR1E2ZMqBNOsx8ljlsz6MNxShwfk6leFg40nh2k/VAOoWB7j5loKfkzPz0GOGQlR44xaVoHwqq/PsHOKUKYP6q/hOiyxOpxkgayB0QgbsdK32VWzPSZ523/r35iaS6GKRJ9nREAA74lRnmBdMbAWbQEWklY0vEl46yADpZCZRAZEretjXCDYsw0ri7RXKj8u8s= root@vagrant';
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $this->assertTrue($key->verify('zzz', $sig));
     }
@@ -1120,10 +1127,11 @@ KUpRKfFLfRYC9AIKjbJTWit+CqvjWYzvQwECAwEAAQJAIJLixBy2qpFoS4DSmoEm
 o3qGy0t6z09AIJtH+5OeRV1be+N4cDYJKffGzDa88vQENZiRm0GRq6a+HPGQMd2k
 TQIhAKMSvzIBnni7ot/OSie2TmJLY4SwTQAevXysE2RbFDYdAiEBCUEaRQnMnbp7
 9mxDXDf6AU0cN/RPBjb9qSHDcWZHGzUCIG2Es59z8ugGrDY+pxLQnwfotadxd+Uy
-v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
-/5OiPgoTdSy7bcF9IGpSE8ZgGKzgYQVZeN97YE00
------END RSA PRIVATE KEY-----';
+ v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
+ /5OiPgoTdSy7bcF9IGpSE8ZgGKzgYQVZeN97YE00
+ -----END RSA PRIVATE KEY-----';
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
         $key->withPassword('demo')->toString('XML');
     }
 
@@ -1345,13 +1353,14 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
      UIZEVFEcOqwemRN81zoDAaa-Bk0KWNGDjJHZDdDmFhW3AN7lI-puxk_mHZGJ11rx
      yR8O55XLSe3SPmRfKwZI6yU24ZxvQKFYItdldUKGzO6Ia6zTKhAVRU",
           "alg":"RS256",
-          "kid":"2011-04-29"}
-       ]
-     }';
+           "kid":"2011-04-29"}
+        ]
+      }';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'alg' => 'RS256',
@@ -1371,12 +1380,13 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
      w0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
           "e":"AQAB",
           "alg":"RS256",
-          "kid":"2011-04-29"}';
+           "kid":"2011-04-29"}';
 
         $keyWithoutWS = preg_replace('#\s#', '', $key);
         $keyWithoutWS = '{"keys":[' . $keyWithoutWS . ']}';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $phpseclibKey = str_replace('=', '', $key->toString('JWK', [
             'alg' => 'RS256',
@@ -1451,7 +1461,9 @@ vtpiPBM=
 
             // Exponent
             'e' => new BigInteger('6FE4F5D0AFCC16E8A5CC68955D4EF28255A546D06F34DD103540B9A7D202AEC96353072DB65D9C360E9030F413971142EE6A28974767CCF3ABFA4E7ADDAEAD81D3F8AE5FF1B8241CA9EF51C10941FFFA74482A636CBD909D29CF7A0346653D3C286EA1F392F4968AEF1489EC4B4BCEA4F248F3931B1C9BE2808DBD33B049731A', 16),
-        ])
+        ]);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
+        $rsa = $rsa
             ->withPadding(RSA::SIGNATURE_PKCS1)
             ->withHash('md5')
             ->asPrivateKey();
@@ -1466,9 +1478,9 @@ vtpiPBM=
     {
         $key = pack('H*', '3082010902820100A5513062C4CCD2DF578E6C4A84448D4B09E6734113CB133EEFD1F92D427B5981E5824FC619898D414ED5D8D51497985731B5B9720F78802C03D90163D915EABC86437526B4ADCD39E619076B1679114BCEE8194636889620D0CCC1B311FC8D256271D06C2802F25F8F10073DAA046B6F0C7492D93029AB053E5A8E1D87C8D9736082460CAE8B235C2E9DB6CDD932EC4293B694763F8FF8DB8FA4221BDBF0E921E6D8D283728E270761D1D451EBE6A0AE72D2A5DDF3774E91B949EFDA35B6206A00391957520767876800580DF003A6102C993709EDD59AE3E46263BFA125E478950E4890801D51BDF6BA550845018A1C024F24056C064B6A774CF2FD573CDD510203010001');
         $key = PublicKeyLoader::load($key);
-        $result = $key->encrypt('123');
+        $this->assertInstanceOf(PublicKey::class, $key);
         // the real test here is to make sure that an exception isn't thrown
-        $this->assertIsString($result);
+        $key->encrypt('123');
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github2107')]
