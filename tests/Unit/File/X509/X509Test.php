@@ -1859,7 +1859,9 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $crl = CRL::load(file_get_contents("$url"));
         $x509->setSerialNumber($crl->getRevokedByIndex(0)['userCertificate']);
         $this->assertFalse($validateNonRevokedStatus->invoke($x509));
+        // @phpstan-ignore method.impossibleType (The CRL callback mutates this counter by reference during invoke.)
         $this->assertSame(1, $cacheHits);
+        // @phpstan-ignore method.alreadyNarrowedType (The CRL callback can mutate this counter by reference during invoke.)
         $this->assertSame(1, $cacheMisses);
     }
 
