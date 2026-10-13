@@ -162,9 +162,8 @@ class SCP extends SSH2
     /**
      * Downloads a file from the SCP server.
      *
-     * Returns a string containing the contents of $remote_file if $local_file is left undefined or a boolean false if
-     * the operation was unsuccessful.  If $local_file is defined, returns true or false depending on the success of the
-     * operation
+     * Returns a string containing the contents of $remote_file if $local_file is left undefined or null if the
+     * contents were written to $local_file.
      *
      * @param string|resource|null $local_file
      * @psalm-suppress PossiblyUnusedMethod

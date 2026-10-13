@@ -4983,7 +4983,7 @@ class SSH2
     }
 
     /**
-     * Returns the exit status of an SSH command or false
+     * Returns the exit status of an SSH command or null
      */
     public function getExitStatus(): ?int
     {
