@@ -27,7 +27,7 @@ trait PasswordProtected
     /**
      * Sets the password
      *
-     * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or false.
+     * Private keys can be encrypted with a password.  To unset the password, pass in the empty string or null.
      * Or rather, pass in $password such that empty($password) && !is_string($password) is true.
      *
      * @see self::createKey()
