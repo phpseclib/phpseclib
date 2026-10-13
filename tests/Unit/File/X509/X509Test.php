@@ -1266,19 +1266,26 @@ itRo91vT68U=
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github1657')]
-    public function signWithEncryptedPSS(): void
+    public function testSignWithEncryptedPSS(): void
     {
         $private = PublicKeyLoader::load('-----BEGIN ENCRYPTED PRIVATE KEY-----
-MIIBvTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQIpZHwLtkYRb4CAggA
-MAwGCCqGSIb3DQIJBQAwHQYJYIZIAWUDBAECBBCCGsoP7F4bd8O5I1poTn8PBIIB
-YBtM1tgqsAQgbSZT0475aHufzFuJuPWOYqiHag8OUKMeZuxVHndElipEY2V5lS9m
-wddwtWaGuYD/Swcdt0Xht8U8BF0SjSyzQ4YtRsG9CmEHYhWmQ5AqK1W3mDUApO38
-Cm5L1HrHV4YJnYmmK9jgq+iWlLFDmB8s4TA6kMPWbCENlpr1kEXz4hLwY3ylH8XW
-I65WX2jGSn61jayCwpf1HPFBPDUaS5s3f92aKjk0AE8htsDBBiCVS3Yjq4QSbhfz
-uNIZ1TooXT9Xn+EJC0yjVnlTHZMfqrcA3OmVSi4kftugjAax4Z2qDqO+onkgeJAw
-P75scMcwH0SQUdrNrejgfIzJFWzcH9xWwKhOT9s9hLx2OfPlMtDDSJVRspqwwQrF
-QwinX0cR9Hx84rSMrFndxZi52o9EOLJ7cithncoW1KOAf7lIJIUzP0oIKkskAndQ
-o2UiZsxgoMYuq02T07DOknc=
+MIIDHTBXBgkqhkiG9w0BBQ0wSjApBgkqhkiG9w0BBQwwHAQI/ztYS981c5ICAggA
+MAwGCCqGSIb3DQIJBQAwHQYJYIZIAWUDBAECBBDIhjZywtTXKRxXbh8zBPXGBIIC
+wOP3olf5aArfp+0Fl65aTjRDQOb6YTGhpN2c0Of4hTIcKrGgaSeVv2vEUwUz2s4V
+r/xQkK0vtxMvAOgIHy1b0Z/Nm4hyP2tg0TkjzXjrX5Bt0O+WsZKIJHAA15T9zlMl
+96hcev5GldiwLI5IMKiSByecT0N9UPGansngGEZ8fyw/fl0nhsilC76DHRg2IHKm
+eHMkRj9iZvulpeDCvSlDA8tczI9wRryA1ppxWwkvTjWbEbMKrF17Yva7G2lwo6YN
+s4tJ8fh7Dl1kAH4Nl8N5GAOzkJrc0hkvKOAiHWnpfoveLg2I5rh5vGr7IoRJlkot
+zj9i4si1r6/29+u7vA6eYONuDKv9dEHsvko7Z0lRh80vpBR+6qQCqrrIVXFF2sjD
+Qnn/B/tNcZpTOga5ohqWzvqT8pWgw5qHCul+xIowUDScJsGx8akJ2XRHICm9FZLo
+NCaGo+40JDH6647lIBqYmfJ6Vifxq2cMGse14H4lxtpmf7pl8/SnzMHsf3WAj3mG
+rgWXqSLy4YJMstYCo1B1oZze+clTrv/V4FtXoTjzUawOMV+cJYQtU7sz6cbxSKrG
+U82LEHrKMl5BvIPYQOXegTdkkQ92etZEaQ74o2ycHY6PmRwTOLJ1uxgqjXQa9IHE
+I1Zzdx+RLGJoBacqYn20PTl1F1cqItTfJb885lTNh6IzfsYlk1FNM+vu+lA7OFuv
+mKExsRhEvgD2LXsW/5db8diOf34H0K+gimhnC5/TxEzOA8w0Y6+uIJieXzn3lQKu
+CL6PqVQYO3S6DI4uPngGwxauvbnC6lsl2OYBpVyAUl2fprmhhwE2ISSF7cYdA+Qk
+52CTxJj75d7fkutTpSXSj/hz91Gmjv5MDBTti1VLoM7uu9v038Mt6yPq+7mYbxlj
+qL1996ArZnIyIcn+OeOgEriypYL9GUkFdJX1jhEHJuZY
 -----END ENCRYPTED PRIVATE KEY-----', 'demo');
 
         $subject = new X509($private->getPublicKey());

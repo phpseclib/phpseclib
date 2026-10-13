@@ -630,4 +630,20 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
 
         $this->assertSame('untagged', $result['only']->index);
     }
+
+    #[\PHPUnit\Framework\Attributes\Group('github2178')]
+    public function testTSTInfo(): void
+    {
+        $sample = ASN1::extractBER('MIIBRwIBAQYKKoF6AVYFAQIBATAxMA0GCWCGSAFlAwQCAQUABCB5plhzVIW4WIGd
+vxghnpXdQ8gRK2r5BrQmnKr6dyqCLQIQDjclv5ICAAABoPEGY36w4hgPMjAyNjEw
+MDExOTM2MjZaMAMCAQGggdqkgdcwgdQxCzAJBgNVBAYTAkZSMQwwCgYDVQQIDANp
+ZGYxFzAVBgNVBAcMDkl2cnkgU3VyIFNlaW5lMR0wGwYDVQQKDBRET0NBUE9TVEUg
+Q0VSVElOT01JUzEYMBYGA1UEYQwPTlRSRlItNDMzOTk4OTAzMRcwFQYDVQQLDA4w
+MDAyIDQzMzk5ODkwMzEVMBMGA1UEBRMMMjQ5NzEyS0pNOTgwMTUwMwYDVQQDDCxD
+RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
+
+        $decoded = ASN1::decodeBER($sample);
+        $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray();
+        $this->assertIsArray($result);
+    }
 }

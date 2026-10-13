@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.0.2 - 2026-10-07
+
+- PFX: accept sha512 in setHashAlgorithm (#2173)
+- SSH2: throw exceptions on error instead of returning false (#2174)
+- SSH2: add getDebugMessages() (debug messages aren't errors) (#2174)
+- SSH2: add getRawServerIdentification() (#2174)
+- SSH2: fix for low probability key exchange failures (#2176)
+- PrivateKey: new keys were being encrypted with the empty string
+- CMS/SignedData: don't require issuerSerial in ESSCertID(v2) (#2178)
+- CMS/SignedData: make validateSignature() return false if no sigs exist (#2178)
+
 ## 4.0.1 - 2026-08-26
 
 - Curve25519/448: improve timing attack resistance (CVE-2026-84308)

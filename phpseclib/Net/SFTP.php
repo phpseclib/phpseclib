@@ -1318,8 +1318,6 @@ class SFTP extends SSH2
      * would be of the form "user@dns_domain" but it does not need to be.
      * `$sftp->getSupportedVersions()['version']` will return the specific version
      * that's being used.
-     *
-     * Returns true on success or false on error.
      */
     public function chgrp(string $filename, int|string $gid, bool $recursive = false): void
     {
@@ -2327,8 +2325,6 @@ class SFTP extends SSH2
 
     /**
      * Renames a file or a directory on the SFTP server.
-     *
-     * If the file already exists this will return false
      */
     public function rename(string $oldname, string $newname): void
     {
