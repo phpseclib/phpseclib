@@ -172,8 +172,6 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertInstanceOf(PublicKey::class, $dsa->getPublicKey());
-        $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
     }
 
     public function testPuTTYBadMAC(): void

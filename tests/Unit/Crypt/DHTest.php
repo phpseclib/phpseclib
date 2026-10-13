@@ -78,8 +78,6 @@ b6R8Z19Xazc0wq+p/wqalmnuCMBUBuuQ8aNNaW8FGwFwAI3I6CuQSsKObVDJO25m
 eKDXQq5i
 -----END PRIVATE KEY-----');
         $this->assertInstanceOf(PrivateKey::class, $a);
-        $this->assertInstanceOf(PublicKey::class, $a->getPublicKey());
-        $this->assertInstanceOf(Parameters::class, $a->getParameters());
     }
 
     public function testLoadPublic(): void

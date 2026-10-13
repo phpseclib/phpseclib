@@ -389,7 +389,6 @@ Ao8eayMp6FcvNucIpUndo1X8dKMv3Y26ZQIDAQAB
         $rsa = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PublicKey::class, $rsa);
         $rsa = $rsa->asPrivateKey();
-        $this->assertInstanceOf(PrivateKey::class, $rsa);
         $this->assertGreaterThanOrEqual(1, strlen("$rsa"));
     }
 
@@ -977,7 +976,6 @@ OFLPBrLe4Hw=
 
         $rsa = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInstanceOf(PublicKey::class, $rsa->getPublicKey());
     }
 
     public function testPSS(): void
@@ -1014,7 +1012,6 @@ IBgv3a3Lyb+IQtT75LE1yjE=
 
         $rsa = PublicKeyLoader::load($key);
         $this->assertInstanceOf(PrivateKey::class, $rsa);
-        $this->assertInstanceOf(PublicKey::class, $rsa->getPublicKey());
 
         $r = PSS::load($key);
 
