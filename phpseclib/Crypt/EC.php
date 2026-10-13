@@ -232,6 +232,7 @@ abstract class EC extends AsymmetricKey
                 $privatekey = EC::loadPrivateKeyFormat('libsodium', sodium_crypto_sign_secretkey($kp));
                 //$publickey = EC::loadFormat('libsodium', sodium_crypto_sign_publickey($kp));
 
+                /** @var PrivateKey $privatekey */
                 $privatekey->format = null;
 
                 $privatekey->curveName = 'Ed25519';
@@ -285,6 +286,7 @@ abstract class EC extends AsymmetricKey
         }
         // some versions of OpenSSL / PHP return PKCS1 keys, others return PKCS8 keys
         $privatekey = EC::loadPrivateKey($privateKeyStr);
+        /** @var PrivateKey $privatekey */
         $privatekey->format = null;
         $privatekey->curveName = match ($curveName) {
             'prime256v1' => 'secp256r1',

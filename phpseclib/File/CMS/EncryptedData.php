@@ -578,6 +578,8 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
             throw new UnexpectedValueException('Public key must be RSA or EC');
         }
         if ($publicKey instanceof RSA) {
+            // X.509 subject public keys are loaded as concrete key objects
+            /** @var RSA\PublicKey $publicKey */
             // to decrypt with openssl do this:
             // openssl cms -decrypt -inform PEM -in enveloped.pem -out plaintext.txt -recip recipient.crt -inkey recipient.key"
 

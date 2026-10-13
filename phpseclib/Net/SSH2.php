@@ -88,6 +88,7 @@ use phpseclib4\Net\SSH2\{
     TerminalMode
 };
 use phpseclib4\System\SSH\Agent;
+use phpseclib4\System\SSH\Agent\Identity;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -2345,8 +2346,12 @@ class SSH2
     {
         $publickey = $privatekey->getPublicKey();
 
+        // a private key always matches the family of its public key, so the
+        // instanceof checks below establish the concrete family of $privatekey
         if ($publickey instanceof RSA) {
-            $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
+            /** @var RSA\PrivateKey|Identity $rsa */
+            $rsa = $privatekey;
+            $privatekey = $rsa->withPadding(RSA::SIGNATURE_PKCS1);
             $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
             if (isset($this->preferred['hostkey'])) {
                 $algos = array_intersect($algos, $this->preferred['hostkey']);
@@ -2367,7 +2372,9 @@ class SSH2
                     $signatureType = 'ssh-rsa';
             }
         } elseif ($publickey instanceof EC) {
-            $privatekey = $privatekey->withSignatureFormat('SSH2');
+            /** @var EC\PrivateKey|Identity $ec */
+            $ec = $privatekey;
+            $privatekey = $ec->withSignatureFormat('SSH2');
             $curveName = $privatekey->getCurve();
             switch ($curveName) {
                 case 'Ed25519':
@@ -2393,7 +2400,9 @@ class SSH2
                     throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported by phpseclib4\'s SSH2 implementation');
             }
         } elseif ($publickey instanceof DSA) {
-            $privatekey = $privatekey->withSignatureFormat('SSH2');
+            /** @var DSA\PrivateKey|Identity $dsa */
+            $dsa = $privatekey;
+            $privatekey = $dsa->withSignatureFormat('SSH2');
             $hash = 'sha1';
             $signatureType = 'ssh-dss';
         } else {
@@ -5002,6 +5011,8 @@ class SSH2
                 throw new NoSupportedAlgorithmsException('Unsupported signature format');
         }
 
+        // the server host key is a public key, so loadFormat() returned the concrete public key class
+        /** @var DSA\PublicKey|EC\PublicKey|RSA\PublicKey $key */
         if (!$key->verify($this->exchange_hash, $signature)) {
             $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
             return null;
