@@ -30,4 +30,9 @@ class GeneralizedTime extends \DateTime implements BaseType
     {
         return $this->format('Y-m-d H:i:s');
     }
+
+    public function __debugInfo(): array
+    {
+        return array_diff_key((array) $this, ['metadata' => 1]);
+    }
 }
