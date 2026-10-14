@@ -91,6 +91,11 @@ trait DN
         }
     }
 
+    /**
+     * @template TValue of BaseType|array|string
+     * @param TValue $value
+     * @param-out TValue|BaseType|Element $value
+     */
     private static function encodeDNS(OID|string $type, BaseType|array|string &$value): void
     {
         if ($type == 'id-at-postalAddress') {
