@@ -575,6 +575,8 @@ abstract class ASN1
      * ASN.1 Map
      *
      * Provides an ASN.1 semantic mapping ($mapping) from a parsed BER-encoding to a human readable format.
+     *
+     * @phpstan-return ($mapping is array{type: self::TYPE_CHOICE, ...} ? Choice : Element|BaseType)
      */
     public static function map(array $decoded, array $mapping, array $rules = []): Element|BaseType
     {
