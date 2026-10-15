@@ -286,6 +286,9 @@ abstract class Engine implements \JsonSerializable
         if ($this->compare(static::$zero[static::class]) < 0) {
             $temp = $this->abs();
             $temp = $temp->modInverse($n);
+            if ($temp === null) {
+                return null;
+            }
             return $this->normalize($n->subtract($temp));
         }
 
