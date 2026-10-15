@@ -19,3 +19,39 @@ parameters:
             rawMessage: 'Property phpseclib4\File\ANSI::$old_x is never read, only written.'
             path: phpseclib/File/ANSI.php
             count: 1 
+
+        # R3: outer ContentInfo survives offset access before return (Constructed).
+        # Inner blob hazards stay reported; see analysis/phpstan-asn1-r3-guarded-return-policy.md.
+        -
+            identifier: return.type
+            rawMessage: 'Method phpseclib4\File\CMS\CompressedData::loadString() should return phpseclib4\File\ASN1\Constructed but returns (ArrayAccess&phpseclib4\File\ASN1\Element)|(ArrayAccess&phpseclib4\File\ASN1\Types\BaseType).'
+            path: phpseclib/File/CMS/CompressedData.php
+            count: 1
+        -
+            identifier: return.type
+            rawMessage: 'Method phpseclib4\File\CMS\DigestedData::loadString() should return phpseclib4\File\ASN1\Constructed but returns (ArrayAccess&phpseclib4\File\ASN1\Element)|(ArrayAccess&phpseclib4\File\ASN1\Types\BaseType).'
+            path: phpseclib/File/CMS/DigestedData.php
+            count: 1
+        -
+            identifier: return.type
+            rawMessage: 'Method phpseclib4\File\CMS\EncryptedData::loadString() should return phpseclib4\File\ASN1\Constructed but returns (ArrayAccess&phpseclib4\File\ASN1\Element)|(ArrayAccess&phpseclib4\File\ASN1\Types\BaseType).'
+            path: phpseclib/File/CMS/EncryptedData.php
+            count: 1
+        -
+            identifier: return.type
+            rawMessage: 'Method phpseclib4\File\CMS\SignedData::loadString() should return phpseclib4\File\ASN1\Constructed but returns (ArrayAccess&phpseclib4\File\ASN1\Element)|(ArrayAccess&phpseclib4\File\ASN1\Types\BaseType).'
+            path: phpseclib/File/CMS/SignedData.php
+            count: 1
+
+        # R3: outer PFX survives authSafe offset access; this does not validate inner contents.
+        -
+            identifier: return.type
+            rawMessage: 'Method phpseclib4\File\PFX::loadString() should return phpseclib4\File\ASN1\Constructed but returns (ArrayAccess&phpseclib4\File\ASN1\Element)|(ArrayAccess&phpseclib4\File\ASN1\Types\BaseType).'
+            path: phpseclib/File/PFX.php
+            count: 1
+        # R3: CertBag survives certId offset access before return (Constructed).
+        -
+            identifier: return.type
+            rawMessage: 'Method phpseclib4\File\PFX::handleCertBag() should return phpseclib4\File\ASN1\Constructed but returns phpseclib4\File\ASN1\Element|phpseclib4\File\ASN1\Types\BaseType.'
+            path: phpseclib/File/PFX.php
+            count: 1
