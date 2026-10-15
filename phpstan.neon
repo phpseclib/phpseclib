@@ -108,3 +108,71 @@ parameters:
             rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/File/CMS/EnvelopedData/Recipient.php
             count: 1
+
+        # EP1: Engine's protected backend algorithm capabilities are supplied by concrete families.
+        -
+            identifier: method.notFound
+            rawMessage: 'Call to an undefined method phpseclib4\Math\BigInteger\Engines\Engine::normalize().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 14
+        -
+            identifier: method.notFound
+            rawMessage: 'Call to an undefined method phpseclib4\Math\BigInteger\Engines\Engine::powModInner().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 3
+        -
+            identifier: method.notFound
+            rawMessage: 'Call to an undefined method phpseclib4\Math\BigInteger\Engines\Engine::testSmallPrimes().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 1
+
+        # EP1: sliding-window operations dispatch to role-specific reduction providers.
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::prepareReduce().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 2
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::squareReduce().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 3
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::multiplyReduce().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 2
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::reduce().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 1
+
+        # EP1: family Base wrappers delegate reduction through the selected provider.
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\BCMath\Base::reduce().'
+            path: phpseclib/Math/BigInteger/Engines/BCMath/Base.php
+            count: 3
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\PHP\Base::reduce().'
+            path: phpseclib/Math/BigInteger/Engines/PHP/Base.php
+            count: 3
+
+        # EP1: arithmetic Engine delegates powModHelper to its selected provider.
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\BCMath::powModHelper().'
+            path: phpseclib/Math/BigInteger/Engines/BCMath.php
+            count: 1
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\GMP::powModHelper().'
+            path: phpseclib/Math/BigInteger/Engines/GMP.php
+            count: 1
+        -
+            identifier: staticMethod.notFound
+            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\PHP::powModHelper().'
+            path: phpseclib/Math/BigInteger/Engines/PHP.php
+            count: 1
