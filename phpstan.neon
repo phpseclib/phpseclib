@@ -55,3 +55,56 @@ parameters:
             rawMessage: 'Method phpseclib4\File\PFX::handleCertBag() should return phpseclib4\File\ASN1\Constructed but returns phpseclib4\File\ASN1\Element|phpseclib4\File\ASN1\Types\BaseType.'
             path: phpseclib/File/PFX.php
             count: 1
+
+        # Late-static numeric reconstruction assumes compatible descendant construction.
+        # Accepted constructor-checking difference: migration_remarks.md.
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/BigInteger.php
+            count: 35
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 30
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/BigInteger/Engines/BCMath.php
+            count: 13
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/BigInteger/Engines/GMP.php
+            count: 1
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/BigInteger/Engines/PHP.php
+            count: 22
+
+        # Field arithmetic reconstructs the same class with its registered instance ID.
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/PrimeField/Integer.php
+            count: 6
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Math/BinaryField/Integer.php
+            count: 5
+
+        # GCM fallback constructs same-algorithm CTR/ECB helper ciphers.
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/Crypt/Common/SymmetricKey.php
+            count: 3
+        # Recipient loading constructs an empty instance before hydrating its payload.
+        -
+            identifier: new.static
+            rawMessage: 'Unsafe usage of new static().'
+            path: phpseclib/File/CMS/EnvelopedData/Recipient.php
+            count: 1
