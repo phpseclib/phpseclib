@@ -553,6 +553,14 @@ abstract class SymmetricKey
     protected static $use_reg_intval;
 
     /**
+     * The cipher methods supported by OpenSSL, as keys
+     *
+     * @see self::isValidOpenSSLCipher()
+     * @var array<string, true>|null
+     */
+    private static $openssl_cipher_methods;
+
+    /**
      * Poly1305 Key
      *
      * @see self::setPoly1305Key()
@@ -2235,6 +2243,24 @@ abstract class SymmetricKey
     }
 
     /**
+     * Test whether OpenSSL supports a cipher method
+     *
+     * openssl_get_cipher_methods() builds the whole list of methods every time it is called, while
+     * the engine is selected again every time the key, the IV or the nonce change: the list is
+     * only built once.
+     *
+     * @param string $method
+     * @return bool
+     */
+    protected static function isValidOpenSSLCipher($method)
+    {
+        if (!isset(self::$openssl_cipher_methods)) {
+            self::$openssl_cipher_methods = array_fill_keys(openssl_get_cipher_methods(), true);
+        }
+        return isset(self::$openssl_cipher_methods[$method]);
+    }
+
+    /**
      * Test for engine validity
      *
      * @see self::__construct()
@@ -2252,15 +2278,14 @@ abstract class SymmetricKey
                     return false;
                 }
 
-                $methods = openssl_get_cipher_methods();
-                if (in_array($this->cipher_name_openssl, $methods)) {
+                if (self::isValidOpenSSLCipher($this->cipher_name_openssl)) {
                     return true;
                 }
                 // not all of openssl's symmetric cipher's support ctr. for those
                 // that don't we'll emulate it
                 switch ($this->mode) {
                     case self::MODE_CTR:
-                        if (in_array($this->cipher_name_openssl_ecb, $methods)) {
+                        if (self::isValidOpenSSLCipher($this->cipher_name_openssl_ecb)) {
                             $this->openssl_emulate_ctr = true;
                             return true;
                         }
