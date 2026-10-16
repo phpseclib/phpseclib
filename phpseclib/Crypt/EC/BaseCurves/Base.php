@@ -40,6 +40,7 @@ abstract class Base
      */
     public function randomInteger(): Integer
     {
+        // @phpstan-ignore property.notFound ($factory belongs to the concrete curve subclass)
         return $this->factory->randomInteger();
     }
 
@@ -50,6 +51,7 @@ abstract class Base
      */
     public function convertInteger(BigInteger $x): Integer
     {
+        // @phpstan-ignore property.notFound ($factory belongs to the concrete curve subclass)
         return $this->factory->newInteger($x);
     }
 
@@ -60,6 +62,7 @@ abstract class Base
      */
     public function getLengthInBytes(): int
     {
+        // @phpstan-ignore property.notFound ($factory belongs to the concrete curve subclass)
         return $this->factory->getLengthInBytes();
     }
 
@@ -71,6 +74,7 @@ abstract class Base
      */
     public function getLength(): int
     {
+        // @phpstan-ignore property.notFound ($factory belongs to the concrete curve subclass)
         return $this->factory->getLength();
     }
 

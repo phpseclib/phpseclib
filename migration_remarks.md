@@ -38,6 +38,20 @@ contract was declared, and PHPStan's broader `property.notFound` category
 (other properties, other files, incompatible assignments) remains fully
 checked.
 
+### Subclass-owned EC `$factory` property
+
+EC curve classes keep their scalar-field factory in a `$factory` property
+declared only on the concrete families (`PrimeField` for
+prime/Montgomery/TwistedEdwards curves, `BinaryField` for binary curves),
+while shared methods in the abstract `Crypt\EC\BaseCurves\Base` read it, which
+PHPStan reports as `property.notFound`. The four universal field operations
+(`randomInteger`, `newInteger`, `getLengthInBytes`, `getLength`) carry local,
+line-scoped PHPStan ignores mirroring the previous per-method Psalm
+suppressions. The fifth access in `setReduction()` deliberately remains
+visible as the standing marker for the known defect BI-013 (`BinaryField` has
+no `setReduction`). No `$factory` type contract, hierarchy, or runtime change
+was introduced.
+
 ## Migration changes
 
 For the dynamic BigInteger Engine/provider hierarchy, the previous global Psalm
