@@ -144,6 +144,20 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame('0', (string) $r);
     }
 
+    public function testModPowModuloOne()
+    {
+        foreach (['-7', '0', '7'] as $base) {
+            foreach (['0', '1', '17'] as $exponent) {
+                foreach (['1', '-1'] as $modulus) {
+                    $a = $this->getInstance($base);
+                    $e = $this->getInstance($exponent);
+                    $n = $this->getInstance($modulus);
+                    $this->assertSame('0', (string) $a->modPow($e, $n));
+                }
+            }
+        }
+    }
+
     public function testModPow()
     {
         $a = $this->getInstance('10');

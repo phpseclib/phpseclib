@@ -669,6 +669,10 @@ abstract class Engine implements \JsonSerializable
     {
         $n = $this->bitmask !== false && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
 
+        if ($n->equals(static::$one[static::class])) {
+            return $this->normalize(new static());
+        }
+
         if ($e->compare(new static()) < 0) {
             $e = $e->abs();
 
