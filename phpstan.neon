@@ -14,6 +14,7 @@ parameters:
     checkMissingOverrideMethodAttribute: false
 
     ignoreErrors:
+        # Existing field-specific Psalm allowance: one unread ANSI option field.
         -
             identifier: property.onlyWritten
             rawMessage: 'Property phpseclib4\File\ANSI::$old_x is never read, only written.'
@@ -60,119 +61,61 @@ parameters:
         # Accepted constructor-checking difference: migration_remarks.md.
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/BigInteger.php
             count: 35
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/BigInteger/Engines/Engine.php
             count: 30
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/BigInteger/Engines/BCMath.php
             count: 13
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/BigInteger/Engines/GMP.php
             count: 1
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/BigInteger/Engines/PHP.php
             count: 22
 
         # Field arithmetic reconstructs the same class with its registered instance ID.
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/PrimeField/Integer.php
             count: 6
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Math/BinaryField/Integer.php
             count: 5
 
         # GCM fallback constructs same-algorithm CTR/ECB helper ciphers.
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/Crypt/Common/SymmetricKey.php
             count: 3
         # Recipient loading constructs an empty instance before hydrating its payload.
         -
             identifier: new.static
-            rawMessage: 'Unsafe usage of new static().'
             path: phpseclib/File/CMS/EnvelopedData/Recipient.php
             count: 1
 
-        # EP1: Engine's protected backend algorithm capabilities are supplied by concrete families.
+        # Engine/provider capability boundary: protected backend algorithms are
+        # supplied by the concrete families; no universal Engine API is implied.
+        # The previous Psalm gate broadly tolerated UndefinedMethod; this policy
+        # is bounded to the reviewed files (no per-method precision).
+        # See analysis/phpstan-suppression-parity-review.md.
         -
             identifier: method.notFound
-            rawMessage: 'Call to an undefined method phpseclib4\Math\BigInteger\Engines\Engine::normalize().'
             path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 14
-        -
-            identifier: method.notFound
-            rawMessage: 'Call to an undefined method phpseclib4\Math\BigInteger\Engines\Engine::powModInner().'
-            path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 3
-        -
-            identifier: method.notFound
-            rawMessage: 'Call to an undefined method phpseclib4\Math\BigInteger\Engines\Engine::testSmallPrimes().'
-            path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 1
-
-        # EP1: sliding-window operations dispatch to role-specific reduction providers.
+            count: 18
         -
             identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::prepareReduce().'
-            path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 2
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::squareReduce().'
-            path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 3
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::multiplyReduce().'
-            path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 2
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\Engine::reduce().'
-            path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 1
-
-        # EP1: family Base wrappers delegate reduction through the selected provider.
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\BCMath\Base::reduce().'
-            path: phpseclib/Math/BigInteger/Engines/BCMath/Base.php
-            count: 3
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\PHP\Base::reduce().'
-            path: phpseclib/Math/BigInteger/Engines/PHP/Base.php
-            count: 3
-
-        # EP1: arithmetic Engine delegates powModHelper to its selected provider.
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\BCMath::powModHelper().'
-            path: phpseclib/Math/BigInteger/Engines/BCMath.php
-            count: 1
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\GMP::powModHelper().'
-            path: phpseclib/Math/BigInteger/Engines/GMP.php
-            count: 1
-        -
-            identifier: staticMethod.notFound
-            rawMessage: 'Call to an undefined static method phpseclib4\Math\BigInteger\Engines\PHP::powModHelper().'
-            path: phpseclib/Math/BigInteger/Engines/PHP.php
-            count: 1
+            paths:
+                - phpseclib/Math/BigInteger/Engines/Engine.php
+                - phpseclib/Math/BigInteger/Engines/BCMath/Base.php
+                - phpseclib/Math/BigInteger/Engines/PHP/Base.php
+                - phpseclib/Math/BigInteger/Engines/BCMath.php
+                - phpseclib/Math/BigInteger/Engines/GMP.php
+                - phpseclib/Math/BigInteger/Engines/PHP.php

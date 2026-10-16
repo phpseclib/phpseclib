@@ -27,12 +27,17 @@ for this migration.
 ## Migration changes
 
 For the dynamic BigInteger Engine/provider hierarchy, the previous global Psalm
-`UndefinedMethod` suppression was replaced with path-, message- and count-limited
-PHPStan exceptions for the 35 reviewed instance/static capability calls. This
-retains the practical tolerance for runtime-selected protected/provider methods
-without inventing a universal public Engine/provider API. The exceptions do not
-cover return, argument, property or other missing-method diagnostics. They also
-do not restore argument checking where PHPStan cannot resolve a method signature.
+`UndefinedMethod` suppression was replaced with PHPStan exceptions bounded to
+the reviewed Engine/provider files: `method.notFound` in
+`Math/BigInteger/Engines/Engine.php` (count-guarded) and
+`staticMethod.notFound` in the six reviewed engine files, covering the 35
+reviewed instance/static capability calls. This retains the practical
+tolerance for runtime-selected protected/provider methods without inventing a
+universal public Engine/provider API. The exceptions do not cover return,
+argument or property diagnostics, and they do not restore argument checking
+where PHPStan cannot resolve a method signature. Missing-method diagnostics
+outside the reviewed files remain visible; inside them, future missing-method
+typos are tolerated, as under the previous global Psalm allowance.
 
 This section will contain short explanations of noteworthy migration commits
 and changes as the migration is finalized.
