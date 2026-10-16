@@ -24,6 +24,20 @@ it. Restoring that coverage would require stronger constructor contracts or
 hierarchy restrictions, considered disproportionate and potentially API-affecting
 for this migration.
 
+### Backend-owned `$value` property checking
+
+The BigInteger engines keep their numeric state in a `$value` property owned by
+each concrete backend (GMP `string|\GMP`, BCMath `string`, PHP engines
+`string|array`), while shared algorithms in the abstract `Engine` read and
+write it without PHPStan being able to bind the access to a concrete owner.
+Narrow, count-guarded PHPStan exceptions cover exactly those reviewed
+`$value` `property.notFound` occurrences in `Math/BigInteger/Engines/Engine.php`
+(18 Engine-receiver plus 2 template occurrences) and `GMP.php` (5 occurrences),
+mirroring the previous effective Psalm tolerance. No universal Engine `$value`
+contract was declared, and PHPStan's broader `property.notFound` category
+(other properties, other files, incompatible assignments) remains fully
+checked.
+
 ## Migration changes
 
 For the dynamic BigInteger Engine/provider hierarchy, the previous global Psalm

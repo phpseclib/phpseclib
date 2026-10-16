@@ -119,3 +119,24 @@ parameters:
                 - phpseclib/Math/BigInteger/Engines/BCMath.php
                 - phpseclib/Math/BigInteger/Engines/GMP.php
                 - phpseclib/Math/BigInteger/Engines/PHP.php
+
+        # Engine/GMP value-state boundary: $value is owned by the concrete
+        # backends (GMP string|\GMP, BCMath string, PHP string|array), not by
+        # Engine. Bounded to the exact $value messages; PHPStan's broader
+        # property.notFound category is not suppressed file-wide.
+        # See analysis/phpstan-engine-value-state-ep2-review.md.
+        -
+            identifier: property.notFound
+            rawMessage: 'Access to an undefined property phpseclib4\Math\BigInteger\Engines\Engine::$value.'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 18
+        -
+            identifier: property.notFound
+            rawMessage: 'Access to an undefined property T of phpseclib4\Math\BigInteger\Engines\Engine::$value.'
+            path: phpseclib/Math/BigInteger/Engines/Engine.php
+            count: 2
+        -
+            identifier: property.notFound
+            rawMessage: 'Access to an undefined property phpseclib4\Math\BigInteger\Engines\Engine::$value.'
+            path: phpseclib/Math/BigInteger/Engines/GMP.php
+            count: 5
