@@ -173,6 +173,23 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertNull($result);
     }
 
+    public function testModInverseNegativeNonCoprime(): void
+    {
+        $cases = [
+            ['-6', '15'],
+            ['-500', '100'],
+            ['-340282366920938463463374607431768211456', '18446744073709551616'],
+        ];
+        foreach ($cases as [$a, $n]) {
+            $this->assertNull($this->getInstance($a)->modInverse($this->getInstance($n)));
+        }
+    }
+
+    public function testModInverseNegativeCoprime(): void
+    {
+        $this->assertSame('13', (string) $this->getInstance(-30)->modInverse($this->getInstance(17)));
+    }
+
     public function testExtendedGCD(): void
     {
         $a = $this->getInstance(693);
