@@ -124,6 +124,20 @@ abstract class Unit_Math_BigInteger_TestCase extends PhpseclibTestCase
         $this->assertSame('1', (string) $r);
     }
 
+    public function testModPowModuloOne()
+    {
+        foreach (array('-7', '0', '7') as $base) {
+            foreach (array('0', '1', '17') as $exponent) {
+                foreach (array('1', '-1') as $modulus) {
+                    $a = $this->getInstance($base);
+                    $e = $this->getInstance($exponent);
+                    $n = $this->getInstance($modulus);
+                    $this->assertSame('0', (string) $a->modPow($e, $n));
+                }
+            }
+        }
+    }
+
     public function testModPow()
     {
         $a = $this->getInstance('10');

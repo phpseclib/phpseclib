@@ -1762,7 +1762,16 @@ class Math_BigInteger
      */
     function modPow($e, $n)
     {
+        static $one;
+        if (!isset($one)) {
+            $one = new Math_BigInteger(1);
+        }
+
         $n = $this->bitmask !== false && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
+
+        if ($n->equals($one)) {
+            return $this->_normalize(new Math_BigInteger());
+        }
 
         if ($e->compare(new Math_BigInteger()) < 0) {
             $e = $e->abs();
