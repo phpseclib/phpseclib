@@ -122,7 +122,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame('1', (string) $r);
     }
 
-    public function testDivideNegativeExact(): void
+    public function testDivideNegativeExact()
     {
         // The second element of divide() is the "common residue" -- the first
         // positive modulo -- so only a negative remainder gets the divisor added.
@@ -144,7 +144,7 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame('0', (string) $r);
     }
 
-    public function testModPowModuloOne(): void
+    public function testModPowModuloOne()
     {
         foreach (['-7', '0', '7'] as $base) {
             foreach (['0', '1', '17'] as $exponent) {
