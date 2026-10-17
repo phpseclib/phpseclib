@@ -1732,7 +1732,16 @@ class BigInteger
      */
     function modPow($e, $n)
     {
+        static $one;
+        if (!isset($one)) {
+            $one = new static(1);
+        }
+
         $n = $this->bitmask !== false && $this->bitmask->compare($n) < 0 ? $this->bitmask : $n->abs();
+
+        if ($n->equals($one)) {
+            return $this->_normalize(new static());
+        }
 
         if ($e->compare(new static()) < 0) {
             $e = $e->abs();
