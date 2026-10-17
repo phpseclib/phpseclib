@@ -2246,8 +2246,8 @@ abstract class SymmetricKey
      * Test whether OpenSSL supports a cipher method
      *
      * openssl_get_cipher_methods() builds the whole list of methods every time it is called, while
-     * the engine is selected again every time the key, the IV or the nonce change: the list is
-     * only built once.
+     * the engine is selected again every time the key or the nonce change: the list is only built
+     * once.
      *
      * @param string $method
      * @return bool
