@@ -72,7 +72,7 @@ class ChaCha20 extends Salsa20
                     // openssl just does 96-bit nonces and that's it.
                     strlen($this->nonce ?? '') == 12 &&
                     !$this->continuousBuffer &&
-                    in_array('chacha20-poly1305', openssl_get_cipher_methods());
+                    self::isValidOpenSSLCipher('chacha20-poly1305');
             case self::ENGINE_OPENSSL:
                 // OpenSSL 1.1.0 (released 25 Aug 2016) added support for chacha20.
                 // PHP didn't support OpenSSL 1.1.0 until 7.0.19 (11 May 2017)
