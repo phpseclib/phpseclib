@@ -418,7 +418,7 @@ abstract class SymmetricKey
      * @see self::isValidOpenSSLCipher()
      * @var array<string, true>|null
      */
-    private static $openssl_cipher_methods;
+    private static array $openssl_cipher_methods;
 
     /**
      * Poly1305 Key
@@ -1810,11 +1810,8 @@ abstract class SymmetricKey
      * openssl_get_cipher_methods() builds the whole list of methods every time it is called, while
      * the engine is selected again every time the key or the nonce change: the list is only built
      * once.
-     *
-     * @param string $method
-     * @return bool
      */
-    protected static function isValidOpenSSLCipher($method)
+    protected static function isValidOpenSSLCipher(string $method): bool
     {
         if (!isset(self::$openssl_cipher_methods)) {
             self::$openssl_cipher_methods = array_fill_keys(openssl_get_cipher_methods(), true);
