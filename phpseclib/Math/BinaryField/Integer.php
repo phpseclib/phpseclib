@@ -446,7 +446,7 @@ class Integer extends Base
     /**
      * Converts an Integer to a BigInteger
      *
-     * @return string
+     * @return BigInteger
      */
     public function toBigInteger(): BigInteger
     {

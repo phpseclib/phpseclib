@@ -51,14 +51,14 @@ abstract class PKCS8 extends Progenitor
     /**
      * OID Name
      *
-     * @var array
+     * @var list<string>
      */
     public const OID_NAME = ['id-ecPublicKey', 'id-Ed25519', 'id-Ed448', 'id-X25519', 'id-X448'];
 
     /**
      * OID Value
      *
-     * @var array
+     * @var list<string>
      */
     public const OID_VALUE = ['1.2.840.10045.2.1', '1.3.101.112', '1.3.101.113', '1.3.101.110', '1.3.101.111'];
 

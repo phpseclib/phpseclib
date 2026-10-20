@@ -314,8 +314,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     }
 
     /**
-     * @var string|BaseString|string[]|BaseString[]|null $friendlyName
-     * @var string|BaseString|string[]|BaseString[]|null $localKeyID
+     * @param string|BaseString|list<string|BaseString>|null $friendlyName
+     * @param string|BaseString|list<string|BaseString>|null $localKeyID
      */
     public function add(
         #[\SensitiveParameter] X509|PrivateKey $obj,
