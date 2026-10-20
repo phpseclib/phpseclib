@@ -65,8 +65,10 @@ abstract class EvalBarrett extends Base
                 return $temp->value;
             ';
             eval('$func = function ($x) { ' . $code . '};');
+            // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
             self::$custom_reduction = $func;
             //self::$custom_reduction = \Closure::bind($func, $m, $class);
+            // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
             return $func;
         }
 
@@ -157,8 +159,10 @@ abstract class EvalBarrett extends Base
 
         eval('$func = function ($n) { ' . $code . '};');
 
+        // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
         self::$custom_reduction = $func;
 
+        // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
         return $func;
 
         //self::$custom_reduction = \Closure::bind($func, $m, $class);

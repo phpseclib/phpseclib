@@ -329,6 +329,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     $value = [$friendlyName];
                 } else {
                     foreach ($friendlyName as $temp) {
+                        // @phpstan-ignore instanceof.alwaysTrue, booleanAnd.alwaysFalse (Native array elements are not type-enforced; this guard validates the documented string|BaseString element contract.)
                         if (!is_string($temp) && !$temp instanceof BaseString) {
                             throw new UnexpectedValueException('Arrays must contain either strings or instances of BaseString');
                         }
@@ -347,6 +348,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     $value = [$localKeyID];
                 } else {
                     foreach ($localKeyID as $temp) {
+                        // @phpstan-ignore instanceof.alwaysTrue, booleanAnd.alwaysFalse (Native array elements are not type-enforced; this guard validates the documented string|BaseString element contract.)
                         if (!is_string($temp) && !$temp instanceof BaseString) {
                             throw new UnexpectedValueException('Arrays must contain either strings or instances of BaseString');
                         }
