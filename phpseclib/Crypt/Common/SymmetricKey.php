@@ -1084,6 +1084,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty plaintext, in which case the taken CTR branch's loop body assigned $key at least once.)
                         $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
@@ -1185,6 +1186,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty plaintext: the buffered-branch loop assigns $key, and the else branch assigns $key unconditionally after its loop.)
                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
@@ -1394,6 +1396,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty ciphertext, in which case the taken CTR branch's loop body assigned $key at least once.)
                         $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
@@ -1494,6 +1497,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty ciphertext: the buffered-branch loop assigns $key, and the else branch assigns $key unconditionally after its loop.)
                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
