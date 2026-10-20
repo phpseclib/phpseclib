@@ -95,6 +95,7 @@ class BigInteger implements \JsonSerializable
             throw new BadConfigurationException("No valid modular exponentiation engine found for $main");
         }
 
+        // @phpstan-ignore variable.undefined (Reaching here requires $found set in the provider loop, which assigned $modexp.)
         self::$engines = [$main, $modexp];
     }
 

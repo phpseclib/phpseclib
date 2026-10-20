@@ -266,6 +266,7 @@ class ChaCha20Test extends PhpseclibTestCase
                     $c->setCounter(1);
                     if ($calculatePoly) {
                         $c->enablePoly1305();
+                        // @phpstan-ignore variable.undefined (The first, always-available PHP engine round without Poly1305 initializes ciphertext$nonceSize before any Poly1305 round assigns $tag here.)
                         $c->setTag($tag);
                     }
                     $result = $c->decrypt($ciphertext);

@@ -257,6 +257,7 @@ abstract class PuTTY
         $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$offset + $privateLength]));
         $hmac = Strings::hex2bin($hmac);
 
+        // @phpstan-ignore variable.undefined (The validated version is 2 or 3, and both hash-selection arms assign $hash.)
         if (!hash_equals($hash->hash($source), $hmac)) {
             throw new UnexpectedValueException('MAC validation error');
         }

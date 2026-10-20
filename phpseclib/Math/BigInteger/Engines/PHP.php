@@ -1190,6 +1190,7 @@ abstract class PHP extends Engine
                 }
                 $newbits = 0;
                 for ($j = count($digit) - 1; $j >= 0; $j--) {
+                    // @phpstan-ignore variable.undefined (Nonzero overflow follows a mask assignment; zero overflow returns to the first arm before another read.)
                     $temp = $digit[$j] & $mask;
                     $digit[$j] = ($digit[$j] >> $overflow) | ($newbits << $remaining);
                     $newbits = $temp;
