@@ -247,6 +247,7 @@ abstract class XML
             case 'prime-field':
                 $curve = new PrimeCurve();
                 /** @psalm-suppress UndefinedVariable $p */
+                // @phpstan-ignore variable.undefined ($p is assigned by the variable-variable loop above only when the prime-field query matched, which is exactly the case selected here.)
                 $curve->setModulo(new BigInteger($p, 256));
                 $curve->setCoefficients(
                     new BigInteger($a, 256),
@@ -298,6 +299,7 @@ abstract class XML
                 $curve = new PrimeCurve();
 
                 /** @psalm-suppress UndefinedVariable $p */
+                // @phpstan-ignore variable.undefined ($p is assigned by the variable-variable loop above only when the prime-field query matched, which is exactly the case selected here.)
                 $p = str_replace(["\r", "\n", ' ', "\t"], '', $p);
                 $curve->setModulo(new BigInteger($p));
 

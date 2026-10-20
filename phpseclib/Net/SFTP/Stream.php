@@ -144,11 +144,13 @@ class Stream
         }
 
         if (isset($query)) {
+            // @phpstan-ignore variable.undefined ($query is assigned by the variable-variable loop above only when the URL has a query; the enclosing isset guard makes this read safe.)
             $path .= '?' . $query;
         } elseif (preg_match('/(\?|\?#)$/', $orig)) {
             $path .= '?';
         }
         if (isset($fragment)) {
+            // @phpstan-ignore variable.undefined ($fragment is assigned by the variable-variable loop above only when the URL has a fragment; the enclosing isset guard makes this read safe.)
             $path .= '#' . $fragment;
         } elseif ($orig[-1] == '#') {
             $path .= '#';
