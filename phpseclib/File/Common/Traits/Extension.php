@@ -95,6 +95,9 @@ trait Extension
         };
     }
 
+    /**
+     * @param 'id-ce-subjectAltName'|'id-ce-issuerAltName'|'id-ce-authorityKeyIdentifier'|'id-pe-authorityInfoAccess'|'id-ce-cRLDistributionPoints' $id
+     */
     private static function getPathToIPAddress(string $id): string
     {
         return match ($id) {

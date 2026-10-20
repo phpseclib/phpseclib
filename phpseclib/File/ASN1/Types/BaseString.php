@@ -43,6 +43,10 @@ abstract class BaseString implements BaseType
      *
      * This is a lazy conversion, dealing only with character size.
      * No real conversion table is used.
+     *
+     * @template T of BaseString
+     * @param class-string<T> $class
+     * @return T
      */
     private function convert(string $class): self
     {

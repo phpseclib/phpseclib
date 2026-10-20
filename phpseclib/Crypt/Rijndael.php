@@ -88,6 +88,8 @@ class Rijndael extends BlockCipher
      *    of that, we'll just precompute it once.}
      *
      * @see self::setBlockLength()
+     *
+     * @var 4|5|6|7|8
      */
     private int $Nb = 4;
 
