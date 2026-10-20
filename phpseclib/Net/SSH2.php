@@ -717,7 +717,7 @@ class SSH2
      * Real-time log file pointer
      *
      * @see self::_append_log()
-     * @var resource|closed-resource
+     * @var resource|false|closed-resource|null
      */
     private $realtime_log_file;
 
@@ -1461,16 +1461,18 @@ class SSH2
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
         $decrypt = self::array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
-        if (!$decrypt || ($decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt)) === null) {
+        if (!$decrypt) {
             $this->disconnect_helper(DisconnectReason::KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client encryption algorithms found');
         }
+        $decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt);
 
         $encrypt = self::array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
-        if (!$encrypt || ($encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt)) === null) {
+        if (!$encrypt) {
             $this->disconnect_helper(DisconnectReason::KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server encryption algorithms found');
         }
+        $encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt);
 
         // through diffie-hellman key exchange a symmetric key is obtained
         $this->kex_algorithm = self::array_intersect_first($kex_algorithms, $this->kex_algorithms);
@@ -1858,7 +1860,7 @@ class SSH2
      * Maps an encryption algorithm name to the number of key bytes.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return int|null Number of bytes as an integer or null for unknown
+     * @return int Number of key bytes
      */
     private function encryption_algorithm_to_key_size(string $algorithm): int
     {
@@ -4215,7 +4217,7 @@ class SSH2
     /**
      * Logs data packet helper
      *
-     * @param resource &$realtime_log_file
+     * @param resource|false|closed-resource|null &$realtime_log_file
      */
     protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, ?int &$log_size, mixed &$realtime_log_file, ?bool &$realtime_log_wrap, ?int &$realtime_log_size): void
     {
