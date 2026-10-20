@@ -942,7 +942,9 @@ class Hash
             }
             // Step 4
             $M_last = $flag ?
+                // @phpstan-ignore variable.undefined (recomputeAESKey is always true in the aes_cmac branch, so $k1 was assigned above; only the umac branch sets it false, and setHash()/setKey()/setNonce() reset it to true)
                 $M[$n - 1] ^ $k1 :
+                // @phpstan-ignore variable.undefined (recomputeAESKey is always true in the aes_cmac branch, so $k2 was assigned above; only the umac branch sets it false, and setHash()/setKey()/setNonce() reset it to true)
                 self::OMAC_padding($M[$n - 1], $const_Bsize) ^ $k2;
             // Step 5
             $x = $constZero;
