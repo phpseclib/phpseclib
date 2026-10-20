@@ -208,6 +208,7 @@ class SCP extends SSH2
                 $data = $this->get_scp_response(false);
             } catch (SSHChannelExitSignalException $e) {
                 if (is_null($local_file)) {
+                    // @phpstan-ignore variable.undefined (is_null($local_file) selects the else branch, which initialized $content)
                     $e->partialOutput = $content;
                 }
                 throw $e;
@@ -229,6 +230,7 @@ class SCP extends SSH2
             }
 
             if (is_null($local_file)) {
+                // @phpstan-ignore variable.undefined (is_null($local_file) selects the else branch, which initialized $content)
                 $content .= $data;
             } else {
                 fputs($fp, $data);
@@ -246,6 +248,7 @@ class SCP extends SSH2
         $this->close_channel(self::CHANNEL_EXEC, true);
 
         if ($fclose_check) {
+            // @phpstan-ignore variable.undefined ($fclose_check is only true for a non-resource destination, whose branch assigns $fp via Files::open; open failure is rethrown)
             fclose($fp);
         }
 
