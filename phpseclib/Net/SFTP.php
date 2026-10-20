@@ -1908,6 +1908,7 @@ class SFTP extends SSH2
                     $this->send_sftp_packet(SFTPPacketType::READ, $packet, $i);
                 } catch (\Exception $e) {
                     if ($fclose_check) {
+                        // @phpstan-ignore variable.undefined ($fclose_check is only true for a string $local_file, whose setup branch assigns $fp via Files::open, which throws on failure.)
                         fclose($fp);
                     }
                     throw $e;
@@ -1935,6 +1936,7 @@ class SFTP extends SSH2
                         $response = $this->get_sftp_packet($packets_sent - $i);
                     } catch (SSHChannelExitSignalException $e) {
                         if (!isset($local_file)) {
+                            // @phpstan-ignore variable.undefined (!isset($local_file) within the documented null|string|resource|Closure domain means null, whose setup branch initializes $content.)
                             $e->partialOutput = $content;
                         }
                         throw $e;
@@ -1946,10 +1948,12 @@ class SFTP extends SSH2
                         $temp = substr($response, 4);
                         $offset += strlen($temp);
                         if (!isset($local_file)) {
+                            // @phpstan-ignore variable.undefined (!isset($local_file) within the documented null|string|resource|Closure domain means null, whose setup branch initializes $content.)
                             $content .= $temp;
                         } elseif (is_callable($local_file)) {
                             $local_file($temp);
                         } else {
+                            // @phpstan-ignore variable.undefined (this else requires $local_file to be a string or resource per the documented domain, both of which assign $fp in the setup above.)
                             fwrite($fp, $temp);
                         }
                         if ($progressCallback) {
@@ -1964,6 +1968,7 @@ class SFTP extends SSH2
                         break;
                     default:
                         if ($fclose_check) {
+                            // @phpstan-ignore variable.undefined ($fclose_check is only true for a string $local_file, whose setup branch assigns $fp via Files::open, which throws on failure.)
                             fclose($fp);
                         }
                         if ($this->channel_close) {
@@ -1991,6 +1996,7 @@ class SFTP extends SSH2
         }
 
         if ($fclose_check) {
+            // @phpstan-ignore variable.undefined ($fclose_check is only true for a string $local_file, whose setup branch assigns $fp via Files::open, which throws on failure.)
             fclose($fp);
 
             if ($this->preserveTime) {
