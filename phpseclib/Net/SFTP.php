@@ -757,6 +757,8 @@ class SFTP extends SSH2
 
     /**
      * Returns a list of files in the given directory
+     *
+     * @return list<string>
      */
     public function nlist(string $dir = '.', bool $recursive = false): array
     {
@@ -765,6 +767,8 @@ class SFTP extends SSH2
 
     /**
      * Helper method for nlist
+     *
+     * @return list<string>
      */
     private function nlist_helper(string $dir, bool $recursive, string $relativeDir): array
     {
@@ -852,6 +856,7 @@ class SFTP extends SSH2
      * Reads a list, be it detailed or not, of files in the given directory
      *
      * @param null|\Closure(string, string, array):void $onFile Callback invoked for each file found. The parameters are: directory, filename, attributes.
+     * @return ($raw is true ? array<array-key, array<array-key, mixed>> : list<string>)
      */
     private function readlist(string $dir, bool $raw = true, ?\Closure $onFile = null): array
     {
