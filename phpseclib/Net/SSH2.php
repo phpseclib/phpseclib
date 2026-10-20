@@ -1250,8 +1250,10 @@ class SSH2
         $data = explode("\r\n", trim($data, "\r\n"));
         $this->server_identifier = $data[count($data) - 1];
 
+        // @phpstan-ignore variable.undefined (the loop only exits without a match on feof, which throws above; otherwise $matches was set by its preg_match)
         if (version_compare($matches[3], '1.99', '<')) {
             $this->bitmap = 0;
+            // @phpstan-ignore variable.undefined (the loop only exits without a match on feof, which throws above; otherwise $matches was set by its preg_match)
             throw new UnsupportedValueException("Cannot connect to SSH $matches[3] servers");
         }
 
