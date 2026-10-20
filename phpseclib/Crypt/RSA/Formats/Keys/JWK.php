@@ -81,10 +81,12 @@ abstract class JWK extends Progenitor
         }
 
         if ($count == count($vars)) {
+            // @phpstan-ignore variable.undefined ($count reaching 8 means every loop iteration above assigned a $components entry.)
             return $components + ['isPublicKey' => false];
         }
 
         if ($count == 2 && $publicCount == 2) {
+            // @phpstan-ignore variable.undefined ($publicCount reaching 2 means both the 'n' and 'e' arms above assigned $components entries.)
             return $components + ['isPublicKey' => true];
         }
 

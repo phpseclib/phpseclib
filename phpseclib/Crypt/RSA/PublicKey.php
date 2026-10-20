@@ -102,6 +102,7 @@ final class PublicKey extends RSA implements Common\PublicKey
         }
 
         // Compare
+        // @phpstan-ignore variable.undefined, variable.undefined (A LengthException sets $exception, which throws above; reaching this line means both encode attempts completed their assignments.)
         return boolval($r1 | $r2);
     }
 
