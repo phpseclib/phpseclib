@@ -357,7 +357,9 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             $hash = new Hash($hash);
         }
         if (isset($expected)) {
+            // @phpstan-ignore variable.undefined (isset($expected) is only possible if the ESS block above completed, which assigned $hash; a failing new Hash() throws before any read)
             $certHash = $hash->hash($x509->getEncoded());
+            // @phpstan-ignore variable.undefined (isset($expected) is only possible if the ESS block above completed, which assigned $expectedHash)
             if (!hash_equals($expectedHash, $certHash)) {
                 return false;
             }
