@@ -1119,7 +1119,7 @@ abstract class Engine implements \JsonSerializable
             }
         }
 
-        if ($comp == 1) {
+        if ($g->pow($n)->compare($this) > 0) {
             $g = $g->subtract($step);
         }
 
