@@ -133,6 +133,7 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx3.der');
         $pfx = PFX::load($temp, 'password');
         $old = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($old);
     }
 
@@ -141,6 +142,7 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx4.der');
         $pfx = PFX::load($temp);
         $old = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($old);
     }
 
@@ -149,6 +151,7 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx5.der');
         $pfx = PFX::load($temp, 'password');
         $old = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($old);
     }
 
@@ -192,6 +195,7 @@ class PFXTest extends PhpseclibTestCase
         $pfx->add($x509);
         $pfx->setPassword('password');
         $str = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($str);
     }
 
@@ -208,6 +212,7 @@ class PFXTest extends PhpseclibTestCase
         $pfx->add($x509);
         $pfx->setPassword('password');
         $str = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($str);
     }
 
@@ -240,6 +245,7 @@ class PFXTest extends PhpseclibTestCase
         */
         $pfx->setPassword('password');
         $str = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($str);
     }
 
@@ -259,6 +265,7 @@ class PFXTest extends PhpseclibTestCase
         $pfx->add($x509);
 
         $pfx = PFX::load("$pfx", '')->toArray();
+        // @phpstan-ignore method.alreadyNarrowedType (Sole loaded-PFX assertion.)
         $this->assertIsArray($pfx);
     }
 

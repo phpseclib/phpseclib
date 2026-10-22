@@ -35,6 +35,7 @@ v5RwaQHmQEzHofTzF7I+
 
         $csr = CSR::load($test)->toArray();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Sole decoded-CSR assertion.)
         $this->assertIsArray($csr);
     }
 
@@ -73,6 +74,7 @@ draiRBZruwMPwPIP
 
         $csr = CSR::load($test)->toArray();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Sole decoded-CSR assertion.)
         $this->assertIsArray($csr);
     }
 
@@ -96,6 +98,7 @@ draiRBZruwMPwPIP
 
         $csr = CSR::load($csr)->toArray();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Sole decoded-CSR assertion.)
         $this->assertIsArray($csr);
     }
 
