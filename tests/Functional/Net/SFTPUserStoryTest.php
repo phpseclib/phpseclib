@@ -770,16 +770,27 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->put('test.txt', 'aaaaa');
         $stat = $sftp->statvfs('test.txt');
 
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('bsize', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('frsize', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('blocks', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('bfree', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('bavail', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('files', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('ffree', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('favail', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('fsid', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('flag', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('namemax', $stat);
 
         $this->assertSame(255, $stat['namemax']);
