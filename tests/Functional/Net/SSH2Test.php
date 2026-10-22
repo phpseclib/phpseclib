@@ -442,6 +442,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             'failed'
         );
 
+        // @phpstan-ignore method.alreadyNarrowedType (exec() can return null on failure.)
         $this->assertIsString(
             $directory,
             'Failed asserting that exec succeeds after shell read/write'

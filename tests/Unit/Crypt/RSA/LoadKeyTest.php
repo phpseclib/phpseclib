@@ -1605,6 +1605,7 @@ v/Ow5T0q5gIJAiEAyS4RaI9YG8EWx/2w0T67ZUVAw8eOMB6BIUg0Xcu+3okCIBOs
         PKCS8::requireDER();
         try {
             RSA::loadPrivateKey($str);
+            // @phpstan-ignore method.impossibleType (Fail if the invalid key unexpectedly loads.)
             $this->assertFalse(true, 'Key loaded when it shouldn\'t have');
         } catch (\Exception $e) {
             $this->assertInstanceOf(NoKeyLoadedException::class, $e);
