@@ -835,7 +835,8 @@ Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
 -----END EC PRIVATE KEY-----';
 
         $key = EC::loadFormat('PKCS1', $key);
-        $this->assertIsString("$key");
+        $this->assertStringContainsString('-----BEGIN PRIVATE KEY-----', "$key");
+        $this->assertSame('secp384r1', $key->getCurve());
     }
 
     public function testUnencryptedKeyGeneration(): void
