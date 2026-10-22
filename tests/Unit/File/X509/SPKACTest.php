@@ -55,12 +55,14 @@ class SPKACTest extends PhpseclibTestCase
         $spkac->setChallenge('...');
         $privatekey->sign($spkac);
 
+        // @phpstan-ignore method.alreadyNarrowedType (Keep signed-SPKAC serialization coverage.)
         $this->assertIsString("$spkac");
 
         $spkac = new SPKAC();
         $spkac->setPublicKey($privatekey->getPublicKey());
         $privatekey->sign($spkac);
 
+        // @phpstan-ignore method.alreadyNarrowedType (Keep second SPKAC serialization check.)
         $this->assertIsString("$spkac");
     }
 

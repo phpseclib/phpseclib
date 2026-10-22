@@ -37,6 +37,7 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
     public function testParametersWithInteger(): void
     {
         $a = DH::createParameters(512);
+        // @phpstan-ignore method.alreadyNarrowedType (Keep DH serialization coverage.)
         $this->assertIsString("$a");
     }
 
@@ -62,7 +63,9 @@ Sgh5jjQE3e+VGbPNOkMbMCsKbfJfFDdP4TVtbVHCReSFtXZiXn7G9ExC6aY37WsL
     {
         $param = DH::createParameters('diffie-hellman-group1-sha1');
         $key = DH::createKey($param);
+        // @phpstan-ignore method.alreadyNarrowedType (Keep private-key serialization coverage.)
         $this->assertIsString("$key");
+        // @phpstan-ignore method.alreadyNarrowedType (Keep public-key serialization coverage.)
         $this->assertIsString((string) $key->getPublicKey());
     }
 
