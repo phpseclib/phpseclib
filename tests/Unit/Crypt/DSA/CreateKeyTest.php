@@ -47,15 +47,21 @@ class CreateKeyTest extends PhpseclibTestCase
                 DSA::forceEngine($engine);
 
                 $privatekey = DSA::createKey();
+                // @phpstan-ignore method.alreadyNarrowedType (Keep runtime engine-result check.)
                 $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                // @phpstan-ignore method.alreadyNarrowedType (Keep runtime engine-result check.)
                 $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
 
                 $privatekey = DSA::createKey($params);
+                // @phpstan-ignore method.alreadyNarrowedType (Keep runtime engine-result check.)
                 $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                // @phpstan-ignore method.alreadyNarrowedType (Keep runtime engine-result check.)
                 $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
 
                 $privatekey = DSA::createKey(512, 160);
+                // @phpstan-ignore method.alreadyNarrowedType (Keep runtime engine-result check.)
                 $this->assertInstanceOf(PrivateKey::class, $privatekey);
+                // @phpstan-ignore method.alreadyNarrowedType (Keep runtime engine-result check.)
                 $this->assertInstanceOf(PublicKey::class, $privatekey->getPublicKey());
             } catch (BadConfigurationException $e) {
             }
