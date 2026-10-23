@@ -226,6 +226,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testChModOnFile(SFTP $sftp)
     {
         $sftp->chmod('file1.txt', 0o755);
+        // @phpstan-ignore method.alreadyNarrowedType (Retain chmod completion marker.)
         $this->assertTrue(true);
 
         return $sftp;
@@ -358,6 +359,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testSymlink(SFTP $sftp)
     {
         $sftp->symlink('file3.txt', 'symlink');
+        // @phpstan-ignore method.alreadyNarrowedType (Retain symlink completion marker.)
         $this->assertTrue(true);
 
         return $sftp;
@@ -664,6 +666,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         sleep(5);
         $sftp->nlist();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Retain command/listing completion marker.)
         $this->assertTrue(true);
 
         return $sftp;

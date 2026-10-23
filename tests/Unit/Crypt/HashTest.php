@@ -181,6 +181,7 @@ class HashTest extends PhpseclibTestCase
     public function testHMAC96($hash, $key, $message, $result): void
     {
         if ($hash == 'aes_cmac') {
+            // @phpstan-ignore method.alreadyNarrowedType (Mark the unsupported data-provider row.)
             $this->assertTrue(true);
             return;
         }

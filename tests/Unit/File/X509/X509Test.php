@@ -444,6 +444,7 @@ Mj93
         $x509->addDomains('example.com', 'example.net');
         $privatekey->sign($x509);
 
+        // @phpstan-ignore staticMethod.alreadyNarrowedType (Retain the successful test marker.)
         self::assertTrue(true);
     }
 
@@ -1934,6 +1935,7 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         ASN1::disableBlobsOnBadDecodes();
         $x509 = X509::load($cert)->toArray();
         $this->assertisArray($x509['tbsCertificate']);
+        // @phpstan-ignore method.alreadyNarrowedType (Retain the successful decode marker.)
         $this->assertTrue(true);
     }
 

@@ -318,6 +318,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
                     $secret === str_repeat("\0", 32) ? 'all zero' : bin2hex($secret)
                 ));
             } catch (\UnexpectedValueException $e) {
+                // @phpstan-ignore method.alreadyNarrowedType (Mark the expected invalid-secret rejection.)
                 $this->assertTrue(true);
             }
         }
