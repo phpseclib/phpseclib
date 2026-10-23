@@ -40,6 +40,7 @@ class SSH2Test extends PhpseclibFunctionalTestCase
     {
         $ssh = $this->getSSH2();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the SSH2 constructor test assertion.)
         $this->assertIsObject(
             $ssh,
             'Could not construct NET_SSH2 object.'

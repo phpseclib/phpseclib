@@ -219,6 +219,7 @@ ybcPA9iklr0wAwYBAAMBAA==
         ]);
         $cms->addSigner($x509);
         $cms = CMS::load("$cms");
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the postal-address test assertion.)
         $this->assertIsArray($cms->toArray());
     }
 

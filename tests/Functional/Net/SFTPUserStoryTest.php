@@ -40,6 +40,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
 
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the SFTP constructor test assertion.)
         $this->assertIsObject(
             $sftp,
             'Could not construct NET_SFTP object.'
@@ -398,6 +399,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     #[\PHPUnit\Framework\Attributes\Depends('testLinkFile')]
     public function testReadlink(SFTP $sftp)
     {
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the readlink return-type test assertion.)
         $this->assertIsString(
             $sftp->readlink('symlink'),
             'Failed asserting that a symlink\'s target could be read'
@@ -411,11 +413,13 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testStatOnCWD(SFTP $sftp)
     {
         $stat = $sftp->stat('.');
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the stat return-type test assertion.)
         $this->assertIsArray(
             $stat,
             'Failed asserting that stat on . returns an array'
         );
         $lstat = $sftp->lstat('.');
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the lstat return-type test assertion.)
         $this->assertIsArray(
             $lstat,
             'Failed asserting that lstat on . returns an array'
@@ -537,6 +541,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testDeleteEmptyDir(SFTP $sftp)
     {
         $sftp->mkdir(self::$scratchDir);
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the directory-stat test assertion.)
         $this->assertIsArray(
             $sftp->stat(self::$scratchDir),
             'Failed asserting that stat on an existent empty directory returns an array'

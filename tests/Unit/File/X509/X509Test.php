@@ -1414,7 +1414,9 @@ qzFkAKWjJj4KjfrbZX4C0Spfxw==
         $x509 = new X509($key->getPublicKey());
         $id = $x509->createSubjectKeyIdentifier();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the key-identifier test assertion.)
         $this->assertIsString($id);
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the certificate-extension test assertion.)
         $this->assertIsString((string) $x509->getExtension('id-ce-subjectKeyIdentifier')['extnValue']);
     }
 

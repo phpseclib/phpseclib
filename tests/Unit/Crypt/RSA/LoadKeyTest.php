@@ -1141,6 +1141,7 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
 -----END RSA PRIVATE KEY-----';
         $key = PublicKeyLoader::load($key);
         $result = $key->toString('PKCS1');
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the PKCS1 serialization test assertion.)
         $this->assertIsString($result);
     }
 
