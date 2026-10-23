@@ -485,6 +485,35 @@ abstract class TestCase extends PhpseclibTestCase
         $this->assertSame('20', (string) $bigInteger);
     }
 
+    #[\PHPUnit\Framework\Attributes\Group('github2187')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('rootRoundingProvider')]
+    public function testRootRounding(string $value, int $degree, string $expected): void
+    {
+        $this->assertSame($expected, (string) $this->getInstance($value)->root($degree));
+    }
+
+    public static function rootRoundingProvider(): array
+    {
+        return [
+            ['0', 2, '0'],
+            ['1', 2, '1'],
+            ['2', 2, '1'],
+            ['3', 1, '3'],
+            ['5', 2, '2'],
+            ['8', 2, '2'],
+            ['9', 2, '3'],
+            ['15', 3, '2'],
+            ['26', 3, '2'],
+            ['27', 2, '5'],
+            ['27', 3, '3'],
+            ['124', 3, '4'],
+            ['125', 3, '5'],
+            ['126', 3, '5'],
+            ['256', 2, '16'],
+            ['1000000', 6, '10'],
+        ];
+    }
+
     public function testPow(): void
     {
         $bigInteger = $this->getInstance('20');
