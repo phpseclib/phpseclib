@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\EC\Curves;
 
 use phpseclib4\Crypt\EC\BaseCurves\Montgomery;
+use phpseclib4\Crypt\EC as ECEngine;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
@@ -51,11 +52,24 @@ class Curve25519 extends Montgomery
      */
     public function multiplyPoint(array $p, BigInteger $d): array
     {
+        // X25519 scalar multiplication is not constant-time in the pure-PHP Montgomery
+        // ladder below: field addition / subtraction perform data-dependent conditional
+        // reductions, leaking the scalar bit-by-bit (GHSA-q97c-8qh3-fpc6). libsodium's
+        // crypto_scalarmult is constant-time, so prefer it whenever the extension is
+        // available and the PHP engine is not explicitly forced.
+        if (ECEngine::getForcedEngine() !== 'PHP' && \function_exists('sodium_crypto_scalarmult')) {
+            $dA = str_pad($d->toBytes(), 32, "\0", STR_PAD_LEFT);
+            $u = strrev(str_pad($p[0]->toBytes(), 32, "\0", STR_PAD_LEFT));
+            try {
+                $r = \sodium_crypto_scalarmult($dA, $u);
+                return [$this->factory->newInteger(new BigInteger(strrev($r), 256))];
+            } catch (\SodiumException) {
+                // zero / degenerate inputs: fall back to the blinded PHP ladder
+            }
+        }
+
         $d = $d->toBytes();
         $d = str_pad($d, 32, "\0", STR_PAD_LEFT);
-
-        //$r = strrev(sodium_crypto_scalarmult($d, strrev($p[0]->toBytes())));
-        //return [$this->factory->newInteger(new BigInteger($r, 256))];
 
         $d &= "\xF8" . str_repeat("\xFF", 30) . "\x7F";
         $d = strrev($d);

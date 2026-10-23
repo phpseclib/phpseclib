@@ -11,12 +11,14 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\Crypt\EC;
 
 use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Crypt\EC\Curves\Ed448;
 use phpseclib4\Crypt\DH;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\OIDs\Curves;
+use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 final class CurveTest extends PhpseclibTestCase
@@ -547,6 +549,33 @@ hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
 
         // reset engine
         EC::forceEngine();
+    }
+
+    /**
+     * Curve25519 scalar multiplication must be correct on both the sodium-backed
+     * constant-time path (GHSA-q97c-8qh3-fpc6) and the pure-PHP ladder fallback,
+     * for the same RFC 7748 vector used in testShortCurve25519
+     */
+    public function testCurve25519MultiplyPoint(): void
+    {
+        $curve = new Curve25519();
+        $d = new BigInteger(hex2bin('6f88c07302c7f28db7fa89e34f92650d2647642e66f828741db9406acaed5d'), 256);
+        // same RFC 7748 vector as testShortCurve25519: point bytes are given on the
+        // wire (little-endian), exactly as PrivateKey::multiply() receives them
+        $wire = hex2bin('024f5670bbc1ade282c08400b979af965521c5d3be0b95cb6be2cdfc48b01600');
+        $point = [$curve->convertInteger(new BigInteger(strrev($wire), 256))];
+        $expected = bin2hex(strrev(hex2bin('af7faf0997a924bb476a90c2f945c293f4d6b7f24fbbb05ba4c7e09182584017')));
+
+        $result = $curve->multiplyPoint($point, $d);
+        $this->assertSame($expected, bin2hex($result[0]->toBytes(true)), 'sodium-backed multiplyPoint');
+
+        EC::forceEngine('PHP');
+        try {
+            $result = $curve->multiplyPoint($point, $d);
+            $this->assertSame($expected, bin2hex($result[0]->toBytes(true)), 'pure-PHP ladder multiplyPoint');
+        } finally {
+            EC::forceEngine();
+        }
     }
 
     public function testShortCurve25519(): void
