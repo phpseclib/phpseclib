@@ -16,6 +16,7 @@ use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
 use phpseclib4\Crypt\RSA\PrivateKey;
 use phpseclib4\Crypt\RSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadDecryptionException;
 use phpseclib4\Exception\KeyConstraintException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -557,13 +558,15 @@ bINnZJfGe2e4Lw==
     #[\PHPUnit\Framework\Attributes\Group('github2136')]
     public function testEncryptOneKeyDecryptAnotherKey()
     {
-        $keyA = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
+        $forcedEngine = RSA::getForcedEngine();
+        try {
+            $keyA = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIl4g4CJxwv1jycznIBvWKqAZ5kMPMMw
 VGcFdSNBW9LUERIv+wyQH8gJjmf2LN17KyefbSm5LBIyuyD37nIJWRUCAwEAAQ==
 -----END PUBLIC KEY-----');
-        $this->assertInstanceOf(PublicKey::class, $keyA);
+            $this->assertInstanceOf(PublicKey::class, $keyA);
 
-        $keyB = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+            $keyB = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEA/GaZqSpvCYsgZ4lB
 x640dFZEiMgVK0jyvwtY79NPsV44TI2H/Z8ONWBoSw+ZJB1t2dPMKyPUVKwC8wA/
 ZGV/0wIDAQABAkA60oiGMcL99OQg7Q6dBD7qS/6d6A9y7oXQO0tHXTZp7cJDfRah
@@ -573,26 +576,29 @@ rtx3RFgdiO/lApitgQcCIQFLUhAgMDcLmru1Z0a+bUG/MY81Ahdr0t+pkIqOnpVz
 zLs2Y9VRiTbIZeve61A6rsFD5jAXeQIhAIEBdMO36Skglaotpfi+Jjm5mNhH2B6z
 B78AVyeOXhlI
 -----END PRIVATE KEY-----');
-        $this->assertInstanceOf(PrivateKey::class, $keyB);
+            $this->assertInstanceOf(PrivateKey::class, $keyB);
 
-        $ct = $keyA->withPadding(RSA::ENCRYPTION_PKCS1)->encrypt('helloworld');
+            $ct = $keyA->withPadding(RSA::ENCRYPTION_PKCS1)->encrypt('helloworld');
 
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
-        foreach ($engines as $engine) {
-            try {
+            $engines = ['libsodium', 'OpenSSL', 'PHP'];
+            foreach ($engines as $engine) {
                 RSA::forceEngine($engine);
 
+                $rejected = false;
                 try {
                     $keyB->withPadding(RSA::ENCRYPTION_PKCS1)->decrypt($ct);
-                    $this->fail('Ciphertext should not have decrypted');
-                } catch (\Exception $e) {
-                    $this->assertTrue(true);
+                } catch (BadDecryptionException) {
+                    $rejected = true;
+                } catch (BadConfigurationException) {
+                    // This engine cannot perform this operation in the current configuration.
+                    continue;
                 }
-            } catch (BadConfigurationException $e) {
+
+                $this->assertTrue($rejected, "Engine $engine must reject ciphertext encrypted for another key.");
             }
+        } finally {
+            RSA::forceEngine($forcedEngine);
         }
-        // reset
-        RSA::forceEngine();
     }
 
     public function testBlinding()

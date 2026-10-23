@@ -15,6 +15,7 @@ use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
@@ -25,11 +26,13 @@ class CreateKeyTest extends PhpseclibTestCase
         $dsa = DSA::createParameters();
         $this->assertMatchesRegularExpression('#BEGIN DSA PARAMETERS#', "$dsa");
 
+        $invalidParametersRejected = false;
         try {
             DSA::createParameters(100, 100);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(\Exception::class, $e);
+        } catch (InvalidArgumentException) {
+            $invalidParametersRejected = true;
         }
+        $this->assertTrue($invalidParametersRejected, 'Invalid DSA parameter sizes must be rejected.');
 
         $dsa = DSA::createParameters(512, 160);
         $this->assertMatchesRegularExpression('#BEGIN DSA PARAMETERS#', "$dsa");
