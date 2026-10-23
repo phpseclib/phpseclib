@@ -227,7 +227,6 @@ class Rijndael extends BlockCipher
                     return false;
                 }
                 return $this->mode == self::MODE_GCM &&
-                       version_compare(PHP_VERSION, '7.1.0', '>=') &&
                        self::isValidOpenSSLCipher('aes-' . $this->getKeyLength() . '-gcm') &&
                        $this->block_size == 16;
             case self::ENGINE_OPENSSL:
