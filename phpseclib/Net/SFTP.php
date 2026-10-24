@@ -1838,6 +1838,7 @@ class SFTP extends SSH2
      * $offset and $length can be used to download files in chunks.
      *
      * @param string|null|resource|\Closure $local_file
+     * @return ($local_file is null ? string : null)
      */
     public function get(string $remote_file, mixed $local_file = null, int $offset = 0, int $length = -1, ?\Closure $progressCallback = null): ?string
     {
@@ -1854,17 +1855,13 @@ class SFTP extends SSH2
         $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
         $handle = substr($response, 4);
 
-        if (is_resource($local_file)) {
+        if (!isset($local_file)) {
+            $content = '';
+        } elseif (is_resource($local_file)) {
+            /** @psalm-suppress NoValue */
             $fp = $local_file;
-            //$stat = fstat($fp);
-            //$res_offset = $stat['size'];
-        } else {
-            //$res_offset = 0;
-            if (is_string($local_file)) {
-                $fp = Files::open($local_file, 'wb');
-            } else {
-                $content = '';
-            }
+        } elseif (is_string($local_file)) {
+            $fp = Files::open($local_file, 'wb');
         }
 
         $fclose_check = isset($local_file) && (!$local_file instanceof \Closure) && !is_resource($local_file);
