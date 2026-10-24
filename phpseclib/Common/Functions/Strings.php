@@ -106,8 +106,7 @@ abstract class Strings
                     $result[] = $temp;
                     continue 2;
                 case 'Q':
-                    // pack() added support for Q in PHP 5.6.3 and PHP 5.6 is phpseclib 3's minimum version
-                    // so in theory we could support this BUT, "64-bit format codes are not available for
+                    // in theory we could use pack()'s Q format code BUT, "64-bit format codes are not available for
                     // 32-bit versions" and phpseclib works on 32-bit installs. on 32-bit installs
                     // 64-bit floats can be used to get larger numbers then 32-bit signed ints would allow
                     // for. sure, you're not gonna get the full precision of 64-bit numbers but just because

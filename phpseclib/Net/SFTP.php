@@ -1652,7 +1652,7 @@ class SFTP extends SSH2
         } elseif ($mode & (self::RESUME | self::RESUME_START)) {
             // if OpenFlag::APPEND worked as it should _size() wouldn't need to be called
             $stat = $this->stat($remote_file);
-            $offset = $stat !== false && $stat['size'] ? $stat['size'] : 0;
+            $offset = $stat['size'] ? $stat['size'] : 0;
         } else {
             $offset = 0;
             if ($this->version >= 5) {
@@ -2079,8 +2079,7 @@ class SFTP extends SSH2
             $result = $this->query_stat_cache($path);
 
             if (isset($result)) {
-                // return true if $result is an array or if it's an stdClass object
-                return $result !== false;
+                return true;
             }
         }
 

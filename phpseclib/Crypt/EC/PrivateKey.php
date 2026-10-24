@@ -253,8 +253,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
         if (self::$forcedEngine !== 'PHP') {
             if (in_array($this->hash->getHash(), openssl_get_md_methods())) {
                 $signature = '';
-                // altho PHP's OpenSSL bindings only supported EC key creation in PHP 7.1 they've long
-                // supported signing / verification
                 // we use specified curves to avoid issues with OpenSSL possibly not supporting a given named curve;
                 // doing this may mean some curve-specific optimizations can't be used but idk if OpenSSL even
                 // has curve-specific optimizations

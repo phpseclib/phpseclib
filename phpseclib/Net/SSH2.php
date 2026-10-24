@@ -2997,9 +2997,6 @@ class SSH2
 
     /**
      * Destructor.
-     *
-     * Will be called, automatically, if you're supporting just PHP5.  If you're supporting PHP4, you'll need to call
-     * disconnect().
      */
     public function __destruct()
     {

@@ -25,7 +25,7 @@ use phpseclib4\Crypt\EC\BaseCurves\{
     TwistedEdwards as TwistedEdwardsCurve
 };
 use phpseclib4\Crypt\EC\Curves\Curve25519;
-use phpseclib4\Exception\{UnexpectedValueException, UnsupportedCurveException, UnsupportedValueException, BadConfigurationException};
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedCurveException, BadConfigurationException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\File\ASN1\OIDs\Curves;
@@ -297,12 +297,6 @@ trait Common
         }
 
         $order = $curve->getOrder();
-        // we could try to calculate the order thusly:
-        // https://crypto.stackexchange.com/a/27914/4520
-        // https://en.wikipedia.org/wiki/Schoof%E2%80%93Elkies%E2%80%93Atkin_algorithm
-        if (!$order) {
-            throw new UnsupportedValueException('Specified Curves need the order to be specified');
-        }
         $point = $curve->getBasePoint();
         $x = $point[0]->toBytes();
         $y = $point[1]->toBytes();
