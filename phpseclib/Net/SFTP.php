@@ -1850,7 +1850,7 @@ class SFTP extends SSH2
         $response = $this->get_sftp_packet_or_error([SFTPPacketType::HANDLE, SFTPPacketType::STATUS]);
         $handle = substr($response, 4);
 
-        if ($local_file === null) {
+        if (!isset($local_file)) {
             $content = '';
         } elseif (is_resource($local_file)) {
             /** @psalm-suppress NoValue */
