@@ -786,7 +786,13 @@ class SFTP extends SSH2
             }
 
             $path = $this->realpath($dir . '/' . $value);
-            if (is_array($this->query_stat_cache($path))) {
+            if ($this->use_stat_cache) {
+                $is_directory = is_array($this->query_stat_cache($path));
+            } else {
+                $stat = $this->lstat($dir . '/' . $value);
+                $is_directory = $stat && $stat['type'] === FileType::DIRECTORY;
+            }
+            if ($is_directory) {
                 try {
                     $temp = $this->nlist_helper($dir . '/' . $value, true, $relativeDir . $value . '/');
                 } catch (FileSystemException $e) {
