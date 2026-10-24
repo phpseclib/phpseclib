@@ -38,7 +38,8 @@ use phpseclib4\Exception\{
     InvalidStateException,
     LengthException,
     UnexpectedValueException,
-    UnsupportedAlgorithmException
+    UnsupportedAlgorithmException,
+    UnsupportedValueException
 };
 use phpseclib4\Math\{BigInteger, PrimeField};
 
@@ -1021,6 +1022,9 @@ class Hash
         }
 
         if (is_array($algo)) {
+            if (is_resource($text)) {
+                throw new UnsupportedValueException($this->hashParam . ' only works with strings');
+            }
             if (empty($this->key) || !is_string($this->key)) {
                 return substr($algo($text, ...array_values($this->parameters)), 0, $this->length);
             }

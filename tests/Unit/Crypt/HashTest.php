@@ -12,6 +12,7 @@ namespace phpseclib4\Tests\Unit\Crypt;
 
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Exception\UnsupportedValueException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class HashTest extends PhpseclibTestCase
@@ -430,6 +431,15 @@ class HashTest extends PhpseclibTestCase
 
         $hash = new Hash('md5');
         $hash->setHash('abcdefghijklmnopqrst-96');
+    }
+
+    public function testPurePhpHashWithResource(): void
+    {
+        $this->expectException(UnsupportedValueException::class);
+        $this->expectExceptionMessageIsOrContains('keccak256 only works with strings');
+
+        $hash = new Hash('keccak256');
+        $hash->hash(fopen('php://memory', 'r'));
     }
 
     public function testSetHashValid(): void
