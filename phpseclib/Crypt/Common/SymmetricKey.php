@@ -1901,7 +1901,7 @@ abstract class SymmetricKey
             $reverseMap = array_map('strtolower', self::ENGINE_MAP);
             $reverseMap = array_flip($reverseMap);
         }
-        $engine = is_string($engine) ? strtolower($engine) : '';
+        $engine = strtolower($engine);
         $this->preferredEngine = $reverseMap[$engine] ?? self::ENGINE_LIBSODIUM;
 
         $this->setEngine();

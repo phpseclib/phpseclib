@@ -278,8 +278,7 @@ abstract class DH extends AsymmetricKey
                         throw new BadConfigurationException('Engine libsodium is forced but can only used with Curve25519 for ECDH');
                     }
                     if (!isset($forcedEngine) || $forcedEngine === 'OpenSSL') {
-                        // PHP 7.3.0 introduced the openssl_pkey_derive() function
-                        // openssl_dh_computee_key() has been around since PHP 5.3.0+ BUT it did not support ECDH
+                        // openssl_pkey_derive() is used because openssl_dh_compute_key() did not support ECDH
                         // until PHP 8.1.0 / OpenSSL 3.0.0
                         if ($forcedEngine === 'OpenSSL' && !function_exists('openssl_pkey_derive')) {
                             throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for ECDH');

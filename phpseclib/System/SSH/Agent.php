@@ -143,10 +143,6 @@ class Agent
      */
     public function requestIdentities(): array
     {
-        if (!$this->fsock) {
-            return [];
-        }
-
         $packet = pack('NC', 1, self::SSH_AGENTC_REQUEST_IDENTITIES);
         if (strlen($packet) != fwrite($this->fsock, $packet)) {
             throw new ConnectionClosedException('Connection closed while requesting identities');
