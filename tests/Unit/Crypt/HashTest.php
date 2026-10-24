@@ -436,7 +436,7 @@ class HashTest extends PhpseclibTestCase
     public function testPurePhpHashWithResource(): void
     {
         $this->expectException(UnsupportedValueException::class);
-        $this->expectExceptionMessageIsOrContains('keccak256 only works with strings');
+        $this->expectExceptionMessage('keccak256 only works with strings');
 
         $hash = new Hash('keccak256');
         $hash->hash(fopen('php://memory', 'r'));
