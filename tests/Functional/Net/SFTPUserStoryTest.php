@@ -339,7 +339,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testResourceXfer(SFTP $sftp)
     {
         $fp = fopen('res.txt', 'w+');
-        $sftp->get('file1.txt', $fp);
+        $this->assertNull($sftp->get('file1.txt', $fp));
         rewind($fp);
         $sftp->put('file4.txt', $fp);
         fclose($fp);
@@ -730,9 +730,9 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testCallableGetWithLength(SFTP $sftp): SFTP
     {
         $sftp->put('test.txt', 'zzzzz');
-        $sftp->get('test.txt', function ($data): void {
+        $this->assertNull($sftp->get('test.txt', function ($data): void {
             $this->assertSame('z', $data);
-        }, 0, 1);
+        }, 0, 1));
         return $sftp;
     }
 
