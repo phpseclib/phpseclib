@@ -1,0 +1,67 @@
+version: 2
+updates:
+    -   package-ecosystem: "github-actions"
+        directory: "/"
+        target-branch: "master"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "master"
+        cooldown:
+            default-days: 7
+        groups:
+            github-actions:
+                patterns:
+                    - "*"
+    -   package-ecosystem: "github-actions"
+        directory: "/"
+        target-branch: "4.0"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "4.0"
+        cooldown:
+            default-days: 7
+        groups:
+            github-actions:
+                patterns:
+                    - "*"
+    -   package-ecosystem: "github-actions"
+        directory: "/"
+        target-branch: "3.0"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "3.0"
+        cooldown:
+            default-days: 7
+        groups:
+            github-actions:
+                patterns:
+                    - "*"
+    -   package-ecosystem: "github-actions"
+        directory: "/"
+        target-branch: "2.0"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "2.0"
+        cooldown:
+            default-days: 7
+        groups:
+            github-actions:
+                patterns:
+                    - "*"
+    -   package-ecosystem: "github-actions"
+        directory: "/"
+        target-branch: "1.0"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "1.0"
+        cooldown:
+            default-days: 7
+        groups:
+            github-actions:
+                patterns:
+                    - "*"
