@@ -1694,7 +1694,7 @@ abstract class SymmetricKey
             self::MODE_CTR, self::MODE_GCM => 'ctr',
             self::MODE_CFB => 'cfb',
             self::MODE_CFB8 => 'cfb8',
-            self::MODE_OFB => 'ufb',
+            self::MODE_OFB => 'ofb',
             default => null
         };
     }
