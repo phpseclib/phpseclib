@@ -3978,6 +3978,7 @@ class SSH2
                     }
                     break;
                 case NET_SSH2_MSG_GLOBAL_REQUEST: // see http://tools.ietf.org/html/rfc4254#section-4
+                    $this->_string_shift($payload, 1);
                     if (strlen($payload) < 4) {
                         return false;
                     }
