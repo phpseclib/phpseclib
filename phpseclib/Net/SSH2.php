@@ -1511,17 +1511,17 @@ class SSH2
             'diffie-hellman-group17-sha512',
             'diffie-hellman-group18-sha512',
             'ecdh-sha2-nistp521'
-                => new Hash('sha512'),
+            => new Hash('sha512'),
             'ecdh-sha2-nistp384'
-                => new Hash('sha384'),
+            => new Hash('sha384'),
             'diffie-hellman-group-exchange-sha256',
             'diffie-hellman-group14-sha256',
             'ecdh-sha2-nistp256',
             'curve25519-sha256@libssh.org',
             'curve25519-sha256'
-                => new Hash('sha256'),
+            => new Hash('sha256'),
             default
-                => new Hash('sha1')
+            => new Hash('sha1')
         };
 
         // Only relevant in diffie-hellman-group-exchange-sha{1,256}, otherwise empty.
@@ -1700,7 +1700,7 @@ class SSH2
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'A' . $this->session_id);
                     $this->encryptFixedPart = substr($nonce, 0, 4);
                     $this->encryptInvocationCounter = substr($nonce, 4, 8);
-                    // no break
+                // no break
                 case 'chacha20-poly1305@openssh.com':
                     break;
                 default:
@@ -1746,7 +1746,7 @@ class SSH2
                     $nonce = $kexHash->hash($keyBytes . $this->exchange_hash . 'B' . $this->session_id);
                     $this->decryptFixedPart = substr($nonce, 0, 4);
                     $this->decryptInvocationCounter = substr($nonce, 4, 8);
-                    // no break
+                // no break
                 case 'chacha20-poly1305@openssh.com':
                     break;
                 default:
@@ -1840,7 +1840,7 @@ class SSH2
 
         return match ($algorithm) {
             'none'
-                => 0,
+            => 0,
             'aes128-gcm@openssh.com',
             'aes128-cbc',
             'aes128-ctr',
@@ -1850,14 +1850,14 @@ class SSH2
             'blowfish-ctr',
             'twofish128-cbc',
             'twofish128-ctr'
-                => 16,
+            => 16,
             '3des-cbc',
             '3des-ctr',
             'aes192-cbc',
             'aes192-ctr',
             'twofish192-cbc',
             'twofish192-ctr'
-                => 24,
+            => 24,
             'aes256-gcm@openssh.com',
             'aes256-cbc',
             'aes256-ctr',
@@ -1865,9 +1865,9 @@ class SSH2
             'twofish-cbc',
             'twofish256-cbc',
             'twofish256-ctr'
-                => 32,
+            => 32,
             'chacha20-poly1305@openssh.com'
-                => 64
+            => 64
         };
     }
 
@@ -2010,7 +2010,7 @@ class SSH2
                                     }
                                 }
                             }
-                            // no break
+                        // no break
                         case 'password':
                             foreach ($args as $key => $arg) {
                                 $newargs[] = $arg;
@@ -2113,7 +2113,7 @@ class SSH2
                 case MessageType::USERAUTH_FAILURE:
                     [$auth_methods] = Strings::unpackSSH2('L', $response);
                     $this->auth_methods_to_continue = $auth_methods;
-                    // no break
+                // no break
                 default:
                     return false;
             }
@@ -3225,7 +3225,7 @@ class SSH2
                 'plain' => '', // the packet in plain text, excluding packet_length header
                 'packet_length' => null, // the packet_length value pulled from the payload
                 'size' => $this->decrypt_block_size, // the total size of this packet to be read from the socket
-                                                     // initialize to read single block until packet_length is available
+                // initialize to read single block until packet_length is available
             ];
         }
         $packet = $this->binary_packet_buffer;
@@ -3358,7 +3358,7 @@ class SSH2
                 if (!$this->isAuthenticated()) {
                     break;
                 }
-                // no break
+            // no break
             case self::NET_SSH2_COMPRESSION_ZLIB:
                 if ($this->regenerate_decompression_context) {
                     $this->regenerate_decompression_context = false;
@@ -3776,8 +3776,8 @@ class SSH2
 
                 // resize the window, if appropriate
                 if ($this->window_size_server_to_client[$channel] < 0) {
-                // PuTTY does something more analogous to the following:
-                //if ($this->window_size_server_to_client[$channel] < 0x3FFFFFFF) {
+                    // PuTTY does something more analogous to the following:
+                    //if ($this->window_size_server_to_client[$channel] < 0x3FFFFFFF) {
                     $packet = pack('CNN', MessageType::CHANNEL_WINDOW_ADJUST, $this->server_channels[$channel], $this->window_resize);
                     $this->send_binary_packet($packet);
                     $this->window_size_server_to_client[$channel] += $this->window_resize;
@@ -3905,7 +3905,7 @@ class SSH2
                                 $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
                                 throw new ConnectionClosedException('Unable to fulfill channel request');
                         }
-                        // no break
+                    // no break
                     case MessageType::CHANNEL_CLOSE:
                         if ($client_channel == $channel && $type == MessageType::CHANNEL_CLOSE) {
                             return true;
@@ -3957,7 +3957,7 @@ class SSH2
                     if ($client_channel == $channel) {
                         return true;
                     }
-                    // no break
+                // no break
                 case MessageType::CHANNEL_EOF:
                     break;
                 default:
@@ -3996,7 +3996,7 @@ class SSH2
                 if (!$this->isAuthenticated()) {
                     break;
                 }
-                // no break
+            // no break
             case self::NET_SSH2_COMPRESSION_ZLIB:
                 if (!$this->regenerate_compression_context) {
                     $header = '';
@@ -4190,7 +4190,7 @@ class SSH2
                 $message_number_log[] = $message_number;
                 break;
             case self::LOG_SIMPLE_REALTIME:
-            //case self::LOG_REALTIME_SIMPLE:
+                //case self::LOG_REALTIME_SIMPLE:
                 echo $message_number;
                 echo PHP_SAPI == 'cli' ? "\r\n" : '<br>';
                 @flush();
@@ -4615,7 +4615,7 @@ class SSH2
             'twofish192-cbc', // OPTIONAL          Twofish with a 192-bit key
             'twofish256-cbc',
             'twofish-cbc',    // OPTIONAL          alias for "twofish256-cbc"
-                              //                   (this is being retained for historical reasons)
+            //                   (this is being retained for historical reasons)
 
             'blowfish-ctr',   // OPTIONAL          Blowfish in SDCTR mode
 
@@ -4625,7 +4625,7 @@ class SSH2
 
             '3des-cbc',       // REQUIRED          three-key 3DES in CBC mode
 
-             //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
+            //'none'           // OPTIONAL          no encryption; NOT RECOMMENDED
         ];
 
         if (self::$crypto_engine) {
