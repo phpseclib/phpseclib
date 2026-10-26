@@ -206,10 +206,14 @@ abstract class MLDSA extends AsymmetricKey
 
     /**
      * Checks that ext/openssl can load an ML-DSA key and derive the right public key from it
+     *
+     * PHP 8.4 is required as well: openssl_sign() and openssl_verify() only accept a key
+     * without a digest (the Ed25519 / ML-DSA case) since PHP 8.4. Older PHP builds linked
+     * against OpenSSL 3.5 can load the key but fail with "Unknown digest algorithm" when signing.
      */
     private static function probeOpenSSL(): bool
     {
-        if (!function_exists('openssl_pkey_get_private') || OPENSSL_VERSION_NUMBER < 0x30500000) {
+        if (PHP_VERSION_ID < 80400 || !function_exists('openssl_pkey_get_private') || OPENSSL_VERSION_NUMBER < 0x30500000) {
             return false;
         }
 
