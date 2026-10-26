@@ -7,6 +7,7 @@
 
 use phpseclib\Crypt\Hash;
 use phpseclib\Math\BigInteger;
+use phpseclib\Net\SSH2;
 
 abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
 {
@@ -65,7 +66,7 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
         // convenient place to also make sure that phpseclib can actually
         // negotiate a key exchange algorithm with the server. eg. OpenSSH
         // 10.2 doesn't support any of the key exchange algorithms that
-        // phpseclib 1.0 supports
+        // phpseclib 2.0 supports (without libsodium)
         if ($variable === 'SSH_HOSTNAME') {
             $this->requireCompatibleSSHServer($this->_getEnv($variable));
         }
@@ -129,11 +130,11 @@ abstract class PhpseclibFunctionalTestCase extends PhpseclibTestCase
      * @param string $host
      * @param int $port
      *
-     * @return Net_SSH2
+     * @return SSH2
      */
     private static function _createSSH2($host, $port)
     {
-        return new Net_SSH2($host, $port);
+        return new SSH2($host, $port);
     }
 
     /**
