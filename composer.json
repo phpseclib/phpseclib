@@ -51,9 +51,8 @@
         },
         {
             "name": "Jack Worman",
-            "email": "jack.worman@gmail.com",
-            "role": "Developer",
-            "homepage": "https://jackworman.com"
+            "email": "jack.worman@proton.me",
+            "role": "Developer"
         }
     ],
     "require": {

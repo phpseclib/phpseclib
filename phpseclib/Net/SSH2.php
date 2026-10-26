@@ -1879,7 +1879,7 @@ class SSH2
     {
         return match ($algorithm) {
             '3des-cbc' => new TripleDES('cbc'),
-            '3des-ctr' => new TripleDES('cbc'),
+            '3des-ctr' => new TripleDES('ctr'),
             'aes256-cbc', 'aes192-cbc', 'aes128-cbc' => new Rijndael('cbc'),
             'aes256-ctr', 'aes192-ctr', 'aes128-ctr' => new Rijndael('ctr'),
             'blowfish-cbc' => new Blowfish('cbc'),
