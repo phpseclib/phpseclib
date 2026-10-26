@@ -1841,10 +1841,10 @@ class SSH2
                 $g = new BigInteger($gBytes, -256);
 
                 $exchange_hash_rfc4419 = $dh_group_sizes_packed . Strings::packSSH2(
-                        'ss',
-                        $primeBytes,
-                        $gBytes
-                    );
+                    'ss',
+                    $primeBytes,
+                    $gBytes
+                );
 
                 $params = DH::createParameters($prime, $g);
                 $clientKexInitMessage = 'NET_SSH2_MSG_KEXDH_GEX_INIT';
