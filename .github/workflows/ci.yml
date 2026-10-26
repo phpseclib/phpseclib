@@ -82,6 +82,17 @@ jobs:
                     sudo cp "/tmp/known_hosts" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/known_hosts"
                     sudo chown "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_USERNAME" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/" -R
 
+                    # OpenSSH 9.8+ penalizes sources that make lots of connections without
+                    # authenticating (eg. testCryptoAlgorithms with algorithms the server
+                    # doesn't support) and then refuses all connections from that source,
+                    # localhost included. turn that off. older sshd versions don't know the
+                    # option (and would refuse to start with it) so only set it if supported
+                    if sudo sshd -T 2>/dev/null | grep -qi '^persourcepenalties '; then
+                        echo 'PerSourcePenalties no' | sudo tee /etc/ssh/sshd_config.d/00-phpseclib.conf
+                        sudo sshd -t
+                        sudo systemctl restart ssh
+                    fi
+
                     echo "PHPSECLIB_SSH_HOSTNAME=localhost" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_USERNAME=$PHPSECLIB_SSH_USERNAME" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_PASSWORD=$PHPSECLIB_SSH_PASSWORD" >> $GITHUB_ENV
@@ -89,6 +100,9 @@ jobs:
                     echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
             -   name: PHPUnit
                 run: vendor/bin/phpunit --configuration tests/phpunit.xml
+            -   name: Show sshd Log
+                if: failure() && matrix.os == 'ubuntu-latest'
+                run: sudo journalctl -u ssh -u ssh.socket --no-pager | tail -n 100
         strategy:
             fail-fast: false
             matrix:
