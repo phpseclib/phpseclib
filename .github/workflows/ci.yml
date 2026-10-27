@@ -1,5 +1,9 @@
 name: CI
-on: [push, pull_request]
+on:
+    # other branches are tested by pull_request; testing them on push as well would run every job twice
+    push:
+        branches: [master, '4.0', '3.0', '2.0', '1.0']
+    pull_request:
 
 permissions:
   contents: read #  to fetch code (actions/checkout)
