@@ -732,6 +732,33 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     /** @depends testRawlistDisabledStatCache */
+    public function testNlistRecursiveDisabledStatCache($sftp)
+    {
+        $sftp->enableStatCache();
+
+        $list_cache_enabled = $sftp->nlist(self::$scratchDir, true);
+
+        $sftp->clearStatCache();
+
+        $sftp->disableStatCache();
+
+        $list_cache_disabled = $sftp->nlist(self::$scratchDir, true);
+
+        $this->assertContains(
+            'subdir/leaf.txt',
+            $list_cache_disabled,
+            'Failed asserting that recursive nlist() descends into subdirectories with the stat cache disabled'
+        );
+        $this->assertEquals(
+            $list_cache_enabled,
+            $list_cache_disabled,
+            'The files should be the same regardless of stat cache'
+        );
+
+        return $sftp;
+    }
+
+    /** @depends testRawlistDisabledStatCache */
     public function testChownChgrp($sftp)
     {
         $stat = $sftp->stat(self::$scratchDir);

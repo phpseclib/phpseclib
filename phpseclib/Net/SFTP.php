@@ -1030,7 +1030,13 @@ class SFTP extends SSH2
                 $result[] = $relativeDir . $value;
                 continue;
             }
-            if (is_array($this->query_stat_cache($this->realpath($dir . '/' . $value)))) {
+            if ($this->use_stat_cache) {
+                $is_directory = is_array($this->query_stat_cache($this->realpath($dir . '/' . $value)));
+            } else {
+                $stat = $this->lstat($dir . '/' . $value);
+                $is_directory = $stat && $stat['type'] === NET_SFTP_TYPE_DIRECTORY;
+            }
+            if ($is_directory) {
                 $temp = $this->nlist_helper($dir . '/' . $value, true, $relativeDir . $value . '/');
                 $temp = is_array($temp) ? $temp : [];
                 $result = array_merge($result, $temp);
