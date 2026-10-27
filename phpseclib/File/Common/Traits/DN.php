@@ -528,7 +528,7 @@ trait DN
     }
 
     /**
-     * @return BaseType[]
+     * @return array<BaseType|Element|array>
      */
     private static function retrieveDNProps(array|Choice $dn, string $propName): array
     {
