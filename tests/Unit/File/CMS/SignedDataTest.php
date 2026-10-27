@@ -280,12 +280,14 @@ ybcPA9iklr0wAwYBAAMBAA==
         $signer = $cms->addSigner($x509);
         $private->sign($signer);
 
-        file_put_contents(__DIR__ . '/cms.pem', "$cms");
-        file_put_contents(__DIR__ . '/ca.pem', (string) $ca->getCertificates()[0]);
+        $cmsFilename = $this->createTempFile();
+        $caFilename = $this->createTempFile();
+        file_put_contents($cmsFilename, "$cms");
+        file_put_contents($caFilename, (string) $ca->getCertificates()[0]);
 
         $result = openssl_cms_verify(
-            input_filename: __DIR__ . '/cms.pem',
-            ca_info: [__DIR__ . '/ca.pem'],
+            input_filename: $cmsFilename,
+            ca_info: [$caFilename],
             encoding: OPENSSL_ENCODING_PEM
         );
 
