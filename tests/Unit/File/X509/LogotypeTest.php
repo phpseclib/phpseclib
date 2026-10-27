@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\File\X509;
 
 use phpseclib4\Crypt\EC;
+use phpseclib4\Exception\{InvalidStateException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps\LogotypeExtn;
 use phpseclib4\File\X509;
@@ -394,6 +395,137 @@ class LogotypeTest extends PhpseclibTestCase
             }
 
             $this->assertContains('certificateGeneralPolicyIdentifier', $policies, $file);
+        }
+    }
+
+    /**
+     * addSubjectLogo() with no URI embeds the image. RFC 9399 wants the hash over
+     * the uncompressed SVG with LF line endings, but the embedded copy gzipped
+     */
+    public function testAddSubjectLogoEmbedsSVG(): void
+    {
+        $svg = "<svg xmlns=\"http://www.w3.org/2000/svg\">\r\n<rect/>\r\n</svg>\r\n";
+        $normalized = str_replace("\r\n", "\n", $svg);
+
+        $key = EC::createKey('ed25519');
+        $cert = new X509($key->getPublicKey());
+        $cert->addDNProp('id-at-organizationName', 'phpseclib logotype test');
+        $cert->addSubjectLogo('image/svg+xml', $svg);
+        $key->sign($cert);
+
+        $cert = X509::load("$cert");
+        $this->assertFalse($cert->getExtension('id-pe-logotype')['critical']);
+
+        $logos = $cert->getSubjectLogos();
+        $this->assertCount(1, $logos);
+        $this->assertSame('image/svg+xml', $logos[0]['mediaType']);
+        $this->assertSame($normalized, $logos[0]['data']);
+        $this->assertSame(['sha256' => hash('sha256', $normalized, true)], $logos[0]['hashes']);
+
+        $this->assertCount(1, $logos[0]['uris']);
+        $this->assertStringStartsWith('data:image/svg+xml;base64,H4sI', $logos[0]['uris'][0]);
+
+        $this->assertSame([], $cert->getIssuerLogos());
+    }
+
+    /**
+     * an already gzip compressed SVG is hashed over its uncompressed form too
+     */
+    public function testAddSubjectLogoAcceptsCompressedSVG(): void
+    {
+        $svg = "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n";
+
+        $cert = new X509();
+        $cert->addSubjectLogo('image/svg+xml', gzencode($svg));
+
+        $logos = $cert->getSubjectLogos();
+        $this->assertSame($svg, $logos[0]['data']);
+        $this->assertSame(hash('sha256', $svg, true), $logos[0]['hashes']['sha256']);
+    }
+
+    /**
+     * with URIs given nothing is embedded, and anything other than SVG is hashed as is
+     */
+    public function testAddSubjectLogoWithURIs(): void
+    {
+        $png = "\x89PNG\r\n\x1a\n";
+        $uris = ['https://example.com/logo.png', 'https://mirror.example.com/logo.png'];
+
+        $cert = new X509();
+        $cert->addSubjectLogo('image/png', $png, $uris, ['sha256', 'sha384']);
+
+        $logos = $cert->getSubjectLogos();
+        $this->assertSame($uris, $logos[0]['uris']);
+        $this->assertNull($logos[0]['data']);
+        $this->assertSame(
+            ['sha256' => hash('sha256', $png, true), 'sha384' => hash('sha384', $png, true)],
+            $logos[0]['hashes']
+        );
+    }
+
+    /**
+     * repeated calls add alternative images to the same logo, and subject and
+     * issuer logos end up in one and the same extension
+     */
+    public function testAddSubjectAndIssuerLogos(): void
+    {
+        $cert = new X509();
+        $cert->addSubjectLogo('image/png', 'a', 'https://example.com/a.png');
+        $cert->addIssuerLogo('image/png', 'b', 'https://example.com/b.png');
+        $cert->addSubjectLogo('image/png', 'c', 'https://example.com/c.png');
+
+        $this->assertSame(['id-pe-logotype'], $cert->listExtensions());
+        $this->assertSame(
+            ['https://example.com/a.png', 'https://example.com/c.png'],
+            array_merge(...array_column($cert->getSubjectLogos(), 'uris'))
+        );
+        $this->assertSame(['https://example.com/b.png'], $cert->getIssuerLogos()[0]['uris']);
+    }
+
+    public function testAddSubjectLogoRejectsUnknownHash(): void
+    {
+        $this->expectException(UnsupportedAlgorithmException::class);
+
+        $cert = new X509();
+        $cert->addSubjectLogo('image/png', 'a', 'https://example.com/a.png', 'whirlpool');
+    }
+
+    /**
+     * indirect logos are not resolved, so they are neither returned nor added to
+     */
+    public function testIndirectLogo(): void
+    {
+        $cert = new X509();
+        $cert->setExtension('id-pe-logotype', ['subjectLogo' => ['indirect' => [
+            'refStructHash' => [self::HASH],
+            'refStructURI' => ['https://example.com/logotypes'],
+        ]]]);
+
+        $this->assertSame([], $cert->getSubjectLogos());
+
+        $this->expectException(InvalidStateException::class);
+        $cert->addSubjectLogo('image/png', 'a', 'https://example.com/a.png');
+    }
+
+    /**
+     * getSubjectLogos() on the real world certificates - the embedded SVG has to
+     * come back decompressed and match the hash the CA put next to it
+     */
+    public function testGetSubjectLogosOnRealWorldCertificates(): void
+    {
+        foreach (['vmc-ebay.pem', 'vmc-badoo.pem', 'vmc-rabobank.pem'] as $file) {
+            $cert = X509::load(file_get_contents(__DIR__ . '/' . $file));
+
+            $logos = $cert->getSubjectLogos();
+            $this->assertCount(1, $logos, $file);
+            $this->assertSame('image/svg+xml', $logos[0]['mediaType'], $file);
+            $this->assertStringContainsString('<svg', $logos[0]['data'], $file);
+            $this->assertNotEmpty($logos[0]['hashes'], $file);
+            foreach ($logos[0]['hashes'] as $algorithm => $value) {
+                $this->assertSame(bin2hex(hash($algorithm, $logos[0]['data'], true)), bin2hex($value), $file);
+            }
+
+            $this->assertSame([], $cert->getIssuerLogos(), $file);
         }
     }
 }

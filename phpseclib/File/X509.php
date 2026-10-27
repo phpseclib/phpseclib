@@ -34,7 +34,8 @@ use phpseclib4\Exception\{
     InvalidArgumentException,
     InvalidStateException,
     NoKeyLoadedException,
-    UnexpectedValueException
+    UnexpectedValueException,
+    UnsupportedAlgorithmException
 };
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\{
@@ -989,6 +990,182 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             $ext[] = ['iPAddress' => $ipAddress];
         }
         $this->setExtension('id-ce-subjectAltName', $ext, false);
+    }
+
+    /**
+     * Adds an image to the subjectLogo of the logotype extension
+     *
+     * If $uris is null the image is embedded in the certificate as a data: URL - SVG images
+     * are gzip compressed first, as RFC 9399 requires. $hashes should include the hash that
+     * the certificate is going to be signed with: "CAs MUST use the one-way hash function
+     * that is associated with the certificate signature to compute one hash value"
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9399#section-4.1
+     */
+    public function addSubjectLogo(string $mediaType, string $data, string|array|null $uris = null, string|array $hashes = 'sha256'): void
+    {
+        $this->addLogo('subjectLogo', $mediaType, $data, $uris, $hashes);
+    }
+
+    /**
+     * Adds an image to the issuerLogo of the logotype extension
+     *
+     * Works the same way as addSubjectLogo()
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9399#section-4.1
+     */
+    public function addIssuerLogo(string $mediaType, string $data, string|array|null $uris = null, string|array $hashes = 'sha256'): void
+    {
+        $this->addLogo('issuerLogo', $mediaType, $data, $uris, $hashes);
+    }
+
+    private function addLogo(string $type, string $mediaType, string $data, string|array|null $uris, string|array $hashes): void
+    {
+        $isSVG = self::isSVG($mediaType);
+        // the hash is calculated over the uncompressed SVG
+        if ($isSVG && str_starts_with($data, "\x1f\x8b")) {
+            $data = @gzdecode($data);
+            if ($data === false) {
+                throw new InvalidArgumentException('Unable to decompress gzip compressed SVG');
+            }
+        }
+        // "The XML structure in the SVG file MUST use linefeed (0x0A) as the end-of-line
+        //  (EOL) character when calculating a hash over the SVG image."
+        // -- https://www.rfc-editor.org/rfc/rfc9399#section-5
+        if ($isSVG) {
+            $data = str_replace(["\r\n", "\r"], "\n", $data);
+        }
+
+        $logotypeHash = [];
+        foreach ((array) $hashes as $hash) {
+            $hash = strtolower($hash);
+            $algorithm = match ($hash) {
+                'md2', 'md5' => $hash,
+                'sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'sha512/224', 'sha512/256' => "id-$hash",
+                'sha3-224', 'sha3-256', 'sha3-384', 'sha3-512' => 'id-' . str_replace('-', '/', $hash),
+                default => throw new UnsupportedAlgorithmException("$hash is not a supported algorithm: try md2, md5, sha1, sha224, sha256, sha384, sha512, sha512/224, sha512/256, sha3-224, sha3-256, sha3-384 or sha3-512 instead")
+            };
+            $logotypeHash[] = [
+                'hashAlg' => ['algorithm' => $algorithm],
+                'hashValue' => (new Hash($hash))->hash($data),
+            ];
+        }
+
+        if (!isset($uris)) {
+            // "When an SVG image is embedded in the certificate extension using the "data" URL
+            //  scheme, the SVG image data MUST be provided in GZIP-compressed form"
+            // -- https://www.rfc-editor.org/rfc/rfc9399#section-5
+            $uris = "data:$mediaType;base64," . base64_encode($isSVG ? gzencode($data, 9) : $data);
+        }
+
+        $ext = $this->getExtension('id-pe-logotype')['extnValue'] ?? [];
+        if ($ext instanceof Constructed) {
+            $ext = $ext->toArray();
+        }
+        if (isset($ext[$type]) && !isset($ext[$type]['direct'])) {
+            throw new InvalidStateException("$type uses indirect addressing so no image can be added to it");
+        }
+        $ext[$type]['direct']['image'][] = [
+            'imageDetails' => [
+                'mediaType' => $mediaType,
+                'logotypeHash' => $logotypeHash,
+                'logotypeURI' => (array) $uris,
+            ],
+        ];
+        $this->setExtension('id-pe-logotype', $ext);
+    }
+
+    /**
+     * Returns the images in the subjectLogo of the logotype extension
+     *
+     * Each image is returned as an array with mediaType, uris, hashes and data keys. hashes
+     * maps hash names to raw hash values. data is the image itself if it's embedded as a
+     * data: URL (gzip compressed SVGs are decompressed) and null otherwise.
+     *
+     * An empty array is returned if there is no subjectLogo or if it uses indirect addressing.
+     * Audio, image info, community logos and other logos can be accessed via getExtension().
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9399#section-4.1
+     */
+    public function getSubjectLogos(): array
+    {
+        return $this->getLogos('subjectLogo');
+    }
+
+    /**
+     * Returns the images in the issuerLogo of the logotype extension
+     *
+     * Works the same way as getSubjectLogos()
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc9399#section-4.1
+     */
+    public function getIssuerLogos(): array
+    {
+        return $this->getLogos('issuerLogo');
+    }
+
+    private function getLogos(string $type): array
+    {
+        $ext = $this->getExtension('id-pe-logotype')['extnValue'] ?? null;
+        if (!$ext instanceof Constructed) {
+            return [];
+        }
+        $ext = $ext->toArray(true);
+        if (!isset($ext[$type]['direct']['image'])) {
+            return [];
+        }
+
+        $logos = [];
+        foreach ($ext[$type]['direct']['image'] as $image) {
+            $details = $image['imageDetails'];
+            $hashes = [];
+            foreach ($details['logotypeHash'] as $hash) {
+                $hashes[preg_replace('#^id-#', '', $hash['hashAlg']['algorithm'])] = $hash['hashValue'];
+            }
+            $data = null;
+            foreach ($details['logotypeURI'] as $uri) {
+                $data = self::decodeDataURL($uri);
+                if (isset($data)) {
+                    break;
+                }
+            }
+            $logos[] = [
+                'mediaType' => $details['mediaType'],
+                'uris' => $details['logotypeURI'],
+                'hashes' => $hashes,
+                'data' => $data,
+            ];
+        }
+        return $logos;
+    }
+
+    private static function isSVG(string $mediaType): bool
+    {
+        return str_starts_with(strtolower($mediaType), 'image/svg+xml');
+    }
+
+    /**
+     * Decodes a data: URL per RFC 2397, decompressing it if it's gzip compressed
+     *
+     * Returns null if $uri isn't a data: URL
+     *
+     * @link https://www.rfc-editor.org/rfc/rfc2397
+     */
+    private static function decodeDataURL(string $uri): ?string
+    {
+        if (!preg_match('#^data:([^,]*),(.*)$#is', $uri, $matches)) {
+            return null;
+        }
+        $data = str_ends_with(strtolower($matches[1]), ';base64') ?
+            base64_decode($matches[2]) :
+            rawurldecode($matches[2]);
+        if (str_starts_with($data, "\x1f\x8b")) {
+            $decompressed = @gzdecode($data);
+            if ($decompressed !== false) {
+                $data = $decompressed;
+            }
+        }
+        return $data;
     }
 
     /**
