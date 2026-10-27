@@ -102,6 +102,12 @@ jobs:
                     echo "PHPSECLIB_SSH_PASSWORD=$PHPSECLIB_SSH_PASSWORD" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_HOME=/home/phpseclib" >> $GITHUB_ENV
                     echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+            -   name: Enforce Test Time Limit
+                # the time limit makes a hung test fail by name instead of running until the job is cancelled. it needs
+                # pcntl, which Windows doesn't have, so it's only used on Ubuntu, and it only takes effect on PHPUnit 9+.
+                # it's set in the config because older PHPUnit and ParaTest versions don't have a --default-time-limit option
+                if: matrix.os == 'ubuntu-latest'
+                run: php -r '$file = "tests/phpunit.xml"; $xml = simplexml_load_file($file); $xml["enforceTimeLimit"] = "true"; $xml["defaultTimeLimit"] = "180"; $xml->asXML($file);'
             -   name: PHPUnit
                 run: vendor/bin/phpunit --configuration tests/phpunit.xml
             -   name: Show sshd Log
