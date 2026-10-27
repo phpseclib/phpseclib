@@ -90,4 +90,23 @@ class SFTPStreamTest extends SFTPTestCase
         $this->assertTrue(file_exists($fileName));
         $this->assertEquals(0, filesize($fileName));
     }
+
+    public function testFeof(): void
+    {
+        $this->sftp->put('eof.txt', 'hello world');
+        $context = stream_context_create([
+            'sftp' => ['session' => $this->sftp],
+        ]);
+        $fp = fopen($this->buildUrl('eof.txt'), 'rb', false, $context);
+
+        $data = '';
+        // capped so that a missing EOF fails the test instead of hanging it
+        for ($i = 0; $i < 10 && !feof($fp); $i++) {
+            $data .= fread($fp, 8192);
+        }
+
+        $this->assertTrue(feof($fp), 'Failed asserting that feof() is true after reading the whole file');
+        $this->assertSame('hello world', $data);
+        fclose($fp);
+    }
 }
