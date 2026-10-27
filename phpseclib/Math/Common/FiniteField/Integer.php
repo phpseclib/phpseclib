@@ -40,4 +40,6 @@ abstract class Integer implements \JsonSerializable
      * Converts an Integer to a hex string (eg. base-16).
      */
     abstract public function toHex(): string;
+
+    abstract public function toBytes(): string;
 }
