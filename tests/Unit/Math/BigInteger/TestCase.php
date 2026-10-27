@@ -212,7 +212,7 @@ abstract class TestCase extends PhpseclibTestCase
         $arr = $a->extendedGCD($b);
 
         $this->assertSame('21', (string) $arr['gcd']);
-        $this->assertSame(21, $a->toString() * $arr['x']->toString() + $b->toString() * $arr['y']->toString());
+        $this->assertSame('21', (string) $a->multiply($arr['x'])->add($b->multiply($arr['y'])));
     }
 
     public function testGCD(): void
