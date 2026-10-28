@@ -1136,6 +1136,18 @@ class SFTP extends SSH2
      */
     function rawlist($dir = '.', $recursive = false)
     {
+        return $this->_rawlist_helper($dir, $recursive, 0);
+    }
+
+    /**
+     * @param string $dir
+     * @param bool $recursive
+     * @param int $depth
+     * @return mixed
+     * @access private
+     */
+    function _rawlist_helper($dir, $recursive, $depth)
+    {
         $files = $this->_list($dir, true);
 
         // If we get an int back, then that is an "unexpected" status.
@@ -1147,8 +1159,6 @@ class SFTP extends SSH2
         if (!$recursive || $files === false) {
             return $files;
         }
-
-        static $depth = 0;
 
         foreach ($files as $key => $value) {
             if ($depth != 0 && $key == '..') {
@@ -1166,9 +1176,7 @@ class SFTP extends SSH2
             }
 
             if ($is_directory) {
-                $depth++;
-                $files[$key] = $this->rawlist($dir . '/' . $key, true);
-                $depth--;
+                $files[$key] = $this->_rawlist_helper($dir . '/' . $key, true, $depth + 1);
             } else {
                 $files[$key] = (object) $value;
             }
