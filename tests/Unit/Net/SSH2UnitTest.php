@@ -116,6 +116,18 @@ class Unit_Net_SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(20, $ssh->getTimeout());
     }
 
+    public function testTimeoutCountdownEndingOnZero()
+    {
+        $ssh = new Net_SSH2('localhost');
+        $ssh->setTimeout(1);
+        $ssh->fsock = fopen('php://memory', 'r');
+        // the countdown can end on exactly 0, which has to count as having run out instead of as no timeout
+        $ssh->curTimeout = 0.0;
+
+        $this->assertTrue($ssh->_get_binary_packet(true));
+        $this->assertTrue($ssh->isTimeout());
+    }
+
     /**
      * @return Net_SSH2
      */
