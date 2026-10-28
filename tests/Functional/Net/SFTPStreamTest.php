@@ -42,6 +42,18 @@ class Functional_Net_SFTPStreamTest extends Functional_Net_SFTPTestCase
         $this->assertTrue(in_array('te#st.txt', $this->sftp->nlist()));
     }
 
+    public function testReadZero()
+    {
+        $context = stream_context_create(array(
+            'sftp' => array('session' => $this->sftp),
+        ));
+        $this->sftp->put('zero.txt', '0');
+        $this->assertSame('0', file_get_contents($this->buildUrl('zero.txt'), false, $context));
+
+        $this->sftp->put('zero-tail.txt', str_repeat('a', 8192) . '0');
+        $this->assertSame(str_repeat('a', 8192) . '0', file_get_contents($this->buildUrl('zero-tail.txt'), false, $context));
+    }
+
     protected function buildUrl($suffix)
     {
         return sprintf(
