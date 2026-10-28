@@ -816,6 +816,16 @@ class SFTP extends SSH2
      */
     public function rawlist(string $dir = '.', bool $recursive = false, ?\Closure $onFile = null): array
     {
+        return $this->rawlist_helper($dir, $recursive, $onFile, 0);
+    }
+
+    /**
+     * Helper method for rawlist
+     *
+     * @param ?\Closure(string, string, array):void $onFile Callback invoked for each file found. The parameters are: directory, filename, attributes.
+     */
+    private function rawlist_helper(string $dir, bool $recursive, ?\Closure $onFile, int $depth): array
+    {
         try {
             $files = $this->readlist($dir, true, $onFile);
         } catch (FileSystemException $e) {
@@ -828,8 +838,6 @@ class SFTP extends SSH2
         if (!$recursive) {
             return $files;
         }
-
-        static $depth = 0;
 
         foreach ($files as $key => $value) {
             if ($depth != 0 && $key == '..') {
@@ -847,9 +855,7 @@ class SFTP extends SSH2
             }
 
             if ($is_directory) {
-                $depth++;
-                $files[$key] = $this->rawlist($dir . '/' . $key, true, $onFile);
-                $depth--;
+                $files[$key] = $this->rawlist_helper($dir . '/' . $key, true, $onFile, $depth + 1);
             } else {
                 $files[$key] = (object) $value;
             }
