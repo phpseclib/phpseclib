@@ -315,7 +315,7 @@ class Stream
             call_user_func($this->notification, STREAM_NOTIFY_PROGRESS, STREAM_NOTIFY_SEVERITY_INFO, '', 0, strlen($result), $this->size);
         }
 
-        if (empty($result)) { // ie. false or empty string
+        if ($result === false || $result === '') {
             $this->eof = true;
             return false;
         }

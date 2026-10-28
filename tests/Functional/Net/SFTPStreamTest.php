@@ -71,6 +71,18 @@ class SFTPStreamTest extends SFTPTestCase
         stream_select($read, $write, $except, 0);
     }
 
+    public function testReadZero()
+    {
+        $context = stream_context_create([
+            'sftp' => ['session' => $this->sftp],
+        ]);
+        $this->sftp->put('zero.txt', '0');
+        $this->assertSame('0', file_get_contents($this->buildUrl('zero.txt'), false, $context));
+
+        $this->sftp->put('zero-tail.txt', str_repeat('a', 8192) . '0');
+        $this->assertSame(str_repeat('a', 8192) . '0', file_get_contents($this->buildUrl('zero-tail.txt'), false, $context));
+    }
+
     protected function buildUrl($suffix)
     {
         return sprintf(
