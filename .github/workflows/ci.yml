@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+# a newer push to the same branch or PR cancels the run for the older commit
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
     lint:
         name: Lint
