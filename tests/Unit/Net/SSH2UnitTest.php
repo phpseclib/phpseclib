@@ -241,6 +241,18 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(20, $ssh->getTimeout());
     }
 
+    public function testTimeoutCountdownEndingOnZero()
+    {
+        $ssh = new SSH2('localhost');
+        $ssh->setTimeout(1);
+        self::setVar($ssh, 'fsock', fopen('php://memory', 'r'));
+        // the countdown can end on exactly 0, which has to count as having run out instead of as no timeout
+        self::setVar($ssh, 'curTimeout', 0.0);
+
+        $this->expectException(TimeoutException::class);
+        self::callFunc($ssh, 'get_binary_packet');
+    }
+
     /**
      * @requires PHPUnit < 10
      */

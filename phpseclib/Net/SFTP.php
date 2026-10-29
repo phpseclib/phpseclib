@@ -3360,7 +3360,7 @@ class SFTP extends SSH2
     {
         // in SSH2.php the timeout is cumulative per function call. eg. exec() will
         // timeout after 10s. but for SFTP.php it's cumulative per packet
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ?: false;
         $this->is_timeout = false;
 
         $packet = $this->use_request_id ?
@@ -3423,7 +3423,7 @@ class SFTP extends SSH2
 
         // in SSH2.php the timeout is cumulative per function call. eg. exec() will
         // timeout after 10s. but for SFTP.php it's cumulative per packet
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ?: false;
         $this->is_timeout = false;
 
         $start = microtime(true);
