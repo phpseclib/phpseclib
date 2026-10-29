@@ -3766,6 +3766,10 @@ class Net_SFTP extends Net_SSH2
             if ($temp === true) {
                 if ($this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
                     $this->channel_close = true;
+                } elseif ($this->is_timeout) {
+                    // the reply can still arrive, and since most requests use the same id, it would be taken as the
+                    // reply to the next request
+                    $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                 }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
@@ -3795,6 +3799,9 @@ class Net_SFTP extends Net_SSH2
             if (is_bool($temp)) {
                 if ($temp && $this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
                     $this->channel_close = true;
+                } elseif ($temp && $this->is_timeout) {
+                    // the rest of the packet can still arrive, and would be taken as the start of the next one
+                    $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
                 }
                 $this->packet_type = false;
                 $this->packet_buffer = '';
