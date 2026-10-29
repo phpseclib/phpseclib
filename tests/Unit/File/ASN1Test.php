@@ -700,4 +700,16 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->assertSame(999, ASN1::decodeTag(hex2bin('bf8767'))['tag']);
         $this->assertSame(PHP_INT_MAX, ASN1::decodeTag(hex2bin('1fffffffffffffffff7f'))['tag']);
     }
+
+    public function testLengthOverFourOctetsIsNotTruncated(): void
+    {
+        // OCTET STRING with length 2^32 + 1, which used to be read as 1
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::decodeBER(hex2bin('0485010000000141'));
+    }
+
+    public function testLengthWithLeadingZeroOctets(): void
+    {
+        $this->assertSame('A', (string) ASN1::decodeBER(hex2bin('048500000000014141'))['content']);
+    }
 }
