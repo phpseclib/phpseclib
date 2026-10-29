@@ -19,4 +19,5 @@ phpseclib ongoing development is made possible by [Tidelift](https://tidelift.co
 - [blakemckeeby](https://github.com/blakemckeeby)
 - [ssddanbrown](https://github.com/ssddanbrown)
 - Stefan Beck
-- [Greg Mayes](https://github.com/GregMayes)
+- [Greg Mayes](https://github.com/GregMay:es)
+- [Association pour le Système d'information du Territoire](https://asit-asso.ch/)
