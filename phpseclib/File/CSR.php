@@ -534,7 +534,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::getSubjectDN($format);
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
     public function listAttributes(): array
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -574,7 +573,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             return null;
         }
         foreach ($this->csr['certificationRequestInfo']['attributes'] as $attr) {
-            if (self::extensionMatch($name, $attr['extnId'])) {
+            if (self::extensionMatch($name, $attr['type'])) {
                 return $attr['value'];
             }
         }
