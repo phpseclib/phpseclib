@@ -67,6 +67,15 @@ abstract class PublicKeyLoader
         }
 
         try {
+            $key = MLDSA::load($key, $password);
+            if ($reenable) {
+                ASN1::enableBlobsOnBadDecodes();
+            }
+            return $key;
+        } catch (NoKeyLoadedException) {
+        }
+
+        try {
             $key = X509::load($key)->getPublicKey();
             if ($reenable) {
                 ASN1::enableBlobsOnBadDecodes();

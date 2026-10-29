@@ -124,7 +124,7 @@ abstract class AsymmetricKey
         }
 
         self::loadPlugins('Keys');
-        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH') {
+        if (static::ALGORITHM != 'RSA' && static::ALGORITHM != 'DH' && static::ALGORITHM != 'MLDSA') {
             self::loadPlugins('Signature');
         }
     }
