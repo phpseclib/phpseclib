@@ -8,6 +8,7 @@
 
 namespace phpseclib3\Tests\Unit\File\X509;
 
+use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
 use phpseclib3\File\X509;
 use phpseclib3\Math\BigInteger;
@@ -58,6 +59,52 @@ class CRLTest extends PhpseclibTestCase
         $x509->loadCA($CA);
         $r = $x509->loadCRL($crl);
         $this->assertArrayHasKey('parameters', $r['signatureAlgorithm']);
+        $this->assertTrue($x509->validateSignature());
+    }
+
+    public function testRevokeWithRelativeDate()
+    {
+        $CAPrivKey = PublicKeyLoader::load('-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDMswfEpAgnUDWA74zZw5XcPsWh1ly1Vk99tsqwoFDkLF7jvXy1
+dDLHYfuquvfxCgcp8k/4fQhx4ubR8bbGgEq9B05YRnViK0R0iBB5Ui4IaxWYYhKE
+8xqAEH2fL+/7nsqqNFKkEN9KeFwc7WbMY49U2adlMrpBdRjk1DqIEW3QTwIDAQAB
+AoGBAJ+83cT/1DUJjJcPWLTeweVbPtJp+3Ku5d1OdaGbmURVs764scbP5Ihe2AuF
+V9LLZoe/RdS9jYeB72nJ3D3PA4JVYYgqMOnJ8nlUMNQ+p0yGl5TqQk6EKLI8MbX5
+kQEazNqFXsiWVQXubAd5wjtb6g0n0KD3zoT/pWLES7dtUFexAkEA89h5+vbIIl2P
+H/NnkPie2NWYDZ1YiMGHFYxPDwsd9KCZMSbrLwAhPg9bPgqIeVNfpwxrzeksS6D9
+P98tJt335QJBANbnCe+LhDSrkpHMy9aOG2IdbLGG63MSRUCPz8v2gKPq3kYXDxq6
+Y1iqF8N5g0k5iirHD2qlWV5Q+nuGvFTafCMCQQC1wQiC0IkyXEw/Q31RqI82Dlcs
+5rhEDwQyQof3LZEhcsdcxKaOPOmKSYX4A3/f9w4YBIEiVQfoQ1Ig1qfgDZklAkAT
+TQDJcOBY0qgBTEFqbazr7PScJR/0X8m0eLYS/XqkPi3kYaHLpr3RcsVbmwg9hVtx
+aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
+4vca9v/F2hGVJuHIMJ8mguwYlNYzh2NqoIDJTtgOkBmt
+-----END RSA PRIVATE KEY-----');
+
+        $CASubject = new X509();
+        $CASubject->setDNProp('id-at-organizationName', 'phpseclib CA cert');
+        $CASubject->setPublicKey($CAPrivKey->getPublicKey());
+
+        $CAIssuer = new X509();
+        $CAIssuer->setPrivateKey($CAPrivKey);
+        $CAIssuer->setDN($CASubject->getDN());
+
+        $x509 = new X509();
+        $x509->makeCA();
+        $CA = $x509->saveX509($x509->sign($CAIssuer, $CASubject));
+
+        $x509 = new X509();
+        $x509->loadCRL($x509->saveCRL($x509->signCRL($CAIssuer, new X509())));
+        $x509->revoke(new BigInteger('zzz', 256), '+1 year');
+        $crl = $x509->signCRL($CAIssuer, $x509);
+
+        // wait for the next second so that a relative revocationDate that gets resolved again
+        // on save would differ from the one that was signed
+        usleep((int) ((1 - fmod(microtime(true), 1)) * 1000000) + 10000);
+        $crl = $x509->saveCRL($crl);
+
+        $x509 = new X509();
+        $x509->loadCA($CA);
+        $x509->loadCRL($crl);
         $this->assertTrue($x509->validateSignature());
     }
 

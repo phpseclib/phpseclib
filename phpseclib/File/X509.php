@@ -3914,6 +3914,13 @@ class X509
                 if ($this->revokedCertificate($rclist, $serial) === false) { // If not yet revoked
                     if (($i = $this->revokedCertificate($rclist, $serial, true)) !== false) {
                         if (!empty($date)) {
+                            // resolve relative dates like "+1 year" now. otherwise they'd be resolved every
+                            // time the CRL is encoded, so the revocationDate signCRL() signs could differ from
+                            // the one saveCRL() writes
+                            if (is_string($date)) {
+                                $date = new \DateTimeImmutable($date, new \DateTimeZone(@date_default_timezone_get()));
+                                $date = $date->format('D, d M Y H:i:s O');
+                            }
                             $rclist[$i]['revocationDate'] = $this->timeField($date);
                         }
 
