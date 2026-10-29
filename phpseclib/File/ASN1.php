@@ -475,9 +475,7 @@ abstract class ASN1
                     if (strlen($content) > 128) {
                         throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
                     }
-                    if (ord($content[-1]) & 0x80) {
-                        throw new UnexpectedValueException('OID is malformed');
-                    }
+                    self::checkOIDEncoding($content);
                 } catch (\Exception $e) {
                     if (!self::$blobsOnBadDecodes) {
                         throw $e;
@@ -1178,9 +1176,7 @@ abstract class ASN1
             throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
         }
 
-        if (ord($content[-1]) & 0x80) {
-            throw new UnexpectedValueException('OID is malformed');
-        }
+        self::checkOIDEncoding($content);
 
         $n = new BigInteger();
         $subn = $numBytes = 0;
@@ -1255,6 +1251,20 @@ abstract class ASN1
         }
 
         return new OID(implode('.', $oid));
+    }
+
+    /**
+     * X.690 8.19: at least one subidentifier, each ending in an octet with bit 8 clear and
+     * none starting with 0x80 (a subidentifier is encoded in as few octets as possible)
+     */
+    private static function checkOIDEncoding(string $content): void
+    {
+        if ($content === '' || ord($content[-1]) & 0x80) {
+            throw new UnexpectedValueException('OID is malformed');
+        }
+        if (preg_match('#(?:^|[\x00-\x7f])\x80#', $content)) {
+            throw new UnexpectedValueException('OID subidentifier has a leading 0x80 octet');
+        }
     }
 
     /**
