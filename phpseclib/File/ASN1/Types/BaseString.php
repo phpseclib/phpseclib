@@ -111,7 +111,7 @@ abstract class BaseString implements BaseType
                         $c = ($c << 6) | (ord($in[$i++]) & 0x3F);
                         $bit += 5;
                         $mask = 1 << $bit;
-                    } while ($c & $bit);
+                    } while ($c & $mask);
                     $c &= $mask - 1;
                     break;
             }
