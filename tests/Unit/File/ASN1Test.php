@@ -1005,4 +1005,27 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->expectException(ExcessivelyDeepDataException::class);
         $this->assertCount(1, $m);
     }
+
+    public function testTruncatedLongFormLength(): void
+    {
+        // 82 01: two length octets announced, one present; it was read as length 1
+        $this->expectException(UnexpectedValueException::class);
+        $pos = 0;
+        ASN1::decodeLength(hex2bin('8201'), $pos);
+    }
+
+    public function testTruncatedLengthIsNotEndOfContents(): void
+    {
+        // SEQUENCE { UTCTime (constructed, indefinite) { [23] '740', 3 x UTCTime, 00 f4 } }:
+        // 00 f4 announces 116 length octets and has none; read as a zero length, it passed for
+        // end-of-contents when the indefinite length was measured, and the truncated element
+        // was accepted
+        $m = ASN1::map(
+            ASN1::decodeBER(hex2bin('30183780970337343017033932351703303133170333323100f4')),
+            self::SEQUENCE_OF_ANY
+        );
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->expectException(UnexpectedValueException::class);
+        $this->assertCount(1, $m);
+    }
 }
