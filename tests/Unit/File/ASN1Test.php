@@ -20,6 +20,7 @@ use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\File\X509;
 use phpseclib4\File\ASN1\Element;
 use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -717,5 +718,31 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->expectException(UnexpectedValueException::class);
         ASN1::decodeBER(hex2bin('048041420000'));
+    }
+
+    public function testTaggedZeroLengthElementIsNotEndOfContents(): void
+    {
+        // SEQUENCE { SEQUENCE (indefinite) { [0] '', INTEGER 5 }, NULL }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('300b308080000201050000' . '0500')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(2, $m);
+        $this->assertSame('308080000201050000', bin2hex($m[0]->value));
+        $this->assertInstanceOf(ExplicitNull::class, $m[1]);
+    }
+
+    public function testEndOfContentsInDefiniteLengthContent(): void
+    {
+        // SEQUENCE { INTEGER 1, end-of-contents, 'ffffff'H }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('30080201010000ffffff')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->expectException(UnexpectedValueException::class);
+        $this->assertCount(1, $m);
+    }
+
+    public function testIndefiniteLengthSequenceOfAny(): void
+    {
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('3080308002010100000500' . '0000')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(2, $m);
     }
 }
