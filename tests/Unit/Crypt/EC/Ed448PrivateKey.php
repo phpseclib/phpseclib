@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Crypt\EC;
 
-use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\EC\Curves\Ed448;
 use phpseclib4\Exception\LengthException;
-use phpseclib4\Exception\UnexpectedValueException;
 
 class Ed448PrivateKey
 {

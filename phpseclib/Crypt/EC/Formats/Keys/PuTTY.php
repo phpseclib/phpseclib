@@ -20,7 +20,6 @@ use phpseclib4\Crypt\Common\Formats\Keys\PuTTY as Progenitor;
 use phpseclib4\Crypt\EC\BaseCurves\{Base as BaseCurve, TwistedEdwards as TwistedEdwardsCurve};
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
-use phpseclib4\Math\Common\FiniteField;
 use phpseclib4\Math\Common\FiniteField\Integer;
 
 /**

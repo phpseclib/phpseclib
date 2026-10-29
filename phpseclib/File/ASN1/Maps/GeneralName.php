@@ -70,7 +70,6 @@ abstract class GeneralName
                 'constant' => 7,
                 'optional' => true,
                 'implicit' => true,
-                //'decoder' => '\\phpseclib4\\File\\ASN1::decodeIP',
             ],
             'registeredID' => [
                 'type' => ASN1::TYPE_OBJECT_IDENTIFIER,

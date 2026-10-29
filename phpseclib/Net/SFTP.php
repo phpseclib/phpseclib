@@ -627,9 +627,9 @@ class SFTP extends SSH2
 
         if ($this->version > 2) {
             [$message] = Strings::unpackSSH2('s', $response);
-            $this->sftp_errors[] = isset($filename) ? "$filename ($error): $message" : "$error: $message";
+            $this->sftp_errors[] = "$filename ($error): $message";
         } else {
-            $this->sftp_errors[] = isset($filename) ? "$filename ($error)" : $error;
+            $this->sftp_errors[] = "$filename ($error)";
         }
     }
 

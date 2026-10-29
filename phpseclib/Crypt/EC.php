@@ -43,7 +43,6 @@ use phpseclib4\Crypt\EC\{Parameters, PrivateKey, PublicKey};
 use phpseclib4\Exception\{
     BadConfigurationException,
     BadMethodCallException,
-    InvalidStateException,
     LengthException,
     UnsupportedCurveException
 };
