@@ -239,13 +239,20 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
          *
          * then it should parse that using the existing logic
          */
-        if ($this->tag == ASN1::TYPE_OCTET_STRING) {
+        if ($this->tag == ASN1::TYPE_OCTET_STRING && ($this->encoded[0] ?? '') === chr(ASN1::TYPE_OCTET_STRING)) {
             $sample = ASN1::decodeBER($this->encoded, $this->start + $offset, $offset);
-            $taglength = chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($sample['length']);
-            $temp = preg_replace('#((?:' . $taglength . '.{' . $sample['length'] . '})*).*#s', '$1', $this->encoded);
-            $this->encoded = substr($this->encoded, strlen($temp));
-            $temp = preg_replace('#' . $taglength . '(.{' . $sample['length'] . '})#s', '$1', $temp);
-            $result = $temp;
+            $len = $sample['length'];
+            // the header bytes go into the pattern, so they have to be quoted, and PCRE caps {n} at 65535
+            if ($len <= 65535) {
+                $taglength = preg_quote(chr(ASN1::TYPE_OCTET_STRING) . ASN1::encodeLength($len), '#');
+                $prefix = preg_replace('#((?:' . $taglength . '.{' . $len . '})*).*#s', '$1', $this->encoded);
+                $chunks = $prefix === null ? null : preg_replace('#' . $taglength . '(.{' . $len . '})#s', '$1', $prefix);
+                // on a PCRE error (eg. backtrack limit) fall back to the loop below
+                if ($chunks !== null) {
+                    $this->encoded = substr($this->encoded, strlen($prefix));
+                    $result = $chunks;
+                }
+            }
         }
 
         $content_len = strlen($this->encoded);
