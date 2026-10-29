@@ -17,6 +17,7 @@ use phpseclib4\File\CMS\SignedData;
 use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class SignedDataTest extends PhpseclibTestCase
@@ -465,5 +466,33 @@ ybcPA9iklr0wAwYBAAMBAA==
     {
         $cms = new CMS\SignedData('');
         $this->assertFalse($cms->validateSignature(false));
+    }
+
+    public static function contentTypes(): array
+    {
+        return [
+            'signedData' => ['2a864886f70d010702'],
+            'envelopedData' => ['2a864886f70d010703'],
+            'digestedData' => ['2a864886f70d010705'],
+            'encryptedData' => ['2a864886f70d010706'],
+            'compressedData' => ['2a864886f70d0109100109'],
+        ];
+    }
+
+    /**
+     * ContentInfo { contentType, [0] EXPLICIT INTEGER 5 }: the loaders read ->value of the
+     * content, which only a raw Element has (a warning, then decodeBER(null): a TypeError)
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('contentTypes')]
+    public function testPrimitiveContentIsRejected(string $oid): void
+    {
+        $body = "\x06" . chr(strlen($oid) / 2) . hex2bin($oid) . hex2bin('a003020105');
+        try {
+            CMS::load("\x30" . ASN1::encodeLength(strlen($body)) . $body, ASN1::FORMAT_DER);
+            $this->fail('the ContentInfo was accepted');
+        } catch (UnexpectedValueException) {
+        }
+        // a failed load must not leave the global cache invalidation turned off
+        $this->assertTrue(ASN1::invalidateCache());
     }
 }
