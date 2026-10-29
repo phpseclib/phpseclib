@@ -25,6 +25,7 @@ use phpseclib4\File\ASN1\Types\UniversalString;
 use phpseclib4\File\ASN1\Types\UTF8String;
 use phpseclib4\File\ASN1\Types\GeneralizedTime;
 use phpseclib4\File\ASN1\Types\UTCTime;
+use phpseclib4\File\ASN1\Types\Choice;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -959,5 +960,14 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->expectException(UnexpectedValueException::class);
         ASN1::map(ASN1::decodeBER(hex2bin('4101ff')), ['type' => ASN1::TYPE_BOOLEAN]);
+    }
+
+    public function testToArrayConvertsEveryKindOfChoiceValue(): void
+    {
+        // a CHOICE holds an array, a string or an Element in X.509 certificates and CRLs
+        // (DN rules, ANY alternatives), which convertToPrimitive() did not accept
+        $this->assertSame(['x' => ['a', 'b']], (new Choice('x', ['a', 'b']))->toArray(true));
+        $this->assertSame(['x' => 'a'], (new Choice('x', 'a'))->toArray(true));
+        $this->assertSame(['x' => "\x05\x00"], (new Choice('x', new Element("\x05\x00")))->toArray(true));
     }
 }
