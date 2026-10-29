@@ -745,4 +745,62 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->assertInstanceOf(Constructed::class, $m);
         $this->assertCount(2, $m);
     }
+
+    /** decode $inner as the only field of a SEQUENCE, of the given type */
+    private static function decodeAsField(string $inner, int $type): mixed
+    {
+        $der = "\x30" . ASN1::encodeLength(strlen($inner)) . $inner;
+        $m = ASN1::map(ASN1::decodeBER($der), [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => ['x' => ['type' => $type]],
+        ]);
+        return $m['x'];
+    }
+
+    private static function octetStringChunk(string $data): string
+    {
+        return "\x04" . ASN1::encodeLength(strlen($data)) . $data;
+    }
+
+    private static function constructedOctetString(string ...$chunks): string
+    {
+        $body = implode('', $chunks);
+        return "\x24" . ASN1::encodeLength(strlen($body)) . $body;
+    }
+
+    public static function regexMetacharacterLengths(): array
+    {
+        // chunk lengths whose length octet is a PCRE metacharacter or the pattern delimiter
+        return [['('], ['['], ['.'], ['*'], ['?'], ['\\'], ['|'], ['#'], ['{'], ['+']];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('regexMetacharacterLengths')]
+    public function testConstructedOctetStringChunkLengthIsRegexMetacharacter(string $c): void
+    {
+        $n = ord($c);
+        $a = str_repeat('A', $n);
+        $b = str_repeat('B', $n + 1);
+        $this->assertSame($a . $b, (string) self::decodeAsField(self::constructedOctetString(self::octetStringChunk($a), self::octetStringChunk($b)), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testConstructedOctetStringChunkOver65535Bytes(): void
+    {
+        $a = str_repeat('A', 70000);
+        $this->assertSame($a . 'B', (string) self::decodeAsField(self::constructedOctetString(self::octetStringChunk($a), self::octetStringChunk('B')), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testConstructedOctetStringIndefiniteFirstChunk(): void
+    {
+        $this->assertSame('A', (string) self::decodeAsField(hex2bin('2480248004014100000000'), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testEmptyConstructedOctetString(): void
+    {
+        $this->assertSame('', (string) self::decodeAsField(hex2bin('2400'), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testConstructedOctetStringEqualChunks(): void
+    {
+        $this->assertSame('ABCDE', (string) self::decodeAsField(hex2bin('240b' . '04024142' . '04024344' . '040145'), ASN1::TYPE_OCTET_STRING));
+    }
 }
