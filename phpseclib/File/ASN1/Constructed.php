@@ -298,6 +298,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                     $result = '';
                 }
                 $excessivelyDeepData = false;
+                $segments = [];
                 foreach ($decoded as $content) {
                     // the 'type' of a tagged element is its class, which can equal BIT STRING (3)
                     if (isset($content['constant'])) {
@@ -322,7 +323,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             }
                             $excessivelyDeepData = true;
                         }
-                        $result .= $temp['data'];
+                        $segments[] = (string) $temp['data'];
                         continue;
                     }
                     if ($content['type'] != $this->tag) {
@@ -330,7 +331,26 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                         $error = "$error (found " . ASN1::convertTypeConstantToString($content['type']) . '; expected ' . ASN1::convertTypeConstantToString($this->tag) . ')';
                         throw new UnexpectedValueException($error);
                     }
-                    $result .= $content['content'];
+                    $segments[] = (string) $content['content'];
+                }
+                if ($this->tag == ASN1::TYPE_BIT_STRING) {
+                    // X.690 8.6.4: every segment starts with its own unused-bits octet,
+                    // and only the last segment may have unused bits
+                    $unused = "\0";
+                    $last = count($segments) - 1;
+                    foreach ($segments as $i => $segment) {
+                        if ($segment === '') {
+                            throw new UnexpectedValueException('A BIT STRING segment is missing its unused-bits octet');
+                        }
+                        if ($i < $last && $segment[0] !== "\0") {
+                            throw new UnexpectedValueException('Only the last BIT STRING segment may have unused bits');
+                        }
+                        $unused = $segment[0];
+                        $result .= substr($segment, 1);
+                    }
+                    $result = $unused . $result;
+                } else {
+                    $result .= implode('', $segments);
                 }
                 if ($excessivelyDeepData) {
                     $value = new ExcessivelyDeepData($this->rawheader . $result);

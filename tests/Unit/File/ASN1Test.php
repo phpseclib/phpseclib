@@ -816,4 +816,21 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->expectException(UnexpectedValueException::class);
         (string) self::decodeAsField(hex2bin('2306e304030200aa'), ASN1::TYPE_BIT_STRING);
     }
+
+    public function testSegmentsAreJoinedWithoutTheirUnusedBitsOctets(): void
+    {
+        // segments 'aa'H (0 unused bits) and 'b0'H (4 unused bits)
+        $this->assertSame('04aab0', bin2hex((string) self::decodeAsField(hex2bin('2308030200aa030204b0'), ASN1::TYPE_BIT_STRING)));
+    }
+
+    public function testConstructedBitStringNestedSegments(): void
+    {
+        $this->assertSame('00aabb', bin2hex((string) self::decodeAsField(hex2bin('230a030200aa2304030200bb'), ASN1::TYPE_BIT_STRING)));
+    }
+
+    public function testUnusedBitsBeforeTheLastSegmentAreRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) self::decodeAsField(hex2bin('2308030204aa030200b0'), ASN1::TYPE_BIT_STRING);
+    }
 }
