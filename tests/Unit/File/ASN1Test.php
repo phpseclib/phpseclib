@@ -21,6 +21,7 @@ use phpseclib4\File\X509;
 use phpseclib4\File\ASN1\Element;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Types\UniversalString;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -858,5 +859,12 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $oid = ASN1::decodeBER(hex2bin('0603813403'))['content'];
         (string) $oid;
         $this->assertSame('2.100.3', $oid->value);
+    }
+
+    public function testUniversalString(): void
+    {
+        $s = ASN1::decodeBER(hex2bin('1c080000004100000042'))['content'];
+        $this->assertInstanceOf(UniversalString::class, $s);
+        $this->assertSame('AB', $s->toUTF8String()->value);
     }
 }
