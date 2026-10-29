@@ -97,7 +97,7 @@ jobs:
             fail-fast: false
     tests:
         name: Tests
-        timeout-minutes: 10
+        timeout-minutes: 15
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
