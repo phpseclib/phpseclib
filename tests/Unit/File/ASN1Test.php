@@ -19,6 +19,7 @@ use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\File\X509;
 use phpseclib4\File\ASN1\Element;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -685,5 +686,18 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         // SEQUENCE { [1] { INTEGER 7 }, NULL }
         $m = ASN1::map(ASN1::decodeBER(hex2bin('3007a1030201070500')), self::SEQUENCE_OF_ANY);
         $this->assertSame('a103020107', bin2hex($m[0]->value));
+    }
+
+    public function testTagNumberThatOverflowsIsRejected(): void
+    {
+        // high-tag-number form for 2^64 + 16, which used to wrap around to 16 (SEQUENCE)
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::decodeTag(hex2bin('3f8280808080808080808010'));
+    }
+
+    public function testLargeTagNumber(): void
+    {
+        $this->assertSame(999, ASN1::decodeTag(hex2bin('bf8767'))['tag']);
+        $this->assertSame(PHP_INT_MAX, ASN1::decodeTag(hex2bin('1fffffffffffffffff7f'))['tag']);
     }
 }

@@ -254,6 +254,9 @@ abstract class ASN1
                 $temp = ord($encoded[$encoded_pos++]);
                 $offset++;
                 $loop = $temp >> 7;
+                if ($tag > (PHP_INT_MAX >> 7)) {
+                    throw new UnexpectedValueException('Tag number is too large');
+                }
                 $tag <<= 7;
                 $temp &= 0x7F;
                 if ($offset == 2 && $temp == 0) {
