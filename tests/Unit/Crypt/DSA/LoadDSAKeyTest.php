@@ -16,6 +16,7 @@ use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\NoKeyLoadedException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class LoadDSAKeyTest extends PhpseclibTestCase
@@ -301,6 +302,37 @@ FqdGw3uIr1Hu9IZQk0qzyS0WP7ADXmhCsAqHMiCgwrHy/CYIo950EwIUErkN0hjz
 Mf7Jz8+drwf9tboRi44=
     -----END DSA PRIVATE KEY-----';
         $this->expectException(NoKeyLoadedException::class);
+        PublicKeyLoader::load($key);
+    }
+
+    public static function outOfRangeKeys(): array
+    {
+        // PKCS#8 DSA private key { 0, { id-dsa, { p, q, g } }, OCTET STRING { INTEGER x } }
+        $key = function (string $p, string $q, string $g, string $x): string {
+            $int = fn (string $h) => '02' . sprintf('%02x', strlen($h) / 2) . $h;
+            $params = $int($p) . $int($q) . $int($g);
+            $alg = '06072a8648ce380401' . '30' . sprintf('%02x', strlen($params) / 2) . $params;
+            $priv = '04' . sprintf('%02x', strlen($int($x)) / 2) . $int($x);
+            $body = '020100' . '30' . sprintf('%02x', strlen($alg) / 2) . $alg . $priv;
+            return hex2bin('30' . sprintf('%02x', strlen($body) / 2) . $body);
+        };
+        return [
+            'p = 0' => [$key('00', '7994', '7f0f', '01')],
+            'q = 0' => [$key('17', '00', '05', '01')],
+            'g = p' => [$key('17', '0b', '17', '01')],
+            'x = 0' => [$key('17', '0b', '05', '00')],
+            'x = q' => [$key('17', '0b', '05', '0b')],
+        ];
+    }
+
+    /**
+     * Parameters and keys out of range used to load, and p = 0 or q = 0 then made toString()
+     * or sign() fail with a DivisionByZeroError
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('outOfRangeKeys')]
+    public function testOutOfRangeKeysAreRejected(string $key): void
+    {
+        $this->expectException(UnexpectedValueException::class);
         PublicKeyLoader::load($key);
     }
 }
