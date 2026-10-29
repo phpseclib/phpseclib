@@ -945,4 +945,19 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->assertSame(ASN1::TYPE_GRAPHIC_STRING, ASN1::decodeBER(hex2bin('190161'))['content']->getTypeID());
     }
+
+    public function testTaggedCurrencyCodeIsNotTakenForAnInteger(): void
+    {
+        // MonetaryValue (QcEuLimitValue in qcStatements) with currency [2] 'aa'H: class 2 is
+        // TYPE_INTEGER, so the CHOICE took it for the 'numeric' alternative and map() returned
+        // the raw string, a TypeError
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::map(ASN1::decodeBER(hex2bin('30098201aa020101020100')), Maps\MonetaryValue::MAP)['currency'];
+    }
+
+    public function testTaggedPrimitiveMappedAsBoolean(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::map(ASN1::decodeBER(hex2bin('4101ff')), ['type' => ASN1::TYPE_BOOLEAN]);
+    }
 }
