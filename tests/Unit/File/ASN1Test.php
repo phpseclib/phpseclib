@@ -970,4 +970,21 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->assertSame(['x' => 'a'], (new Choice('x', 'a'))->toArray(true));
         $this->assertSame(['x' => "\x05\x00"], (new Choice('x', new Element("\x05\x00")))->toArray(true));
     }
+
+    public function testNamedBitStringLongerThanItsNames(): void
+    {
+        // KeyUsage (9 named bits) encoded in 16 bits with digitalSignature and keyCertSign set:
+        // array_fill() got a negative count, a ValueError
+        // the same as the minimal encoding 03 02 02 84; bits past the names are ignored
+        $minimal = ASN1::map(ASN1::decodeBER(hex2bin('03020284')), Maps\KeyUsage::MAP)->toArray();
+        $this->assertSame(['keyCertSign', 'digitalSignature'], $minimal);
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0303008400')), Maps\KeyUsage::MAP)->toArray());
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0304008400ff')), Maps\KeyUsage::MAP)->toArray());
+    }
+
+    public function testNamedBitStringWithoutUnusedBitsOctet(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::map(ASN1::decodeBER(hex2bin('0300')), Maps\KeyUsage::MAP);
+    }
 }

@@ -661,6 +661,9 @@ abstract class ASN1
                 break;
             case BitString::class:
                 $raw = (string) $content;
+                if ($raw === '') {
+                    throw new UnexpectedValueException('A BIT STRING needs at least the unused-bits octet');
+                }
                 $offset = ord($raw[0]);
                 $size = (strlen($raw) - 1) * 8 - $offset;
                 /*
@@ -671,13 +674,17 @@ abstract class ASN1
                     therefore ensure that different semantics are not associated with such values which differ only in the number of trailing
                     0 bits."
                 */
-                $bits = count($mapping) == $size ? [] : array_fill(0, count($mapping) - $size, false);
+                $bits = count($mapping) <= $size ? [] : array_fill(0, count($mapping) - $size, false);
                 for ($i = strlen($raw) - 1; $i > 0; $i--) {
                     $current = ord($raw[$i]);
                     for ($j = $offset; $j < 8; $j++) {
                         $bits[] = (bool) ($current & (1 << $j));
                     }
                     $offset = 0;
+                }
+                // bits past the named ones: BER allows trailing zero bits, and unknown bits are ignored
+                if ($size > count($mapping)) {
+                    $bits = array_slice($bits, $size - count($mapping));
                 }
                 $values = [];
                 $map = array_reverse($mapping);
