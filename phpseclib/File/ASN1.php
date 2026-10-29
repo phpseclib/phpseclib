@@ -1352,6 +1352,16 @@ abstract class ASN1
 
         $format = 'YmdHis';
 
+        // DateTime::createFromFormat skips non-digits in front of numbers and rolls
+        // out-of-range fields over (month 13, Feb 30, 24:00, :60), so check the form here
+        // and its warnings below
+        $pattern = $tag == self::TYPE_UTC_TIME ?
+            '#^\d{10}(?:\d{2})?(?:Z|[+-](\d\d)(\d\d))?$#D' :
+            '#^\d{14}(?:\.\d{1,6})?(?:Z|[+-](\d\d)(\d\d))?$#D';
+        if (!preg_match($pattern, $content, $m) || (isset($m[1]) && ($m[1] > 23 || $m[2] > 59))) {
+            throw new UnexpectedValueException('Malformed time');
+        }
+
         if ($tag == self::TYPE_UTC_TIME) {
             // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=28 says "the seconds
             // element shall always be present" but none-the-less I've seen X509 certs where it isn't and if the
@@ -1377,7 +1387,8 @@ abstract class ASN1
             UTCTime::createFromFormat($format, $content) :
             GeneralizedTime::createFromFormat($format, $content);
 
-        if ($result === false) {
+        $errors = \DateTime::getLastErrors();
+        if ($result === false || ($errors !== false && ($errors['warning_count'] || $errors['error_count']))) {
             throw new UnexpectedValueException('Unable to parse date time');
         }
 
