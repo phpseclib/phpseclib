@@ -747,10 +747,12 @@ class SSH2
     /**
      * Current Timeout
      *
+     * Counts down from the timeout. false means there's no timeout; 0 can't mean that since the countdown can end on it
+     *
      * @see self::_get_channel_packet()
      * @access private
      */
-    var $curTimeout;
+    var $curTimeout = false;
 
     /**
      * Keep Alive Interval
@@ -1346,7 +1348,7 @@ class SSH2
 
         $this->bitmap |= self::MASK_CONSTRUCTOR;
 
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ? $this->timeout : false;
 
         $this->last_packet = microtime(true);
 
@@ -1355,7 +1357,7 @@ class SSH2
             // with stream_select a timeout of 0 means that no timeout takes place;
             // with fsockopen a timeout of 0 means that you instantly timeout
             // to resolve this incompatibility a timeout of 100,000 will be used for fsockopen if timeout is 0
-            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout == 0 ? 100000 : $this->curTimeout);
+            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout === false ? 100000 : $this->curTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
                 user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
@@ -1363,9 +1365,9 @@ class SSH2
             }
             $elapsed = microtime(true) - $start;
 
-            if ($this->curTimeout) {
+            if ($this->curTimeout !== false) {
                 $this->curTimeout-= $elapsed;
-                if ($this->curTimeout < 0) {
+                if ($this->curTimeout <= 0) {
                     $this->is_timeout = true;
                     return false;
                 }
@@ -1389,8 +1391,8 @@ class SSH2
         while (!feof($this->fsock) && !preg_match('#(.*)^(SSH-(\d\.\d+).*)#ms', $data, $matches)) {
             $line = '';
             while (true) {
-                if ($this->curTimeout) {
-                    if ($this->curTimeout < 0) {
+                if ($this->curTimeout !== false) {
+                    if ($this->curTimeout <= 0) {
                         $this->is_timeout = true;
                         return false;
                     }
@@ -3041,7 +3043,8 @@ class SSH2
      */
     function setTimeout($timeout)
     {
-        $this->timeout = $this->curTimeout = $timeout;
+        $this->timeout = $timeout;
+        $this->curTimeout = $this->timeout ? $this->timeout : false;
     }
 
     /**
@@ -3080,7 +3083,7 @@ class SSH2
      */
     function exec($command, $callback = null)
     {
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ? $this->timeout : false;
         $this->is_timeout = false;
         $this->stdErrorLog = '';
 
@@ -3355,7 +3358,7 @@ class SSH2
      */
     function read($expect = '', $mode = self::READ_SIMPLE)
     {
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ? $this->timeout : false;
         $this->is_timeout = false;
 
         if (!$this->isAuthenticated()) {
@@ -3670,7 +3673,7 @@ class SSH2
             $read = array($this->fsock);
             $write = $except = null;
 
-            if (!$this->curTimeout) {
+            if ($this->curTimeout === false) {
                 if ($this->keepAlive <= 0) {
                     @stream_select($read, $write, $except, null);
                 } else {
@@ -3680,7 +3683,7 @@ class SSH2
                     }
                 }
             } else {
-                if ($this->curTimeout < 0) {
+                if ($this->curTimeout <= 0) {
                     $this->is_timeout = true;
                     return true;
                 }
