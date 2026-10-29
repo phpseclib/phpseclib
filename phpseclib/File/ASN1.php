@@ -561,7 +561,8 @@ abstract class ASN1
         foreach ($mapping['children'] as $key => $option) {
             switch (true) {
                 case isset($option['constant']) && isset($decoded['constant']) && $option['constant'] == $decoded['constant']:
-                case !isset($option['constant']) && $option['type'] == $decoded['type']:
+                // a tagged element's 'type' is its class, which must not match a universal type
+                case !isset($option['constant']) && !isset($decoded['constant']) && $option['type'] == $decoded['type']:
                     return new Choice($key, self::map($decoded, $option, $rules[$key] ?? []));
             }
         }
@@ -621,7 +622,7 @@ abstract class ASN1
             return isset($mapping['mapping']) ? self::applyMap($temp['content'], $mapping['mapping']) : $temp['content'];
         }
 
-        if ($decoded['type'] == $mapping['type']) {
+        if (!isset($decoded['constant']) && $decoded['type'] == $mapping['type']) {
             return isset($mapping['mapping']) ? self::applyMap($decoded['content'], $mapping['mapping']) : $decoded['content'];
         }
 
