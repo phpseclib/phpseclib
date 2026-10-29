@@ -126,8 +126,10 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 break;
             }
             if (!isset($length)) {
-                self::incrementDepth($depth);
-                $this->calculateIndefiniteLength($offset, $depth);
+                // the nested element is one level deeper than this one; its siblings are not
+                $nested = $depth;
+                self::incrementDepth($nested);
+                $this->calculateIndefiniteLength($offset, $nested);
             } else {
                 $offset += $length;
             }

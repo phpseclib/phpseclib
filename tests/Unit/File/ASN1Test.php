@@ -931,4 +931,13 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->assertSame('1999-12-31 23:59:59', (string) self::decodeAsField("\x37\x0f\x17\x0d991231235959Z", ASN1::TYPE_UTC_TIME));
     }
+
+    public function testManyIndefiniteLengthSiblings(): void
+    {
+        // SEQUENCE { SEQUENCE (indefinite) { 130 x SEQUENCE (indefinite) {} } }: wide, not deep
+        $inner = "\x30\x80" . str_repeat("\x30\x80\x00\x00", 130) . "\x00\x00";
+        $m = ASN1::map(ASN1::decodeBER("\x30" . ASN1::encodeLength(strlen($inner)) . $inner), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(1, $m);
+    }
 }
