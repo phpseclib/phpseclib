@@ -495,4 +495,28 @@ ybcPA9iklr0wAwYBAAMBAA==
         // a failed load must not leave the global cache invalidation turned off
         $this->assertTrue(ASN1::invalidateCache());
     }
+
+    public function testSigningCertificateAttributeThatIsNotASequence(): void
+    {
+        // FE.pdf.p7m with the signingCertificateV2 value's SEQUENCE tag changed to INTEGER:
+        // "Undefined property: Integer::$value", then decodeBER(null)
+        $p7m = file_get_contents(__DIR__ . '/FE.pdf.p7m');
+        $this->assertIsString($p7m);
+        $i = strpos($p7m, hex2bin('060b2a864886f70d010910022f'));
+        $this->assertIsInt($i);
+        $i += 13;
+        $i += ord($p7m[$i + 1]) < 0x80 ? 2 : 2 + (ord($p7m[$i + 1]) & 0x7f);
+        $this->assertSame("\x30", $p7m[$i]);
+        $p7m[$i] = "\x02";
+        $cms = CMS::load($p7m);
+        try {
+            foreach ($cms->getSigners() as $signer) {
+                $signer->toArray();
+            }
+            $this->fail('the attribute was accepted');
+        } catch (UnexpectedValueException) {
+        }
+        // a failed decode must not leave the global cache invalidation turned off
+        $this->assertTrue(ASN1::invalidateCache());
+    }
 }
