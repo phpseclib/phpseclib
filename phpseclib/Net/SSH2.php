@@ -699,9 +699,11 @@ class SSH2
     /**
      * Current Timeout
      *
+     * Counts down from the timeout. false means there's no timeout; 0 can't mean that since the countdown can end on it
+     *
      * @see SSH2::get_channel_packet()
      */
-    protected int|float|null $curTimeout = null;
+    protected int|float|false $curTimeout = false;
 
     /**
      * Keep Alive Interval
@@ -1137,23 +1139,23 @@ class SSH2
 
         $this->bitmap |= self::MASK_CONSTRUCTOR;
 
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ?: false;
 
         if (!is_resource($this->fsock)) {
             $start = microtime(true);
             // with stream_select a timeout of 0 means that no timeout takes place;
             // with fsockopen a timeout of 0 means that you instantly timeout
             // to resolve this incompatibility a timeout of 100,000 will be used for fsockopen if timeout is 0
-            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout == 0 ? 100000 : $this->curTimeout);
+            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout === false ? 100000 : $this->curTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
                 throw new ServiceUnavailableException(rtrim("Cannot connect to $host. Error $errno. $errstr"));
             }
             $elapsed = microtime(true) - $start;
 
-            if ($this->curTimeout) {
+            if ($this->curTimeout !== false) {
                 $this->curTimeout -= $elapsed;
-                if ($this->curTimeout < 0) {
+                if ($this->curTimeout <= 0) {
                     throw new TimeoutException('Connection timed out whilst attempting to open socket connection');
                 }
             }
@@ -1186,8 +1188,8 @@ class SSH2
         while (!feof($this->fsock) && !preg_match('#(.*)^(SSH-(\d\.\d+).*)#ms', $data, $matches)) {
             $line = '';
             while (true) {
-                if ($this->curTimeout) {
-                    if ($this->curTimeout < 0) {
+                if ($this->curTimeout !== false) {
+                    if ($this->curTimeout <= 0) {
                         throw new TimeoutException('Connection timed out whilst receiving server identification string');
                     }
                     $read = [$this->fsock];
@@ -2458,7 +2460,8 @@ class SSH2
      */
     public function setTimeout(int $timeout): void
     {
-        $this->timeout = $this->curTimeout = $timeout;
+        $this->timeout = $timeout;
+        $this->curTimeout = $this->timeout ?: false;
     }
 
     /**
@@ -2483,7 +2486,7 @@ class SSH2
 
     protected function initExec(string $command): void
     {
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ?: false;
         $this->is_timeout = false;
         $this->stdErrorLog = '';
 
@@ -2798,7 +2801,7 @@ class SSH2
             throw new InvalidStateException('Operation disallowed prior to login()');
         }
 
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ?: false;
         $this->is_timeout = false;
 
         if ($channel === null) {
@@ -2871,7 +2874,7 @@ class SSH2
             $this->openShell();
         }
 
-        $this->curTimeout = $this->timeout;
+        $this->curTimeout = $this->timeout ?: false;
         $this->is_timeout = false;
         $this->send_channel_packet($channel, $cmd);
     }
@@ -3152,14 +3155,14 @@ class SSH2
     {
         $sec = (int) ini_get('default_socket_timeout');
         $usec = 0;
-        if ($this->curTimeout > 0) {
+        if ($this->curTimeout !== false) {
             $sec = (int) floor($this->curTimeout);
             $usec = (int) (1000000 * ($this->curTimeout - $sec));
         }
         if ($this->keepAlive > 0) {
             $elapsed = microtime(true) - $this->last_packet;
             $timeout = max($this->keepAlive - $elapsed, 0);
-            if (!$this->curTimeout || $timeout < $this->curTimeout) {
+            if ($this->curTimeout === false || $timeout < $this->curTimeout) {
                 $sec = (int) floor($timeout);
                 $usec = (int) (1000000 * ($timeout - $sec));
             }
@@ -3234,7 +3237,7 @@ class SSH2
                 $this->disconnect_helper(DisconnectReason::CONNECTION_LOST);
                 throw new ConnectionClosedException('Connection closed by server');
             }
-            if ($this->curTimeout < 0) {
+            if ($this->curTimeout !== false && $this->curTimeout <= 0) {
                 $this->is_timeout = true;
                 throw new TimeoutException('Timed out waiting for server');
             }
@@ -3246,7 +3249,7 @@ class SSH2
             $raw = stream_get_contents($this->fsock, $packet->size - strlen($packet->raw));
             $elapsed = microtime(true) - $start;
             $packet->read_time += $elapsed;
-            if ($this->curTimeout > 0) {
+            if ($this->curTimeout !== false) {
                 $this->curTimeout -= $elapsed;
             }
             if ($raw === false) {
