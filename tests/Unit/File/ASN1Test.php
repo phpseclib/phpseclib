@@ -940,4 +940,9 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->assertInstanceOf(Constructed::class, $m);
         $this->assertCount(1, $m);
     }
+
+    public function testGraphicStringTypeID(): void
+    {
+        $this->assertSame(ASN1::TYPE_GRAPHIC_STRING, ASN1::decodeBER(hex2bin('190161'))['content']->getTypeID());
+    }
 }
