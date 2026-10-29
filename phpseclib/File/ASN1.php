@@ -376,7 +376,7 @@ abstract class ASN1
                     'type'     => $class,
                     'constant' => $tag,
                     'content'  => $constructed ?
-                        new Constructed(
+                        (new Constructed(
                             $content,
                             $class,
                             $tag,
@@ -384,7 +384,7 @@ abstract class ASN1
                             0,
                             $current['headerlength'],
                             $headercontent,
-                        ) :
+                        ))->setIndefinite(!isset($length)) :
                         $content,
                     'length'   => $length,
                 ] + $current;
@@ -410,7 +410,7 @@ abstract class ASN1
                     }
                     return $current + ['content' => new MalformedData($headercontent . $content)];
             }
-            return $current + ['content' => new Constructed(
+            return $current + ['content' => (new Constructed(
                 $content,
                 $class,
                 $tag,
@@ -418,7 +418,7 @@ abstract class ASN1
                 $encoded_pos,
                 $current['headerlength'],
                 $headercontent
-            )];
+            ))->setIndefinite(!isset($length))];
         }
 
         // decode UNIVERSAL tags
