@@ -34,6 +34,15 @@ class PHP32Test extends TestCase
         $this->assertEquals(self::getVar($x, 'value'), self::getVar($y, 'value'));
     }
 
+    public function testUnnormalizedZero()
+    {
+        // Xdebug's trace mode dumps normalize()'s argument before its zero limbs are stripped (#1930)
+        $x = new PHP32();
+        self::setVar($x, 'value', [0]);
+
+        $this->assertSame('', $x->toBytes());
+    }
+
     public static function getStaticClass()
     {
         return 'phpseclib3\Math\BigInteger\Engines\PHP32';
