@@ -1934,7 +1934,7 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         X509::load($x509)->toArray();
     }
 
-    public function testBadCN()
+    public function testBadCN(): void
     {
         $x509 = X509::load('-----BEGIN CERTIFICATE-----
 MIICtTCCAZ0CCQDcTlkpIgIQ6TANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAd0
@@ -1970,5 +1970,27 @@ OxVSACNozMMrZrPHjqK0MHq/oHgwCcXOsA==
         $x509 = X509::load("$x509");
         $this->assertSame('sha512-256WithRSAEncryption', (string) $x509['signatureAlgorithm']['algorithm']);
         $this->assertTrue($x509->validateSignature(false));
+    }
+
+    public function testMalformedIPAddressIsKeptAsIs(): void
+    {
+        // subjectAltName iPAddress of 5 octets and a nameConstraints one of 9: inet_ntop()
+        // gave false, which toString() then handed to inet_pton(), a TypeError
+        $der = base64_decode(
+            'MIIBmTCCAT+gAwIBAgIUeHbRM00J/G/8Gb7o3Zv8Slc3468wCgYIKoZIzj0EAwIwDDEKMAgGA1UE'
+            . 'AwwBdDAeFw0yNjEwMjkxNjA1MTZaFw0yNjEwMzAxNjA1MTZaMAwxCjAIBgNVBAMMAXQwWTATBgcq'
+            . 'hkjOPQIBBggqhkjOPQMBBwNCAAQVptrPWjqdgp5mJq6IFfnc+beLSTL9t3lqDlmNpCCbWD+avSWC'
+            . 'x4Z84F4wzcSlMJ/AUXGkof2YMBKkWvZuKw8co38wfTAdBgNVHQ4EFgQU8EvwqQqWMLd15s5C/y/p'
+            . 'KMHcThcwHwYDVR0jBBgwFoAU8EvwqQqWMLd15s5C/y/pKMHcThcwDwYDVR0TAQH/BAUwAwEB/zAQ'
+            . 'BgNVHREECTAHhwXAqAABATAYBgNVHR4EETAPoA0wC4cJCgAAAP8AAAABMAoGCCqGSM49BAMCA0gA'
+            . 'MEUCIQChATW9wkkr7skTlY27gxcV0f3/EYxN7+jtJgPFVDXDOAIgW1y4WAqZ3JPzr/BKoWlViZM3'
+            . 'GGjpHd8NcFvIVgIyjms='
+        );
+        $x = X509::load($der, ASN1::FORMAT_DER);
+        $san = $x->getExtension('id-ce-subjectAltName')['extnValue']->toArray(true);
+        $this->assertSame('c0a8000101', bin2hex($san[0]['iPAddress']));
+        $nc = $x->getExtension('id-ce-nameConstraints')['extnValue']->toArray(true);
+        $this->assertSame('0a000000ff00000001', bin2hex($nc['permittedSubtrees'][0]['base']['iPAddress']));
+        $this->assertIsString($x->toString());
     }
 }
