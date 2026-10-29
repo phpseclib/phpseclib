@@ -22,6 +22,7 @@ use phpseclib4\File\ASN1\Element;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1\Types\ExplicitNull;
 use phpseclib4\File\ASN1\Types\UniversalString;
+use phpseclib4\File\ASN1\Types\UTF8String;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -866,5 +867,22 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $s = ASN1::decodeBER(hex2bin('1c080000004100000042'))['content'];
         $this->assertInstanceOf(UniversalString::class, $s);
         $this->assertSame('AB', $s->toUTF8String()->value);
+    }
+
+    public function testConvertTwoByteUTF8(): void
+    {
+        $this->assertSame('00e9', bin2hex((new UTF8String("\xc3\xa9"))->toBMPString()->value));
+    }
+
+    public function testConvertThreeAndFourByteUTF8(): void
+    {
+        $this->assertSame('20ac', bin2hex((new UTF8String("\xe2\x82\xac"))->toBMPString()->value));
+        $this->assertSame('0001f600', bin2hex((new UTF8String("\xf0\x9f\x98\x80"))->toUniversalString()->value));
+    }
+
+    public function testConvertUTF8ToUTF8(): void
+    {
+        $s = "caf\xc3\xa9 \xe2\x82\xac \xf0\x9f\x98\x80";
+        $this->assertSame($s, (new UTF8String($s))->toUTF8String()->value);
     }
 }
