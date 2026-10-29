@@ -27,13 +27,26 @@ jobs:
                     php-version: ${{ matrix.php-version }}
                 env:
                     update: true
+            -   name: Get Composer Cache Directory and Week
+                id: composer-cache
+                run: |
+                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+            -   name: Cache Composer Packages
+                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
+                # makes it change, so the cache is saved again (starting from last week's) once a week
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
+                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-
             -   name: Override PHPUnit and ParaTest versions
                 run: |
                     composer require --dev --no-update \
                       "phpunit/phpunit:${{ matrix.phpunit }}" \
                       "brianium/paratest:${{ matrix.paratest }}"
             -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction --no-cache
+                run: composer install --classmap-authoritative --no-interaction
             -   name: Lint
                 run: vendor/bin/parallel-lint --show-deprecated build phpseclib tests
         strategy:
@@ -59,10 +72,23 @@ jobs:
                     php-version: '8.2'
                 env:
                     update: true
+            -   name: Get Composer Cache Directory and Week
+                id: composer-cache
+                run: |
+                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+            -   name: Cache Composer Packages
+                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
+                # makes it change, so the cache is saved again (starting from last week's) once a week
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: composer-${{ runner.os }}-${{ github.job }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
+                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-
             -   name: Override PHPUnit and ParaTest versions
                 run: composer require --dev --no-update "phpunit/phpunit:^11.5" "brianium/paratest:^7.8.5"
             -   name: Composer Install
-                run: composer update --with-all-dependencies --no-interaction --no-cache
+                run: composer update --with-all-dependencies --no-interaction
             -   name: PHP_CodeSniffer
                 run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
             -   name: Psalm
@@ -82,6 +108,20 @@ jobs:
                     php-version: ${{ matrix.php-version }}
                 env:
                     update: true
+            -   name: Get Composer Cache Directory and Week
+                id: composer-cache
+                shell: bash
+                run: |
+                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+            -   name: Cache Composer Packages
+                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
+                # makes it change, so the cache is saved again (starting from last week's) once a week
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
+                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-
             -   name: Override PHPUnit and ParaTest versions
                 shell: bash
                 run: |
@@ -89,7 +129,7 @@ jobs:
                       "phpunit/phpunit:${{ matrix.phpunit }}" \
                       "brianium/paratest:${{ matrix.paratest }}"
             -   name: Composer Install
-                run: composer update --with-all-dependencies --no-interaction --no-cache
+                run: composer update --with-all-dependencies --no-interaction
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
                 run: |
