@@ -5020,6 +5020,17 @@ class File_X509
                 if ($this->_revokedCertificate($rclist, $serial) === false) { // If not yet revoked
                     if (($i = $this->_revokedCertificate($rclist, $serial, true)) !== false) {
                         if (!empty($date)) {
+                            // resolve relative dates like "+1 year" now. otherwise they'd be resolved every
+                            // time the CRL is encoded, so the revocationDate signCRL() signs could differ from
+                            // the one saveCRL() writes
+                            if (is_string($date)) {
+                                if (class_exists('DateTime')) {
+                                    $date = new DateTime($date, new DateTimeZone(@date_default_timezone_get()));
+                                    $date = $date->format('D, d M Y H:i:s O');
+                                } else {
+                                    $date = @date('D, d M Y H:i:s O', @strtotime($date));
+                                }
+                            }
                             $rclist[$i]['revocationDate'] = $this->_timeField($date);
                         }
 

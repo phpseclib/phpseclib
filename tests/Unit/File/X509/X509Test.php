@@ -190,6 +190,57 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']);
     }
 
+    public function testRevokeWithRelativeDate()
+    {
+        $privKey = new Crypt_RSA();
+        $privKey->loadKey('-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDMswfEpAgnUDWA74zZw5XcPsWh1ly1Vk99tsqwoFDkLF7jvXy1
+dDLHYfuquvfxCgcp8k/4fQhx4ubR8bbGgEq9B05YRnViK0R0iBB5Ui4IaxWYYhKE
+8xqAEH2fL+/7nsqqNFKkEN9KeFwc7WbMY49U2adlMrpBdRjk1DqIEW3QTwIDAQAB
+AoGBAJ+83cT/1DUJjJcPWLTeweVbPtJp+3Ku5d1OdaGbmURVs764scbP5Ihe2AuF
+V9LLZoe/RdS9jYeB72nJ3D3PA4JVYYgqMOnJ8nlUMNQ+p0yGl5TqQk6EKLI8MbX5
+kQEazNqFXsiWVQXubAd5wjtb6g0n0KD3zoT/pWLES7dtUFexAkEA89h5+vbIIl2P
+H/NnkPie2NWYDZ1YiMGHFYxPDwsd9KCZMSbrLwAhPg9bPgqIeVNfpwxrzeksS6D9
+P98tJt335QJBANbnCe+LhDSrkpHMy9aOG2IdbLGG63MSRUCPz8v2gKPq3kYXDxq6
+Y1iqF8N5g0k5iirHD2qlWV5Q+nuGvFTafCMCQQC1wQiC0IkyXEw/Q31RqI82Dlcs
+5rhEDwQyQof3LZEhcsdcxKaOPOmKSYX4A3/f9w4YBIEiVQfoQ1Ig1qfgDZklAkAT
+TQDJcOBY0qgBTEFqbazr7PScJR/0X8m0eLYS/XqkPi3kYaHLpr3RcsVbmwg9hVtx
+aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
+4vca9v/F2hGVJuHIMJ8mguwYlNYzh2NqoIDJTtgOkBmt
+-----END RSA PRIVATE KEY-----');
+
+        $pubKey = new Crypt_RSA();
+        $pubKey->loadKey($privKey->getPublicKey());
+        $pubKey->setPublicKey();
+
+        $subject = new File_X509();
+        $subject->setDNProp('id-at-organizationName', 'phpseclib demo CA');
+        $subject->setPublicKey($pubKey);
+
+        $issuer = new File_X509();
+        $issuer->setPrivateKey($privKey);
+        $issuer->setDN($subject->getDN());
+
+        $x509 = new File_X509();
+        $x509->makeCA();
+        $ca = $x509->saveX509($x509->sign($issuer, $subject));
+
+        $x509 = new File_X509();
+        $x509->loadCRL($x509->saveCRL($x509->signCRL($issuer, new File_X509())));
+        $x509->revoke(new Math_BigInteger('1234'), '+1 year');
+        $crl = $x509->signCRL($issuer, $x509);
+
+        // wait for the next second so that a relative revocationDate that gets resolved again
+        // on save would differ from the one that was signed
+        usleep((int) ((1 - fmod(microtime(true), 1)) * 1000000) + 10000);
+        $crl = $x509->saveCRL($crl);
+
+        $x509 = new File_X509();
+        $x509->loadCA($ca);
+        $x509->loadCRL($crl);
+        $this->assertTrue($x509->validateSignature());
+    }
+
     private function _encodeOID($oid)
     {
         if ($oid === false) {
