@@ -833,4 +833,30 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->expectException(UnexpectedValueException::class);
         (string) self::decodeAsField(hex2bin('2308030204aa030200b0'), ASN1::TYPE_BIT_STRING);
     }
+
+    public function testOIDLeadingPaddingOctetIsRejected(): void
+    {
+        // used to decode as 2.-79
+        $this->expectException(UnexpectedValueException::class);
+        (string) ASN1::decodeBER(hex2bin('06028001'))['content'];
+    }
+
+    public function testOIDPaddingInALaterSubidentifierIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) ASN1::decodeBER(hex2bin('06032a8001'))['content'];
+    }
+
+    public function testEmptyOIDIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) ASN1::decodeBER(hex2bin('0600'))['content'];
+    }
+
+    public function testOIDWithLongFirstSubidentifier(): void
+    {
+        $oid = ASN1::decodeBER(hex2bin('0603813403'))['content'];
+        (string) $oid;
+        $this->assertSame('2.100.3', $oid->value);
+    }
 }
