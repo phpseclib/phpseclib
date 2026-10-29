@@ -51,6 +51,7 @@ use phpseclib4\File\ASN1\Types\{
     OctetString,
     PrintableString,
     TeletexString,
+    UniversalString,
     UTCTime,
     UTF8String,
     VideotexString,
@@ -520,6 +521,9 @@ abstract class ASN1
                 break;
             case self::TYPE_BMP_STRING:
                 $current['content'] = new BMPString($content);
+                break;
+            case self::TYPE_UNIVERSAL_STRING:
+                $current['content'] = new UniversalString($content);
                 break;
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
