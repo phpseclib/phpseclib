@@ -289,6 +289,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 if (!$this->parent instanceof Constructed) {
                     throw new InvalidStateException('The only parent to a constructed time tag should be Constructed');
                 }
+                if (!isset($decoded[0])) {
+                    throw new UnexpectedValueException('Constructed time without content');
+                }
                 $this->parent->decoded[$this->key] = ASN1::map($decoded[0], $mapping);
                 $this->decoded = [];
                 break;

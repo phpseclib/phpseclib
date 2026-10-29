@@ -920,4 +920,15 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $t = ASN1::decodeBER("\x17\x0b9912312359Z")['content'];
         $this->assertSame('1999-12-31 23:59:00', (string) $t);
     }
+
+    public function testEmptyConstructedTimeIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        self::decodeAsField(hex2bin('3700'), ASN1::TYPE_UTC_TIME);
+    }
+
+    public function testConstructedTimeWrappingATime(): void
+    {
+        $this->assertSame('1999-12-31 23:59:59', (string) self::decodeAsField("\x37\x0f\x17\x0d991231235959Z", ASN1::TYPE_UTC_TIME));
+    }
 }
