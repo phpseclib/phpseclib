@@ -828,4 +828,25 @@ Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
         $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load($key);
     }
+
+    public static function publicKeysAtInfinity(): array
+    {
+        return [
+            // SubjectPublicKeyInfo { id-ecPublicKey prime256v1, BIT STRING 00 }
+            'SubjectPublicKeyInfo' => ['3019301306072a8648ce3d020106082a8648ce3d03010703020000'],
+            // ECPrivateKey { 1, 53, [0] prime256v1, [1] BIT STRING 00 }
+            'ECPrivateKey with publicKey' => ['3018020101040153a00a06082a8648ce3d030107a10403020000'],
+        ];
+    }
+
+    /**
+     * The point at infinity (encoded as the single octet 00) was accepted as a public key;
+     * toString() then failed with "Undefined array key 0"
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('publicKeysAtInfinity')]
+    public function testPublicKeyAtInfinityIsRejected(string $key): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        PublicKeyLoader::load(hex2bin($key));
+    }
 }
