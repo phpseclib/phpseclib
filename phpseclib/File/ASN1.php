@@ -294,6 +294,9 @@ abstract class ASN1
             // support it up to four.
             $length &= 0x7F;
             $temp = substr($encoded, $encoded_pos, $length);
+            if (strlen($temp) > 4 && ltrim(substr($temp, 0, -4), chr(0)) !== '') {
+                throw new UnexpectedValueException('Length is too large');
+            }
             $encoded_pos += $length;
             [, $length] = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         }
