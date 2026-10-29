@@ -1774,4 +1774,38 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         $this->assertSame('0a000000ff00000001', bin2hex($nc['permittedSubtrees'][0]['base']['iPAddress']));
         $this->assertIsString($x->toString());
     }
+
+    public function testDNWithAnEmptyRDN(): void
+    {
+        // subject CN=t with its RDN emptied (SET {}): DN_STRING read $field[0]['type'] of nothing
+        $x = X509::load(base64_decode(
+            'MIIBjTCCATOgAwIBAgIUeHbRM00J/G/8Gb7o3Zv8Slc3468wCgYIKoZIzj0EAwIwDDEKMAgGA1UE'
+            . 'AwwBdDAeFw0yNjEwMjkxNjA1MTZaFw0yNjEwMzAxNjA1MTZaMAIxADBZMBMGByqGSM49AgEGCCqG'
+            . 'SM49AwEHA0IABBWm2s9aOp2CnmYmrogV+dz5t4tJMv23eWoOWY2kIJtYP5q9JYLHhnzgXjDNxKUw'
+            . 'n8BRcaSh/ZgwEqRa9m4rDxyjfTB7MB0GA1UdDgQWBBTwS/CpCpYwt3XmzkL/L+kowdxOFzAfBgNV'
+            . 'HSMEGDAWgBTwS/CpCpYwt3XmzkL/L+kowdxOFzAPBgNVHRMBAf8EBTADAQH/MA8GA1UdEQQIMAaH'
+            . 'BMCoAAEwFwYDVR0eBBAwDqAMMAqHCAoAAAD/AAAAMAoGCCqGSM49BAMCA0gAMEUCIQChATW9wkkr'
+            . '7skTlY27gxcV0f3/EYxN7+jtJgPFVDXDOAIgW1y4WAqZ3JPzr/BKoWlViZM3GGjpHd8NcFvIVgIy'
+            . 'jms='
+        ), ASN1::FORMAT_DER);
+        $this->assertFalse($x->hasSubjectDNProp('id-at-commonName'));
+        $this->expectException(UnexpectedValueException::class);
+        $x->getSubjectDN(ASN1::DN_STRING);
+    }
+
+    public function testDNValueWithoutAStringForm(): void
+    {
+        // subject CN with the value BOOLEAN TRUE: "Object of class Boolean could not be converted to string"
+        $x = X509::load(base64_decode(
+            'MIIBlzCCAT2gAwIBAgIUeHbRM00J/G/8Gb7o3Zv8Slc3468wCgYIKoZIzj0EAwIwDDEKMAgGA1UE'
+            . 'AwwBdDAeFw0yNjEwMjkxNjA1MTZaFw0yNjEwMzAxNjA1MTZaMAwxCjAIBgNVBAMBAf8wWTATBgcq'
+            . 'hkjOPQIBBggqhkjOPQMBBwNCAAQVptrPWjqdgp5mJq6IFfnc+beLSTL9t3lqDlmNpCCbWD+avSWC'
+            . 'x4Z84F4wzcSlMJ/AUXGkof2YMBKkWvZuKw8co30wezAdBgNVHQ4EFgQU8EvwqQqWMLd15s5C/y/p'
+            . 'KMHcThcwHwYDVR0jBBgwFoAU8EvwqQqWMLd15s5C/y/pKMHcThcwDwYDVR0TAQH/BAUwAwEB/zAP'
+            . 'BgNVHREECDAGhwTAqAABMBcGA1UdHgQQMA6gDDAKhwgKAAAA/wAAADAKBggqhkjOPQQDAgNIADBF'
+            . 'AiEAoQE1vcJJK+7JE5WNu4MXFdH9/xGMTe/o7SYDxVQ1wzgCIFtcuFgKmdyT86/wSqFpVYmTNxho'
+            . '6R3fDXBbyFYCMo5r'
+        ), ASN1::FORMAT_DER);
+        $this->assertSame('CN = #0101FF', $x->getSubjectDN(ASN1::DN_STRING));
+    }
 }
