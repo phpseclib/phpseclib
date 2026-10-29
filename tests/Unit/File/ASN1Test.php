@@ -23,6 +23,8 @@ use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1\Types\ExplicitNull;
 use phpseclib4\File\ASN1\Types\UniversalString;
 use phpseclib4\File\ASN1\Types\UTF8String;
+use phpseclib4\File\ASN1\Types\GeneralizedTime;
+use phpseclib4\File\ASN1\Types\UTCTime;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -884,5 +886,38 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $s = "caf\xc3\xa9 \xe2\x82\xac \xf0\x9f\x98\x80";
         $this->assertSame($s, (new UTF8String($s))->toUTF8String()->value);
+    }
+
+    public function testTimeOutOfRangeFieldsAreNotNormalized(): void
+    {
+        // UTCTime 991332235959Z (month 13, day 32) used to become 2000-02-01 23:59:59
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER(hex2bin('170d3939313333323233353935395a'))['content']);
+    }
+
+    public function testTimeFebruary30(): void
+    {
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER("\x18\x0f20230230120000Z")['content']);
+    }
+
+    public function testTimeWithNonDigits(): void
+    {
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER("\x17\x0d99 231235959Z")['content']);
+    }
+
+    public function testEmptyGeneralizedTime(): void
+    {
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER(hex2bin('1800'))['content']);
+    }
+
+    public function testValidTimes(): void
+    {
+        $t = ASN1::decodeBER("\x17\x0d991231235959Z")['content'];
+        $this->assertInstanceOf(UTCTime::class, $t);
+        $this->assertSame('1999-12-31 23:59:59', (string) $t);
+        $t = ASN1::decodeBER("\x18\x1520240229120000.5+0530")['content'];
+        $this->assertInstanceOf(GeneralizedTime::class, $t);
+        $this->assertSame('2024-02-29T12:00:00.500000+05:30', $t->format('Y-m-d\\TH:i:s.uP'));
+        $t = ASN1::decodeBER("\x17\x0b9912312359Z")['content'];
+        $this->assertSame('1999-12-31 23:59:00', (string) $t);
     }
 }
