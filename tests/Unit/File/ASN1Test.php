@@ -803,4 +803,17 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->assertSame('ABCDE', (string) self::decodeAsField(hex2bin('240b' . '04024142' . '04024344' . '040145'), ASN1::TYPE_OCTET_STRING));
     }
+
+    public function testPrivateTaggedSegmentIsRejected(): void
+    {
+        // a [PRIVATE 5] primitive used to pass for a BIT STRING segment (class 3 == TYPE_BIT_STRING)
+        $this->expectException(UnexpectedValueException::class);
+        (string) self::decodeAsField(hex2bin('2304c50200aa'), ASN1::TYPE_BIT_STRING);
+    }
+
+    public function testPrivateTaggedConstructedSegmentIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) self::decodeAsField(hex2bin('2306e304030200aa'), ASN1::TYPE_BIT_STRING);
+    }
 }

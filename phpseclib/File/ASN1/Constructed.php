@@ -299,6 +299,10 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 }
                 $excessivelyDeepData = false;
                 foreach ($decoded as $content) {
+                    // the 'type' of a tagged element is its class, which can equal BIT STRING (3)
+                    if (isset($content['constant'])) {
+                        throw new UnexpectedValueException('All subtags of a constructed string should be the same type as the constructed string itself (found a tagged element)');
+                    }
                     if ($content['content'] instanceof Constructed) {
                         /** @var Choice */
                         $temp = ASN1::map($content, [
