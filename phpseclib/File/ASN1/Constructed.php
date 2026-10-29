@@ -571,6 +571,10 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 }
                 $map[] = $temp;
             } catch (EncodedDataUnavailableException | ExcessivelyDeepDataException $e) {
+                // as in setSeqInnerLoop: a blob only when blobs on bad decodes are enabled
+                if (!ASN1::isBlobsOnBadDecodesEnabled() && $e instanceof ExcessivelyDeepDataException) {
+                    throw $e;
+                }
                 $data = $this->rawChild($content, $children);
                 $map[] = $e instanceof EncodedDataUnavailableException ? new Element($data) : new ExcessivelyDeepData($data);
             }

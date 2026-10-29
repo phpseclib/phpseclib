@@ -26,6 +26,7 @@ use phpseclib4\File\ASN1\Types\UTF8String;
 use phpseclib4\File\ASN1\Types\GeneralizedTime;
 use phpseclib4\File\ASN1\Types\UTCTime;
 use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\Exception\ExcessivelyDeepDataException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -986,5 +987,22 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->expectException(UnexpectedValueException::class);
         ASN1::map(ASN1::decodeBER(hex2bin('0300')), Maps\KeyUsage::MAP);
+    }
+
+    public function testExcessiveDepthInASequenceOfIsAnError(): void
+    {
+        // a rule for the elements of a SEQUENCE OF that fails with ExcessivelyDeepDataException,
+        // as X509's extension rules do for a too deeply nested extension value, used to leave an
+        // ExcessivelyDeepData element behind, which X509::listExtensions() then indexed
+        $m = ASN1::map(
+            ASN1::decodeBER(hex2bin('30023000')),
+            ['type' => ASN1::TYPE_SEQUENCE, 'min' => 0, 'max' => -1, 'children' => ['type' => ASN1::TYPE_SEQUENCE, 'children' => []]],
+            ['*' => function (): void {
+                throw new ExcessivelyDeepDataException('Depth exceeds safe limits');
+            }]
+        );
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->expectException(ExcessivelyDeepDataException::class);
+        $this->assertCount(1, $m);
     }
 }
