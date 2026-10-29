@@ -18,6 +18,7 @@ use phpseclib4\File\ASN1\MalformedData;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\File\X509;
+use phpseclib4\File\ASN1\Element;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -645,5 +646,44 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $decoded = ASN1::decodeBER($sample);
         $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray();
         $this->assertIsArray($result);
+    }
+
+    private const SEQUENCE_OF_ANY = [
+        'type' => ASN1::TYPE_SEQUENCE,
+        'min' => 0,
+        'max' => -1,
+        'children' => ['type' => ASN1::TYPE_ANY],
+    ];
+
+    public function testTaggedChildMappedToAnyKeepsItsEncoding(): void
+    {
+        // SEQUENCE { [0] 'aa'H, INTEGER 5 }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('30068001aa020105')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(2, $m);
+        $this->assertInstanceOf(Element::class, $m[0]);
+        $this->assertSame('8001aa', bin2hex($m[0]->value));
+        $this->assertSame('5', (string) $m[1]);
+    }
+
+    public function testExplicitAnyIsTheInnerElementExactly(): void
+    {
+        // SEQUENCE { [0] EXPLICIT SEQUENCE { INTEGER 5 }, NULL }: the [0] used to come
+        // back with the NULL's first two bytes appended
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('3009a00530030201050500')), [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'a' => ['constant' => 0, 'explicit' => true, 'type' => ASN1::TYPE_ANY],
+                'b' => ['type' => ASN1::TYPE_NULL],
+            ],
+        ]);
+        $this->assertSame('3003020105', bin2hex($m['a']->value));
+    }
+
+    public function testConstructedTaggedChildMappedToAny(): void
+    {
+        // SEQUENCE { [1] { INTEGER 7 }, NULL }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('3007a1030201070500')), self::SEQUENCE_OF_ANY);
+        $this->assertSame('a103020107', bin2hex($m[0]->value));
     }
 }
