@@ -712,4 +712,10 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
     {
         $this->assertSame('A', (string) ASN1::decodeBER(hex2bin('048500000000014141'))['content']);
     }
+
+    public function testPrimitiveWithIndefiniteLengthIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::decodeBER(hex2bin('048041420000'));
+    }
 }

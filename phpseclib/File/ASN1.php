@@ -340,6 +340,10 @@ abstract class ASN1
         ] = self::decodeTag($encoded, $encoded_pos);
         $length = self::decodeLength($encoded, $encoded_pos);
         $current['headerlength'] = $encoded_pos - $old_encoded_pos;
+        if (!isset($length) && !$constructed) {
+            // X.690 8.1.3.2: the indefinite form is only for constructed encodings
+            throw new UnexpectedValueException('Primitive element with indefinite length');
+        }
         if (isset($length)) {
             $current['length'] = $length;
         }
