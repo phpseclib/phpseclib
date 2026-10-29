@@ -44,8 +44,21 @@ jobs:
                 with:
                     php-version: '8.1'
                     tools: squizlabs/php_codesniffer:3, friendsofphp/php-cs-fixer:3, vimeo/psalm:4
+            -   name: Get Composer Cache Directory and Week
+                id: composer-cache
+                run: |
+                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+            -   name: Cache Composer Packages
+                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
+                # makes it change, so the cache is saved again (starting from last week's) once a week
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: composer-${{ runner.os }}-${{ github.job }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
+                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-
             -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction --no-cache
+                run: composer install --classmap-authoritative --no-interaction
             -   name: PHP_CodeSniffer
                 run: phpcs --standard=build/php_codesniffer.xml
             -   name: PHP CS Fixer
@@ -63,8 +76,22 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
+            -   name: Get Composer Cache Directory and Week
+                id: composer-cache
+                shell: bash
+                run: |
+                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+            -   name: Cache Composer Packages
+                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
+                # makes it change, so the cache is saved again (starting from last week's) once a week
+                uses: actions/cache@v6
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
+                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-
             -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction --no-cache
+                run: composer install --classmap-authoritative --no-interaction
             -   name: Make Tests Compatiable With PHPUnit 7+
                 if: matrix.php-version != '5.6' && matrix.php-version != '7.0'
                 run: php tests/make_compatible_with_phpunit7.php
