@@ -484,6 +484,21 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         throw new UnexpectedValueException('An unsupported default type was encountered');
     }
 
+    /**
+     * The raw encoding of a child that is mapped to ANY: the whole element, or for an
+     * EXPLICIT tag the element inside it. For tagged elements decodeBER's 'start' is the
+     * position after the header.
+     */
+    private function rawChild(array $temp, array $mapping): string
+    {
+        $start = $temp['start'] - $this->start - (isset($temp['constant']) ? $temp['headerlength'] : 0);
+        $length = $temp['length'] ?? $temp['actuallength'];
+        if (isset($mapping['explicit'])) {
+            return substr($this->encoded, $start + $temp['headerlength'], $length);
+        }
+        return substr($this->encoded, $start, $length + $temp['headerlength']);
+    }
+
     private function setSeqOuterLoop(array $decoded, array $children): array
     {
         $rules = $this->rules;
@@ -508,7 +523,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 }
                 $map[] = $temp;
             } catch (EncodedDataUnavailableException | ExcessivelyDeepDataException $e) {
-                $data = substr($this->encoded, $content['start'] - $this->start, ($content['length'] ?? $content['actuallength']) + $content['headerlength']);
+                $data = $this->rawChild($content, $children);
                 $map[] = $e instanceof EncodedDataUnavailableException ? new Element($data) : new ExcessivelyDeepData($data);
             }
         }
@@ -564,7 +579,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 if (!ASN1::isBlobsOnBadDecodesEnabled() && $e instanceof ExcessivelyDeepDataException) {
                     throw $e;
                 }
-                $data = substr($this->encoded, $temp['start'] - $this->start, ($temp['length'] ?? $temp['actuallength']) + $temp['headerlength']);
+                $data = $this->rawChild($temp, $child);
                 return $e instanceof EncodedDataUnavailableException ? new Element($data) : new ExcessivelyDeepData($data);
             } catch (UnexpectedValueException) {
                 $maymatch = false;
