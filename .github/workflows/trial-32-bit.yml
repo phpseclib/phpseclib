@@ -8,7 +8,7 @@ permissions:
 jobs:
     tests:
         name: ${{ matrix.branch }} / PHP ${{ matrix.php }} (32-bit)
-        timeout-minutes: 45
+        timeout-minutes: 15
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -50,18 +50,11 @@ jobs:
                 run: |
                     if [ -f tests/phpunit.xml ]; then config='--configuration tests/phpunit.xml'; else config=''; fi
                     time docker run --rm --platform linux/386 --volume "$PWD:/app" --workdir /app php:${{ matrix.php }}-cli \
-                        php -d memory_limit=-1 vendor/bin/phpunit $config
+                        php -d memory_limit=-1 vendor/bin/phpunit $config --debug
         strategy:
             fail-fast: false
             matrix:
+                # 2.0 only: its first run hung, and --debug names each test as it starts, so the last one named is the hang
                 include:
-                    -   { branch: '1.0', php: '5.6' }
-                    -   { branch: '1.0', php: '8.5' }
                     -   { branch: '2.0', php: '5.6' }
                     -   { branch: '2.0', php: '8.5' }
-                    -   { branch: '3.0', php: '7.0' }
-                    -   { branch: '3.0', php: '8.5' }
-                    -   { branch: '4.0', php: '8.1', phpunit: '^10.5', paratest: '^7.0' }
-                    -   { branch: '4.0', php: '8.5', phpunit: '^13.1', paratest: '^7.22' }
-                    -   { branch: 'master', php: '8.1', phpunit: '^10.5', paratest: '^7.0' }
-                    -   { branch: 'master', php: '8.5', phpunit: '^13.1', paratest: '^7.22' }
