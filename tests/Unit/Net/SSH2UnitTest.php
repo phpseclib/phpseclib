@@ -17,7 +17,6 @@ use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\TimeoutException;
 use phpseclib4\Net\SSH2;
 use phpseclib4\Tests\PhpseclibTestCase;
-use PHPUnit\Framework\MockObject\MockObject;
 
 class SSH2UnitTest extends PhpseclibTestCase
 {

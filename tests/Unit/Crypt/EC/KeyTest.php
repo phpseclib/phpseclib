@@ -20,7 +20,6 @@ use phpseclib4\Crypt\EC\Formats\Keys\XML;
 use phpseclib4\Crypt\EC\PrivateKey;
 use phpseclib4\Crypt\EC\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
-use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Tests\PhpseclibTestCase;
