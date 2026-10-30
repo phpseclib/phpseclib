@@ -18,7 +18,6 @@ use phpseclib4\Crypt\EC;
 use phpseclib4\File\ASN1\ExcessivelyDeepData;
 use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Exception\UnexpectedValueException;
-use phpseclib4\Exception\UnsupportedFormatException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Element;
 use phpseclib4\File\ASN1\MalformedData;

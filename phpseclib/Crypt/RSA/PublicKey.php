@@ -15,7 +15,6 @@ namespace phpseclib4\Crypt\RSA;
 
 use phpseclib4\Crypt\{Common, RSA, RSA\PrivateKey};
 use phpseclib4\Exception\{
-    BadConfigurationException,
     KeyConstraintException,
     LengthException,
     UnexpectedValueException,

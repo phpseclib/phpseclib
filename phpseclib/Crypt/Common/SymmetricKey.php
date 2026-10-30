@@ -489,9 +489,7 @@ abstract class SymmetricKey
     public function __construct(string $mode)
     {
         $mode = strtolower($mode);
-        // necessary because of 5.6 compatibility; we can't do isset(self::MODE_MAP[$mode]) in 5.6
-        $map = self::MODE_MAP;
-        if (!isset($map[$mode])) {
+        if (!isset(self::MODE_MAP[$mode])) {
             throw new InvalidArgumentException('No valid mode has been specified');
         }
 
