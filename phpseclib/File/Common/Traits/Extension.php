@@ -130,7 +130,8 @@ trait Extension
             // see https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10
             case 'id-ce-nameConstraints':
                 $rules['permittedSubtrees']['*']['base'] = $rules['excludedSubtrees']['*']['base'] = function (Choice $el): void {
-                    if (isset($el['iPAddress'])) {
+                    // an address and a mask, IPv4 or IPv6; anything else stays an OCTET STRING
+                    if (isset($el['iPAddress']) && in_array(strlen((string) $el['iPAddress']), [8, 32], true)) {
                         $ip = (string) $el['iPAddress'];
                         $size = strlen($ip) >> 1;
                         $mask = substr($ip, $size);
@@ -150,7 +151,8 @@ trait Extension
                 // pretty much every $extnId requires Choice, save for id-pe-authorityInfoAccess,
                 // which needs Constructed
                 $rule = function (Choice|Constructed $el): void {
-                    if (isset($el['iPAddress'])) {
+                    // IPv4 or IPv6; anything else stays an OCTET STRING (inet_ntop would give false)
+                    if (isset($el['iPAddress']) && in_array(strlen("$el[iPAddress]"), [4, 16], true)) {
                         $el['iPAddress'] = inet_ntop("$el[iPAddress]");
                     }
                 };
@@ -222,7 +224,7 @@ trait Extension
                     $oldValue = $value instanceof Constructed ? $value->toArray() : $value;
                     $path = self::getPathToIPAddress($id);
                     Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Choice|Element|array {
-                        if ($val instanceof Element || !isset($val['iPAddress'])) {
+                        if ($val instanceof Element || !isset($val['iPAddress']) || $val['iPAddress'] instanceof OctetString) {
                             return $val;
                         }
                         return new Choice('iPAddress', new OctetString(inet_pton("$val[iPAddress]")));
@@ -233,7 +235,7 @@ trait Extension
                     $paths = ['permittedSubtrees/*/base', 'excludedSubtrees/*/base'];
                     foreach ($paths as $path) {
                         Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Choice|Element|array {
-                            if ($val instanceof Element || !isset($val['iPAddress'])) {
+                            if ($val instanceof Element || !isset($val['iPAddress']) || !is_array($val['iPAddress'])) {
                                 return $val;
                             }
                             return new Choice('iPAddress', new OctetString(inet_pton($val['iPAddress'][0]) . inet_pton($val['iPAddress'][1])));
