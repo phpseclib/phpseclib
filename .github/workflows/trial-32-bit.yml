@@ -1,4 +1,4 @@
-# temporary: runs each branch's unit tests on 32-bit PHP to see what fails and how long it takes. delete the branch afterwards
+# temporary: runs a branch's unit tests on 32-bit PHP with a candidate fix (trial/<branch>.patch) applied. delete the branch afterwards
 name: Trial 32-bit
 on: push
 
@@ -7,93 +7,44 @@ permissions:
 
 jobs:
     tests:
-        name: ${{ matrix.branch }} / PHP ${{ matrix.php }} (32-bit)
-        timeout-minutes: 45
+        name: ${{ matrix.branch }} + fix / PHP ${{ matrix.php }} (32-bit)
+        timeout-minutes: 30
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
                 uses: actions/checkout@v7
                 with:
                     ref: ${{ matrix.branch }}
+            -   name: Checkout Trial Files
+                uses: actions/checkout@v7
+                with:
+                    path: trial-branch
+            -   name: Apply Fix
+                run: |
+                    git apply --verbose "trial-branch/trial/${{ matrix.patch }}"
+                    rm -rf trial-branch
+                    git status --short
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php }}
             -   name: Composer Install
                 run: |
-                    case "${{ matrix.branch }}" in
-                        4.0|master)
-                            # psalm requires php-64bit, which would make composer's platform check refuse to run on 32-bit PHP
-                            composer remove --dev --no-update vimeo/psalm
-                            composer require --dev --no-update "phpunit/phpunit:${{ matrix.phpunit }}" "brianium/paratest:${{ matrix.paratest }}"
-                            composer update --with-all-dependencies --no-interaction
-                            ;;
-                        3.0) composer install --classmap-authoritative --no-interaction ;;
-                        *) composer install --no-interaction ;;
-                    esac
-            -   name: Make Tests Compatible
-                run: |
-                    atLeast() { php -r "exit(version_compare(PHP_VERSION, '$1', '>=') ? 0 : 1);"; }
-                    case "${{ matrix.branch }}" in
-                        1.0|2.0)
-                            if atLeast 7.2; then php tests/make_compatible_with_phpunit9.php; fi
-                            ;;
-                        3.0)
-                            if atLeast 7.1; then php tests/make_compatible_with_phpunit7.php; fi
-                            if atLeast 7.3; then php tests/make_compatible_with_phpunit9.php; fi
-                            if atLeast 8.1; then php tests/make_compatible_with_phpunit12.php; fi
-                            ;;
-                    esac
+                    # psalm requires php-64bit, which would make composer's platform check refuse to run on 32-bit PHP
+                    composer remove --dev --no-update vimeo/psalm
+                    composer require --dev --no-update "phpunit/phpunit:${{ matrix.phpunit }}" "brianium/paratest:${{ matrix.paratest }}"
+                    composer update --with-all-dependencies --no-interaction
             -   name: 32-bit PHP
-                run: docker run --rm --platform linux/386 php:${{ matrix.php }}-cli php -r 'echo PHP_VERSION, " ", PHP_INT_SIZE * 8, "-bit\n", implode(" ", get_loaded_extensions()), "\n";'
-            -   name: Repeat The Tests Where 2.0 Hung
-                # 2.0's first run hung after test 2135 of 2264; these are tests 2136-2196. each runs up to 15 times
-                # (stopping after 3 hangs), and a run that takes over 30 seconds counts as a hang
+                run: docker run --rm --platform linux/386 php:${{ matrix.php }}-cli php -r 'echo PHP_VERSION, " ", PHP_INT_SIZE * 8, "-bit\n";'
+            -   name: PHPUnit
                 run: |
-                    cat > repeat.sh << 'EOF'
-                    for t in \
-                        InternalOpenSSLTest::testBitwiseOR InternalOpenSSLTest::testBitwiseXOR InternalOpenSSLTest::testBitwiseNOT \
-                        InternalOpenSSLTest::testBitwiseLeftShift InternalOpenSSLTest::testBitwiseRightShift \
-                        InternalOpenSSLTest::testSerializable InternalOpenSSLTest::testClone \
-                        InternalOpenSSLTest::testRandomTwoArgument InternalOpenSSLTest::testRandomOneArgument \
-                        InternalOpenSSLTest::testDiffieHellmanKeyAgreement InternalOpenSSLTest::testDebugInfo \
-                        InternalOpenSSLTest::testSlidingWindow InternalOpenSSLTest::test48ToHex InternalOpenSSLTest::testZeroBase10 \
-                        InternalOpenSSLTest::testNegativePrecision InternalOpenSSLTest::testHexWithNewLines \
-                        InternalOpenSSLTest::testPHP85ChrDeprecation \
-                        InternalTest::testInternalRepresentation InternalTest::testConstructorBase2 InternalTest::testConstructorBase10 \
-                        InternalTest::testConstructorBase16 InternalTest::testToBytes InternalTest::testToBytesTwosCompliment \
-                        InternalTest::testToHex InternalTest::testToBits InternalTest::testAdd InternalTest::testSubtract \
-                        InternalTest::testMultiply InternalTest::testDivide InternalTest::testModPowModuloOne InternalTest::testModPow \
-                        InternalTest::testModInverse InternalTest::testExtendedGCD InternalTest::testGCD InternalTest::testAbs \
-                        InternalTest::testEquals InternalTest::testCompare InternalTest::testBitwiseAND InternalTest::testBitwiseOR \
-                        InternalTest::testBitwiseXOR InternalTest::testBitwiseNOT InternalTest::testBitwiseLeftShift \
-                        InternalTest::testBitwiseRightShift InternalTest::testSerializable InternalTest::testClone \
-                        InternalTest::testRandomTwoArgument InternalTest::testRandomOneArgument \
-                        InternalTest::testDiffieHellmanKeyAgreement InternalTest::testDebugInfo InternalTest::testSlidingWindow \
-                        InternalTest::test48ToHex InternalTest::testZeroBase10 InternalTest::testNegativePrecision \
-                        InternalTest::testHexWithNewLines InternalTest::testPHP85ChrDeprecation \
-                        SFTPStreamUnitTest::testRegisterWithoutArgument SFTPStreamUnitTest::testRegisterWithArgument \
-                        SFTPUnitTest::testRecursiveRawlist SFTPUnitTest::testRawlistAfterInterruptedRecursiveRawlist \
-                        SSH1Test::testFormatLog \
-                        'InternalOpenSSLTest|InternalTest'
-                    do
-                        runs=0; hangs=0; failures=0
-                        while [ $runs -lt 15 ] && [ $hangs -lt 3 ]; do
-                            runs=$((runs + 1))
-                            timeout 30 php -d memory_limit=-1 vendor/bin/phpunit --filter "$t" > out.txt 2>&1
-                            rc=$?
-                            if [ $rc = 124 ]; then hangs=$((hangs + 1)); elif [ $rc != 0 ]; then failures=$((failures + 1)); fi
-                        done
-                        if ! grep -qE '^(OK|Tests:)' out.txt && [ $hangs = 0 ]; then echo "NO TESTS RAN: $t"; tail -3 out.txt; fi
-                        echo "$t: $hangs hung, $failures failed, of $runs runs; last: $(grep -E '^(OK|Tests:)' out.txt | tail -1)"
-                    done
-                    EOF
-                    docker run --rm --platform linux/386 --volume "$PWD:/app" --workdir /app php:${{ matrix.php }}-cli sh repeat.sh
+                    time docker run --rm --platform linux/386 --volume "$PWD:/app" --workdir /app php:${{ matrix.php }}-cli \
+                        php -d memory_limit=-1 vendor/bin/phpunit --configuration tests/phpunit.xml
         strategy:
             fail-fast: false
             matrix:
                 include:
-                    -   { branch: '1.0', php: '5.6' }
-                    -   { branch: '1.0', php: '8.5' }
-                    -   { branch: '2.0', php: '5.6' }
-                    -   { branch: '2.0', php: '8.5' }
+                    -   { branch: '4.0', patch: '4.0.patch', php: '8.1', phpunit: '^10.5', paratest: '^7.0' }
+                    -   { branch: '4.0', patch: '4.0.patch', php: '8.5', phpunit: '^13.1', paratest: '^7.22' }
+                    -   { branch: 'master', patch: '4.0.patch', php: '8.1', phpunit: '^10.5', paratest: '^7.0' }
+                    -   { branch: 'master', patch: '4.0.patch', php: '8.5', phpunit: '^13.1', paratest: '^7.22' }

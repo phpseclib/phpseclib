@@ -1,0 +1,67 @@
+diff --git a/phpseclib/Crypt/Salsa20.php b/phpseclib/Crypt/Salsa20.php
+index f31ec7c9..df587ae7 100644
+--- a/phpseclib/Crypt/Salsa20.php
++++ b/phpseclib/Crypt/Salsa20.php
+@@ -372,8 +372,10 @@ class Salsa20 extends StreamCipher
+ 
+     /**
+      * Left Rotate
++     *
++     * On 32-bit PHP installs $x can be a float, since the sums passed to it can overflow
+      */
+-    protected static function leftRotate(int $x, int $n): int
++    protected static function leftRotate(int|float $x, int $n): int
+     {
+         if (PHP_INT_SIZE == 8) {
+             $r1 = $x << $n;
+diff --git a/phpseclib/File/CMS/EncryptedData.php b/phpseclib/File/CMS/EncryptedData.php
+index fb3aecda..ea5fdbb7 100644
+--- a/phpseclib/File/CMS/EncryptedData.php
++++ b/phpseclib/File/CMS/EncryptedData.php
+@@ -678,7 +678,9 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
+         for ($j = 0; $j <= 5; $j++) {
+             for ($i = 0; $i < $n; $i++) {
+                 $b = $aes->encrypt($a . $r[$i]);
+-                $t = pack('J', $n * $j + $i + 1);
++                // t is a 64-bit big-endian integer. it never needs more than 32 bits, and pack('J') isn't
++                // available on 32-bit PHP installs
++                $t = "\0\0\0\0" . pack('N', $n * $j + $i + 1);
+                 $a = substr($b, 0, 8) ^ $t;
+                 $r[$i] = substr($b, 8);
+             }
+diff --git a/phpseclib/File/Common/Traits/KeyDerivation.php b/phpseclib/File/Common/Traits/KeyDerivation.php
+index 5ec7ddfd..3f56f90f 100644
+--- a/phpseclib/File/Common/Traits/KeyDerivation.php
++++ b/phpseclib/File/Common/Traits/KeyDerivation.php
+@@ -43,7 +43,9 @@ trait KeyDerivation
+         // 2) Compute intermediate values.
+         for ($j = 5; $j >= 0; $j--) {
+             for ($i = $n - 1; $i >= 0; $i--) {
+-                $t = pack('J', $n * $j + $i + 1);
++                // t is a 64-bit big-endian integer. it never needs more than 32 bits, and pack('J') isn't
++                // available on 32-bit PHP installs
++                $t = "\0\0\0\0" . pack('N', $n * $j + $i + 1);
+                 $b = $aes->decrypt(($a ^ $t) . $r[$i]);
+                 $a = substr($b, 0, 8);
+                 $r[$i] = substr($b, 8);
+diff --git a/phpseclib/Math/BigInteger/Engines/PHP.php b/phpseclib/Math/BigInteger/Engines/PHP.php
+index c14891cf..d41d0b16 100644
+--- a/phpseclib/Math/BigInteger/Engines/PHP.php
++++ b/phpseclib/Math/BigInteger/Engines/PHP.php
+@@ -673,11 +673,14 @@ abstract class PHP extends Engine
+      * if the dividend is not evenly divisible by the divisor. Since a float64 doesn't
+      * have the precision of int64 this is a problem so, when int64 is being used,
+      * we'll guarantee that the dividend is divisible by first subtracting the remainder.
++     *
++     * The 26-bit base is the one 32-bit PHP installs use. There the dividend can need up
++     * to 52 bits, which makes it a float, so intdiv() can't be used.
+      */
+-    private static function safe_divide(int $x, int $y): int
++    private static function safe_divide(int|float $x, int $y): int
+     {
+         if (static::BASE === 26) {
+-            return intdiv($x, $y);
++            return (int) ($x / $y);
+         }
+ 
+         // static::BASE === 31
