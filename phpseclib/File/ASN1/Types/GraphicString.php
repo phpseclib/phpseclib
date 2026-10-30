@@ -24,4 +24,5 @@ namespace phpseclib4\File\ASN1\Types;
  */
 class GraphicString extends BaseString
 {
+    public const TYPE = 25;
 }

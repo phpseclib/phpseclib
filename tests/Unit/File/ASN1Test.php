@@ -18,6 +18,15 @@ use phpseclib4\File\ASN1\MalformedData;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\File\X509;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\File\ASN1\Types\ExplicitNull;
+use phpseclib4\File\ASN1\Types\UniversalString;
+use phpseclib4\File\ASN1\Types\UTF8String;
+use phpseclib4\File\ASN1\Types\GeneralizedTime;
+use phpseclib4\File\ASN1\Types\UTCTime;
+use phpseclib4\File\ASN1\Types\Choice;
+use phpseclib4\Exception\ExcessivelyDeepDataException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
@@ -645,5 +654,378 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $decoded = ASN1::decodeBER($sample);
         $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray();
         $this->assertIsArray($result);
+    }
+
+    private const SEQUENCE_OF_ANY = [
+        'type' => ASN1::TYPE_SEQUENCE,
+        'min' => 0,
+        'max' => -1,
+        'children' => ['type' => ASN1::TYPE_ANY],
+    ];
+
+    public function testTaggedChildMappedToAnyKeepsItsEncoding(): void
+    {
+        // SEQUENCE { [0] 'aa'H, INTEGER 5 }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('30068001aa020105')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(2, $m);
+        $this->assertInstanceOf(Element::class, $m[0]);
+        $this->assertSame('8001aa', bin2hex($m[0]->value));
+        $this->assertSame('5', (string) $m[1]);
+    }
+
+    public function testExplicitAnyIsTheInnerElementExactly(): void
+    {
+        // SEQUENCE { [0] EXPLICIT SEQUENCE { INTEGER 5 }, NULL }: the [0] used to come
+        // back with the NULL's first two bytes appended
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('3009a00530030201050500')), [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'a' => ['constant' => 0, 'explicit' => true, 'type' => ASN1::TYPE_ANY],
+                'b' => ['type' => ASN1::TYPE_NULL],
+            ],
+        ]);
+        $this->assertSame('3003020105', bin2hex($m['a']->value));
+    }
+
+    public function testConstructedTaggedChildMappedToAny(): void
+    {
+        // SEQUENCE { [1] { INTEGER 7 }, NULL }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('3007a1030201070500')), self::SEQUENCE_OF_ANY);
+        $this->assertSame('a103020107', bin2hex($m[0]->value));
+    }
+
+    public function testTagNumberThatOverflowsIsRejected(): void
+    {
+        // high-tag-number form for 2^64 + 16, which used to wrap around to 16 (SEQUENCE)
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::decodeTag(hex2bin('3f8280808080808080808010'));
+    }
+
+    public function testLargeTagNumber(): void
+    {
+        $this->assertSame(999, ASN1::decodeTag(hex2bin('bf8767'))['tag']);
+        $this->assertSame(PHP_INT_MAX, ASN1::decodeTag(hex2bin('1fffffffffffffffff7f'))['tag']);
+    }
+
+    public function testLengthOverFourOctetsIsNotTruncated(): void
+    {
+        // OCTET STRING with length 2^32 + 1, which used to be read as 1
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::decodeBER(hex2bin('0485010000000141'));
+    }
+
+    public function testLengthWithLeadingZeroOctets(): void
+    {
+        $this->assertSame('A', (string) ASN1::decodeBER(hex2bin('048500000000014141'))['content']);
+    }
+
+    public function testPrimitiveWithIndefiniteLengthIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::decodeBER(hex2bin('048041420000'));
+    }
+
+    public function testTaggedZeroLengthElementIsNotEndOfContents(): void
+    {
+        // SEQUENCE { SEQUENCE (indefinite) { [0] '', INTEGER 5 }, NULL }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('300b308080000201050000' . '0500')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(2, $m);
+        $this->assertSame('308080000201050000', bin2hex($m[0]->value));
+        $this->assertInstanceOf(ExplicitNull::class, $m[1]);
+    }
+
+    public function testEndOfContentsInDefiniteLengthContent(): void
+    {
+        // SEQUENCE { INTEGER 1, end-of-contents, 'ffffff'H }
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('30080201010000ffffff')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->expectException(UnexpectedValueException::class);
+        $this->assertCount(1, $m);
+    }
+
+    public function testIndefiniteLengthSequenceOfAny(): void
+    {
+        $m = ASN1::map(ASN1::decodeBER(hex2bin('3080308002010100000500' . '0000')), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(2, $m);
+    }
+
+    /** decode $inner as the only field of a SEQUENCE, of the given type */
+    private static function decodeAsField(string $inner, int $type): mixed
+    {
+        $der = "\x30" . ASN1::encodeLength(strlen($inner)) . $inner;
+        $m = ASN1::map(ASN1::decodeBER($der), [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => ['x' => ['type' => $type]],
+        ]);
+        return $m['x'];
+    }
+
+    private static function octetStringChunk(string $data): string
+    {
+        return "\x04" . ASN1::encodeLength(strlen($data)) . $data;
+    }
+
+    private static function constructedOctetString(string ...$chunks): string
+    {
+        $body = implode('', $chunks);
+        return "\x24" . ASN1::encodeLength(strlen($body)) . $body;
+    }
+
+    public static function regexMetacharacterLengths(): array
+    {
+        // chunk lengths whose length octet is a PCRE metacharacter or the pattern delimiter
+        return [['('], ['['], ['.'], ['*'], ['?'], ['\\'], ['|'], ['#'], ['{'], ['+']];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('regexMetacharacterLengths')]
+    public function testConstructedOctetStringChunkLengthIsRegexMetacharacter(string $c): void
+    {
+        $n = ord($c);
+        $a = str_repeat('A', $n);
+        $b = str_repeat('B', $n + 1);
+        $this->assertSame($a . $b, (string) self::decodeAsField(self::constructedOctetString(self::octetStringChunk($a), self::octetStringChunk($b)), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testConstructedOctetStringChunkOver65535Bytes(): void
+    {
+        $a = str_repeat('A', 70000);
+        $this->assertSame($a . 'B', (string) self::decodeAsField(self::constructedOctetString(self::octetStringChunk($a), self::octetStringChunk('B')), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testConstructedOctetStringIndefiniteFirstChunk(): void
+    {
+        $this->assertSame('A', (string) self::decodeAsField(hex2bin('2480248004014100000000'), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testEmptyConstructedOctetString(): void
+    {
+        $this->assertSame('', (string) self::decodeAsField(hex2bin('2400'), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testConstructedOctetStringEqualChunks(): void
+    {
+        $this->assertSame('ABCDE', (string) self::decodeAsField(hex2bin('240b' . '04024142' . '04024344' . '040145'), ASN1::TYPE_OCTET_STRING));
+    }
+
+    public function testPrivateTaggedSegmentIsRejected(): void
+    {
+        // a [PRIVATE 5] primitive used to pass for a BIT STRING segment (class 3 == TYPE_BIT_STRING)
+        $this->expectException(UnexpectedValueException::class);
+        (string) self::decodeAsField(hex2bin('2304c50200aa'), ASN1::TYPE_BIT_STRING);
+    }
+
+    public function testPrivateTaggedConstructedSegmentIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) self::decodeAsField(hex2bin('2306e304030200aa'), ASN1::TYPE_BIT_STRING);
+    }
+
+    public function testSegmentsAreJoinedWithoutTheirUnusedBitsOctets(): void
+    {
+        // segments 'aa'H (0 unused bits) and 'b0'H (4 unused bits)
+        $this->assertSame('04aab0', bin2hex((string) self::decodeAsField(hex2bin('2308030200aa030204b0'), ASN1::TYPE_BIT_STRING)));
+    }
+
+    public function testConstructedBitStringNestedSegments(): void
+    {
+        $this->assertSame('00aabb', bin2hex((string) self::decodeAsField(hex2bin('230a030200aa2304030200bb'), ASN1::TYPE_BIT_STRING)));
+    }
+
+    public function testUnusedBitsBeforeTheLastSegmentAreRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) self::decodeAsField(hex2bin('2308030204aa030200b0'), ASN1::TYPE_BIT_STRING);
+    }
+
+    public function testOIDLeadingPaddingOctetIsRejected(): void
+    {
+        // used to decode as 2.-79
+        $this->expectException(UnexpectedValueException::class);
+        (string) ASN1::decodeBER(hex2bin('06028001'))['content'];
+    }
+
+    public function testOIDPaddingInALaterSubidentifierIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) ASN1::decodeBER(hex2bin('06032a8001'))['content'];
+    }
+
+    public function testEmptyOIDIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        (string) ASN1::decodeBER(hex2bin('0600'))['content'];
+    }
+
+    public function testOIDWithLongFirstSubidentifier(): void
+    {
+        $oid = ASN1::decodeBER(hex2bin('0603813403'))['content'];
+        (string) $oid;
+        $this->assertSame('2.100.3', $oid->value);
+    }
+
+    public function testUniversalString(): void
+    {
+        $s = ASN1::decodeBER(hex2bin('1c080000004100000042'))['content'];
+        $this->assertInstanceOf(UniversalString::class, $s);
+        $this->assertSame('AB', $s->toUTF8String()->value);
+    }
+
+    public function testConvertTwoByteUTF8(): void
+    {
+        $this->assertSame('00e9', bin2hex((new UTF8String("\xc3\xa9"))->toBMPString()->value));
+    }
+
+    public function testConvertThreeAndFourByteUTF8(): void
+    {
+        $this->assertSame('20ac', bin2hex((new UTF8String("\xe2\x82\xac"))->toBMPString()->value));
+        $this->assertSame('0001f600', bin2hex((new UTF8String("\xf0\x9f\x98\x80"))->toUniversalString()->value));
+    }
+
+    public function testConvertUTF8ToUTF8(): void
+    {
+        $s = "caf\xc3\xa9 \xe2\x82\xac \xf0\x9f\x98\x80";
+        $this->assertSame($s, (new UTF8String($s))->toUTF8String()->value);
+    }
+
+    public function testTimeOutOfRangeFieldsAreNotNormalized(): void
+    {
+        // UTCTime 991332235959Z (month 13, day 32) used to become 2000-02-01 23:59:59
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER(hex2bin('170d3939313333323233353935395a'))['content']);
+    }
+
+    public function testTimeFebruary30(): void
+    {
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER("\x18\x0f20230230120000Z")['content']);
+    }
+
+    public function testTimeWithNonDigits(): void
+    {
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER("\x17\x0d99 231235959Z")['content']);
+    }
+
+    public function testEmptyGeneralizedTime(): void
+    {
+        $this->assertInstanceOf(Element::class, ASN1::decodeBER(hex2bin('1800'))['content']);
+    }
+
+    public function testValidTimes(): void
+    {
+        $t = ASN1::decodeBER("\x17\x0d991231235959Z")['content'];
+        $this->assertInstanceOf(UTCTime::class, $t);
+        $this->assertSame('1999-12-31 23:59:59', (string) $t);
+        $t = ASN1::decodeBER("\x18\x1520240229120000.5+0530")['content'];
+        $this->assertInstanceOf(GeneralizedTime::class, $t);
+        $this->assertSame('2024-02-29T12:00:00.500000+05:30', $t->format('Y-m-d\\TH:i:s.uP'));
+        $t = ASN1::decodeBER("\x17\x0b9912312359Z")['content'];
+        $this->assertSame('1999-12-31 23:59:00', (string) $t);
+    }
+
+    public function testEmptyConstructedTimeIsRejected(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        self::decodeAsField(hex2bin('3700'), ASN1::TYPE_UTC_TIME);
+    }
+
+    public function testConstructedTimeWrappingATime(): void
+    {
+        $this->assertSame('1999-12-31 23:59:59', (string) self::decodeAsField("\x37\x0f\x17\x0d991231235959Z", ASN1::TYPE_UTC_TIME));
+    }
+
+    public function testManyIndefiniteLengthSiblings(): void
+    {
+        // SEQUENCE { SEQUENCE (indefinite) { 130 x SEQUENCE (indefinite) {} } }: wide, not deep
+        $inner = "\x30\x80" . str_repeat("\x30\x80\x00\x00", 130) . "\x00\x00";
+        $m = ASN1::map(ASN1::decodeBER("\x30" . ASN1::encodeLength(strlen($inner)) . $inner), self::SEQUENCE_OF_ANY);
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->assertCount(1, $m);
+    }
+
+    public function testGraphicStringTypeID(): void
+    {
+        $this->assertSame(ASN1::TYPE_GRAPHIC_STRING, ASN1::decodeBER(hex2bin('190161'))['content']->getTypeID());
+    }
+
+    public function testTaggedCurrencyCodeIsNotTakenForAnInteger(): void
+    {
+        // MonetaryValue (QcEuLimitValue in qcStatements) with currency [2] 'aa'H: class 2 is
+        // TYPE_INTEGER, so the CHOICE took it for the 'numeric' alternative and map() returned
+        // the raw string, a TypeError
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::map(ASN1::decodeBER(hex2bin('30098201aa020101020100')), Maps\MonetaryValue::MAP)['currency'];
+    }
+
+    public function testTaggedPrimitiveMappedAsBoolean(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::map(ASN1::decodeBER(hex2bin('4101ff')), ['type' => ASN1::TYPE_BOOLEAN]);
+    }
+
+    public function testToArrayConvertsEveryKindOfChoiceValue(): void
+    {
+        // a CHOICE holds an array, a string or an Element in X.509 certificates and CRLs
+        // (DN rules, ANY alternatives), which convertToPrimitive() did not accept
+        $this->assertSame(['x' => ['a', 'b']], (new Choice('x', ['a', 'b']))->toArray(true));
+        $this->assertSame(['x' => 'a'], (new Choice('x', 'a'))->toArray(true));
+        $this->assertSame(['x' => "\x05\x00"], (new Choice('x', new Element("\x05\x00")))->toArray(true));
+    }
+
+    public function testNamedBitStringLongerThanItsNames(): void
+    {
+        // KeyUsage (9 named bits) encoded in 16 bits with digitalSignature and keyCertSign set:
+        // array_fill() got a negative count, a ValueError
+        // the same as the minimal encoding 03 02 02 84; bits past the names are ignored
+        $minimal = ASN1::map(ASN1::decodeBER(hex2bin('03020284')), Maps\KeyUsage::MAP)->toArray();
+        $this->assertSame(['keyCertSign', 'digitalSignature'], $minimal);
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0303008400')), Maps\KeyUsage::MAP)->toArray());
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0304008400ff')), Maps\KeyUsage::MAP)->toArray());
+    }
+
+    public function testNamedBitStringWithoutUnusedBitsOctet(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        ASN1::map(ASN1::decodeBER(hex2bin('0300')), Maps\KeyUsage::MAP);
+    }
+
+    public function testExcessiveDepthInASequenceOfIsAnError(): void
+    {
+        // a rule for the elements of a SEQUENCE OF that fails with ExcessivelyDeepDataException,
+        // as X509's extension rules do for a too deeply nested extension value, used to leave an
+        // ExcessivelyDeepData element behind, which X509::listExtensions() then indexed
+        $m = ASN1::map(
+            ASN1::decodeBER(hex2bin('30023000')),
+            ['type' => ASN1::TYPE_SEQUENCE, 'min' => 0, 'max' => -1, 'children' => ['type' => ASN1::TYPE_SEQUENCE, 'children' => []]],
+            ['*' => function (): void {
+                throw new ExcessivelyDeepDataException('Depth exceeds safe limits');
+            }]
+        );
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->expectException(ExcessivelyDeepDataException::class);
+        $this->assertCount(1, $m);
+    }
+
+    public function testTruncatedLongFormLength(): void
+    {
+        // 82 01: two length octets announced, one present; it was read as length 1
+        $this->expectException(UnexpectedValueException::class);
+        $pos = 0;
+        ASN1::decodeLength(hex2bin('8201'), $pos);
+    }
+
+    public function testTruncatedLengthIsNotEndOfContents(): void
+    {
+        // SEQUENCE { UTCTime (constructed, indefinite) { [23] '740', 3 x UTCTime, 00 f4 } }:
+        // 00 f4 announces 116 length octets and has none; read as a zero length, it passed for
+        // end-of-contents when the indefinite length was measured, and the truncated element
+        // was accepted
+        $m = ASN1::map(
+            ASN1::decodeBER(hex2bin('30183780970337343017033932351703303133170333323100f4')),
+            self::SEQUENCE_OF_ANY
+        );
+        $this->assertInstanceOf(Constructed::class, $m);
+        $this->expectException(UnexpectedValueException::class);
+        $this->assertCount(1, $m);
     }
 }
