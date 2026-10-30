@@ -22,7 +22,7 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\DH\Formats\Keys;
 
 use phpseclib4\Crypt\Common\Formats\Keys\PKCS8 as Progenitor;
-use phpseclib4\Exception\{InvalidArgumentException, UnexpectedValueException};
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Math\BigInteger;

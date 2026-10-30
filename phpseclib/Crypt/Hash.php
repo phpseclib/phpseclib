@@ -180,13 +180,6 @@ class Hash
     private static PrimeField\Integer $maxwordrange128;
     /**#@-*/
 
-    /**#@+
-     * AES_CMAC variables
-     */
-    //private string $k1;
-    //private string $k2;
-    /**#@-*/
-
     /**
      * Default Constructor.
      */
@@ -405,7 +398,6 @@ class Hash
      */
     private function pdf(): string
     {
-        //$k = $this->key;
         $nonce = $this->nonce;
         $taglen = $this->length;
 
@@ -933,9 +925,6 @@ class Hash
                 $k2 = $k2->bitwise_leftShift(1)->toBytes();
                 // make it constant time
                 $k2 = $msb ? $k2 ^ $constRb : $k2 | $constZero;
-
-                //$this->k1 = $k1;
-                //$this->k2 = $k2;
             }
 
             $len = strlen($text);
@@ -1498,7 +1487,7 @@ class Hash
         $s = $saltLength ? str_repeat($salt, (int) ceil($v / $saltLength)) : '';
         $s = substr($s, 0, $v);
 
-        $p = $passLength ? str_repeat($password, (int) ceil($v / $passLength)) : '';
+        $p = str_repeat($password, (int) ceil($v / $passLength));
         $p = substr($p, 0, $v);
 
         $i = $s . $p;
