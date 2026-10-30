@@ -790,4 +790,25 @@ kbZNIHu+PaE0osExnxdlkiC+VYqhRANCAAS8yEueJvIAnCk++0rsD8X9dk3hAmyb
         $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load($key);
     }
+
+    public static function publicKeysAtInfinity()
+    {
+        return [
+            // SubjectPublicKeyInfo { id-ecPublicKey prime256v1, BIT STRING 00 }
+            'SubjectPublicKeyInfo' => ['3019301306072a8648ce3d020106082a8648ce3d03010703020000'],
+            // ECPrivateKey { 1, 53, [0] prime256v1, [1] BIT STRING 00 }
+            'ECPrivateKey with publicKey' => ['3018020101040153a00a06082a8648ce3d030107a10403020000'],
+        ];
+    }
+
+    /**
+     * The point at infinity (encoded as the single octet 00) was accepted as a public key;
+     * toString() then failed with "Undefined array key 0"
+     */
+    /** @dataProvider publicKeysAtInfinity */
+    public function testPublicKeyAtInfinityIsRejected($key)
+    {
+        $this->expectException('UnexpectedValueException');
+        PublicKeyLoader::load(hex2bin($key));
+    }
 }
