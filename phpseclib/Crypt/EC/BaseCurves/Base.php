@@ -131,8 +131,9 @@ abstract class Base
         if (!isset($this->order)) {
             throw new \RuntimeException('setOrder needs to be called before this method');
         }
-        if ($x->compare($this->order) > 0 || $x->compare($zero) <= 0) {
-            throw new \RangeException('x must be between 1 and the order of the curve');
+        // n * G is the point at infinity, like 0 * G
+        if ($x->compare($this->order) >= 0 || $x->compare($zero) <= 0) {
+            throw new \RangeException('x must be between 1 and the order of the curve minus 1');
         }
     }
 
