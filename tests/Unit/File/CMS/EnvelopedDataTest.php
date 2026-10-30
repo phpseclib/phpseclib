@@ -15,6 +15,8 @@ use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\File\CMS;
 use phpseclib4\File\X509;
+use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\File\ASN1;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class EnvelopedDataTest extends PhpseclibTestCase
@@ -372,5 +374,41 @@ HZ5LFXx7/Cul
         $this->assertEquals($plaintext, $cms->deriveFromKey($rsa)->decrypt());
         $this->assertEquals($plaintext, $cms->deriveFromPassword('password')->decrypt());
         $this->assertEquals($plaintext, $cms->withKey($key)->decrypt());
+    }
+
+    /**
+     * A recipient's algorithm identifiers may leave out their (OPTIONAL) parameters;
+     * mapInAlgoParams() called getEncoded() on the empty array that took their place
+     */
+    public function testPasswordRecipientAlgorithmWithoutParameters(): void
+    {
+        $cms = CMS::load(base64_decode(
+            'MIGsBgkqhkiG9w0BBwOggZ4wgZsCAQMxOqM4AgEAoAsGCSqGSIb3DQEFDDAiBgsqhkiG9w0BCRAD'
+            . 'CTATBglghkgBZQMEAQQEBti0nXeM1AQCAAAwWgYJKoZIhvcNAQcBBglghkgBZQMEAQIEEB29yO3e'
+            . 'kKaxge92mG+4iwiAMLGrSI50gVKTBdtDsWRw7TDMtUAKZk62PEHFF88AMlAGm4XyIFo0LD8mAZtS'
+            . 'ohXPcQ=='
+        ), ASN1::FORMAT_DER);
+        try {
+            $cms->toArray(true);
+            $this->fail('the recipient was accepted');
+        } catch (UnexpectedValueException) {
+        }
+        $this->assertTrue(ASN1::invalidateCache());
+    }
+
+    public function testKeyTransRecipientAlgorithmWithoutParameters(): void
+    {
+        $cms = CMS::load(base64_decode(
+            'MIIByAYJKoZIhvcNAQcDoIIBuTCCAbUCAQAxgfQwgfECAQAwXDBEMQswCQYDVQQGEwJVSzEWMBQG'
+            . 'A1UECgwNT3BlblNTTCBHcm91cDEdMBsGA1UEAwwUVGVzdCBTL01JTUUgUlNBIFJvb3QCFDN9QZlN'
+            . 'zevC2LlxAV8nracY+lWgMAsGCSqGSIb3DQEBAQSBgJ2oCTB8gLNOVTXB5Nx4CJbEefghje6KdVDb'
+            . 'BXPxYhSOYga7T6ifv5HlTKsQQD7H4pdgEOujsWN8QGffuwrzLUY4pejS/egcidwGm99Za1kClM1J'
+            . '5zkfJUAICowwG26SUj/FAt5mptPfwxjs+ZtkRuq8r7F657FkHDzcMtQ6TBj5MIUAAAAAtAYJKoZI'
+            . 'hvcNAQcBMBQGCCqGSIb3DQMHBAgbDE1zX6n5c4CBkORdfp68YeDYIyqzJqlPVv4gZ6hHPh50wTXu'
+            . 'GefcbUhBGOFD5cXK3NwinCy2sbp7rDtL7YTae4SKsvaiE31rHQNnHQv2y0jOhZ8//90g8ykpgVup'
+            . 'cy9ma1ObxSLfYbQfvtN4ymUOSDOKAT7Dmw+H5u0rR4sgHkvInUxHvHrJ8LEax0fV8YthuTQYDrov'
+            . '43dtXQ=='
+        ), ASN1::FORMAT_DER);
+        $this->assertIsArray($cms->toArray(true));
     }
 }

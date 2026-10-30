@@ -204,10 +204,14 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         if (self::extensionMatch('id-aa-timeStampToken', $attr['type'])) {
             ASN1::disableCacheInvalidation();
-            for ($i = 0; $i < count($attr['value']); $i++) {
-                $attr['value'][$i] = SignedData::load((string) $attr['value'][$i]);
+            // cache invalidation is a global setting: turn it back on even when decoding fails
+            try {
+                for ($i = 0; $i < count($attr['value']); $i++) {
+                    $attr['value'][$i] = SignedData::load((string) $attr['value'][$i]);
+                }
+            } finally {
+                ASN1::enableCacheInvalidation();
             }
-            ASN1::enableCacheInvalidation();
             return;
         }
         $map = self::getAttrMapping("$attr[type]");
@@ -220,15 +224,25 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             case 'id-aa-signingCertificateV2':
                 $rules['certs']['*']['issuerSerial']['issuer']['*']['directoryName']['rdnSequence']['*']['*'] = self::mapInDNs(...);
         }
-        ASN1::disableCacheInvalidation();
+        // the attributes mapped here are SEQUENCEs, which ANY hands back as an Element
         for ($i = 0; $i < count($attr['value']); $i++) {
-            $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
-            $attr['value'][$i]->parent = $attr['value'];
-            $attr['value'][$i]->key = $i;
-            /** @psalm-suppress InvalidPropertyFetch */
-            $attr['value'][$i]->depth = $attr['value']->depth + 1;
+            if (!$attr['value'][$i] instanceof Element) {
+                throw new \phpseclib4\Exception\UnexpectedValueException("Malformed $attr[type] attribute");
+            }
         }
-        ASN1::enableCacheInvalidation();
+        ASN1::disableCacheInvalidation();
+        // cache invalidation is a global setting: turn it back on even when decoding fails
+        try {
+            for ($i = 0; $i < count($attr['value']); $i++) {
+                $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
+                $attr['value'][$i]->parent = $attr['value'];
+                $attr['value'][$i]->key = $i;
+                /** @psalm-suppress InvalidPropertyFetch */
+                $attr['value'][$i]->depth = $attr['value']->depth + 1;
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
+        }
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */

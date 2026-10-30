@@ -103,17 +103,26 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $decoded = ASN1::decodeBER($encoded);
         $cms = ASN1::map($decoded, Maps\ContentInfo::MAP);
+        // content is [0] EXPLICIT ANY: only a constructed type comes back as its raw encoding
+        $content = $cms['content'];
+        if (!$content instanceof Element) {
+            throw new \phpseclib4\Exception\UnexpectedValueException('The ContentInfo content should be a constructed type');
+        }
         ASN1::disableCacheInvalidation();
-        $rules = [];
-        $rules['certificates'] = self::mapInCerts(...);
-        $rules['crls'] = self::mapInCRLs(...);
-        $rules['signerInfos'] = self::mapInSigners(...);
-        $rules['encapContentInfo'] = self::mapInEncapContentInfo(...);
-        $decoded = ASN1::decodeBER($cms['content']->value);
-        $cms['content'] = ASN1::map($decoded, Maps\SignedData::MAP, $rules);
-        $cms['content']->parent = $cms;
-        $cms['content']->key = 'content';
-        ASN1::enableCacheInvalidation();
+        // cache invalidation is a global setting: turn it back on even when decoding fails
+        try {
+            $rules = [];
+            $rules['certificates'] = self::mapInCerts(...);
+            $rules['crls'] = self::mapInCRLs(...);
+            $rules['signerInfos'] = self::mapInSigners(...);
+            $rules['encapContentInfo'] = self::mapInEncapContentInfo(...);
+            $decoded = ASN1::decodeBER($content->value);
+            $cms['content'] = ASN1::map($decoded, Maps\SignedData::MAP, $rules);
+            $cms['content']->parent = $cms;
+            $cms['content']->key = 'content';
+        } finally {
+            ASN1::enableCacheInvalidation();
+        }
         return $cms;
     }
 
