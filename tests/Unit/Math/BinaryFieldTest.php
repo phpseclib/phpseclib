@@ -4,10 +4,11 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace phpseclib3\Tests\Unit\Math;
+namespace phpseclib4\Tests\Unit\Math;
 
-use phpseclib3\Math\BinaryField;
-use phpseclib3\Tests\PhpseclibTestCase;
+use phpseclib4\Math\BinaryField;
+use phpseclib4\Exception\UnsupportedValueException;
+use phpseclib4\Tests\PhpseclibTestCase;
 
 class BinaryFieldTest extends PhpseclibTestCase
 {
@@ -26,10 +27,10 @@ class BinaryFieldTest extends PhpseclibTestCase
      * An EC key with explicit characteristic-two parameters sets these from the key; an exponent
      * past the degree grew a string to that many bytes (an out-of-memory fatal error)
      */
-    /** @dataProvider badBinaryFieldDegrees */
+    #[\PHPUnit\Framework\Attributes\DataProvider('badBinaryFieldDegrees')]
     public function testBinaryFieldDegreesAreChecked(array $degrees)
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(UnsupportedValueException::class);
         new BinaryField(...$degrees);
     }
 }
