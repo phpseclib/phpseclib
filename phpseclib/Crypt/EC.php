@@ -44,6 +44,7 @@ use phpseclib4\Exception\{
     BadConfigurationException,
     BadMethodCallException,
     LengthException,
+    UnexpectedValueException,
     UnsupportedCurveException
 };
 use phpseclib4\File\ASN1;
@@ -299,6 +300,11 @@ abstract class EC extends AsymmetricKey
             $new = new Parameters();
             $new->curve = $components['curve'];
             return $new;
+        }
+
+        // SEC1 3.2.2: a public key is not the point at infinity, which the encoding 00 stands for
+        if (isset($components['QA']) && !count($components['QA'])) {
+            throw new UnexpectedValueException('The public key is the point at infinity');
         }
 
         if (isset($components['dA'])) {

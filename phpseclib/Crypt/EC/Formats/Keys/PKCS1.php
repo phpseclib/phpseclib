@@ -117,6 +117,7 @@ abstract class PKCS1 extends Progenitor
         $components = [];
         $components['curve'] = self::loadCurveByParam($key['parameters']);
         $components['dA'] = new BigInteger((string) $key['privateKey'], 256);
+        $components['curve']->rangeCheck($components['dA']);
         $components['QA'] = isset($key['publicKey']) ?
             self::extractPoint((string) $key['publicKey'], $components['curve']) :
             $components['curve']->multiplyPoint($components['curve']->getBasePoint(), $components['dA']);

@@ -22,6 +22,7 @@ use phpseclib4\Crypt\EC\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Exception\UnexpectedValueException;
+use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class KeyTest extends PhpseclibTestCase
@@ -801,5 +802,50 @@ Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
     {
         $private = (string) EC::createKey('nistp256');
         $this->assertStringNotContainsString(' ENCRYPTED ', $private);
+    }
+
+    public static function outOfRangePrivateKeys(): array
+    {
+        // ECPrivateKey { 1, privateKey, [0] sect163k1 }: on a binary curve the point at
+        // infinity doesn't fail the multiplication, so these loaded
+        $key = fn (string $d) => hex2bin('30' . sprintf('%02x', 14 + strlen($d) / 2) . '020101' . '04' . sprintf('%02x', strlen($d) / 2) . $d . 'a00706052b81040001');
+        return [
+            'zero (empty)' => [$key('')],
+            'zero' => [$key('00')],
+            'the order' => [$key('04000000000000000000020108a2e0cc0d99f8a5ef')],
+        ];
+    }
+
+    /**
+     * A private scalar outside [1, n - 1] gives the point at infinity as the public key; the
+     * SEC1 loader didn't range check it at all and rangeCheck() let n through, and toString()
+     * then failed with "Undefined array key 0"
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('outOfRangePrivateKeys')]
+    public function testPrivateKeyOutOfRange(string $key): void
+    {
+        $this->expectException(NoKeyLoadedException::class);
+        PublicKeyLoader::load($key);
+    }
+
+    public static function publicKeysAtInfinity(): array
+    {
+        return [
+            // SubjectPublicKeyInfo { id-ecPublicKey prime256v1, BIT STRING 00 }
+            'SubjectPublicKeyInfo' => ['3019301306072a8648ce3d020106082a8648ce3d03010703020000'],
+            // ECPrivateKey { 1, 53, [0] prime256v1, [1] BIT STRING 00 }
+            'ECPrivateKey with publicKey' => ['3018020101040153a00a06082a8648ce3d030107a10403020000'],
+        ];
+    }
+
+    /**
+     * The point at infinity (encoded as the single octet 00) was accepted as a public key;
+     * toString() then failed with "Undefined array key 0"
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('publicKeysAtInfinity')]
+    public function testPublicKeyAtInfinityIsRejected(string $key): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+        PublicKeyLoader::load(hex2bin($key));
     }
 }
