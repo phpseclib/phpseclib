@@ -67,7 +67,9 @@ SSH-2, SFTP, X.509, an arbitrary-precision integer arithmetic library, Ed25519 /
 
 ## Security contact information
 
-To report a security vulnerability, please use the [Tidelift security contact](https://tidelift.com/security). Tidelift will coordinate the fix and disclosure.
+To report a security vulnerability, please use [GitHub's private vulnerability reporting](https://github.com/phpseclib/phpseclib/security/advisories/new). Your report becomes a draft security advisory, which may be published as you wrote it once the vulnerability is fixed.
+
+If you can't use GitHub, you can use the [Tidelift security contact](https://tidelift.com/security) instead.
 
 ## Support
 
