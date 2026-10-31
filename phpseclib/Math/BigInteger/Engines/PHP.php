@@ -1328,6 +1328,10 @@ abstract class PHP extends Engine
             $vals[] = $digit;
         }
 
+        if (!count($vals)) {
+            return [];
+        }
+
         while ($vals[count($vals) - 1] == 0) {
             unset($vals[count($vals) - 1]);
         }
