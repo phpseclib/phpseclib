@@ -951,6 +951,9 @@ abstract class SymmetricKey
                 $salt = $func_args[0];
 
                 $rounds = isset($func_args[1]) ? $func_args[1] : 16;
+                if ($rounds > 250) {
+                    throw new \RuntimeException('Iteration count too high');
+                }
                 $keylen = isset($func_args[2]) ? $func_args[2] : $this->key_length;
 
                 $key = Blowfish::bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
@@ -972,7 +975,12 @@ abstract class SymmetricKey
 
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
+                // bouncycastle uses 5,000,000 as the upper bound:
+                // https://advisories.gitlab.com/maven/org.bouncycastle/bcprov-jdk18on/CVE-2026-13586/
                 $count = isset($func_args[2]) ? $func_args[2] : 1000;
+                if ($count > 5000000) {
+                    throw new \RuntimeException('Iteration count too high');
+                }
 
                 // Keylength
                 if (isset($func_args[3])) {

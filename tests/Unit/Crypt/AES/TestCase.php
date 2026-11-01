@@ -423,4 +423,11 @@ abstract class TestCase extends PhpseclibTestCase
 
         $aes->encrypt(str_repeat('a', 16));
     }
+
+    public function testLargeBCryptRounds()
+    {
+        $aes = new AES('cbc');
+        $this->expectException(\RuntimeException::class);
+        $aes->setPassword('password', 'bcrypt', '', 1000);
+    }
 }
