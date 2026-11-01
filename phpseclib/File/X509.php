@@ -370,6 +370,17 @@ class File_X509
     var $urlFetchMaxSize = 65536;
 
     /**
+     * When the URL fetches for a chain of issuers have to be done by
+     *
+     * Only set on the File_X509 objects that _testForIntermediate() makes for the
+     * issuers it fetches.
+     *
+     * @var float|null
+     * @access private
+     */
+    var $urlFetchDeadline = null;
+
+    /**
      * Default Constructor.
      *
      * @return File_X509
@@ -2237,8 +2248,13 @@ class File_X509
             return false;
         }
 
-        // looking up the host and asking the callback count against the timeout too
-        $deadline = strtok(microtime(), ' ') + strtok('') + $this->urlFetchTimeout;
+        // looking up the host and asking the callback count against the timeout too, and the
+        // issuers that _testForIntermediate() makes share its deadline
+        $now = strtok(microtime(), ' ') + strtok('');
+        $deadline = isset($this->urlFetchDeadline) ? $this->urlFetchDeadline : $now + $this->urlFetchTimeout;
+        if ($now >= $deadline) {
+            return false;
+        }
 
         $parts = parse_url($url);
         if ($parts === false || !isset($parts['scheme']) || !isset($parts['host'])) {
@@ -2356,13 +2372,22 @@ class File_X509
             return false;
         }
 
+        // the fetches for a chain of issuers share one timeout
+        $deadline = isset($this->urlFetchDeadline) ? $this->urlFetchDeadline : strtok(microtime(), ' ') + strtok('') + $this->urlFetchTimeout;
         $cert = $this->_fetchURL($url);
         if (!is_string($cert)) {
             return false;
         }
 
+        // the issuer is checked with this object's settings, and can fetch its own issuer
         $parent = new File_X509();
         $parent->CAs = $this->CAs;
+        $parent->recur_limit = $this->recur_limit;
+        $parent->disable_url_fetch = $this->disable_url_fetch;
+        $parent->urlFetchCallback = $this->urlFetchCallback;
+        $parent->urlFetchConnectTimeout = $this->urlFetchConnectTimeout;
+        $parent->urlFetchMaxSize = $this->urlFetchMaxSize;
+        $parent->urlFetchDeadline = $deadline;
         /*
          "Conforming applications that support HTTP or FTP for accessing
           certificates MUST be able to accept .cer files and SHOULD be able
@@ -5331,9 +5356,10 @@ class File_X509
     /**
      * Sets how long a URL fetch can take, in seconds
      *
-     * Covers the whole request, from looking up the host to reading the response.
-     * Host name lookups can't be cut short, though, so a slow DNS server can still
-     * make a fetch take longer. Defaults to 10 seconds.
+     * Covers the whole request, from looking up the host to reading the response,
+     * and when a fetched issuer needs its own issuer fetched, that fetch only gets
+     * the time that's left. Host name lookups can't be cut short, though, so a
+     * slow DNS server can still make a fetch take longer. Defaults to 10 seconds.
      * With INF there's no limit, apart from giving up on a server that sends
      * nothing for 100,000 seconds.
      *

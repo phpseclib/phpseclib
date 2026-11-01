@@ -9,6 +9,8 @@ require_once 'File/X509.php';
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
+    private $urlFetches = array();
+
     private $server;
 
     private $serverPipes;
@@ -825,6 +827,113 @@ p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
         return $usage['ru_utime.tv_sec'] + $usage['ru_stime.tv_sec'] + ($usage['ru_utime.tv_usec'] + $usage['ru_stime.tv_usec']) / 1000000;
     }
 
+    public function testIntermediateURLFetchUsesCallback()
+    {
+        // the fake fetch returns the same certificate as its issuer, which then needs its own
+        // issuer from http://127.0.0.1:1/ca.crt, and the callback should be asked about that
+        $x509 = new X509Test_FakeURLFetch();
+        $x509->response = $this->getUntrustedAIACert();
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setURLFetchCallback(array($this, 'recordURLFetch'));
+
+        $this->urlFetches = array();
+        $x509->validateSignature();
+        $this->assertSame(array('127.0.0.1:1'), $this->urlFetches);
+    }
+
+    public function testIntermediateURLFetchUsesDisableURLFetch()
+    {
+        // the fake fetch ignores disableURLFetch(), but the issuer's own fetch shouldn't
+        $x509 = new X509Test_FakeURLFetch();
+        $x509->response = $this->getUntrustedAIACert();
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setURLFetchCallback(array($this, 'recordURLFetch'));
+        $x509->disableURLFetch();
+
+        $this->urlFetches = array();
+        $x509->validateSignature();
+        $this->assertSame(array(), $this->urlFetches);
+    }
+
+    public function testIntermediateURLFetchUsesRecurLimit()
+    {
+        // with a limit of 1, the fake fetch is the only one
+        $x509 = new X509Test_FakeURLFetch();
+        $x509->response = $this->getUntrustedAIACert();
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setURLFetchCallback(array($this, 'recordURLFetch'));
+        $x509->setRecurLimit(1);
+
+        $this->urlFetches = array();
+        $x509->validateSignature();
+        $this->assertSame(array(), $this->urlFetches);
+    }
+
+    public function testIntermediateURLFetchesShareTheTimeout()
+    {
+        // the fake fetch takes longer than the timeout, which leaves no time for the next one
+        $x509 = new X509Test_FakeURLFetch();
+        $x509->response = $this->getUntrustedAIACert();
+        $x509->delay = 300000;
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setURLFetchCallback(array($this, 'recordURLFetch'));
+        $x509->setURLFetchTimeout(0.2);
+
+        $this->urlFetches = array();
+        $x509->validateSignature();
+        $this->assertSame(array(), $this->urlFetches);
+    }
+
+    public function testIntermediateURLFetchUsesConnectTimeout()
+    {
+        // 192.0.2.1 is reserved for documentation (RFC 5737), so connecting to it hangs
+        $x509 = new X509Test_FakeURLFetch();
+        $x509->response = $this->getAIACert('http://192.0.2.1/');
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setURLFetchConnectTimeout(1);
+
+        $start = microtime(true);
+        $x509->validateSignature();
+        $took = microtime(true) - $start;
+        if ($took < 0.5) {
+            $this->markTestSkipped('192.0.2.1 is refused right away on this network, so connecting to it does not hang');
+        }
+        $this->assertLessThan(3, $took);
+    }
+
+    public function testIntermediateURLFetchUsesMaxSize()
+    {
+        // the status line alone is over the limit, so the fetch from the server fails right away
+        $url = $this->startURLFetchServer('trickle');
+        $x509 = new X509Test_FakeURLFetch();
+        $x509->response = $this->getAIACert($url);
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setURLFetchMaxSize(10);
+        $x509->setURLFetchTimeout(2);
+
+        $start = microtime(true);
+        $x509->validateSignature();
+        $this->assertLessThan(1, microtime(true) - $start);
+    }
+
+    public function recordURLFetch($host, $ip, $port, $scheme)
+    {
+        $this->urlFetches[] = "$host:$port";
+        return false;
+    }
+
+    // getUntrustedAIACert(), with its AIA caIssuers URL changed to $url
+    private function getAIACert($url)
+    {
+        $x509 = new File_X509();
+        $x509->loadX509($this->getUntrustedAIACert());
+        $x509->setExtension('id-pe-authorityInfoAccess', array(array(
+            'accessMethod' => 'id-ad-caIssuers',
+            'accessLocation' => array('uniformResourceIdentifier' => $url)
+        )));
+        return $x509->saveX509($x509->currentCert);
+    }
+
     // runs url_fetch_server.php to answer one request the way $mode says, and returns its URL
     private function startURLFetchServer($mode)
     {
@@ -1213,5 +1322,21 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
         $cert = $x509->loadX509($cert);
 
         $this->assertFalse($cert);
+    }
+}
+
+// answers its URL fetches with $response, after $delay microseconds, while the File_X509 objects
+// that check the issuers fetch for real. It overrides _fetchURL() with the one parameter that
+// subclasses have always used.
+class X509Test_FakeURLFetch extends File_X509
+{
+    public $response;
+
+    public $delay = 0;
+
+    function _fetchURL($url)
+    {
+        usleep($this->delay);
+        return $this->response;
     }
 }
