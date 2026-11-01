@@ -14,6 +14,7 @@ use phpseclib4\Crypt\AES;
 use phpseclib4\Crypt\Rijndael;
 use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\LengthException;
+use phpseclib4\Exception\ResourceLimitException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 abstract class TestCase extends PhpseclibTestCase
@@ -452,5 +453,12 @@ abstract class TestCase extends PhpseclibTestCase
         $ciphertext = bin2hex($aes->encrypt(str_repeat('x', 32)));
         $expected = 'ba25bbbbe12e460f6dd9d49b065b6b13b79f613e8b8daff114bd99426794e013ed7983adfd27683c1a60593b5dcb1f4e02a9d384bfd20e1bd550d43566b99ade';
         $this->assertSame($expected, $ciphertext);
+    }
+
+    public function testLargeBCryptRounds(): void
+    {
+        $aes = new AES('cbc');
+        $this->expectException(ResourceLimitException::class);
+        $aes->setPassword('password', 'bcrypt', '', 1000);
     }
 }

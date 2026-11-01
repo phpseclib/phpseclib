@@ -45,6 +45,7 @@ use phpseclib4\Exception\{
     InvalidModeException,
     InvalidStateException,
     LengthException,
+    ResourceLimitException,
     UnsupportedAlgorithmException
 };
 use phpseclib4\Math\{BigInteger, BinaryField, PrimeField};
@@ -744,14 +745,16 @@ abstract class SymmetricKey
         $method = strtolower($method);
         switch ($method) {
             case 'bcrypt':
-                if (!isset($func_args[2])) {
+                if (!isset($func_args[0])) {
                     throw new InvalidArgumentException('A salt must be provided for bcrypt to work');
                 }
 
                 $salt = $func_args[0];
-
                 $rounds = $func_args[1] ?? 16;
                 $keylen = $func_args[2] ?? $this->key_length;
+                if ($rounds > 250) {
+                    throw new ResourceLimitException('Iteration count too high');
+                }
 
                 $key = Blowfish::bcrypt_pbkdf($password, $salt, $keylen + $this->block_size, $rounds);
 
@@ -773,6 +776,11 @@ abstract class SymmetricKey
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
                 $count = $func_args[2] ?? 1000;
+                // bouncycastle uses 5,000,000 as the upper bound:
+                // https://advisories.gitlab.com/maven/org.bouncycastle/bcprov-jdk18on/CVE-2026-13586/
+                if ($count > 5000000) {
+                    throw new ResourceLimitException('Iteration count too high');
+                }
 
                 // Keylength
                 if (isset($func_args[3])) {
