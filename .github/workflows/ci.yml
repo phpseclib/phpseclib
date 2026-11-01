@@ -150,6 +150,11 @@ jobs:
                     sudo cp "/tmp/known_hosts" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/known_hosts"
                     sudo chown "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_USERNAME" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/" -R
 
+                    # on some runners (the AWS-hosted ones) sshd refuses passwords, which fails every password
+                    # login test. turn them on in a file that sorts first in sshd_config.d, since sshd keeps the
+                    # first value it reads
+                    echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/00-phpseclib.conf
+
                     # OpenSSH 9.8+ penalizes sources that make lots of connections without
                     # authenticating (eg. testCryptoAlgorithms with algorithms the server
                     # doesn't support) and then refuses all connections from that source,
@@ -158,10 +163,12 @@ jobs:
                     PENALTIES_SUPPORTED=0
                     if sudo sshd -T 2>/dev/null | grep -qi '^persourcepenalties '; then
                         PENALTIES_SUPPORTED=1
-                        echo 'PerSourcePenalties no' | sudo tee /etc/ssh/sshd_config.d/00-phpseclib.conf
-                        sudo sshd -t
-                        sudo systemctl restart ssh
+                        echo 'PerSourcePenalties no' | sudo tee -a /etc/ssh/sshd_config.d/00-phpseclib.conf
                     fi
+                    sudo sshd -t
+                    sudo systemctl restart ssh
+                    # check that password logins took
+                    sudo sshd -T -C "user=$PHPSECLIB_SSH_USERNAME,host=localhost,addr=127.0.0.1" | grep -x 'passwordauthentication yes'
 
                     # ---------- Port 23: keyboard-interactive only ----------
                     sudo tee /etc/ssh/sshd_config_kbdint > /dev/null <<'EOF'
