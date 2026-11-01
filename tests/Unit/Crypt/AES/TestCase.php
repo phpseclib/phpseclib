@@ -420,4 +420,14 @@ abstract class Unit_Crypt_AES_TestCase extends PhpseclibTestCase
         $expected = pack('H*', '6572617574689e1be8d2d8d43c594cf3');
         $this->assertSame($plaintext, $expected);
     }
+
+    public function testLargeBCryptRounds()
+    {
+        $aes = new Crypt_AES();
+        try {
+            $aes->setPassword('password', 'bcrypt', '', 1000);
+            $this->fail('Password should not have been able to be set');
+        } catch (\Exception $e) {
+        }
+    }
 }

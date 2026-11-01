@@ -718,4 +718,43 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
         $this->assertIsString($rsa->getPublicKey());
         $this->assertFalse($rsa->getPrivateKey());
     }
+
+    public function testLargeRoundsKey()
+    {
+        $rsa = new Crypt_RSA();
+        $rsa->setPassword('test');
+        try {
+            $result = $rsa->loadKey('-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIIE7zAhBgkqhkiG9w0BBQMwFAQIGNQGqHa0TZYCCH//////////BIIEyMoyWAZw
+Mou7cqlo9+XY7Mu5n1TZ43/C7xpK2U6+hnylg7mOdroNQMqEsb/72CGvnbzt98tX
+iTz/rXTVuixW2BhuNtqEUhtwvIT2ej2t1xj8HaJm4qfzZ8PS8KWjzQi3yvdE3Ul9
+nBTFcTNPCv+wJJ/HNFYPa8ip0QqNQh/cHaODE7ekSz1DBuFd9JvfpetMERwp4I1I
+70AcYl352NjFlUXmdJvzbFz4b3Bfm4RYtvFN0SN6/FHYdc3gRj+MdCmC9CKmScTt
+UVuhHlGTutUW7iH9pZkBmrQOWad8YjSA/TZPt0asv9kCZ89qGuhOMxWbVAYMevE3
+r0vKnDjxSBhPyCLj71qt+LbSH6DrlelqJTkNeFHlycccpD60kvJXtVvj6gzVJDo6
+gkQO8AdGSgc32N5JaRSl7HPu3kAo7ddHUoyF7ib91b9e44eqKVG2ZAY6ZqmGTWez
+I0/W/H0LzgvJQVKyVEgv0RsWPwqBK2PSSZ07z42a0Rtvzg5Zt/IpP+YclhO6jLsV
+sMwDiXGNVKNX+hVs0xzk8EYp9G2fWmjBs2xjLN/LXXzhcKyeCcReNTDjd+Ulwm7K
+fP6rVO3oSrhlY9ntUjCAfGSEutdcniPz6gbZZqNKQeyvsqXe0sQiRaVO5KVsLKSh
+sOxCJvXL2zI5whLlWX3rRb62SlfB1UFcnv40xsDLph4sekyM41hdA/cqobz1ndif
+bBNeWyyrSYiasPztmsDp5DoFKmgbhrKPm+p3OJXqTpA2Jmp5AJzbIcfbgsR2C5/x
+N/TuhJoygVeMqhXZF9DF7ybwtrIpWfbUlYcL7cNKIBL0+zS+LyPHUQv6scibSFog
+1Fu0dwz16ChTAze9193IGnTyT4uuPAuSFP6JlXZPTVemLH7pdyDi0IC1koWILlBb
++U4++94NaekPfGsKRWepL4RPSb5n1JTpECk/azL7wvE83rZJvq9hYuSgCNGLKvHA
+K5dHUlsAaR5mSKBVzrMtZCkod+K1kkqNEk8f3P21yG5ivdWoZRd4+Gvw5lo8aMd2
+jodCi+N5kuODp73Rx3GTrQm2LNuF/ejt0gZt+5i9MDDmT1v6vFHN0IpYHUuqMzSJ
+jOJ0EeIuPMF0vgTqizjDcf+oTZlActm1xTCxzSNgjxr6MekJSTmicIAxorlxHMy1
+sNBfCVhzO3iZed3bKOR6g3M5rEcQU2v768H0BYEB/qvQxZwjNUTw5zfJ9BPWYnaW
+DL/U1giBKe7Y0hF5JXEUpS9uiP1adIDjNbo94jD1sH3Fzz8QcW3TvMB8A79xyhml
+1W2n2UdhAc1JAiA/ho44AnASis68BkRUHG4TNDOvIbAzQAmAj4SLJ5DsG1zf7yTo
+v4K26TViTi7TlZy4AvpL3IIKtgtKEjZuvrDBygY7PFGA/LgJJg5MF1yla7B1w0rm
+hsaKZ9XMVsXVcwUH6dm7K3CX2iAlc0uQd6+WhjnukIEfoKcjHhqIYD9/2eGUKCmx
+D/lkmuBsn+WpEg1qkzhiWz/nMhjPXt3HCv8tMYdt0FI7gP7hhlQ1KlAgEnvM17rW
+ckL9SmrZMjBFy018kLDOuh7N5rcxFpuX7VVkCj1Q4PX1FbuDBZAq03Ngd59LG8j/
+jTzMU4Qamw1/CyFh8p4vdWEAsg==
+-----END ENCRYPTED PRIVATE KEY-----');
+            $this->fail('Key should not have loaded');
+        } catch (\Exception $e) {
+        }
+    }
 }
