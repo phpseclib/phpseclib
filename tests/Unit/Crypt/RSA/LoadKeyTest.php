@@ -1602,6 +1602,7 @@ ec2eK8O4cJUmZn91oQFuJorjuVAa5GluyMGvCdxWeAQVH96xSG7lEg==
 
     public function testLargeRoundsKey()
     {
+        $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load('-----BEGIN ENCRYPTED PRIVATE KEY-----
 MIIE7zAhBgkqhkiG9w0BBQMwFAQIGNQGqHa0TZYCCH//////////BIIEyMoyWAZw
 Mou7cqlo9+XY7Mu5n1TZ43/C7xpK2U6+hnylg7mOdroNQMqEsb/72CGvnbzt98tX
@@ -1631,6 +1632,5 @@ D/lkmuBsn+WpEg1qkzhiWz/nMhjPXt3HCv8tMYdt0FI7gP7hhlQ1KlAgEnvM17rW
 ckL9SmrZMjBFy018kLDOuh7N5rcxFpuX7VVkCj1Q4PX1FbuDBZAq03Ngd59LG8j/
 jTzMU4Qamw1/CyFh8p4vdWEAsg==
 -----END ENCRYPTED PRIVATE KEY-----', 'password');
-        $this->expectException(NoKeyLoadedException::class);
     }
 }
