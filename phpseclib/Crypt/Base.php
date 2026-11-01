@@ -705,6 +705,10 @@ class Crypt_Base
                 $salt = $func_args[2];
 
                 $rounds = isset($func_args[3]) ? $func_args[3] : 16;
+                if ($rounds > 250) {
+                    user_error('Iteration count too high');
+                    return false;
+                }
                 $keylen = isset($func_args[4]) ? $func_args[4] : $this->key_length;
 
                 $bf = new Crypt_Blowfish();
@@ -728,7 +732,13 @@ class Crypt_Base
 
                 // RFC2898#section-4.2 uses 1,000 iterations by default
                 // WPA and WPA2 use 4,096.
+                // bouncycastle uses 5,000,000 as the upper bound:
+                // https://advisories.gitlab.com/maven/org.bouncycastle/bcprov-jdk18on/CVE-2026-13586/
                 $count = isset($func_args[4]) ? $func_args[4] : 1000;
+                if ($count > 5000000) {
+                    user_error('Iteration count too high');
+                    return false;
+                }
 
                 // Keylength
                 if (isset($func_args[5]) && $func_args[5] > 0) {
