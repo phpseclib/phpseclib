@@ -95,35 +95,4 @@ Need Support?
 
 ## Contributing
 
-1. Fork the Project
-
-2. Ensure you have Composer installed (see [Composer Download Instructions](https://getcomposer.org/download/))
-
-3. Install Development Dependencies
-    ```sh
-    composer install
-    ```
-
-4. Create a Feature Branch
-
-5. Run continuous integration checks for the branch you are targeting:
-
-   master and 4.0:
-   ```sh
-   composer run-script all-quality-tools
-   ```
-
-   3.0:
-   ```sh
-   composer global require php:^8.1 squizlabs/php_codesniffer friendsofphp/php-cs-fixer
-   phpcs --standard=build/php_codesniffer.xml
-   php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
-   vendor/bin/phpunit --verbose --configuration tests/phpunit.xml
-   ```
-
-   1.0 and 2.0:
-   ```sh
-   vendor/bin/phpunit
-   ```
-   
-6. Send us a Pull Request
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to set up a checkout, run the checks and send a pull request.
