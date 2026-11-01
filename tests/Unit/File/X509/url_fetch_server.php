@@ -11,6 +11,7 @@
  *   unless the request asked to close it
  * - "pause" sends a 1500 byte response, then waits a second before closing the connection
  * - "late" waits a second, then sends a 5 byte body
+ * - "host" sends the request's Host header as the body
  */
 
 $server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
@@ -59,5 +60,9 @@ switch ($argv[1]) {
     case 'late':
         sleep(1);
         fwrite($conn, "HTTP/1.0 200 OK\r\n\r\nhello");
+        break;
+    case 'host':
+        preg_match('/^Host: ([^\r\n]*)/mi', $request, $matches);
+        fwrite($conn, "HTTP/1.0 200 OK\r\n\r\n" . (isset($matches[1]) ? $matches[1] : ''));
 }
 fclose($conn);

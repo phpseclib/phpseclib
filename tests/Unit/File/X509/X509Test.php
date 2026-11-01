@@ -827,6 +827,14 @@ p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
         return $usage['ru_utime.tv_sec'] + $usage['ru_stime.tv_sec'] + ($usage['ru_utime.tv_usec'] + $usage['ru_stime.tv_usec']) / 1000000;
     }
 
+    public function testURLFetchSendsThePort()
+    {
+        // the server answers with the Host header, which has to name the URL's port too
+        $url = $this->startURLFetchServer('host');
+        $x509 = new File_X509();
+        $this->assertSame('127.0.0.1:' . parse_url($url, PHP_URL_PORT), $x509->_fetchURL($url));
+    }
+
     public function testIntermediateURLFetchUsesCallback()
     {
         // the fake fetch returns the same certificate as its issuer, which then needs its own

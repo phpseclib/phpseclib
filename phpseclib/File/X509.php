@@ -2296,7 +2296,9 @@ class File_X509
                 if (isset($parts['query'])) {
                     $path.= '?' . $parts['query'];
                 }
-                fwrite($fsock, "GET $path HTTP/1.0\r\nHost: $host\r\nConnection: close\r\n\r\n");
+                // the Host header has the URL's port too, when it names one (RFC 7230 section 5.4)
+                $authority = isset($parts['port']) ? "$host:$port" : $host;
+                fwrite($fsock, "GET $path HTTP/1.0\r\nHost: $authority\r\nConnection: close\r\n\r\n");
 
                 // read the whole response, giving up once it takes too long or gets too big
                 $response = '';
