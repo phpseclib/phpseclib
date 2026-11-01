@@ -346,6 +346,30 @@ class File_X509
     var $urlFetchCallback = null;
 
     /**
+     * URL fetch connection timeout, in seconds
+     *
+     * @var int|float
+     * @access private
+     */
+    var $urlFetchConnectTimeout = 5;
+
+    /**
+     * URL fetch timeout, in seconds, for the whole request
+     *
+     * @var int|float
+     * @access private
+     */
+    var $urlFetchTimeout = 10;
+
+    /**
+     * Largest URL fetch response, in bytes, headers included
+     *
+     * @var int
+     * @access private
+     */
+    var $urlFetchMaxSize = 65536;
+
+    /**
      * Default Constructor.
      *
      * @return File_X509
@@ -2213,6 +2237,9 @@ class File_X509
             return false;
         }
 
+        // looking up the host and asking the callback count against the timeout too
+        $deadline = strtok(microtime(), ' ') + strtok('') + $this->urlFetchTimeout;
+
         $parts = parse_url($url);
         if ($parts === false || !isset($parts['scheme']) || !isset($parts['host'])) {
             return false;
@@ -2237,10 +2264,15 @@ class File_X509
             $target = $host;
         }
 
-        $data = '';
         switch ($parts['scheme']) {
             case 'http':
-                $fsock = @fsockopen($target, $port);
+                // as in SSH2, no single wait is longer than 100,000 seconds, so that an INF timeout
+                // still converts to a valid socket timeout
+                $timeout = min($deadline - (strtok(microtime(), ' ') + strtok('')), 100000);
+                if ($timeout <= 0) {
+                    return false;
+                }
+                $fsock = @fsockopen($target, $port, $errno, $errstr, min($this->urlFetchConnectTimeout, $timeout));
                 if (!$fsock) {
                     return false;
                 }
@@ -2248,27 +2280,39 @@ class File_X509
                 if (isset($parts['query'])) {
                     $path.= '?' . $parts['query'];
                 }
-                fputs($fsock, "GET $path HTTP/1.0\r\n");
-                fputs($fsock, "Host: $host\r\n\r\n");
-                $line = fgets($fsock, 1024);
-                if ($line === false || strlen($line) < 3) {
-                    return false;
-                }
-                if (!preg_match('#HTTP/1.\d (\d{3})#', $line, $temp) || $temp[1] != '200') {
-                    return false;
-                }
+                fwrite($fsock, "GET $path HTTP/1.0\r\nHost: $host\r\nConnection: close\r\n\r\n");
 
-                // skip the rest of the headers in the http response
-                while (!feof($fsock) && fgets($fsock, 1024) != "\r\n") {
-                }
-
+                // read the whole response, giving up once it takes too long or gets too big
+                $response = '';
                 while (!feof($fsock)) {
-                    $temp = fread($fsock, 1024);
-                    if ($temp === false) {
+                    $timeout = min($deadline - (strtok(microtime(), ' ') + strtok('')), 100000);
+                    if ($timeout <= 0) {
                         return false;
                     }
-                    $data.= $temp;
+                    stream_set_timeout($fsock, (int) $timeout, (int) (1000000 * ($timeout - (int) $timeout)));
+                    $temp = fread($fsock, 1024);
+                    $meta = stream_get_meta_data($fsock);
+                    // on Windows, PHP 8.3+ says a read timed out when it returned buffered data and
+                    // nothing more had come in, so a read has only timed out when it got nothing
+                    if ($temp === false || ($temp === '' && $meta['timed_out'])) {
+                        return false;
+                    }
+                    $response.= $temp;
+                    if (strlen($response) > $this->urlFetchMaxSize) {
+                        return false;
+                    }
+                    // anything but a 200 can be turned down as soon as the status line is in
+                    if (strpos($response, "\r\n") !== false && (!preg_match('#^HTTP/1\.\d (\d{3})#', $response, $matches) || $matches[1] != '200')) {
+                        return false;
+                    }
                 }
+
+                // the headers end with an empty line
+                $pos = strpos($response, "\r\n\r\n");
+                if ($pos === false) {
+                    return false;
+                }
+                $data = substr($response, $pos + 4);
 
                 break;
             //case 'ftp':
@@ -5269,5 +5313,48 @@ class File_X509
     function setURLFetchCallback($callback)
     {
         $this->urlFetchCallback = $callback;
+    }
+
+    /**
+     * Sets how long to wait for a URL fetch to connect, in seconds
+     *
+     * Defaults to 5 seconds, or less when less of setURLFetchTimeout()'s time is left.
+     *
+     * @param int|float $timeout
+     * @access public
+     */
+    function setURLFetchConnectTimeout($timeout)
+    {
+        $this->urlFetchConnectTimeout = $timeout;
+    }
+
+    /**
+     * Sets how long a URL fetch can take, in seconds
+     *
+     * Covers the whole request, from looking up the host to reading the response.
+     * Host name lookups can't be cut short, though, so a slow DNS server can still
+     * make a fetch take longer. Defaults to 10 seconds.
+     * With INF there's no limit, apart from giving up on a server that sends
+     * nothing for 100,000 seconds.
+     *
+     * @param int|float $timeout
+     * @access public
+     */
+    function setURLFetchTimeout($timeout)
+    {
+        $this->urlFetchTimeout = $timeout;
+    }
+
+    /**
+     * Sets the largest response a URL fetch accepts, in bytes
+     *
+     * Covers the headers as well as the certificate. Defaults to 64 KB.
+     *
+     * @param int $size
+     * @access public
+     */
+    function setURLFetchMaxSize($size)
+    {
+        $this->urlFetchMaxSize = $size;
     }
 }

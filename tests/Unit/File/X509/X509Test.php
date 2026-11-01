@@ -9,6 +9,16 @@ require_once 'File/X509.php';
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
+    private $server;
+
+    private $serverPipes;
+
+    public function tearDown()
+    {
+        $this->stopURLFetchServer();
+        parent::tearDown();
+    }
+
     public function testExtensionMapping()
     {
         $test = '-----BEGIN CERTIFICATE-----
@@ -695,6 +705,150 @@ M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
 
         $x509->setRecurLimit(5);
         $this->assertTrue($x509->validateSignature());
+    }
+
+    // issued by an untrusted CA, with an AIA caIssuers URL pointing at a closed local port
+    private function getUntrustedAIACert()
+    {
+        return '-----BEGIN CERTIFICATE-----
+MIIB8jCCAVugAwIBAgIUHTWE/PzeD+VYYe+kkT/URDbJ2iAwDQYJKoZIhvcNAQEL
+BQAwFzEVMBMGA1UEAwwMVW50cnVzdGVkIENBMCAXDTI2MTAzMTE1MjUzNFoYDzk5
+OTkxMjMxMjM1OTU5WjAXMRUwEwYDVQQDDAxsZWFmLmV4YW1wbGUwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAJxzhj75AHvADI21Kbb8brwHjiwrnJ3M0ifOV00Y
+trCrPGluo9HzCMAZcI2K4BHFKzfvJkiXv5DpeY6bF5SgZ3iQ9qZT+rtUB5yjyfGl
+FDg2hI4cIADz2hnNEg5chCEtnh+3akHULc4fRvbsup0RsnNc6ZHFzZsmrUIdaq3b
+wa8VAgMBAAGjOTA3MDUGCCsGAQUFBwEBBCkwJzAlBggrBgEFBQcwAoYZaHR0cDov
+LzEyNy4wLjAuMToxL2NhLmNydDANBgkqhkiG9w0BAQsFAAOBgQA8yeHCejlZgz3d
+ouU2lXbEWrj1E7MQTalzPiu0aCMWp2UFRDqr/bgWc9gu23fHsdhddEHXWhD6VVaS
+fq3KdF+5GjQCICaNiff2mRqHRi3rJVuzpOm7CnJ2Jc9mt+p8QRGnVTmHVim5ymeO
+p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
+-----END CERTIFICATE-----';
+    }
+
+    public function testURLFetchTimesOut()
+    {
+        // the server keeps sending, so this needs the timeout to cover the whole request
+        $url = $this->startURLFetchServer('trickle');
+        $x509 = new File_X509();
+        $x509->setURLFetchTimeout(1);
+
+        $start = microtime(true);
+        $this->assertFalse($x509->_fetchURL($url));
+        $this->assertLessThan(3, microtime(true) - $start);
+    }
+
+    public function testURLFetchConnectTimeoutStaysWithinTimeout()
+    {
+        // 192.0.2.1 is reserved for documentation (RFC 5737), so connecting to it hangs
+        $x509 = new File_X509();
+        $x509->setURLFetchTimeout(1);
+
+        $start = microtime(true);
+        $this->assertFalse($x509->_fetchURL('http://192.0.2.1/'));
+        $took = microtime(true) - $start;
+        if ($took < 0.5) {
+            $this->markTestSkipped('192.0.2.1 is refused right away on this network, so connecting to it does not hang');
+        }
+        $this->assertLessThan(3, $took);
+    }
+
+    public function testURLFetchTimeoutCoversTheCallback()
+    {
+        // the callback stands in for a slow host name lookup, which comes before connecting too
+        $url = $this->startURLFetchServer('keepalive');
+        $x509 = new File_X509();
+        $x509->setURLFetchCallback(array($this, 'allowURLFetchSlowly'));
+        $x509->setURLFetchTimeout(0.2);
+        $this->assertFalse($x509->_fetchURL($url));
+    }
+
+    public function allowURLFetchSlowly($host, $ip, $port, $scheme)
+    {
+        usleep(300000);
+        return true;
+    }
+
+    public function testURLFetchMaxSize()
+    {
+        $x509 = new File_X509();
+        $this->assertFalse($x509->_fetchURL($this->startURLFetchServer('large')));
+
+        $x509->setURLFetchMaxSize(70000);
+        $this->assertSame(str_repeat('a', 65536), $x509->_fetchURL($this->startURLFetchServer('large')));
+    }
+
+    public function testURLFetchStopsAtAnError()
+    {
+        $url = $this->startURLFetchServer('error');
+        $x509 = new File_X509();
+
+        $start = microtime(true);
+        $this->assertFalse($x509->_fetchURL($url));
+        $this->assertLessThan(3, microtime(true) - $start);
+    }
+
+    public function testURLFetchClosesTheConnection()
+    {
+        $x509 = new File_X509();
+        $x509->setURLFetchTimeout(2);
+        $this->assertSame('hello', $x509->_fetchURL($this->startURLFetchServer('keepalive')));
+    }
+
+    public function testURLFetchReadsBufferedData()
+    {
+        // the response takes more than one read, and the connection closes a second later. On
+        // Windows, PHP 8.3+ said the read that returned the rest of it had timed out
+        $x509 = new File_X509();
+        $x509->setURLFetchTimeout(5);
+        $this->assertSame(str_repeat('a', 1481), $x509->_fetchURL($this->startURLFetchServer('pause')));
+    }
+
+    public function testURLFetchTimeoutCanBeInfinite()
+    {
+        // each read still waits for the server, rather than spinning until it answers
+        if (!function_exists('getrusage')) {
+            $this->markTestSkipped('getrusage(), needed to measure the CPU time, is missing');
+        }
+        $url = $this->startURLFetchServer('late');
+        $x509 = new File_X509();
+        $x509->setURLFetchTimeout(INF);
+
+        $start = $this->getCPUTime();
+        $this->assertSame('hello', $x509->_fetchURL($url));
+        $this->assertLessThan(0.5, $this->getCPUTime() - $start);
+    }
+
+    // the CPU time this process has used, in seconds
+    private function getCPUTime()
+    {
+        $usage = getrusage();
+        return $usage['ru_utime.tv_sec'] + $usage['ru_stime.tv_sec'] + ($usage['ru_utime.tv_usec'] + $usage['ru_stime.tv_usec']) / 1000000;
+    }
+
+    // runs url_fetch_server.php to answer one request the way $mode says, and returns its URL
+    private function startURLFetchServer($mode)
+    {
+        if (!defined('PHP_BINARY')) {
+            $this->markTestSkipped('PHP_BINARY, needed to start the server, was added in PHP 5.4');
+        }
+        $this->stopURLFetchServer();
+        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__FILE__) . '/url_fetch_server.php') . ' ' . $mode;
+        $this->server = proc_open($command, array(1 => array('pipe', 'w')), $this->serverPipes, null, null, array('bypass_shell' => true));
+        $port = $this->server ? fgets($this->serverPipes[1]) : false;
+        if (!$port) {
+            $this->fail('url_fetch_server.php did not start');
+        }
+        return 'http://127.0.0.1:' . trim($port) . '/';
+    }
+
+    private function stopURLFetchServer()
+    {
+        if (is_resource($this->server)) {
+            fclose($this->serverPipes[1]);
+            proc_terminate($this->server);
+            proc_close($this->server);
+            $this->server = null;
+        }
     }
 
     public function testValidateDate()
