@@ -721,7 +721,7 @@ LrIZULwMa4nI4Y+RkFftEponSYw=
 
     public function testLargeRoundsKey()
     {
-        $rsa = new Crypt_RSA();
+        $rsa = new RSA();
         $rsa->setPassword('test');
         try {
             $result = $rsa->loadKey('-----BEGIN ENCRYPTED PRIVATE KEY-----
