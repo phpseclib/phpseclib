@@ -2282,9 +2282,9 @@ class File_X509
 
         switch ($parts['scheme']) {
             case 'http':
-                // as in SSH2, no single wait is longer than 100,000 seconds, so that an INF timeout
-                // still converts to a valid socket timeout
-                $timeout = min($deadline - (strtok(microtime(), ' ') + strtok('')), 100000);
+                // as in SSH2, no single wait is longer than an hour, so that an INF timeout still
+                // converts to a valid socket timeout
+                $timeout = min($deadline - (strtok(microtime(), ' ') + strtok('')), 3600);
                 if ($timeout <= 0) {
                     return false;
                 }
@@ -2303,7 +2303,7 @@ class File_X509
                 // read the whole response, giving up once it takes too long or gets too big
                 $response = '';
                 while (!feof($fsock)) {
-                    $timeout = min($deadline - (strtok(microtime(), ' ') + strtok('')), 100000);
+                    $timeout = min($deadline - (strtok(microtime(), ' ') + strtok('')), 3600);
                     if ($timeout <= 0) {
                         return false;
                     }
@@ -5363,7 +5363,7 @@ class File_X509
      * the time that's left. Host name lookups can't be cut short, though, so a
      * slow DNS server can still make a fetch take longer. Defaults to 10 seconds.
      * With INF there's no limit, apart from giving up on a server that sends
-     * nothing for 100,000 seconds.
+     * nothing for an hour.
      *
      * @param int|float $timeout
      * @access public
