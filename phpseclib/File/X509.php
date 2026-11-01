@@ -331,6 +331,38 @@ class X509
     static $urlFetchCallback = null;
 
     /**
+     * URL fetch connection timeout, in seconds
+     *
+     * @var int|float
+     * @access private
+     */
+    static $urlFetchConnectTimeout = 5;
+
+    /**
+     * URL fetch timeout, in seconds, for the whole request
+     *
+     * @var int|float
+     * @access private
+     */
+    static $urlFetchTimeout = 10;
+
+    /**
+     * Largest URL fetch response, in bytes, headers included
+     *
+     * @var int
+     * @access private
+     */
+    static $urlFetchMaxSize = 65536;
+
+    /**
+     * When the URL fetches for the current chain of issuers have to be done by
+     *
+     * @var float|null
+     * @access private
+     */
+    static $urlFetchDeadline = null;
+
+    /**
      * Default Constructor.
      *
      * @return \phpseclib\File\X509
@@ -2174,6 +2206,14 @@ class X509
             return false;
         }
 
+        // looking up the host and asking the callback count against the timeout too, and a chain
+        // of issuers shares the deadline that _testForIntermediate() sets
+        $now = microtime(true);
+        $deadline = isset(self::$urlFetchDeadline) ? self::$urlFetchDeadline : $now + self::$urlFetchTimeout;
+        if ($now >= $deadline) {
+            return false;
+        }
+
         $parts = parse_url($url);
         if ($parts === false || !isset($parts['scheme']) || !isset($parts['host'])) {
             return false;
@@ -2209,10 +2249,15 @@ class X509
             $target = $host;
         }
 
-        $data = '';
         switch ($parts['scheme']) {
             case 'http':
-                $fsock = @fsockopen($target, $port);
+                // as in SSH2, no single wait is longer than an hour, so that an INF timeout still
+                // converts to a valid socket timeout
+                $timeout = min($deadline - microtime(true), 3600);
+                if ($timeout <= 0) {
+                    return false;
+                }
+                $fsock = @fsockopen($target, $port, $errno, $errstr, min(self::$urlFetchConnectTimeout, $timeout));
                 if (!$fsock) {
                     return false;
                 }
@@ -2220,27 +2265,41 @@ class X509
                 if (isset($parts['query'])) {
                     $path.= '?' . $parts['query'];
                 }
-                fputs($fsock, "GET $path HTTP/1.0\r\n");
-                fputs($fsock, "Host: $host\r\n\r\n");
-                $line = fgets($fsock, 1024);
-                if ($line === false || strlen($line) < 3) {
-                    return false;
-                }
-                if (!preg_match('#HTTP/1.\d (\d{3})#', $line, $temp) || $temp[1] != '200') {
-                    return false;
-                }
+                // the Host header has the URL's port too, when it names one (RFC 7230 section 5.4)
+                $authority = isset($parts['port']) ? "$host:$port" : $host;
+                fwrite($fsock, "GET $path HTTP/1.0\r\nHost: $authority\r\nConnection: close\r\n\r\n");
 
-                // skip the rest of the headers in the http response
-                while (!feof($fsock) && fgets($fsock, 1024) != "\r\n") {
-                }
-
+                // read the whole response, giving up once it takes too long or gets too big
+                $response = '';
                 while (!feof($fsock)) {
-                    $temp = fread($fsock, 1024);
-                    if ($temp === false) {
+                    $timeout = min($deadline - microtime(true), 3600);
+                    if ($timeout <= 0) {
                         return false;
                     }
-                    $data.= $temp;
+                    stream_set_timeout($fsock, (int) $timeout, (int) (1000000 * ($timeout - (int) $timeout)));
+                    $temp = fread($fsock, 1024);
+                    $meta = stream_get_meta_data($fsock);
+                    // on Windows, PHP 8.3+ says a read timed out when it returned buffered data and
+                    // nothing more had come in, so a read has only timed out when it got nothing
+                    if ($temp === false || ($temp === '' && $meta['timed_out'])) {
+                        return false;
+                    }
+                    $response.= $temp;
+                    if (strlen($response) > self::$urlFetchMaxSize) {
+                        return false;
+                    }
+                    // anything but a 200 can be turned down as soon as the status line is in
+                    if (strpos($response, "\r\n") !== false && (!preg_match('#^HTTP/1\.\d (\d{3})#', $response, $matches) || $matches[1] != '200')) {
+                        return false;
+                    }
                 }
+
+                // the headers end with an empty line
+                $pos = strpos($response, "\r\n\r\n");
+                if ($pos === false) {
+                    return false;
+                }
+                $data = substr($response, $pos + 4);
 
                 break;
             //case 'ftp':
@@ -2284,6 +2343,10 @@ class X509
             return false;
         }
 
+        // the fetches for a chain of issuers share one timeout
+        if ($count == 0) {
+            self::$urlFetchDeadline = microtime(true) + self::$urlFetchTimeout;
+        }
         $cert = static::_fetchURL($url);
         if (!is_string($cert)) {
             return false;
@@ -2331,7 +2394,10 @@ class X509
      */
     function validateSignature($caonly = true)
     {
-        return $this->_validateSignatureCountable($caonly, 0);
+        $result = $this->_validateSignatureCountable($caonly, 0);
+        // the deadline that _testForIntermediate() set was for this chain of issuers only
+        self::$urlFetchDeadline = null;
+        return $result;
     }
 
     /**
@@ -5186,5 +5252,49 @@ class X509
     static function setURLFetchCallback($callback)
     {
         self::$urlFetchCallback = $callback;
+    }
+
+    /**
+     * Sets how long to wait for a URL fetch to connect, in seconds
+     *
+     * Defaults to 5 seconds, or less when less of setURLFetchTimeout()'s time is left.
+     *
+     * @param int|float $timeout
+     * @access public
+     */
+    static function setURLFetchConnectTimeout($timeout)
+    {
+        self::$urlFetchConnectTimeout = $timeout;
+    }
+
+    /**
+     * Sets how long a URL fetch can take, in seconds
+     *
+     * Covers the whole request, from looking up the host to reading the response,
+     * and when a fetched issuer needs its own issuer fetched, that fetch only gets
+     * the time that's left. Host name lookups can't be cut short, though, so a
+     * slow DNS server can still make a fetch take longer. Defaults to 10 seconds.
+     * With INF there's no limit, apart from giving up on a server that sends
+     * nothing for an hour.
+     *
+     * @param int|float $timeout
+     * @access public
+     */
+    static function setURLFetchTimeout($timeout)
+    {
+        self::$urlFetchTimeout = $timeout;
+    }
+
+    /**
+     * Sets the largest response a URL fetch accepts, in bytes
+     *
+     * Covers the headers as well as the certificate. Defaults to 64 KB.
+     *
+     * @param int $size
+     * @access public
+     */
+    static function setURLFetchMaxSize($size)
+    {
+        self::$urlFetchMaxSize = $size;
     }
 }
