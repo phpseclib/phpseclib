@@ -1244,7 +1244,8 @@ class X509
                     $temp = fread($fsock, 1024);
                     $meta = stream_get_meta_data($fsock);
                     // on Windows, PHP 8.3+ says a read timed out when it returned buffered data and
-                    // nothing more had come in, so a read has only timed out when it got nothing
+                    // nothing more had come in (https://github.com/php/php-src/issues/25148), so a
+                    // read has only timed out when it got nothing
                     if ($temp === false || ($temp === '' && $meta['timed_out'])) {
                         return false;
                     }
