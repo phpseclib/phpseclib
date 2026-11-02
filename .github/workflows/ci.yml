@@ -90,7 +90,7 @@ jobs:
                 run: php tests/make_compatible_with_phpunit12.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
-                run: |
+                run: &setup-ssh |
                     PHPSECLIB_SSH_USERNAME='phpseclib'
                     PHPSECLIB_SSH_PASSWORD='EePoov8po1aethu2kied1ne0'
 
@@ -144,3 +144,62 @@ jobs:
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
                 php-version: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
+    compat:
+        name: Compat Libraries
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v7
+                with:
+                    path: phpseclib
+            -   name: Checkout ${{ matrix.library }}
+                uses: actions/checkout@v7
+                with:
+                    repository: phpseclib/${{ matrix.library }}
+                    ref: ${{ matrix.ref }}
+                    path: compat
+            -   name: Checkout phpseclib 2.0
+                # phpseclib2_compat is tested with 2.0's tests
+                if: matrix.library == 'phpseclib2_compat'
+                uses: actions/checkout@v7
+                with:
+                    repository: phpseclib/phpseclib
+                    ref: '2.0'
+                    path: phpseclib-2.0
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.5'
+            -   name: Update phpseclib 2.0's Tests
+                if: matrix.library == 'phpseclib2_compat'
+                working-directory: compat
+                run: |
+                    mv ../phpseclib-2.0/tests tests
+                    php .github/workflows/update.php
+            -   name: Composer Install
+                working-directory: compat
+                # advisories are about releases, not this checkout, but Composer refuses any version one covers
+                run: |
+                    composer config repositories.phpseclib '{"type": "path", "url": "../phpseclib", "options": {"symlink": false, "versions": {"phpseclib/phpseclib": "3.0.x-dev"}}}'
+                    composer config minimum-stability dev
+                    composer config prefer-stable true
+                    composer config audit.block-insecure false
+                    composer update --no-interaction
+            -   name: Make Tests Compatible With PHPUnit 9+
+                if: hashFiles('compat/tests/make_compatible_with_phpunit9.php') != ''
+                working-directory: compat
+                run: php tests/make_compatible_with_phpunit9.php
+            -   name: Setup Secure Shell Functional Tests
+                if: matrix.library == 'phpseclib2_compat'
+                run: *setup-ssh
+            -   name: PHPUnit
+                working-directory: compat
+                run: vendor/bin/phpunit
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   { library: phpseclib2_compat, ref: '1.0' }
+                    -   { library: mcrypt_compat, ref: '2.0' }
+                    -   { library: bcmath_compat, ref: '2.0' }
