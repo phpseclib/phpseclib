@@ -392,12 +392,11 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
-=======
+
 ## 2.0.56 - 2026-11-02
 
 - SymmetricKey: create upper bound for how many rounds PBKDFs will do
 - X509: harden certificate URL fetching
->>>>>>> 2.0
 
 ## 2.0.55 - 2026-06-14
 
