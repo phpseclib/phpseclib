@@ -17,6 +17,8 @@ jobs:
     lint:
         name: Lint
         timeout-minutes: 5
+        # 8.6 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -31,10 +33,12 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
     tests:
         name: Tests
         timeout-minutes: 15
+        # 8.6 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
@@ -60,7 +64,7 @@ jobs:
             -   name: Composer Install
                 run: composer install --no-interaction
             -   name: Make Tests Compatiable With PHPUnit 9+
-                if: contains(fromJSON('["7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"]'), matrix.php-version)
+                if: contains(fromJSON('["7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5", "8.6"]'), matrix.php-version)
                 run: php tests/make_compatible_with_phpunit9.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
@@ -79,6 +83,14 @@ jobs:
                     sudo cp "/tmp/known_hosts" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/known_hosts"
                     sudo chown "$PHPSECLIB_SSH_USERNAME:$PHPSECLIB_SSH_USERNAME" "/home/$PHPSECLIB_SSH_USERNAME/.ssh/" -R
                     
+                    # on some runners (the AWS-hosted ones) sshd refuses passwords, which fails every password
+                    # login test. turn them on in a file that sorts first in sshd_config.d, since sshd keeps the
+                    # first value it reads, and check that it took
+                    echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/00-phpseclib.conf
+                    sudo sshd -t
+                    sudo systemctl restart ssh
+                    sudo sshd -T -C "user=$PHPSECLIB_SSH_USERNAME,host=localhost,addr=127.0.0.1" | grep -x 'passwordauthentication yes'
+                    
                     echo "PHPSECLIB_SSH_HOSTNAME=localhost" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_USERNAME=$PHPSECLIB_SSH_USERNAME" >> $GITHUB_ENV
                     echo "PHPSECLIB_SSH_PASSWORD=$PHPSECLIB_SSH_PASSWORD" >> $GITHUB_ENV
@@ -90,7 +102,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+                php-version: ['5.3', '5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
                 exclude:
                     # PHP 5.3 / 5.4 on windows don't have openssl or curl installed, which prevents composer from running
                     - os: windows-latest
