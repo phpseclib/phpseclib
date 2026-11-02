@@ -1386,8 +1386,8 @@ class Net_SSH2
             $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
             // with stream_select a timeout of 0 means that no timeout takes place;
             // with fsockopen a timeout of 0 means that you instantly timeout
-            // to resolve this incompatibility a timeout of 100,000 will be used for fsockopen if timeout is 0
-            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout === false ? 100000 : $this->curTimeout);
+            // to resolve this incompatibility a timeout of 3,600 (an hour) will be used for fsockopen if timeout is 0
+            $this->fsock = @fsockopen($this->host, $this->port, $errno, $errstr, $this->curTimeout === false ? 3600 : $this->curTimeout);
             if (!$this->fsock) {
                 $host = $this->host . ':' . $this->port;
                 user_error(rtrim("Cannot connect to $host. Error $errno. $errstr"));
