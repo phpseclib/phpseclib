@@ -43,22 +43,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: '8.1'
-                    tools: squizlabs/php_codesniffer:3, friendsofphp/php-cs-fixer:3, vimeo/psalm:4
-            -   name: Get Composer Cache Directory and Week
-                id: composer-cache
-                run: |
-                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
-                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
-            -   name: Cache Composer Packages
-                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
-                # makes it change, so the cache is saved again (starting from last week's) once a week
-                uses: actions/cache@v6
-                with:
-                    path: ${{ steps.composer-cache.outputs.dir }}
-                    key: composer-${{ runner.os }}-${{ github.job }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
-                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-
-            -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction
+                    tools: squizlabs/php_codesniffer:3, friendsofphp/php-cs-fixer:3
             -   name: PHP_CodeSniffer
                 run: phpcs --standard=build/php_codesniffer.xml
             -   name: PHP CS Fixer
@@ -66,8 +51,6 @@ jobs:
     tests:
         name: Tests
         timeout-minutes: 15
-        # Sometimes there is a segfault on PHP 5.6.
-        continue-on-error: ${{ matrix.php-version == '5.6' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
@@ -93,13 +76,13 @@ jobs:
             -   name: Composer Install
                 run: composer install --classmap-authoritative --no-interaction
             -   name: Make Tests Compatiable With PHPUnit 7+
-                if: matrix.php-version != '5.6' && matrix.php-version != '7.0'
+                if: matrix.php-version != '7.0'
                 run: php tests/make_compatible_with_phpunit7.php
             -   name: Make Tests Compatiable With PHPUnit 9+
-                if: matrix.php-version != '5.6' && matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2'
+                if: matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2'
                 run: php tests/make_compatible_with_phpunit9.php
             -   name: Make Tests Compatiable With PHPUnit 12+
-                if: matrix.php-version != '5.6' && matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2' && matrix.php-version != '7.3' && matrix.php-version != '7.4' && matrix.php-version != '8.0'
+                if: matrix.php-version != '7.0' && matrix.php-version != '7.1' && matrix.php-version != '7.2' && matrix.php-version != '7.3' && matrix.php-version != '7.4' && matrix.php-version != '8.0'
                 run: php tests/make_compatible_with_phpunit12.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
