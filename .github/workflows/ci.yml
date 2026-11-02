@@ -17,6 +17,8 @@ jobs:
     lint:
         name: Lint
         timeout-minutes: 5
+        # 8.6 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -33,7 +35,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
+                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -71,6 +73,8 @@ jobs:
     tests:
         name: Tests
         timeout-minutes: 15
+        # 8.6 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
@@ -204,10 +208,11 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
+                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
                 include:
                     -   { php-version: '8.1', phpunit: '^10.5', paratest: '^7.0' }
                     -   { php-version: '8.2', phpunit: '^11.5', paratest: '^7.8.5' }
                     -   { php-version: '8.3', phpunit: '^11.5', paratest: '^7.8.5' }
                     -   { php-version: '8.4', phpunit: '^12.5', paratest: '^7.16' }
                     -   { php-version: '8.5', phpunit: '^13.1', paratest: '^7.22' }
+                    -   { php-version: '8.6', phpunit: '^13.1', paratest: '^7.22' }
