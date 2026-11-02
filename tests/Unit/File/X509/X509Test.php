@@ -31,6 +31,23 @@ use phpseclib4\Tests\PhpseclibTestCase;
 
 class X509Test extends PhpseclibTestCase
 {
+    private $server;
+
+    private $serverPipes;
+
+    private $urlFetches = [];
+
+    public function tearDown(): void
+    {
+        $this->stopURLFetchServer();
+        self::setVar(new X509(), 'urlFetchCallback', null);
+        X509::setURLFetchConnectTimeout(5);
+        X509::setURLFetchTimeout(10);
+        X509::setURLFetchMaxSize(65536);
+        self::setVar(new X509(), 'urlFetchDeadline', null);
+        parent::tearDown();
+    }
+
     public function testExtensionMapping(): void
     {
         $test = '-----BEGIN CERTIFICATE-----
@@ -728,6 +745,169 @@ M0qaEPsM2o3CSTfxSJQQIyEe+izV3UQqYSyWkNqCCFPN
 
         X509::setRecurLimit(5);
         $this->assertTrue($x509->validateSignature());
+    }
+
+    public function testURLFetchTimesOut(): void
+    {
+        // the server keeps sending, so this needs the timeout to cover the whole request
+        $url = $this->startURLFetchServer('trickle');
+        X509::setURLFetchCallback(fn (): bool => true);
+        X509::setURLFetchTimeout(1);
+
+        $start = microtime(true);
+        $this->assertNull(self::callFunc(new X509(), 'fetchURL', [$url]));
+        $this->assertLessThan(3, microtime(true) - $start);
+    }
+
+    public function testURLFetchConnectTimeoutStaysWithinTimeout(): void
+    {
+        // 192.0.2.1 is reserved for documentation (RFC 5737), so connecting to it hangs
+        X509::setURLFetchCallback(fn (): bool => true);
+        X509::setURLFetchTimeout(1);
+
+        $start = microtime(true);
+        $this->assertNull(self::callFunc(new X509(), 'fetchURL', ['http://192.0.2.1/']));
+        $took = microtime(true) - $start;
+        if ($took < 0.5) {
+            $this->markTestSkipped('192.0.2.1 is refused right away on this network, so connecting to it does not hang');
+        }
+        $this->assertLessThan(3, $took);
+    }
+
+    public function testURLFetchTimeoutCoversTheCallback(): void
+    {
+        // the callback stands in for a slow host name lookup, which comes before connecting too
+        $url = $this->startURLFetchServer('keepalive');
+        X509::setURLFetchCallback(function (): bool {
+            usleep(300000);
+            return true;
+        });
+        X509::setURLFetchTimeout(0.2);
+        $this->assertNull(self::callFunc(new X509(), 'fetchURL', [$url]));
+    }
+
+    public function testURLFetchMaxSize(): void
+    {
+        X509::setURLFetchCallback(fn (): bool => true);
+        $this->assertNull(self::callFunc(new X509(), 'fetchURL', [$this->startURLFetchServer('large')]));
+
+        X509::setURLFetchMaxSize(70000);
+        $this->assertSame(str_repeat('a', 65536), self::callFunc(new X509(), 'fetchURL', [$this->startURLFetchServer('large')]));
+    }
+
+    public function testURLFetchStopsAtAnError(): void
+    {
+        $url = $this->startURLFetchServer('error');
+        X509::setURLFetchCallback(fn (): bool => true);
+
+        $start = microtime(true);
+        $this->assertNull(self::callFunc(new X509(), 'fetchURL', [$url]));
+        $this->assertLessThan(3, microtime(true) - $start);
+    }
+
+    public function testURLFetchClosesTheConnection(): void
+    {
+        X509::setURLFetchCallback(fn (): bool => true);
+        X509::setURLFetchTimeout(2);
+        $this->assertSame('hello', self::callFunc(new X509(), 'fetchURL', [$this->startURLFetchServer('keepalive')]));
+    }
+
+    public function testURLFetchReadsBufferedData(): void
+    {
+        // the response takes more than one read, and the connection closes a second later. On
+        // Windows, PHP 8.3+ said the read that returned the rest of it had timed out
+        X509::setURLFetchCallback(fn (): bool => true);
+        X509::setURLFetchTimeout(5);
+        $this->assertSame(str_repeat('a', 1481), self::callFunc(new X509(), 'fetchURL', [$this->startURLFetchServer('pause')]));
+    }
+
+    public function testURLFetchTimeoutCanBeInfinite(): void
+    {
+        // each read still waits for the server, rather than spinning until it answers
+        if (!function_exists('getrusage')) {
+            $this->markTestSkipped('getrusage(), needed to measure the CPU time, is missing');
+        }
+        $url = $this->startURLFetchServer('late');
+        X509::setURLFetchCallback(fn (): bool => true);
+        X509::setURLFetchTimeout(INF);
+
+        $start = $this->getCPUTime();
+        $this->assertSame('hello', self::callFunc(new X509(), 'fetchURL', [$url]));
+        $this->assertLessThan(0.5, $this->getCPUTime() - $start);
+    }
+
+    // the CPU time this process has used, in seconds
+    private function getCPUTime(): float
+    {
+        $usage = getrusage();
+        return $usage['ru_utime.tv_sec'] + $usage['ru_stime.tv_sec'] + ($usage['ru_utime.tv_usec'] + $usage['ru_stime.tv_usec']) / 1000000;
+    }
+
+    public function testURLFetchSendsThePort(): void
+    {
+        // the server answers with the Host header, which has to name the URL's port too
+        $url = $this->startURLFetchServer('host');
+        X509::setURLFetchCallback(fn (): bool => true);
+        $this->assertSame('127.0.0.1:' . parse_url($url, PHP_URL_PORT), self::callFunc(new X509(), 'fetchURL', [$url]));
+    }
+
+    public function testIntermediateURLFetchesShareTheTimeout(): void
+    {
+        $x509 = X509::load($this->getUntrustedAIACert());
+        X509::setURLFetchCallback(function (string $host): bool {
+            $this->urlFetches[] = $host;
+            return false;
+        });
+        $this->urlFetches = [];
+
+        // the time for the chain is up, so the issuer's issuer isn't fetched
+        self::setVar($x509, 'urlFetchDeadline', microtime(true));
+        $this->assertFalse(self::callFunc($x509, 'testForIntermediate', [true, 1]));
+        $this->assertSame([], $this->urlFetches);
+
+        // a new chain gets the whole timeout
+        $this->assertFalse(self::callFunc($x509, 'testForIntermediate', [true, 0]));
+        $this->assertSame(['127.0.0.1'], $this->urlFetches);
+    }
+
+    // issued by an untrusted CA, with an AIA caIssuers URL pointing at a closed local port
+    private function getUntrustedAIACert(): string
+    {
+        return '-----BEGIN CERTIFICATE-----
+MIIB8jCCAVugAwIBAgIUHTWE/PzeD+VYYe+kkT/URDbJ2iAwDQYJKoZIhvcNAQEL
+BQAwFzEVMBMGA1UEAwwMVW50cnVzdGVkIENBMCAXDTI2MTAzMTE1MjUzNFoYDzk5
+OTkxMjMxMjM1OTU5WjAXMRUwEwYDVQQDDAxsZWFmLmV4YW1wbGUwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAJxzhj75AHvADI21Kbb8brwHjiwrnJ3M0ifOV00Y
+trCrPGluo9HzCMAZcI2K4BHFKzfvJkiXv5DpeY6bF5SgZ3iQ9qZT+rtUB5yjyfGl
+FDg2hI4cIADz2hnNEg5chCEtnh+3akHULc4fRvbsup0RsnNc6ZHFzZsmrUIdaq3b
+wa8VAgMBAAGjOTA3MDUGCCsGAQUFBwEBBCkwJzAlBggrBgEFBQcwAoYZaHR0cDov
+LzEyNy4wLjAuMToxL2NhLmNydDANBgkqhkiG9w0BAQsFAAOBgQA8yeHCejlZgz3d
+ouU2lXbEWrj1E7MQTalzPiu0aCMWp2UFRDqr/bgWc9gu23fHsdhddEHXWhD6VVaS
+fq3KdF+5GjQCICaNiff2mRqHRi3rJVuzpOm7CnJ2Jc9mt+p8QRGnVTmHVim5ymeO
+p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
+-----END CERTIFICATE-----';
+    }
+
+    // runs url_fetch_server.php to answer one request the way $mode says, and returns its URL
+    private function startURLFetchServer(string $mode): string
+    {
+        $this->stopURLFetchServer();
+        $this->server = proc_open([PHP_BINARY, __DIR__ . '/url_fetch_server.php', $mode], [1 => ['pipe', 'w']], $this->serverPipes);
+        $port = $this->server ? fgets($this->serverPipes[1]) : false;
+        if (!$port) {
+            $this->fail('url_fetch_server.php did not start');
+        }
+        return 'http://127.0.0.1:' . trim($port) . '/';
+    }
+
+    private function stopURLFetchServer(): void
+    {
+        if (is_resource($this->server)) {
+            fclose($this->serverPipes[1]);
+            proc_terminate($this->server);
+            proc_close($this->server);
+            $this->server = null;
+        }
     }
 
     public function testValidateDate(): void
