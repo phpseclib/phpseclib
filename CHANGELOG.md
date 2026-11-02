@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.58 - 2026-11-02
+
+- SymmetricKey: create upper bound for how many rounds PBKDFs will do
+- X509: harden certificate URL fetching
+
 ## 3.0.57 - 2026-08-26
 
 - ASN1: fix tag matching for tagged CHOICE children (#2158)
@@ -387,6 +392,12 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+=======
+## 2.0.56 - 2026-11-02
+
+- SymmetricKey: create upper bound for how many rounds PBKDFs will do
+- X509: harden certificate URL fetching
+>>>>>>> 2.0
 
 ## 2.0.55 - 2026-06-14
 
@@ -808,6 +819,11 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.31 - 2026-11-02
+
+- SymmetricKey: create upper bound for how many rounds PBKDFs will do
+- X509: harden certificate URL fetching
 
 ## 1.0.30 - 2026-06-14
 
