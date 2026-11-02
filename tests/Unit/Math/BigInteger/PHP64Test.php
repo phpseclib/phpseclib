@@ -33,6 +33,15 @@ class PHP64Test extends TestCase
         $this->assertSame(self::getVar($x, 'value'), self::getVar($y, 'value'));
     }
 
+    public function testUnnormalizedZero()
+    {
+        // Xdebug's trace mode dumps normalize()'s argument before its zero limbs are stripped (#1930)
+        $x = new PHP64();
+        self::setVar($x, 'value', [0]);
+
+        $this->assertSame('', $x->toBytes());
+    }
+
     public static function getStaticClass()
     {
         return 'phpseclib3\Math\BigInteger\Engines\PHP64';
