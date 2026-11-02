@@ -105,6 +105,9 @@ jobs:
                     composer require --dev --no-update \
                       "phpunit/phpunit:${{ matrix.phpunit }}" \
                       "brianium/paratest:${{ matrix.paratest }}"
+            -   name: Remove Psalm
+                # the tests don't run it, and no Psalm 6 release installs on PHP 8.6
+                run: composer remove --dev --no-update vimeo/psalm
             -   name: Composer Install
                 run: composer update --with-all-dependencies --no-interaction
             -   name: Setup Secure Shell Functional Tests
