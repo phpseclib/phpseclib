@@ -90,7 +90,7 @@ jobs:
                 run: php tests/make_compatible_with_phpunit12.php
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
-                run: |
+                run: &setup-ssh |
                     PHPSECLIB_SSH_USERNAME='phpseclib'
                     PHPSECLIB_SSH_PASSWORD='EePoov8po1aethu2kied1ne0'
 
@@ -144,3 +144,59 @@ jobs:
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
                 php-version: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
+    phpseclib2_compat:
+        name: phpseclib2_compat
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v7
+                with:
+                    path: phpseclib
+                    # the 2.0 commits that a merge-up brings in are found through the history
+                    fetch-depth: 0
+            -   name: Checkout phpseclib2_compat
+                uses: actions/checkout@v7
+                with:
+                    repository: phpseclib/phpseclib2_compat
+                    ref: '1.0'
+                    path: phpseclib2_compat
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.5'
+            -   name: Update phpseclib 2.0's Tests
+                # phpseclib2_compat is tested with 2.0's tests. A merge-up brings in 2.0 commits that aren't on 2.0
+                # yet, and their tests are used instead, so a 2.0 test that phpseclib2_compat can't run fails
+                # before the 2.0 PR is merged.
+                working-directory: phpseclib
+                run: |
+                    tests=origin/2.0
+                    for commit in $(git rev-list --topo-order HEAD ^origin/2.0 ^origin/3.0); do
+                        # a 2.0 commit builds on 2.0, and everything it shares with 3.0 is on 2.0 too
+                        if git merge-base --is-ancestor origin/2.0 $commit &&
+                            [ -z "$(git rev-list -1 $(git merge-base --all $commit origin/3.0) ^origin/2.0)" ]; then
+                            tests=$commit
+                            break
+                        fi
+                    done
+                    git log -1 --format='Using the tests from %h %s' $tests
+                    git worktree add --detach ../phpseclib-2.0 $tests
+                    cd ../phpseclib2_compat
+                    mv ../phpseclib-2.0/tests tests
+                    php .github/workflows/update.php
+            -   name: Composer Install
+                working-directory: phpseclib2_compat
+                run: |
+                    composer config repositories.phpseclib '{"type": "path", "url": "../phpseclib", "options": {"symlink": false, "versions": {"phpseclib/phpseclib": "3.0.x-dev"}}}'
+                    composer config minimum-stability dev
+                    composer config prefer-stable true
+                    composer update --no-interaction
+            -   name: Make Tests Compatible With PHPUnit 9+
+                working-directory: phpseclib2_compat
+                run: php tests/make_compatible_with_phpunit9.php
+            -   name: Setup Secure Shell Functional Tests
+                run: *setup-ssh
+            -   name: PHPUnit
+                working-directory: phpseclib2_compat
+                run: vendor/bin/phpunit
