@@ -32,7 +32,7 @@ iq8UL3JxiWPigBC7AYnIQlC/X7rq8bcaeP9y
 -----END
  CMS-----');
         // https://xkcd.com/936/
-        $decrypted = $cms->getRecipients()[0]->withPassword('correct horse battery staple')->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withPassword('correct horse battery staple')->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields PasswordRecipient)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
@@ -44,7 +44,7 @@ BAEFBCjqhj9+hBlqboSO9UybVUyjmeQ4eX8y/0x/s9JsdsWxTrrx1zNiFNzaMDwG
 CSqGSIb3DQEHATAdBglghkgBZQMEASoEEA2rq3jrXhfcwE8Doq+lErqAEFqBE6fW
 17lonTkG3xsJwzY=
 -----END CMS-----');
-        $decrypted = $cms->getRecipients()[0]->withKey(hex2bin('00112233445566778899AABBCCDDEEFF'))->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey(hex2bin('00112233445566778899AABBCCDDEEFF'))->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields KEKRecipient)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
@@ -58,7 +58,7 @@ CSqGSIb3DQEHATAdBglghkgBZQMEASoEEA2rq3jrXhfcwE8Doq+lErqAEFqBE6fW
         $decrypted = $recipient->withPassword($password)->decrypt();
         $this->assertEquals($plaintext, $decrypted);
         $cms = CMS::load("$cms");
-        $decrypted = $cms->getRecipients()[0]->withPassword($password)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withPassword($password)->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields PasswordRecipient)
         $this->assertEquals($plaintext, $decrypted);
     }
 
@@ -72,7 +72,7 @@ CSqGSIb3DQEHATAdBglghkgBZQMEASoEEA2rq3jrXhfcwE8Doq+lErqAEFqBE6fW
         $decrypted = $recipient->withKey($key)->decrypt();
         $this->assertEquals($plaintext, $decrypted);
         $cms = CMS::load("$cms");
-        $decrypted = $cms->getRecipients()[0]->withKey($key)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey($key)->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields KEKRecipient)
         $this->assertEquals($plaintext, $decrypted);
     }
 
@@ -120,7 +120,7 @@ FndAlFnyh782RoE6ORRHxKgaO1qomK0ewReUTrO6mEt1SdbQDAHJX8XU2ro43Xl9
 9zr18xnnbU90RsMHUYLBWg==
 -----END PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
-        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields KeyTransRecipient)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
@@ -166,7 +166,7 @@ FndAlFnyh782RoE6ORRHxKgaO1qomK0ewReUTrO6mEt1SdbQDAHJX8XU2ro43Xl9
 9zr18xnnbU90RsMHUYLBWg==
 -----END PRIVATE KEY-----';
         $private = PublicKeyLoader::load($private);
-        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields KeyTransRecipient)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
@@ -184,7 +184,7 @@ FndAlFnyh782RoE6ORRHxKgaO1qomK0ewReUTrO6mEt1SdbQDAHJX8XU2ro43Xl9
         $cms->createNewRecipientFromX509($x509);
 
         $cms = CMS::load("$cms");
-        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (generated fixture yields EncryptedKey)
         $this->assertEquals($plaintext, $decrypted);
     }
 
@@ -208,7 +208,7 @@ JXhYfxbdvEUY6P4PO+Y9EqdrGwb8gsZTWDF5Hldhcu1VO5ECp4WkLPN2
 
         $private = PublicKeyLoader::load($private);
 
-        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (encoded fixture yields EncryptedKey)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
@@ -274,7 +274,7 @@ FndAlFnyh782RoE6ORRHxKgaO1qomK0ewReUTrO6mEt1SdbQDAHJX8XU2ro43Xl9
         $x509->setExtension('id-ce-keyUsage', ['keyEncipherment']);
 
         $private = PublicKeyLoader::load($private);
-        $decrypted = $cms->findRecipients($x509)[0]->withKey($private)->decrypt();
+        $decrypted = $cms->findRecipients($x509)[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (matching fixture yields KeyTransRecipient)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
@@ -302,7 +302,7 @@ JXhYfxbdvEUY6P4PO+Y9EqdrGwb8gsZTWDF5Hldhcu1VO5ECp4WkLPN2
         $x509->setSerialNumber($cms->getRecipients()[0]['rid']['issuerAndSerialNumber']['serialNumber']);
         $x509->setExtension('id-ce-keyUsage', ['keyAgreement']);
 
-        $decrypted = $cms->findRecipients($x509)[0]->withKey($private)->decrypt();
+        $decrypted = $cms->findRecipients($x509)[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (matching fixture yields EncryptedKey)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
