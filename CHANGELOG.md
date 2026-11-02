@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.56 - 2026-11-02
+
+- SymmetricKey: create upper bound for how many rounds PBKDFs will do
+- X509: harden certificate URL fetching
+
 ## 2.0.55 - 2026-06-14
 
 - X509: add setURLFetchCallback() method (CVE-2026-55599)
@@ -420,6 +425,11 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.31 - 2026-11-02
+
+- SymmetricKey: create upper bound for how many rounds PBKDFs will do
+- X509: harden certificate URL fetching
 
 ## 1.0.30 - 2026-06-14
 
