@@ -11,6 +11,7 @@
  *   unless the request asked to close it
  * - "pause" sends a 1500 byte response, then waits a second before closing the connection
  * - "late" waits a second, then sends a 5 byte body
+ * - "cert" waits a second, then sends $argv[2], base64 decoded, as the body
  * - "host" sends the request's Host header as the body
  */
 
@@ -60,6 +61,10 @@ switch ($argv[1]) {
     case 'late':
         sleep(1);
         fwrite($conn, "HTTP/1.0 200 OK\r\n\r\nhello");
+        break;
+    case 'cert':
+        sleep(1);
+        fwrite($conn, "HTTP/1.0 200 OK\r\n\r\n" . base64_decode($argv[2]));
         break;
     case 'host':
         preg_match('/^Host: ([^\r\n]*)/mi', $request, $matches);

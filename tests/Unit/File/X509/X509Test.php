@@ -13,20 +13,17 @@ use phpseclib\Math\BigInteger;
 
 class Unit_File_X509_X509Test extends PhpseclibTestCase
 {
-    private $server;
-
-    private $serverPipes;
+    private $servers = array();
 
     private $urlFetches = array();
 
     public function tearDown()
     {
-        $this->stopURLFetchServer();
+        $this->stopURLFetchServers();
         X509::setURLFetchCallback(null);
         X509::setURLFetchConnectTimeout(5);
         X509::setURLFetchTimeout(10);
         X509::setURLFetchMaxSize(65536);
-        X509::$urlFetchDeadline = null;
         parent::tearDown();
     }
 
@@ -922,19 +919,19 @@ p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
 
     public function testIntermediateURLFetchesShareTheTimeout()
     {
+        // the issuer takes a second to come back, and its own issuer never finishes coming back, so
+        // the second fetch should end when the 2 second timeout for the chain does, rather than 2
+        // seconds after it started
+        $issuer = $this->getAIACert($this->startURLFetchServer('trickle'));
         $x509 = new X509();
-        $x509->loadX509($this->getUntrustedAIACert());
-        X509::setURLFetchCallback(array($this, 'recordURLFetch'));
-        $this->urlFetches = array();
+        $x509->loadX509($this->getAIACert($this->startURLFetchServer('cert', $issuer)));
+        X509::setURLFetchTimeout(2);
 
-        // the time for the chain is up, so the issuer's issuer isn't fetched
-        X509::$urlFetchDeadline = microtime(true);
-        $this->assertFalse($x509->_testForIntermediate(true, 1));
-        $this->assertSame(array(), $this->urlFetches);
-
-        // a new chain gets the whole timeout
-        $this->assertFalse($x509->_testForIntermediate(true, 0));
-        $this->assertSame(array('127.0.0.1:1'), $this->urlFetches);
+        $start = microtime(true);
+        $this->assertFalse($x509->validateSignature());
+        $took = microtime(true) - $start;
+        $this->assertGreaterThan(1.5, $took);
+        $this->assertLessThan(2.5, $took);
     }
 
     public function recordURLFetch($host, $ip, $port, $scheme)
@@ -943,30 +940,41 @@ p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
         return false;
     }
 
+    // getUntrustedAIACert(), with its AIA caIssuers URL changed to $url
+    private function getAIACert($url)
+    {
+        $x509 = new X509();
+        $cert = $x509->loadX509($this->getUntrustedAIACert());
+        $cert['tbsCertificate']['extensions'][0]['extnValue'][0]['accessLocation']['uniformResourceIdentifier'] = $url;
+        return $x509->saveX509($cert);
+    }
+
     // runs url_fetch_server.php to answer one request the way $mode says, and returns its URL
-    private function startURLFetchServer($mode)
+    private function startURLFetchServer($mode, $body = '')
     {
         if (!defined('PHP_BINARY')) {
             $this->markTestSkipped('PHP_BINARY, needed to start the server, was added in PHP 5.4');
         }
-        $this->stopURLFetchServer();
-        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__DIR__ . '/url_fetch_server.php') . ' ' . $mode;
-        $this->server = proc_open($command, array(1 => array('pipe', 'w')), $this->serverPipes, null, null, array('bypass_shell' => true));
-        $port = $this->server ? fgets($this->serverPipes[1]) : false;
+        $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__DIR__ . '/url_fetch_server.php') . ' ' . $mode . ' ' . base64_encode($body);
+        $server = proc_open($command, array(1 => array('pipe', 'w')), $pipes, null, null, array('bypass_shell' => true));
+        if ($server) {
+            $this->servers[] = array($server, $pipes[1]);
+        }
+        $port = $server ? fgets($pipes[1]) : false;
         if (!$port) {
             $this->fail('url_fetch_server.php did not start');
         }
         return 'http://127.0.0.1:' . trim($port) . '/';
     }
 
-    private function stopURLFetchServer()
+    private function stopURLFetchServers()
     {
-        if (is_resource($this->server)) {
-            fclose($this->serverPipes[1]);
-            proc_terminate($this->server);
-            proc_close($this->server);
-            $this->server = null;
+        foreach ($this->servers as $server) {
+            fclose($server[1]);
+            proc_terminate($server[0]);
+            proc_close($server[0]);
         }
+        $this->servers = array();
     }
 
     public function testValidateDate()
