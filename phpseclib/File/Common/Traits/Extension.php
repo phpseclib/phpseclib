@@ -182,7 +182,7 @@ trait Extension
                     }
                 } else {
                     $temp = ASN1::decodeBER((string) $ext['extnValue']);
-                    $ext['extnValue'] = is_array($temp) && $temp['content'] instanceof Constructed ?
+                    $ext['extnValue'] = $temp['content'] instanceof Constructed ?
                         new Element($ext['extnValue']->value) :
                         $temp;
                 }

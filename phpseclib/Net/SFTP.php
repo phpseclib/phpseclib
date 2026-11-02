@@ -1136,7 +1136,7 @@ class SFTP extends SSH2
     /**
      * Returns general information about a file.
      *
-     * Returns an array on success and false otherwise.
+     * Returns an array on success; throws an exception on failure.
      */
     public function stat(string $filename): array
     {

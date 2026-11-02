@@ -223,7 +223,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
                         ASN1::encodeDER($value[$i], $map);
                         $value[$i]->enableForcedCache();
                     } else {
-                        $oldValue = $value[$i] instanceof Constructed ? $value[$i]->toArray() : $value[$i];
+                        $oldValue = $value[$i];
                         $temp = ASN1::encodeDER($value[$i], $map);
                         $value[$i] = ASN1::map(ASN1::decodeBER($temp), $map);
                         if ($value[$i] instanceof Constructed) {

@@ -4160,7 +4160,7 @@ class SSH2
             $current = microtime(true);
             $message_number = sprintf(
                 '-> %s (since last: %s, network: %ss)',
-                ($constantName = MessageType::findConstantNameByValue($value = ord($logged[0]), false))
+                ($constantName = MessageType::findConstantNameByValue($value = ord($logged[0])))
                     ? "SSH_MSG_$constantName"
                     : "UNKNOWN ($value)",
                 round($current - $this->last_packet, 4),

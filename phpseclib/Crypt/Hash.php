@@ -1016,7 +1016,7 @@ class Hash
             if (is_resource($text)) {
                 throw new UnsupportedValueException($this->hashParam . ' only works with strings');
             }
-            if (empty($this->key) || !is_string($this->key)) {
+            if (empty($this->key)) {
                 return substr($algo($text, ...array_values($this->parameters)), 0, $this->length);
             }
 
