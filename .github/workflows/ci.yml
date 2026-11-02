@@ -109,3 +109,45 @@ jobs:
                       php-version: '5.3'
                     - os: windows-latest
                       php-version: '5.4'
+    compat:
+        name: Compat Libraries
+        timeout-minutes: 10
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v7
+                with:
+                    path: phpseclib
+            -   name: Checkout ${{ matrix.library }}
+                uses: actions/checkout@v7
+                with:
+                    repository: phpseclib/${{ matrix.library }}
+                    ref: ${{ matrix.ref }}
+                    path: compat
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.5'
+            -   name: Composer Install
+                working-directory: compat
+                # advisories are about releases, not this checkout, but Composer refuses any version one covers, and
+                # some (eg. "< 3.0.57") cover every 2.0 version
+                run: |
+                    composer config repositories.phpseclib '{"type": "path", "url": "../phpseclib", "options": {"symlink": false, "versions": {"phpseclib/phpseclib": "2.0.x-dev"}}}'
+                    composer config minimum-stability dev
+                    composer config prefer-stable true
+                    composer config audit.block-insecure false
+                    composer update --no-interaction
+            -   name: Make Tests Compatible With PHPUnit 9+
+                if: hashFiles('compat/tests/make_compatible_with_phpunit9.php') != ''
+                working-directory: compat
+                run: php tests/make_compatible_with_phpunit9.php
+            -   name: PHPUnit
+                working-directory: compat
+                run: vendor/bin/phpunit
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    -   { library: mcrypt_compat, ref: '1.0' }
+                    -   { library: bcmath_compat, ref: '1.0' }
