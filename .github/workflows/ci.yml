@@ -25,40 +25,15 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
+                    tools: php-parallel-lint/php-parallel-lint:1
                 env:
                     update: true
-            -   name: Get Composer Cache Directory and Week
-                id: composer-cache
-                run: |
-                    echo "dir=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
-                    echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
-            -   name: Cache Composer Packages
-                # there's no composer.lock, so the key wouldn't change when new package versions come out. the week
-                # makes it change, so the cache is saved again (starting from last week's) once a week
-                uses: actions/cache@v6
-                with:
-                    path: ${{ steps.composer-cache.outputs.dir }}
-                    key: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
-                    restore-keys: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-
-            -   name: Override PHPUnit and ParaTest versions
-                run: |
-                    composer require --dev --no-update \
-                      "phpunit/phpunit:${{ matrix.phpunit }}" \
-                      "brianium/paratest:${{ matrix.paratest }}"
-            -   name: Composer Install
-                run: composer install --classmap-authoritative --no-interaction
             -   name: Lint
-                run: vendor/bin/parallel-lint --show-deprecated build phpseclib tests
+                run: parallel-lint --show-deprecated build phpseclib tests
         strategy:
             fail-fast: false
             matrix:
                 php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
-                include:
-                    -   { php-version: '8.1', phpunit: '^10.5', paratest: '^7.0' }
-                    -   { php-version: '8.2', phpunit: '^11.5', paratest: '^7.8.5' }
-                    -   { php-version: '8.3', phpunit: '^11.5', paratest: '^7.8.5' }
-                    -   { php-version: '8.4', phpunit: '^12.5', paratest: '^7.16' }
-                    -   { php-version: '8.5', phpunit: '^13.1', paratest: '^7.22' }
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -93,8 +68,6 @@ jobs:
                 run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
             -   name: Psalm
                 run: vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
-        strategy:
-            fail-fast: false
     tests:
         name: Tests
         timeout-minutes: 15
