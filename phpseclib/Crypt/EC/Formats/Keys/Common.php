@@ -415,7 +415,7 @@ trait Common
             //$r = pack('H*', '0900000000000000000000000000000000000000000000000000000000000000');
             //$QA = sodium_crypto_scalarmult($dA->toBytes(), $r);
             $QA = sodium_crypto_box_publickey_from_secretkey(str_pad($dA->toBytes(), 32, chr(0), STR_PAD_LEFT));
-            return [$components['curve']->convertInteger(new BigInteger(strrev($QA), 256))];
+            return [$components['curve']->convertInteger(new BigInteger(strrev($QA), 256))]; // @phpstan-ignore return.type (fixed callers use Curve25519/Curve448; Base::convertInteger() exposes only the common integer type)
         }
 
         $useOpenSSL = !isset($forcedEngine) && function_exists('openssl_pkey_get_private');
