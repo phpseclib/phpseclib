@@ -153,7 +153,7 @@ abstract class XML
         $node = $nodes->item(0);
         $ns_name = $node->lookupPrefix($ns);
         if ($ns_name) {
-            $node->removeAttributeNS($ns, $ns_name);
+            $node->removeAttributeNS($ns, $ns_name); // @phpstan-ignore method.notFound (XPath selects elements; DOM list typing is broader)
         }
         return $dom->saveXML($node);
     }
@@ -173,15 +173,15 @@ abstract class XML
     {
         $x = self::query($xpath, 'publickey/x');
         $y = self::query($xpath, 'publickey/y');
-        if (!$x->length || !$x->item(0)->hasAttribute('Value')) {
+        if (!$x->length || !$x->item(0)->hasAttribute('Value')) { // @phpstan-ignore method.notFound (XPath selects the X element; DOM list typing is broader)
             throw new UnexpectedValueException('Public Key / X coordinate not found');
         }
-        if (!$y->length || !$y->item(0)->hasAttribute('Value')) {
+        if (!$y->length || !$y->item(0)->hasAttribute('Value')) { // @phpstan-ignore method.notFound (XPath selects the Y element; DOM list typing is broader)
             throw new UnexpectedValueException('Public Key / Y coordinate not found');
         }
         $point = [
-            $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))),
-            $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))),
+            $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))), // @phpstan-ignore method.notFound (XPath selects the X element; DOM list typing is broader)
+            $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))), // @phpstan-ignore method.notFound (XPath selects the Y element; DOM list typing is broader)
         ];
         if (!$curve->verifyPoint($point)) {
             throw new UnexpectedValueException('Unable to verify that point exists on curve');
@@ -197,7 +197,7 @@ abstract class XML
     {
         $namedCurve = self::query($xpath, 'namedcurve');
         if ($namedCurve->length == 1) {
-            $oid = $namedCurve->item(0)->getAttribute('URN');
+            $oid = $namedCurve->item(0)->getAttribute('URN'); // @phpstan-ignore method.notFound (XPath selects the NamedCurve element; DOM list typing is broader)
             $oid = preg_replace('#[^\d.]#', '', $oid);
             $name = array_search($oid, Curves::OIDs);
             if ($name === false) {
