@@ -28,6 +28,7 @@ namespace phpseclib4\Crypt\EC\BaseCurves;
 
 use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Exception\{InvalidStateException, UnsupportedValueException};
+use phpseclib4\Math\Common\FiniteField\Integer as FiniteFieldInteger;
 use phpseclib4\Math\{BigInteger, PrimeField};
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
@@ -81,6 +82,16 @@ class Montgomery extends Base
      * The Order
      */
     protected BigInteger $order;
+
+    /**
+     * Returns a random integer from the curve's prime field
+     *
+     * @return PrimeInteger
+     */
+    public function randomInteger(): FiniteFieldInteger
+    {
+        return $this->factory->randomInteger();
+    }
 
     /**
      * Sets the modulo
