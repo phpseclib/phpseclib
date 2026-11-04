@@ -14,8 +14,9 @@ declare(strict_types=1);
 namespace phpseclib4\Crypt\MLDSA;
 
 use phpseclib4\Crypt\{Common, MLDSA};
-use phpseclib4\Exception\{BadConfigurationException, BadMethodCallException};
+use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\File\Common\Signable;
+use phpseclib4\File\CSR;
 
 /**
  * ML-DSA Private Key
@@ -53,24 +54,37 @@ final class PrivateKey extends MLDSA implements Common\PrivateKey
      * The signature is hedged (FIPS 204, algorithm 2, with fresh randomness) since that's what OpenSSL does;
      * ext/openssl has no option for the deterministic variant. The message is hashed by ML-DSA itself.
      *
+     * A Signable (X509, CSR, CRL, CMS SignedData or Signer) gets its AlgorithmIdentifier (the id-ml-dsa-* OID
+     * alone, as in RFC 9881) and its signature filled in, the same way the other key types do it.
+     *
      * @see self::verify()
      */
     public function sign(string|Signable $source): string|array
     {
-        if ($source instanceof Signable) {
-            throw new BadMethodCallException('ML-DSA keys cannot sign X.509 certificates, CSRs or CRLs yet');
-        }
-
         self::assertEngine();
         $this->assertContextSupported();
 
+        if ($source instanceof Signable) {
+            if ($source instanceof CSR && !$source->hasPublicKey()) {
+                $source->setPublicKey($this->getPublicKey());
+            }
+            $source->identifySignatureAlgorithm($this);
+            $message = $source->getSignableSection();
+        } else {
+            $message = $source;
+        }
+
         $signature = '';
         // algorithm 0 is used because ML-DSA has a built-in hash
-        $result = openssl_sign($source, $signature, $this->withPassword()->toString('PKCS8'), 0);
+        $result = openssl_sign($message, $signature, $this->withPassword()->toString('PKCS8'), 0);
         if (!$result) {
             $error = openssl_error_string();
             self::clearOpenSSLErrors();
             throw new BadConfigurationException('OpenSSL was unable to create the ML-DSA signature' . ($error ? ' because of ' . $error : ''));
+        }
+
+        if ($source instanceof Signable) {
+            $source->setSignature($signature);
         }
 
         return $signature;

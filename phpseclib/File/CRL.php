@@ -766,7 +766,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->compile();
         return self::validateSignatureHelper(
             $signingCert->getPublicKey(),
-            $this->crl['signatureAlgorithm']['algorithm'],
+            $this->crl['signatureAlgorithm'],
             $this->crl['signature'],
             $this->crl['tbsCertList']->getEncoded()
         );

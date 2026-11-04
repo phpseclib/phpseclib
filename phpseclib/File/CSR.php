@@ -834,7 +834,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         return self::validateSignatureHelper(
             $this->getPublicKey(),
-            $this->csr['signatureAlgorithm']['algorithm'],
+            $this->csr['signatureAlgorithm'],
             $this->csr['signature'],
             $this->csr['certificationRequestInfo']->getEncoded()
         );
