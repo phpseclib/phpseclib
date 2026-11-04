@@ -21,6 +21,13 @@ parameters:
             path: phpseclib/File/ANSI.php
             count: 1 
 
+        # The PHPDoc names locals created by parse_path()'s $$key loop; inline
+        # suppression on the loop suppresses only one of the seven tag findings.
+        -
+            identifier: varTag.variableNotFound
+            path: phpseclib/Net/SFTP/Stream.php
+            count: 7
+
         # R3: outer ContentInfo survives offset access before return (Constructed).
         # Inner blob hazards stay reported; see analysis/phpstan-asn1-r3-guarded-return-policy.md.
         -

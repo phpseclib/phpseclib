@@ -259,7 +259,7 @@ final class PrivateKey extends RSA implements Common\PrivateKey
      *
      * @see self::verify()
      */
-    public function sign(string|Signable $source): string|array
+    public function sign(string|Signable $source): string|array // @phpstan-ignore return.unusedType (preserve the shared signing API return contract)
     {
         if ($source instanceof Signable) {
             $public = $this->getPublicKey();
