@@ -275,4 +275,41 @@ Mf7Jz8+drwf9tboRi44=
         $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load($key);
     }
+
+    private static function derInteger($h)
+    {
+        return '02' . sprintf('%02x', strlen($h) / 2) . $h;
+    }
+
+    // PKCS#8 DSA private key { 0, { id-dsa, { p, q, g } }, OCTET STRING { INTEGER x } }
+    private static function pkcs8Key($p, $q, $g, $x)
+    {
+        $params = self::derInteger($p) . self::derInteger($q) . self::derInteger($g);
+        $alg = '06072a8648ce380401' . '30' . sprintf('%02x', strlen($params) / 2) . $params;
+        $priv = '04' . sprintf('%02x', strlen(self::derInteger($x)) / 2) . self::derInteger($x);
+        $body = '020100' . '30' . sprintf('%02x', strlen($alg) / 2) . $alg . $priv;
+        return hex2bin('30' . sprintf('%02x', strlen($body) / 2) . $body);
+    }
+
+    public static function outOfRangeKeys()
+    {
+        return [
+            'p = 0' => [self::pkcs8Key('00', '7994', '7f0f', '01')],
+            'q = 0' => [self::pkcs8Key('17', '00', '05', '01')],
+            'g = p' => [self::pkcs8Key('17', '0b', '17', '01')],
+            'x = 0' => [self::pkcs8Key('17', '0b', '05', '00')],
+            'x = q' => [self::pkcs8Key('17', '0b', '05', '0b')],
+        ];
+    }
+
+    /**
+     * Parameters and keys out of range used to load, and p = 0 or q = 0 then made toString()
+     * or sign() fail with a DivisionByZeroError
+     */
+    /** @dataProvider outOfRangeKeys */
+    public function testOutOfRangeKeysAreRejected($key)
+    {
+        $this->expectException('UnexpectedValueException');
+        PublicKeyLoader::load($key);
+    }
 }
