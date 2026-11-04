@@ -162,7 +162,7 @@ trait Common
             if ($y->compare($curve->getModulo()) >= 0) {
                 throw new UnexpectedValueException('The Y coordinate should not be >= the modulo');
             }
-            $point = $curve->recoverX($y, $sign);
+            $point = $curve->recoverX($y, $sign); // @phpstan-ignore method.notFound (Concrete Ed25519/Ed448 curves provide recoverX().)
             if (!$curve->verifyPoint($point)) {
                 throw new UnexpectedValueException('Unable to verify that point exists on curve');
             }
@@ -182,7 +182,7 @@ trait Common
         $order = $curve->getLengthInBytes();
         // point compression is being used
         if ($keylen == $order + 1) {
-            return $curve->derivePoint($str);
+            return $curve->derivePoint($str); // @phpstan-ignore method.notFound (Earlier family checks leave Prime/Binary implementations, which provide derivePoint().)
         }
 
         // point compression is not being used
@@ -197,7 +197,7 @@ trait Common
                 $curve->convertInteger(new BigInteger($y, 256)),
             ];
 
-            if (!$curve->verifyPoint($point)) {
+            if (!$curve->verifyPoint($point)) { // @phpstan-ignore method.notFound (The guarded point-decoding path uses families implementing verifyPoint().)
                 throw new UnexpectedValueException('Unable to verify that point exists on curve');
             }
 
