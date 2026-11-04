@@ -226,7 +226,7 @@ trait ASN1AlgorithmIdentifier
                 $meta['meta']['algorithm'] = $algorithm;
 
                 $temp = ASN1::decodeBER((string) $data['parameters']);
-                extract(ASN1::map($temp, Maps\PBEParameter::MAP)->toArray());
+                extract(ASN1::map($temp, Maps\PBEParameter::MAP)->toArray()); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 $iterationCount = (int) $iterationCount->toString();
                 $cipher->setPassword($password, $kdf, $hash, "$salt", $iterationCount);
                 $cipher->setMetaData('meta', $meta);
@@ -235,21 +235,21 @@ trait ASN1AlgorithmIdentifier
                 $meta['meta']['algorithm'] = $algorithm;
 
                 $temp = ASN1::decodeBER((string) $data['parameters']);
-                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
+                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray(); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 extract($temp);
 
                 $cipher = self::getPBES2EncryptionObject((string) $encryptionScheme['algorithm']);
                 $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
 
                 $temp = ASN1::decodeBER((string) $data['parameters']);
-                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
+                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray(); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 extract($temp);
 
                 if (!$cipher instanceof RC2) {
                     $cipher->setIV((string) $encryptionScheme['parameters']);
                 } else {
                     $temp = ASN1::decodeBER((string) $encryptionScheme['parameters']);
-                    extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray());
+                    extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray()); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
 
                     $effectiveKeyLength = match ((int) $rc2ParametersVersion->toString()) {
                         160 => 40,
@@ -284,7 +284,7 @@ trait ASN1AlgorithmIdentifier
                 $meta = $cipher->hasMetaData('meta') ? $cipher->getMetaData('meta') : [];
                 $prf = ['algorithm' => 'id-hmacWithSHA1'];
                 $temp = ASN1::decodeBER((string) $keyDerivationFunc['parameters']);
-                $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray();
+                $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray(); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 extract($params);
 
                 $meta['meta']['prf'] = $prf['algorithm'];
