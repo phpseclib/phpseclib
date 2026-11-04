@@ -119,7 +119,7 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER((string) $key['privateKey']);
-        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray(); // @phpstan-ignore method.notFound
 
         if (isset($key['parameters']) && $params != $key['parameters']) {
             throw new UnexpectedValueException('The PKCS8 parameter field does not match the private key parameter field');

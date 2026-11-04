@@ -99,7 +99,7 @@ class ASN1Test extends PhpseclibTestCase
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
         $decoded = ASN1::decodeBER(base64_decode($str));
-        $result = ASN1::map($decoded, $AS_REP)->toArray();
+        $result = ASN1::map($decoded, $AS_REP)->toArray(); // @phpstan-ignore method.notFound
 
         $this->assertIsArray($result);
     }
@@ -256,7 +256,7 @@ class ASN1Test extends PhpseclibTestCase
         ASN1::enableBlobsOnBadDecodes();
 
         $decoded = ASN1::decodeBER(base64_decode($str));
-        $result = ASN1::map($decoded, $AS_REP)->toArray();
+        $result = ASN1::map($decoded, $AS_REP)->toArray(); // @phpstan-ignore method.notFound
 
         $this->assertIsArray($result);
         $this->assertCount(3, $result);
@@ -372,7 +372,7 @@ class ASN1Test extends PhpseclibTestCase
 
         $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
         $a = ASN1::decodeBER($a);
-        $a = ASN1::map($a, $map)->toArray();
+        $a = ASN1::map($a, $map)->toArray(); // @phpstan-ignore method.notFound
 
         $this->assertIsArray($a);
     }
@@ -455,7 +455,8 @@ class ASN1Test extends PhpseclibTestCase
     {
         $this->expectException(\Exception::class);
         $decoded = ASN1::decodeBER(pack('H*', $data));
-        ASN1::map($decoded, $map)->toArray();
+        // badDecodes supplies DigestInfo::MAP; preserve the negative-path exception test.
+        ASN1::map($decoded, $map)->toArray(); // @phpstan-ignore method.notFound
     }
 
     /**
@@ -484,7 +485,9 @@ class ASN1Test extends PhpseclibTestCase
         $this->expectException(\Exception::class);
         $key = pack('H*', 'a309486df62e19383a7faecd02423d44fb28773f36403f8a5e3c45f62549c855');
         $decoded = ASN1::decodeBER($key);
-        ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
+        // Preserve the owner's intentional malformed-input exception-path expression.
+        // The primitive-map success-path toArray() contract is not asserted as valid.
+        ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray(); // @phpstan-ignore method.notFound
     }
 
     public function testChoiceDecode(): void

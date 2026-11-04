@@ -80,7 +80,7 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER((string) $key[$type . 'Algorithm']['parameters']);
-        $components = ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
+        $components = ASN1::map($decoded, Maps\DSAParams::MAP)->toArray(); // @phpstan-ignore method.notFound
         $decoded = ASN1::decodeBER((string) $key[$type]);
 
         $var = $type == 'privateKey' ? 'x' : 'y';

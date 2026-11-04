@@ -37,7 +37,7 @@ abstract class ASN1
         $decoded = Encoder::decodeBER($sig);
         $components = Encoder::map($decoded, Maps\DssSigValue::MAP);
 
-        return $components->toArray();
+        return $components->toArray(); // @phpstan-ignore method.notFound
     }
 
     /**

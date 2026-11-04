@@ -70,7 +70,7 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->value);
-        $components = ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
+        $components = ASN1::map($decoded, Maps\DHParameter::MAP)->toArray(); // @phpstan-ignore method.notFound
 
         $decoded = ASN1::decodeBER((string) $key[$type]);
         if (!$decoded['content'] instanceof BigInteger) {

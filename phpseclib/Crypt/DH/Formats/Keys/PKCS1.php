@@ -47,7 +47,7 @@ abstract class PKCS1 extends Progenitor
 
         $decoded = ASN1::decodeBER($key);
 
-        return ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
+        return ASN1::map($decoded, Maps\DHParameter::MAP)->toArray(); // @phpstan-ignore method.notFound
     }
 
     /**

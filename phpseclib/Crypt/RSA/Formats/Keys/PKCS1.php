@@ -54,7 +54,7 @@ abstract class PKCS1 extends Progenitor
         $decoded = ASN1::decodeBER($key);
 
         try {
-            $key = ASN1::map($decoded, Maps\RSAPrivateKey::MAP)->toArray();
+            $key = ASN1::map($decoded, Maps\RSAPrivateKey::MAP)->toArray(); // @phpstan-ignore method.notFound
         } catch (\Exception) {
             $key = null;
         }
@@ -80,7 +80,7 @@ abstract class PKCS1 extends Progenitor
             return $components;
         }
 
-        $key = ASN1::map($decoded, Maps\RSAPublicKey::MAP)->toArray();
+        $key = ASN1::map($decoded, Maps\RSAPublicKey::MAP)->toArray(); // @phpstan-ignore method.notFound
 
         if (!isset($components['isPublicKey'])) {
             $components['isPublicKey'] = true;

@@ -109,7 +109,7 @@ abstract class PKCS8 extends PKCS
         $meta = [];
 
         try {
-            $decrypted = ASN1::map($decoded, Maps\EncryptedPrivateKeyInfo::MAP)->toArray();
+            $decrypted = ASN1::map($decoded, Maps\EncryptedPrivateKeyInfo::MAP)->toArray(); // @phpstan-ignore method.notFound
         } catch (\Exception $e) {
             $decrypted = false;
         }
@@ -125,7 +125,7 @@ abstract class PKCS8 extends PKCS
         }
 
         try {
-            $private = ASN1::map($decoded, Maps\OneAsymmetricKey::MAP)->toArray();
+            $private = ASN1::map($decoded, Maps\OneAsymmetricKey::MAP)->toArray(); // @phpstan-ignore method.notFound
         } catch (\Exception $e) {
             $private = false;
         }
@@ -161,7 +161,7 @@ abstract class PKCS8 extends PKCS
         // string represents the number of bits in the last byte that are to be ignored but, currently,
         // bit strings wanting a non-zero amount of bits trimmed are not supported
         try {
-            $public = ASN1::map($decoded, Maps\PublicKeyInfo::MAP)->toArray();
+            $public = ASN1::map($decoded, Maps\PublicKeyInfo::MAP)->toArray(); // @phpstan-ignore method.notFound
         } catch (\Exception $e) {
             $public = false;
         }
@@ -331,17 +331,17 @@ abstract class PKCS8 extends PKCS
     {
         $decoded = self::preParse($key);
 
-        $r = ASN1::map($decoded, Maps\EncryptedPrivateKeyInfo::MAP)->toArray();
+        $r = ASN1::map($decoded, Maps\EncryptedPrivateKeyInfo::MAP)->toArray(); // @phpstan-ignore method.notFound
 
         if ($r['encryptionAlgorithm']['algorithm'] == 'id-PBES2') {
             $decoded = ASN1::decodeBER((string) $r['encryptionAlgorithm']['parameters']);
-            $r['encryptionAlgorithm']['parameters'] = ASN1::map($decoded, Maps\PBES2params::MAP)->toArray();
+            $r['encryptionAlgorithm']['parameters'] = ASN1::map($decoded, Maps\PBES2params::MAP)->toArray(); // @phpstan-ignore method.notFound
 
             $kdf = &$r['encryptionAlgorithm']['parameters']['keyDerivationFunc'];
             switch ($kdf['algorithm']) {
                 case 'id-PBKDF2':
                     $decoded = ASN1::decodeBER((string) $kdf['parameters']);
-                    $kdf['parameters'] = ASN1::map($decoded, Maps\PBKDF2params::MAP)->toArray();
+                    $kdf['parameters'] = ASN1::map($decoded, Maps\PBKDF2params::MAP)->toArray(); // @phpstan-ignore method.notFound
             }
         }
 

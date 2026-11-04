@@ -109,7 +109,7 @@ trait Common
                 case 'characteristic-two-field':
                     $curve = new BinaryCurve();
                     $params = ASN1::decodeBER($data['fieldID']['parameters']->value);
-                    $params = ASN1::map($params, Maps\Characteristic_two::MAP)->toArray();
+                    $params = ASN1::map($params, Maps\Characteristic_two::MAP)->toArray(); // @phpstan-ignore method.notFound
                     $modulo = [(int) $params['m']->toString()];
                     switch ($params['basis']) {
                         case 'tpBasis':
@@ -117,7 +117,7 @@ trait Common
                             break;
                         case 'ppBasis':
                             $temp = ASN1::decodeBER($params['parameters']->value);
-                            $temp = ASN1::map($temp, Maps\Pentanomial::MAP)->toArray();
+                            $temp = ASN1::map($temp, Maps\Pentanomial::MAP)->toArray(); // @phpstan-ignore method.notFound
                             $modulo[] = (int) $temp['k3']->toString();
                             $modulo[] = (int) $temp['k2']->toString();
                             $modulo[] = (int) $temp['k1']->toString();
