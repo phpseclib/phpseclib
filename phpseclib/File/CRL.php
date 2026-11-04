@@ -227,7 +227,6 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         self::setDNInternal($this->crl['tbsCertList']['issuer'], []);
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
     public function isRevoked(BigInteger|X509 $sn): bool
     {
         $idx = $this->getRevokedIndex($sn);

@@ -297,14 +297,6 @@ class KeyTest extends TestCase
         $key->getFingerprint('sha256');
     }
 
-    public function testSignableNotSupportedYet(): void
-    {
-        $key = MLDSA::loadFormat('Raw', ['parameterSet' => 'ML-DSA-44', 'seed' => str_repeat("\0", 32)]);
-
-        $this->expectException(BadMethodCallException::class);
-        $key->sign(new CSR());
-    }
-
     /**
      * Without an engine keys can still be loaded and saved; everything else throws a clear exception
      */
@@ -322,6 +314,7 @@ class KeyTest extends TestCase
             $operations = [
                 'createKey' => fn () => MLDSA::createKey('ML-DSA-44'),
                 'sign' => fn () => $private->sign('phpseclib'),
+                'sign CSR' => fn () => $private->sign(new CSR()),
                 'getPublicKey' => fn () => $private->getPublicKey(),
                 'verify' => fn () => $public->verify('phpseclib', str_repeat("\0", 2420)),
             ];

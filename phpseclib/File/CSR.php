@@ -528,7 +528,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::getSubjectDNProps($propName);
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
     public function getDN(int $format = self::DN_STRING): array|string
     {
         return self::getSubjectDN($format);
@@ -827,8 +826,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
      * Returns true if the signature is verified, false if it is not correct or on error
      *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public function validateSignature(): bool
     {
