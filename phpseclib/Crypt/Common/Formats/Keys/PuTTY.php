@@ -246,9 +246,13 @@ abstract class PuTTY
         $private = Strings::base64_decode(implode('', array_map('trim', array_slice($key, $offset, $privateLength))));
 
         if ($encryption != 'none') {
+            // @phpstan-ignore variable.undefined, variable.undefined (Only unsupported PuTTY encryption names leave the cipher and key variables unset.)
             $crypto->setKey($symkey);
+            // @phpstan-ignore variable.undefined, variable.undefined (Only unsupported PuTTY encryption names leave the cipher and IV variables unset.)
             $crypto->setIV($symiv);
+            // @phpstan-ignore variable.undefined (Only unsupported PuTTY encryption names leave the cipher unset.)
             $crypto->disablePadding();
+            // @phpstan-ignore variable.undefined (Only unsupported PuTTY encryption names leave the cipher unset.)
             $private = $crypto->decrypt($private);
         }
 
