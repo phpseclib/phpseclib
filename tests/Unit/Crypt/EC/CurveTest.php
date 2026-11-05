@@ -198,6 +198,7 @@ final class CurveTest extends PhpseclibTestCase
         }
 
         EC::forceEngine('PHP');
+        // @phpstan-ignore variable.undefined, variable.undefined (The current curves provider and engine loop produce both values on a supported engine before this assertion.)
         $this->assertTrue($publickey->verify($plaintext, $sig));
 
         // reset engine
