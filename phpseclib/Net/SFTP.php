@@ -1770,6 +1770,7 @@ class SFTP extends SSH2
                 $this->send_sftp_packet(SFTPPacketType::WRITE, $packet, $j);
             } catch (\Exception $e) {
                 if ($mode & self::SOURCE_LOCAL_FILE) {
+                    // @phpstan-ignore variable.undefined (SOURCE_CALLBACK and SOURCE_LOCAL_FILE select mutually exclusive input sources.)
                     fclose($fp);
                 }
                 throw $e;

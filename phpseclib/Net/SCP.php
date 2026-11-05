@@ -144,6 +144,7 @@ class SCP extends SSH2
 
         $sent = 0;
         while ($sent < $size) {
+            // @phpstan-ignore variable.undefined (Supported SCP modes select string data or a local file; other source flags are unsupported.)
             $temp = $mode & self::SOURCE_STRING ? substr($data, $sent, $packet_size) : fread($fp, $packet_size);
             $this->send_channel_packet(self::CHANNEL_EXEC, $temp);
             $sent += strlen($temp);
@@ -155,6 +156,7 @@ class SCP extends SSH2
         $this->close_channel(self::CHANNEL_EXEC, true);
 
         if ($mode != self::SOURCE_STRING) {
+            // @phpstan-ignore variable.undefined (Every supported non-string SCP source initializes $fp; other mode values are unsupported.)
             fclose($fp);
         }
     }
