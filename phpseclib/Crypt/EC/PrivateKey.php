@@ -114,7 +114,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $point = PKCS1::extractPoint($coordinates, $this->curve);
         $point = $this->curve->multiplyPoint($point, $this->dA);
         if ($this->curve instanceof TwistedEdwardsCurve) {
-            return $this->curve->encodePoint($point);
+            return $this->curve->encodePoint($point); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
         }
         if (empty($point)) {
             throw new UnexpectedValueException('The infinity point is invalid');
@@ -210,7 +210,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             // contexts (Ed25519ctx) are supported but prehashing (Ed25519ph) is not.
             // quoting https://tools.ietf.org/html/rfc8032#section-8.5 ,
             // "The Ed25519ph and Ed448ph variants ... SHOULD NOT be used"
-            $A = $this->curve->encodePoint($this->QA);
+            $A = $this->curve->encodePoint($this->QA); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
             $curve = $this->curve;
             $hash = new Hash($curve::HASH);
 
@@ -229,7 +229,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             $r = new BigInteger($r, 256);
             [, $r] = $r->divide($order);
             $R = $curve->multiplyPoint($curve->getBasePoint(), $r);
-            $R = $curve->encodePoint($R);
+            $R = $curve->encodePoint($R); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
             $k = $hash->hash($dom . $R . $A . $message);
             $k = strrev($k);
             $k = new BigInteger($k, 256);

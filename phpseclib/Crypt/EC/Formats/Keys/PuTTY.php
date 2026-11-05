@@ -70,7 +70,7 @@ abstract class PuTTY extends Progenitor
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
                 throw new UnexpectedValueException('Length of ssh-ed25519 key should be 32');
             }
-            $arr = $components['curve']->extractSecret($private);
+            $arr = $components['curve']->extractSecret($private); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide extractSecret().)
             $components['dA'] = $arr['dA'];
             $components['secret'] = $arr['secret'];
         } else {

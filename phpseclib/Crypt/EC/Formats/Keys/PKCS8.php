@@ -224,7 +224,7 @@ abstract class PKCS8 extends Progenitor
 
         if ($curve instanceof TwistedEdwardsCurve) {
             return self::wrapPublicKey(
-                key: $curve->encodePoint($publicKey),
+                key: $curve->encodePoint($publicKey), // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
                 oid: $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448',
                 options: $options
             );

@@ -76,7 +76,7 @@ abstract class JWK extends Progenitor
             if (!isset($key->d)) {
                 return compact('curve', 'QA');
             }
-            $arr = $curve->extractSecret(Strings::base64url_decode($key->d));
+            $arr = $curve->extractSecret(Strings::base64url_decode($key->d)); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide extractSecret().)
             return compact('curve', 'QA') + $arr;
         }
 
@@ -134,7 +134,7 @@ abstract class JWK extends Progenitor
             return [
                 'kty' => 'OKP',
                 'crv' => $curve instanceof Ed25519 ? 'Ed25519' : 'Ed448',
-                'x' => Strings::base64url_encode($curve->encodePoint($publicKey)),
+                'x' => Strings::base64url_encode($curve->encodePoint($publicKey)), // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
             ];
         }
 

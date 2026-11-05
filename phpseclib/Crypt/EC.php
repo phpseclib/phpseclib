@@ -168,7 +168,7 @@ abstract class EC extends AsymmetricKey
 
         $curve = new $curve();
         if ($curve instanceof TwistedEdwardsCurve) {
-            $arr = $curve->extractSecret(random_bytes($curve instanceof Ed448 ? 57 : 32));
+            $arr = $curve->extractSecret(random_bytes($curve instanceof Ed448 ? 57 : 32)); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide extractSecret().)
             $privatekey->dA = $dA = $arr['dA'];
             $privatekey->secret = $arr['secret'];
         } else {
@@ -409,7 +409,7 @@ abstract class EC extends AsymmetricKey
             return strrev($this->QA[0]->toBytes(true));
         }
         if ($this->curve instanceof TwistedEdwardsCurve) {
-            return $this->curve->encodePoint($this->QA);
+            return $this->curve->encodePoint($this->QA); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
         }
         return "\4" . $this->QA[0]->toBytes(true) . $this->QA[1]->toBytes(true);
     }
