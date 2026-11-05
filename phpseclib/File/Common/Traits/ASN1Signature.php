@@ -16,9 +16,10 @@ declare(strict_types=1);
 namespace phpseclib4\File\Common\Traits;
 
 use phpseclib4\Crypt\Common\{PrivateKey, PublicKey};
-use phpseclib4\Crypt\{DSA, EC, RSA};
+use phpseclib4\Crypt\{DSA, EC, MLDSA, RSA};
 use phpseclib4\Crypt\RSA\Formats\Keys\PSS;
-use phpseclib4\Exception\UnsupportedAlgorithmException;
+use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
+use phpseclib4\File\ASN1\Constructed;
 use phpseclib4\File\ASN1\Types\{BitString, ExplicitNull, OID};
 
 /**
@@ -94,11 +95,36 @@ trait ASN1Signature
             throw new UnsupportedAlgorithmException('The only supported hash algorithms for EC are: sha1, sha224, sha256, sha384, sha512');
         }
 
-        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, EC');
+        if ($key instanceof MLDSA) {
+            // the AlgorithmIdentifier is the id-ml-dsa-* OID alone: "The parameters of these signature
+            // algorithms MUST be absent" (RFC 9881, section 3)
+            return ['algorithm' => self::getMLDSASignatureAlgorithm($key)];
+        }
+
+        throw new UnsupportedAlgorithmException('The only supported public key classes are: RSA, DSA, EC, MLDSA');
     }
 
-    private static function validateSignatureHelper(PublicKey $key, OID|string $signatureAlgorithm, BitString $signature, string $signatureSubject)
+    /**
+     * Returns the signature algorithm of an ML-DSA key (id-ml-dsa-44, id-ml-dsa-65 or id-ml-dsa-87)
+     *
+     * ML-DSA has no hash to pick, so the OID follows from the parameter set alone
+     */
+    private static function getMLDSASignatureAlgorithm(MLDSA $key): string
     {
+        return 'id-' . strtolower($key->getParameterSet());
+    }
+
+    /**
+     * $signatureAlgorithm is either the algorithm OID or the whole AlgorithmIdentifier. X509, CSR and CRL
+     * pass the latter so that the parameters can be checked when the algorithm has rules for them.
+     */
+    private static function validateSignatureHelper(PublicKey $key, OID|string|array|Constructed $signatureAlgorithm, BitString $signature, string $signatureSubject)
+    {
+        $parameters = null;
+        if (is_array($signatureAlgorithm) || $signatureAlgorithm instanceof Constructed) {
+            $parameters = $signatureAlgorithm['parameters'] ?? null;
+            $signatureAlgorithm = $signatureAlgorithm['algorithm'];
+        }
         $signatureAlgorithm = (string) $signatureAlgorithm;
         if ($key instanceof RSA) {
             switch ($signatureAlgorithm) {
@@ -153,6 +179,16 @@ trait ASN1Signature
                     break;
                 default:
                     throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            }
+        }
+
+        if ($key instanceof MLDSA) {
+            if ($signatureAlgorithm != self::getMLDSASignatureAlgorithm($key)) {
+                throw new UnsupportedAlgorithmException('Signature algorithm unsupported');
+            }
+            // RFC 9881, section 3
+            if (isset($parameters)) {
+                throw new UnexpectedValueException('The AlgorithmIdentifier of an ML-DSA signature must not have parameters');
             }
         }
 

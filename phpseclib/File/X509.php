@@ -1365,7 +1365,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
         $signatureResult = self::validateSignatureHelper(
             $signingCert->getPublicKey(),
-            $this->cert['signatureAlgorithm']['algorithm'],
+            $this->cert['signatureAlgorithm'],
             $this->cert['signature'],
             $this->cert['tbsCertificate']->getEncoded()
         );
