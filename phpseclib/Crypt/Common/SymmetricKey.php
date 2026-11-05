@@ -1344,6 +1344,7 @@ abstract class SymmetricKey
                     $plaintext = $this->openssl_ofb_process($ciphertext, $this->decryptIV, $this->debuffer);
             }
 
+            // @phpstan-ignore variable.undefined, variable.undefined (All supported OpenSSL modes reaching this return assign $plaintext.)
             return $this->paddable ? $this->unpad($plaintext) : $plaintext;
         }
 
