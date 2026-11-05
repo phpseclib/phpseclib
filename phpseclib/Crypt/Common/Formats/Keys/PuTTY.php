@@ -340,7 +340,9 @@ abstract class PuTTY
                     $hash->setKey(sha1($hashkey, true));
             }
 
+            // @phpstan-ignore variable.undefined (Unsupported PuTTY export versions may leave the encryption key unset.)
             $crypto->setKey($symkey);
+            // @phpstan-ignore variable.undefined (Unsupported PuTTY export versions may leave the initialization vector unset.)
             $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
@@ -349,6 +351,7 @@ abstract class PuTTY
         $private = Strings::base64_encode($private);
         $key .= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key .= chunk_split($private, 64);
+        // @phpstan-ignore variable.undefined (Unsupported PuTTY export versions may leave the MAC hash unset.)
         $key .= 'Private-MAC: ' . Strings::bin2hex($hash->hash($source)) . "\r\n";
 
         return $key;
