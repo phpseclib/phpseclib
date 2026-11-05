@@ -445,7 +445,7 @@ abstract class EC extends AsymmetricKey
         }
         $QA = PKCS8::extractPoint($secret, $curve);
         $key = PKCS8::savePublicKey($curve, $QA);
-        return EC::loadFormat('PKCS8', $key);
+        return EC::loadFormat('PKCS8', $key); // @phpstan-ignore return.type (The fixed PKCS8 public-key encoding reloads as EC\PublicKey.)
     }
 
     /**
@@ -459,7 +459,7 @@ abstract class EC extends AsymmetricKey
 
         $key = $type::saveParameters($this->curve);
 
-        return EC::load($key, 'PKCS1')
+        return EC::load($key, 'PKCS1') // @phpstan-ignore return.type (The fixed PKCS1 parameter encoding reloads as EC\Parameters.)
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
     }

@@ -417,6 +417,6 @@ abstract class DH extends AsymmetricKey
         $type = DH::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
         $key = $type::saveParameters($this->prime, $this->base);
-        return DH::load($key, 'PKCS1');
+        return DH::load($key, 'PKCS1'); // @phpstan-ignore return.type (The fixed PKCS1 parameter encoding reloads as DH\Parameters.)
     }
 }

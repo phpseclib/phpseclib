@@ -372,7 +372,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $key = EC::loadFormat($format, $key);
         $key->format = $this->format;
         if ($this->curve instanceof MontgomeryCurve) {
-            return $key;
+            return $key; // @phpstan-ignore return.type (MontgomeryPublic serializes and reloads an EC\PublicKey.)
         }
         $key = $key
             ->withHash($this->hash->getHash())
@@ -380,7 +380,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
         if ($this->curve instanceof TwistedEdwardsCurve) {
             $key = $key->withContext($this->context);
         }
-        return $key;
+        return $key; // @phpstan-ignore return.type (PKCS8 public-key serialization reloads as EC\PublicKey.)
     }
 
     /**

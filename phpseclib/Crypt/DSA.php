@@ -215,7 +215,7 @@ abstract class DSA extends AsymmetricKey
                     ->withHash($params->hash->getHash())
                     ->withSignatureFormat($params->shortFormat);
                 $key->format = null;
-                return $key;
+                return $key; // @phpstan-ignore return.type (OpenSSL exported private-key data loads as the concrete DSA private key.)
             } elseif (isset(self::$forcedEngine)) {
                 throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
             }
@@ -313,7 +313,7 @@ abstract class DSA extends AsymmetricKey
         $type = self::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
         $key = $type::saveParameters($this->p, $this->q, $this->g);
-        return DSA::load($key, 'PKCS1')
+        return DSA::load($key, 'PKCS1') // @phpstan-ignore return.type (The fixed PKCS1 parameter encoding reloads as DSA\Parameters.)
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
     }

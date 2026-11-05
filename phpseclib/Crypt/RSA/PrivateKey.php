@@ -446,6 +446,6 @@ final class PrivateKey extends RSA implements Common\PrivateKey
             ->withLabel($this->label)
             ->withPadding($this->signaturePadding | $this->encryptionPadding);
         $key->format = $this->format;
-        return $key;
+        return $key; // @phpstan-ignore return.type (This fixed PKCS8 public-key encoding reloads as RSA\PublicKey.)
     }
 }
