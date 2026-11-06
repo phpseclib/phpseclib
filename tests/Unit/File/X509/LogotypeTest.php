@@ -217,7 +217,7 @@ class LogotypeTest extends PhpseclibTestCase
 
         $this->assertSame(
             ['communityLogos', 'issuerLogo', 'subjectLogo', 'otherLogos'],
-            $result->keys()
+            $result->keys() // @phpstan-ignore method.notFound (The fixed LogotypeExtn map and valid roundtrip produce a Constructed result.)
         );
     }
 
@@ -238,11 +238,11 @@ class LogotypeTest extends PhpseclibTestCase
 
         $this->assertSame(
             ['subjectLogo'],
-            ASN1::map(ASN1::decodeBER($subject), LogotypeExtn::MAP)->keys()
+            ASN1::map(ASN1::decodeBER($subject), LogotypeExtn::MAP)->keys() // @phpstan-ignore method.notFound (The fixed LogotypeExtn map decodes this valid subjectLogo fixture to Constructed.)
         );
         $this->assertSame(
             ['issuerLogo'],
-            ASN1::map(ASN1::decodeBER($issuer), LogotypeExtn::MAP)->keys()
+            ASN1::map(ASN1::decodeBER($issuer), LogotypeExtn::MAP)->keys() // @phpstan-ignore method.notFound (The fixed LogotypeExtn map decodes this valid issuerLogo fixture to Constructed.)
         );
     }
 

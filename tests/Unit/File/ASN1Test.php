@@ -595,14 +595,14 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         // SEQUENCE { [2] EXPLICIT { [0] IMPLICIT SEQUENCE { INTEGER 5 } } }
         $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa2\x05\xa0\x03\x02\x01\x05"), $map);
 
-        $this->assertSame(['second'], $result->keys());
+        $this->assertSame(['second'], $result->keys()); // @phpstan-ignore method.notFound (The fixed SEQUENCE map decodes this valid fixture to a Constructed value.)
         $this->assertSame('alpha', $result['second']->index);
         $this->assertSame('5', (string) $result['second']['alpha']['n']);
 
         // ...and the [1] sibling still resolves to itself
         $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa1\x05\xa0\x03\x02\x01\x05"), $map);
 
-        $this->assertSame(['first'], $result->keys());
+        $this->assertSame(['first'], $result->keys()); // @phpstan-ignore method.notFound (The same fixed SEQUENCE map decodes this valid sibling fixture to a Constructed value.)
     }
 
     /**

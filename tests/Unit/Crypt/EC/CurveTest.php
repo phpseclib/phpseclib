@@ -598,7 +598,7 @@ hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
         foreach ($engines as $engine) {
             try {
                 EC::forceEngine($engine);
-                $secret = DH::computeSecret($private, $public);
+                $secret = DH::computeSecret($private, $public); // @phpstan-ignore argument.type (The fixed MontgomeryPrivate format and scalar fixture load as EC\PrivateKey; the EC facade type loses that role.)
                 $this->assertSame($expected, $secret);
             } catch (BadConfigurationException $e) {
             }

@@ -128,7 +128,7 @@ Q3ADAIcv9LEmTBnSAOsCs1K9ExAmSv/T2/4+9dW28UYb+p/uV477d1wf+nCWS6VU
 /gTm
 -----END PUBLIC KEY-----');
         $this->assertInstanceOf(PublicKey::class, $theirPub);
-        $this->assertIsString(DH::computeSecret($ourPriv, $theirPub));
+        $this->assertIsString(DH::computeSecret($ourPriv, $theirPub)); // @phpstan-ignore argument.type (The fixed PRIVATE KEY fixture loads as DH\PrivateKey; DH::load()'s facade return does not retain the role.)
     }
 
     public function testComputeSecret(): void
