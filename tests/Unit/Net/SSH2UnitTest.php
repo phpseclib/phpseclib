@@ -146,6 +146,10 @@ class SSH2UnitTest extends PhpseclibTestCase
 
     public function testGetResourceId(): void
     {
+        if (PHP_VERSION_ID >= 80600) {
+            $this->markTestSkipped('spl_object_hash() is deprecated as of PHP 8.6');
+        }
+
         $ssh = new SSH2('localhost');
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
     }
