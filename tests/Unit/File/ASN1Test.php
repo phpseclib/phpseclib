@@ -479,6 +479,91 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertInstanceOf(MalformedData::class, $result);
     }
 
+    public function testBlobsOnBadDecodesMissingRequiredSetChildThrowsControlledException(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+
+        ASN1::enableBlobsOnBadDecodes();
+        $this->expectException(\phpseclib4\Exception\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Unable to find a matching element for value in the SET');
+
+        try {
+            $result = ASN1::map(ASN1::decodeBER("\x31\x00"), $map);
+            $this->assertInstanceOf(Constructed::class, $result);
+            $result->toArray();
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
+    }
+
+    public function testBlobsOnBadDecodesRequiredSetChild(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+
+        ASN1::enableBlobsOnBadDecodes();
+        try {
+            $constructed = ASN1::map(ASN1::decodeBER("\x31\x03\x02\x01\x05"), $map);
+            $this->assertInstanceOf(Constructed::class, $constructed);
+            $result = $constructed->toArray();
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
+
+        $this->assertSame('5', (string) $result['value']);
+    }
+
+    public function testBlobsOnBadDecodesMissingOptionalSetChild(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => [
+                    'optional' => true,
+                    'type' => ASN1::TYPE_INTEGER,
+                ],
+            ],
+        ];
+
+        ASN1::enableBlobsOnBadDecodes();
+        try {
+            $constructed = ASN1::map(ASN1::decodeBER("\x31\x00"), $map);
+            $this->assertInstanceOf(Constructed::class, $constructed);
+            $result = $constructed->toArray();
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
+
+        $this->assertSame([], $result);
+    }
+
+    public function testStrictModeMissingRequiredSetChildThrowsSchemaException(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+
+        ASN1::disableBlobsOnBadDecodes();
+        $this->expectException(\phpseclib4\Exception\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Unable to find a matching element for value in the SET');
+
+        $result = ASN1::map(ASN1::decodeBER("\x31\x00"), $map);
+        $this->assertInstanceOf(Constructed::class, $result);
+        $result->toArray();
+    }
+
     #[\PHPUnit\Framework\Attributes\Group('github2104')]
     public function testBadBigInteger(): void
     {

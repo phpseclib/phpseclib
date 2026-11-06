@@ -494,7 +494,10 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             $map[$key] = self::fillInDefault($child);
                         } elseif (!isset($child['optional'])) {
                             if (ASN1::isBlobsOnBadDecodesEnabled()) {
-                                $map[$key] = new MalformedData($temp['content']);
+                                if (!$decoded) {
+                                    throw new UnexpectedValueException("Unable to find a matching element for $key in the SET");
+                                }
+                                $map[$key] = new MalformedData($decoded[count($decoded) - 1]['content']);
                                 break;
                             }
                             throw new UnexpectedValueException("Unable to find a matching element for $key in the SET");
