@@ -31,7 +31,7 @@ trait Extension
 {
     private static function getMapping(string $extnId): array|bool|null
     {
-        if (isset(self::$extensions[$extnId])) {
+        if (isset(self::$extensions[$extnId])) { // @phpstan-ignore staticProperty.notFound (The extension registry is optional on trait consumers; isset treats an absent registry as unregistered.)
             return self::$extensions[$extnId];
         }
 

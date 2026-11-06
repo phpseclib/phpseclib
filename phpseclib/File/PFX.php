@@ -278,7 +278,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 unset($value);
             }
             foreach ($certs as $i => $cert) {
-                $this->add($cert, friendlyName: $friendlyNames[$i] ?? null, localKeyID: $localKeyIDs[$i] ?? null);
+                $this->add($cert, friendlyName: $friendlyNames[$i] ?? null, localKeyID: $localKeyIDs[$i] ?? null); // @phpstan-ignore nullCoalesce.offset, nullCoalesce.offset (The attribute-name switch populates these variable-variable arrays by certificate index; PHPStan cannot connect those writes to these optional reads.)
             }
         }
         $this->password = $password;

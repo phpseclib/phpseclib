@@ -44,7 +44,7 @@ trait KeyDerivation
         for ($j = 5; $j >= 0; $j--) {
             for ($i = $n - 1; $i >= 0; $i--) {
                 $t = pack('J', $n * $j + $i + 1);
-                $b = $aes->decrypt(($a ^ $t) . $r[$i]);
+                $b = $aes->decrypt(($a ^ $t) . $r[$i]); // @phpstan-ignore binaryOp.invalid ($inner loop requires at least two 8-byte chunks, so the accumulator initialized by array_shift is a string whenever this XOR runs.)
                 $a = substr($b, 0, 8);
                 $r[$i] = substr($b, 8);
             }
