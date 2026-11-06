@@ -434,7 +434,7 @@ abstract class RSA extends AsymmetricKey
             }
         }
 
-        return $key;
+        return $key; // @phpstan-ignore return.type (Built-in RSA key children are valid; further user-defined facade subclasses are outside the supported loader contract.)
     }
 
     /**
