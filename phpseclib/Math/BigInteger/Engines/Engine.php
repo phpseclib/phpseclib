@@ -1161,6 +1161,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical And
+     *
+     * @return static
      */
     protected function bitwiseAndHelper(Engine $x): Engine
     {
@@ -1177,6 +1179,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical Or
+     *
+     * @return static
      */
     protected function bitwiseOrHelper(Engine $x): Engine
     {
@@ -1193,6 +1197,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical Exclusive Or
+     *
+     * @return static
      */
     protected function bitwiseXorHelper(Engine $x): Engine
     {
