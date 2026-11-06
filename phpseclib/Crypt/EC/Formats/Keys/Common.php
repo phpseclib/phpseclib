@@ -244,13 +244,13 @@ trait Common
                         if (!$candidate instanceof PrimeCurve) {
                             break;
                         }
-                        if (!$candidate->getModulo()->equals($curve->getModulo())) {
+                        if (!$candidate->getModulo()->equals($curve->getModulo())) { // @phpstan-ignore method.notFound (Internal specified-curve decoding supplies the built-in Prime class here, which defines getModulo().)
                             break;
                         }
-                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) {
+                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) { // @phpstan-ignore method.notFound (Internal specified-curve decoding supplies the built-in Prime class here, which defines getA().)
                             break;
                         }
-                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) {
+                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) { // @phpstan-ignore method.notFound (Internal specified-curve decoding supplies the built-in Prime class here, which defines getB().)
                             break;
                         }
 
@@ -270,13 +270,13 @@ trait Common
                         if (!$candidate instanceof BinaryCurve) {
                             break;
                         }
-                        if ($candidate->getModulo() != $curve->getModulo()) {
+                        if ($candidate->getModulo() != $curve->getModulo()) { // @phpstan-ignore method.notFound (Internal specified-curve decoding supplies the built-in Binary class here, which defines getModulo().)
                             break;
                         }
-                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) {
+                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) { // @phpstan-ignore method.notFound (Internal specified-curve decoding supplies the built-in Binary class here, which defines getA().)
                             break;
                         }
-                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) {
+                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) { // @phpstan-ignore method.notFound (Internal specified-curve decoding supplies the built-in Binary class here, which defines getB().)
                             break;
                         }
 
