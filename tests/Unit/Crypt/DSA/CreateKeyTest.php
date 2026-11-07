@@ -15,6 +15,7 @@ use phpseclib4\Crypt\DSA\Parameters;
 use phpseclib4\Crypt\DSA\PrivateKey;
 use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class CreateKeyTest extends PhpseclibTestCase
@@ -63,5 +64,21 @@ class CreateKeyTest extends PhpseclibTestCase
         }
         // reset
         DSA::forceEngine();
+    }
+
+    public function testGetFormat(): void
+    {
+        $key = DSA::createKey();
+        try {
+            $key->getLoadedFormat();
+            $this->fail('Generated keys should not have a loaded format');
+        } catch (NoKeyLoadedException) {
+        }
+        try {
+            $key->getPublicKey()->getLoadedFormat();
+            $this->fail('The public keys of generated keys should not have a loaded format');
+        } catch (NoKeyLoadedException) {
+        }
+        $this->assertTrue(true);
     }
 }

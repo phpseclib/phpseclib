@@ -15,6 +15,7 @@ use phpseclib4\Crypt\EC\Curves\Ed448;
 use phpseclib4\Crypt\DH;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\OIDs\Curves;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -601,5 +602,21 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         $this->assertIsArray($signature);
         $result = $public->verify($message, $signature);
         $this->assertTrue($result);
+    }
+
+    public function testGetFormat(): void
+    {
+        $key = EC::createKey('nistp256');
+        try {
+            $key->getLoadedFormat();
+            $this->fail('Generated keys should not have a loaded format');
+        } catch (NoKeyLoadedException) {
+        }
+        try {
+            $key->getPublicKey()->getLoadedFormat();
+            $this->fail('The public keys of generated keys should not have a loaded format');
+        } catch (NoKeyLoadedException) {
+        }
+        $this->assertTrue(true);
     }
 }
