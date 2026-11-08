@@ -5062,7 +5062,6 @@ class SSH2
      */
     public function getResourceId(): string
     {
-        // Same value as spl_object_hash(), which is deprecated as of PHP 8.6.
         return '{' . sprintf('%016x0000000000000000', spl_object_id($this)) . '}';
     }
 

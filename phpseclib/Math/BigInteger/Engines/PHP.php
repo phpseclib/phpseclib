@@ -1251,6 +1251,7 @@ abstract class PHP extends Engine
           xdebug.start_with_request=yes
           xdebug.output_dir=/path/to/whatever
         */
+        /** @psalm-suppress InvalidArrayOffset */
         while (count($vals) && $vals[count($vals) - 1] == 0) {
             unset($vals[count($vals) - 1]);
         }
