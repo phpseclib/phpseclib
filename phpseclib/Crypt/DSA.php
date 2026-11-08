@@ -211,9 +211,11 @@ abstract class DSA extends AsymmetricKey
                 while (openssl_error_string() !== false) {
                 }
 
-                return DSA::load($privatekeystr)
+                $key = DSA::load($privatekeystr)
                     ->withHash($params->hash->getHash())
                     ->withSignatureFormat($params->shortFormat);
+                $key->format = null;
+                return $key;
             } elseif (isset(self::$forcedEngine)) {
                 throw new BadConfigurationException('Engine OpenSSL is forced but unsupported for DSA');
             }

@@ -18,6 +18,7 @@ use phpseclib4\Crypt\RSA\PrivateKey;
 use phpseclib4\Crypt\RSA\PublicKey;
 use phpseclib4\File\ASN1;
 use phpseclib4\Math\BigInteger;
+use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class CreateKeyTest extends PhpseclibTestCase
@@ -112,5 +113,21 @@ class CreateKeyTest extends PhpseclibTestCase
         $this->assertTrue($key['publicExponent']->equals(new BigInteger(37)), "Failed asserting that public exponent ($key[publicExponent]) equals 37");
         RSA::setExponent(65537); // restore default value
         RSA::forceEngine();
+    }
+
+    public function testGetFormat(): void
+    {
+        $key = RSA::createKey(512);
+        try {
+            $key->getLoadedFormat();
+            $this->fail('Generated keys should not have a loaded format');
+        } catch (NoKeyLoadedException) {
+        }
+        try {
+            $key->getPublicKey()->getLoadedFormat();
+            $this->fail('The public keys of generated keys should not have a loaded format');
+        } catch (NoKeyLoadedException) {
+        }
+        $this->assertTrue(true);
     }
 }

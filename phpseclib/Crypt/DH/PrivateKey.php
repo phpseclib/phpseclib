@@ -41,7 +41,9 @@ final class PrivateKey extends DH
 
         $key = $type::savePublicKey($this->prime, $this->base, $this->publicKey);
 
-        return DH::loadFormat('PKCS8', $key);
+        $key = DH::loadFormat('PKCS8', $key);
+        $key->format = $this->format;
+        return $key;
     }
 
     /**

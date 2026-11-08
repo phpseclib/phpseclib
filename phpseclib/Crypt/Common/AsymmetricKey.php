@@ -45,7 +45,7 @@ abstract class AsymmetricKey
     /**
      * Format of the loaded key
      */
-    protected string $format;
+    protected ?string $format = null;
 
     /**
      * Hash function
