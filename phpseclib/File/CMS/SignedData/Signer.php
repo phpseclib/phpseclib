@@ -19,7 +19,7 @@ namespace phpseclib4\File\CMS\SignedData;
 
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\Crypt\Common\PrivateKey;
-use phpseclib4\Crypt\Hash;
+use phpseclib4\Crypt\{Hash, MLDSA};
 use phpseclib4\Exception\{UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\{BaseType, BitString, OctetString};
@@ -532,7 +532,9 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->signer['signatureAlgorithm'] = $algorithm;
-        $this->setHash((string) $key->getHash());
+        // ML-DSA keys have no hash of their own. SHA-512 is the one digest every parameter set
+        // has to support (RFC 9882, section 3.3)
+        $this->setHash($key instanceof MLDSA ? 'sha512' : (string) $key->getHash());
     }
 
     public function copySigningX509Attributes(X509 $x509): void
