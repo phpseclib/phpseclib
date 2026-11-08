@@ -171,7 +171,7 @@ abstract class PKCS8 extends PKCS
                 throw new UnexpectedValueException('Human readable string claims private key but DER encoded string claims public key');
             }
 
-            if ($public['publicKey'][0] != "\0") {
+            if (((string) $public['publicKey'])[0] != "\0") {
                 throw new UnexpectedValueException('The first byte of the public key should be null - not ' . bin2hex($public['publicKey'][0]));
             }
             if (is_array(static::OID_NAME)) {
