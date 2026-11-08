@@ -5559,7 +5559,9 @@ class SSH2
      */
     public function getResourceId()
     {
-        return '{' . spl_object_hash($this) . '}';
+        // spl_object_hash() is deprecated as of PHP 8.6. Since PHP 8.1 it returns the object id in this format.
+        $hash = PHP_VERSION_ID >= 80100 ? sprintf('%016x0000000000000000', spl_object_id($this)) : spl_object_hash($this);
+        return '{' . $hash . '}';
     }
 
     /**
