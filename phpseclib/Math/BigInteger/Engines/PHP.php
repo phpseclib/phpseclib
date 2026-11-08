@@ -1328,7 +1328,7 @@ abstract class PHP extends Engine
             $vals[] = $digit;
         }
 
-        while ($vals[count($vals) - 1] == 0) {
+        while (count($vals) && $vals[count($vals) - 1] == 0) {
             unset($vals[count($vals) - 1]);
         }
 
