@@ -12,6 +12,7 @@ namespace phpseclib4\Tests\Unit\Crypt\AES;
 
 use phpseclib4\Crypt\AES;
 use phpseclib4\Crypt\Rijndael;
+use phpseclib4\Exception\BadDecryptionException;
 use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\LengthException;
 use phpseclib4\Exception\ResourceLimitException;
@@ -88,6 +89,52 @@ abstract class TestCase extends PhpseclibTestCase
         }
 
         $this->assertEquals($plaintext, $actual);
+    }
+
+    public function testPoly1305Decrypt(): void
+    {
+        $key = str_repeat('K', 16);
+        $iv = str_repeat('I', 16);
+        $poly1305Key = str_repeat('M', 32);
+
+        foreach (['authenticated plaintext', ''] as $plaintext) {
+            $encryptor = new AES('ctr');
+            $encryptor->setPreferredEngine($this->engine);
+            $encryptor->setKey($key);
+            $encryptor->setIV($iv);
+            $encryptor->setPoly1305Key($poly1305Key);
+            $ciphertext = $encryptor->encrypt($plaintext);
+            $encryptor->enablePoly1305();
+            $tag = $encryptor->getTag();
+
+            $decryptor = new AES('ctr');
+            $decryptor->setPreferredEngine($this->engine);
+            $decryptor->setKey($key);
+            $decryptor->setIV($iv);
+            $decryptor->setPoly1305Key($poly1305Key);
+            $decryptor->setTag($tag);
+
+            $this->_checkEngine($decryptor);
+            $this->assertSame($plaintext, $decryptor->decrypt($ciphertext));
+
+            if ($plaintext !== '') {
+                $invalidDecryptor = new AES('ctr');
+                $invalidDecryptor->setPreferredEngine($this->engine);
+                $invalidDecryptor->setKey($key);
+                $invalidDecryptor->setIV($iv);
+                $invalidDecryptor->setPoly1305Key($poly1305Key);
+                $invalidDecryptor->setTag(str_repeat("\0", 16));
+                $this->_checkEngine($invalidDecryptor);
+
+                $rejected = false;
+                try {
+                    $invalidDecryptor->decrypt($ciphertext);
+                } catch (BadDecryptionException) {
+                    $rejected = true;
+                }
+                $this->assertTrue($rejected, 'An incorrect Poly1305 tag must be rejected');
+            }
+        }
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github451')]
