@@ -1053,6 +1053,7 @@ abstract class SymmetricKey
                 $xor = $this->encryptIV;
                 for ($i = 0; $i < strlen($plaintext); $i += $block_size) {
                     $block = substr($plaintext, $i, $block_size);
+                    // @phpstan-ignore binaryOp.invalid (Successful CBC setup validates and initializes the working IV; failed setup remains changed.)
                     $block = $this->encryptBlock($block ^ $xor);
                     $xor = $block;
                     $ciphertext .= $block;
@@ -1367,6 +1368,7 @@ abstract class SymmetricKey
                 $xor = $this->decryptIV;
                 for ($i = 0; $i < strlen($ciphertext); $i += $block_size) {
                     $block = substr($ciphertext, $i, $block_size);
+                    // @phpstan-ignore binaryOp.invalid (Successful CBC setup validates and initializes the working IV; failed setup remains changed.)
                     $plaintext .= $this->decryptBlock($block) ^ $xor;
                     $xor = $block;
                 }
@@ -2022,8 +2024,6 @@ abstract class SymmetricKey
             return;
         }
 
-        $this->changed = false;
-
         if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
             $this->createPoly1305Key();
         }
@@ -2066,6 +2066,7 @@ abstract class SymmetricKey
         }
 
         $this->nonIVChanged = false;
+        $this->changed = false;
     }
 
     /**

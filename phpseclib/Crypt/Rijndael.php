@@ -438,6 +438,8 @@ class Rijndael extends BlockCipher
         parent::setup();
 
         if (is_string($this->iv) && strlen($this->iv) != $this->block_size) {
+            // parent::setup() completed before this subclass-specific validation.
+            $this->changed = true;
             throw new LengthException('The IV length (' . strlen($this->iv) . ') does not match the block size (' . $this->block_size . ')');
         }
     }
