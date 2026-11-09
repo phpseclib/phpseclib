@@ -357,7 +357,7 @@ abstract class DH extends AsymmetricKey
         #[\SensitiveParameter] ?string $password = null
     ): static {
         try {
-            return EC::load($key, $password);
+            return EC::load($key, $password); // @phpstan-ignore return.type (CRYPT-001: retain EC-first loading; the native return-contract mismatch remains unresolved.)
         } catch (NoKeyLoadedException $e) {
         }
 
