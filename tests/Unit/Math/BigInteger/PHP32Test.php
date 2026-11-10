@@ -40,4 +40,13 @@ class PHP32Test extends TestCase
     {
         return 'phpseclib4\Math\BigInteger\Engines\PHP32';
     }
+
+    public function testUnnormalizedZero(): void
+    {
+        // Xdebug's trace mode dumps normalize()'s argument before its zero limbs are stripped (#1930)
+        $x = new PHP32();
+        self::setVar($x, 'value', [0]);
+
+        $this->assertSame('', $x->toBytes());
+    }
 }

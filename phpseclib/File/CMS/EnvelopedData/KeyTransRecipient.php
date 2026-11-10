@@ -39,6 +39,9 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
 
     public static function mapInAlgoParams(Constructed $algorithm): void
     {
+        if (!isset($algorithm['parameters'])) {
+            return;
+        }
         $temp = ASN1::decodeBER($algorithm['parameters']->getEncoded());
         $rules = [];
         switch ($algorithm['algorithm']) {
