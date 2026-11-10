@@ -5062,7 +5062,7 @@ class SSH2
      */
     public function getResourceId(): string
     {
-        return '{' . spl_object_hash($this) . '}';
+        return '{' . sprintf('%016x0000000000000000', spl_object_id($this)) . '}';
     }
 
     public static function getConnectionByResourceId(string $id): ?SSH2
