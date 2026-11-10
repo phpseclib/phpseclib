@@ -2236,7 +2236,7 @@ class SSH2
     private function keyboard_interactive_process(string|array ...$responses): bool
     {
         if (strlen($this->last_interactive_response)) {
-            $response = $this->last_interactive_response;
+            $orig = $response = $this->last_interactive_response;
         } else {
             $orig = $response = $this->get_binary_packet_or_close();
         }
@@ -2283,7 +2283,7 @@ class SSH2
                     $this->updateLogHistory('UNKNOWN (60)', 'SSH_MSG_USERAUTH_INFO_REQUEST');
                 }
 
-                if (!count($responses) && $num_prompts) {
+                if (count($responses) < $num_prompts) {
                     $this->last_interactive_response = $orig;
                     return false;
                 }
