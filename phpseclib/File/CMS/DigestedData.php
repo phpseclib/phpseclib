@@ -19,6 +19,7 @@ namespace phpseclib4\File\CMS;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\Hash;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Types\OctetString;
 use phpseclib4\File\{ASN1, CMS};
@@ -78,7 +79,7 @@ class DigestedData implements \ArrayAccess, \Countable, \Iterator
         // content is [0] EXPLICIT ANY: only a constructed type comes back as its raw encoding
         $content = $cms['content'];
         if (!$content instanceof Element) {
-            throw new \phpseclib4\Exception\UnexpectedValueException('The ContentInfo content should be a constructed type');
+            throw new UnexpectedValueException('The ContentInfo content should be a constructed type');
         }
         $decoded = ASN1::decodeBER($content->value);
         $cms['content'] = ASN1::map($decoded, Maps\DigestedData::MAP);

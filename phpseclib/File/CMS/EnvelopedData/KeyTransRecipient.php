@@ -39,12 +39,10 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
 
     public static function mapInAlgoParams(Constructed $algorithm): void
     {
-        // parameters is OPTIONAL ANY: there is nothing to map when it is absent
-        $params = $algorithm['parameters'] ?? null;
-        if (!$params instanceof \phpseclib4\File\ASN1\Element && !$params instanceof \phpseclib4\File\ASN1\Types\BaseType) {
+        if (!isset($algorithm['parameters'])) {
             return;
         }
-        $temp = ASN1::decodeBER($params->getEncoded());
+        $temp = ASN1::decodeBER($algorithm['parameters']->getEncoded());
         $rules = [];
         switch ($algorithm['algorithm']) {
             case 'id-RSAES-OAEP':

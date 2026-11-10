@@ -227,7 +227,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         // the attributes mapped here are SEQUENCEs, which ANY hands back as an Element
         for ($i = 0; $i < count($attr['value']); $i++) {
             if (!$attr['value'][$i] instanceof Element) {
-                throw new \phpseclib4\Exception\UnexpectedValueException("Malformed $attr[type] attribute");
+                throw new UnexpectedValueException("Malformed $attr[type] attribute");
             }
         }
         ASN1::disableCacheInvalidation();
