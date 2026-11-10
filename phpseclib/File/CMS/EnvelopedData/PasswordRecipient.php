@@ -37,6 +37,9 @@ class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
 
     public static function mapInAlgoParams(Constructed $algorithm): void
     {
+        if (!isset($algorithm['parameters'])) {
+            return;
+        }
         $temp = ASN1::decodeBER($algorithm['parameters']->getEncoded());
         $temp = match ((string) $algorithm['algorithm']) {
             'id-alg-PWRI-KEK' => ASN1::map($temp, Maps\AlgorithmIdentifier::MAP),
