@@ -21,7 +21,7 @@ use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\{Constructed, Maps};
 
-class KEKRecipient extends Recipient implements DerivableKey
+class KEKRecipient extends Recipient implements DerivableKey, SearchableKey
 {
     /** @psalm-api */
     protected static function loadString(string $encoded): Constructed

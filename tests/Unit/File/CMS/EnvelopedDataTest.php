@@ -220,7 +220,12 @@ BAEFBCjqhj9+hBlqboSO9UybVUyjmeQ4eX8y/0x/s9JsdsWxTrrx1zNiFNzaMDwG
 CSqGSIb3DQEHATAdBglghkgBZQMEASoEEA2rq3jrXhfcwE8Doq+lErqAEFqBE6fW
 17lonTkG3xsJwzY=
 -----END CMS-----');
-        $decrypted = $cms->findRecipients("\xde\xad\xbe\xef")[0]->withKey(hex2bin('00112233445566778899AABBCCDDEEFF'))->decrypt();
+        $decrypted = $cms->findRecipients("\xde\xad\xbe\xef")[0]->withKey(hex2bin('00112233445566778899AABBCCDDEEFF'))->decrypt(); // @phpstan-ignore method.notFound (This fixed string-ID fixture yields KEKRecipient, whose withKey accepts a string.)
+        $this->assertEquals("hello, world!\n", $decrypted);
+
+        $recipient = $cms->findRecipient("\xde\xad\xbe\xef");
+        $this->assertNotNull($recipient);
+        $decrypted = $recipient->withKey(hex2bin('00112233445566778899AABBCCDDEEFF'))->decrypt(); // @phpstan-ignore method.notFound (This fixed string-ID fixture yields KEKRecipient, whose withKey accepts a string.)
         $this->assertEquals("hello, world!\n", $decrypted);
     }
 
