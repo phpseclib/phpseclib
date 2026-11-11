@@ -1463,7 +1463,7 @@ class SFTP extends SSH2
             $attr;
         $this->send_sftp_packet(SFTPPacketType::SETSTAT, $packet);
 
-        $files[] = $filename;
+        $files[] = $path;
         if (count($files) >= $this->queueSize) {
             $this->read_put_responses_files($files);
         }

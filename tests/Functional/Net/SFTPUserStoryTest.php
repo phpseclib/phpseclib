@@ -232,6 +232,51 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         return $sftp;
     }
 
+    public function testRecursiveChmod(): void
+    {
+        $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
+        $this->assertTrue($sftp->login(
+            $this->getEnv('SSH_USERNAME'),
+            $this->getEnv('SSH_PASSWORD')
+        ));
+
+        $root = 'recursive-chmod-' . bin2hex(random_bytes(5));
+        $sftp->mkdir($root, 0700);
+        try {
+            $sftp->mkdir("$root/empty", 0700);
+            $sftp->mkdir("$root/one", 0700);
+            $sftp->mkdir("$root/many", 0700);
+            $sftp->mkdir("$root/nested/inner", 0700, true);
+            $sftp->put("$root/one/only.txt", 'one');
+            $sftp->put("$root/many/a.txt", 'a');
+            $sftp->put("$root/many/b.txt", 'b');
+            $sftp->put("$root/nested/inner/leaf.txt", 'leaf');
+
+            $this->assertEqualsCanonicalizing(['.', '..'], $sftp->nlist("$root/empty"));
+            $sftp->chmod($root, 0711, true);
+            $sftp->clearStatCache();
+
+            foreach ([
+                $root,
+                "$root/empty",
+                "$root/one",
+                "$root/one/only.txt",
+                "$root/many",
+                "$root/many/a.txt",
+                "$root/many/b.txt",
+                "$root/nested",
+                "$root/nested/inner",
+                "$root/nested/inner/leaf.txt",
+            ] as $path) {
+                $this->assertSame(0711, $sftp->stat($path)['mode'] & 0777, $path);
+            }
+        } finally {
+            if ($sftp->file_exists($root)) {
+                $sftp->delete($root, true);
+            }
+        }
+    }
+
     #[\PHPUnit\Framework\Attributes\Depends('testChModOnFile')]
     public function testChDirOnFile(SFTP $sftp)
     {
