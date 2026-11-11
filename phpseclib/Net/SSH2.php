@@ -3809,6 +3809,7 @@ class SSH2
         }
 
         while (true) {
+            unset($channel);
             try {
                 $response = $this->get_binary_packet();
             } catch (TimeoutException) {
@@ -3995,6 +3996,14 @@ class SSH2
                     $this->channel_buffers[$channel][] = chr($type) . $data;
                     break;
                 case MessageType::CHANNEL_CLOSE:
+                    if (!isset($channel)) {
+                        $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
+                        throw new UnexpectedValueException('SSH_MSG_CHANNEL_CLOSE packet is missing a recipient channel');
+                    }
+                    if (!isset($this->channel_status[$channel])) {
+                        $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
+                        throw new UnexpectedValueException('SSH_MSG_CHANNEL_CLOSE received for an unknown channel');
+                    }
                     $this->curTimeout = 5;
 
                     $this->close_channel_bitmap($channel);

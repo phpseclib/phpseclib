@@ -458,6 +458,133 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(0, self::getVar($ssh, 'bitmap'));
     }
 
+    public function testChannelCloseForActiveChannel(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())->method('send_binary_packet');
+        self::setVar($ssh, 'fsock', fopen('php://temp', 'r+'));
+        self::setVar($ssh, 'keyExchangeInProgress', false);
+        self::setVar($ssh, 'kex_buffer', [pack('CN', MessageType::CHANNEL_CLOSE, 1)]);
+        self::setVar($ssh, 'channel_status', [1 => MessageType::CHANNEL_DATA]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 1024]);
+        self::setVar($ssh, 'server_channels', [1 => 77]);
+        self::setVar($ssh, 'channelCount', 1);
+
+        $this->assertTrue(self::callFunc($ssh, 'get_channel_packet', [1]));
+        $this->assertSame([], self::getVar($ssh, 'channel_status'));
+        $this->assertSame(0, self::getVar($ssh, 'channelCount'));
+    }
+
+    public function testChannelCloseForAlreadyClosingChannel(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->never())->method('send_binary_packet');
+        self::setVar($ssh, 'fsock', fopen('php://temp', 'r+'));
+        self::setVar($ssh, 'keyExchangeInProgress', false);
+        self::setVar($ssh, 'kex_buffer', [pack('CN', MessageType::CHANNEL_CLOSE, 1)]);
+        self::setVar($ssh, 'channel_status', [1 => MessageType::CHANNEL_CLOSE]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 1024]);
+        self::setVar($ssh, 'server_channels', [1 => 77]);
+        self::setVar($ssh, 'channelCount', 1);
+
+        $this->assertTrue(self::callFunc($ssh, 'get_channel_packet', [1]));
+        $this->assertSame([1 => MessageType::CHANNEL_CLOSE], self::getVar($ssh, 'channel_status'));
+        $this->assertSame(1, self::getVar($ssh, 'channelCount'));
+    }
+
+    public function testMalformedChannelCloseDisconnectsWithoutClosingChannel(): void
+    {
+        foreach ([
+            chr(MessageType::CHANNEL_CLOSE),
+            pack('CC', MessageType::CHANNEL_CLOSE, 0),
+            pack('Cn', MessageType::CHANNEL_CLOSE, 0),
+        ] as $packet) {
+            $ssh = $this->getMockBuilder(SSH2::class)
+                ->disableOriginalConstructor()
+                ->onlyMethods(['__destruct', 'send_binary_packet'])
+                ->getMock();
+            $ssh->expects($this->once())->method('send_binary_packet');
+            self::setVar($ssh, 'fsock', fopen('php://temp', 'r+'));
+            self::setVar($ssh, 'keyExchangeInProgress', false);
+            self::setVar($ssh, 'kex_buffer', [$packet]);
+            self::setVar($ssh, 'channel_status', [1 => MessageType::CHANNEL_DATA]);
+            self::setVar($ssh, 'window_size_server_to_client', [1 => 1024]);
+            self::setVar($ssh, 'server_channels', [1 => 77]);
+            self::setVar($ssh, 'channelCount', 1);
+            self::setVar($ssh, 'bitmap', SSH2::MASK_CONNECTED);
+
+            try {
+                self::callFunc($ssh, 'get_channel_packet', [1]);
+                $this->fail('Expected malformed CHANNEL_CLOSE to be rejected');
+            } catch (\phpseclib4\Exception\UnexpectedValueException $e) {
+                $this->assertStringContainsString('missing a recipient channel', $e->getMessage());
+            }
+            $this->assertSame([], self::getVar($ssh, 'channel_status'));
+            $this->assertSame(1, self::getVar($ssh, 'channelCount'));
+        }
+    }
+
+    public function testChannelCloseForUnknownChannelDisconnects(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())->method('send_binary_packet');
+        self::setVar($ssh, 'fsock', fopen('php://temp', 'r+'));
+        self::setVar($ssh, 'keyExchangeInProgress', false);
+        self::setVar($ssh, 'kex_buffer', [pack('CN', MessageType::CHANNEL_CLOSE, 9)]);
+        self::setVar($ssh, 'channel_status', [1 => MessageType::CHANNEL_DATA]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 1024]);
+        self::setVar($ssh, 'server_channels', [1 => 77]);
+        self::setVar($ssh, 'channelCount', 1);
+        self::setVar($ssh, 'bitmap', SSH2::MASK_CONNECTED);
+
+        try {
+            self::callFunc($ssh, 'get_channel_packet', [1]);
+            $this->fail('Expected CHANNEL_CLOSE for unknown channel to be rejected');
+        } catch (\phpseclib4\Exception\UnexpectedValueException $e) {
+            $this->assertStringContainsString('unknown channel', $e->getMessage());
+        }
+        $this->assertSame([], self::getVar($ssh, 'channel_status'));
+        $this->assertSame(1, self::getVar($ssh, 'channelCount'));
+    }
+
+    public function testMalformedChannelCloseDoesNotUsePreviousChannelNumber(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'send_binary_packet'])
+            ->getMock();
+        $ssh->expects($this->once())->method('send_binary_packet');
+        self::setVar($ssh, 'fsock', fopen('php://temp', 'r+'));
+        self::setVar($ssh, 'keyExchangeInProgress', false);
+        self::setVar($ssh, 'kex_buffer', [
+            pack('CN', MessageType::CHANNEL_EOF, 1),
+            chr(MessageType::CHANNEL_CLOSE),
+        ]);
+        self::setVar($ssh, 'channel_status', [1 => MessageType::CHANNEL_DATA]);
+        self::setVar($ssh, 'window_size_server_to_client', [1 => 1024]);
+        self::setVar($ssh, 'server_channels', [1 => 77]);
+        self::setVar($ssh, 'channelCount', 1);
+        self::setVar($ssh, 'bitmap', SSH2::MASK_CONNECTED);
+
+        try {
+            self::callFunc($ssh, 'get_channel_packet', [1]);
+            $this->fail('Expected malformed CHANNEL_CLOSE to be rejected');
+        } catch (\phpseclib4\Exception\UnexpectedValueException $e) {
+            $this->assertStringContainsString('missing a recipient channel', $e->getMessage());
+        }
+        $this->assertSame([], self::getVar($ssh, 'channel_status'));
+        $this->assertSame(1, self::getVar($ssh, 'channelCount'));
+    }
+
     /** @psalm-suppress InvalidReturnType, InvalidReturnStatement */
     protected function createSSHMock(): SSH2
     {
