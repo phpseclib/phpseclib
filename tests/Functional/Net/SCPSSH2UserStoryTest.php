@@ -74,6 +74,19 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Depends('testGetFile')]
+    public function testGetResource(SCP $scp): SCP
+    {
+        $fp = fopen('php://temp', 'w+');
+        $this->assertNull($scp->get(self::$remoteFile, $fp));
+        $this->assertTrue(is_resource($fp));
+        rewind($fp);
+        $this->assertSame(self::$exampleData, stream_get_contents($fp));
+        fclose($fp);
+
+        return $scp;
+    }
+
+    #[\PHPUnit\Framework\Attributes\Depends('testGetResource')]
     #[\PHPUnit\Framework\Attributes\Group('github873')]
     public function testGetBadFilePutGet($scp)
     {

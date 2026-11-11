@@ -13,9 +13,11 @@ namespace phpseclib4\Tests\Unit\Net;
 use PHPUnit\Framework\Attributes\DataProvider;
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Crypt\TripleDES;
+use phpseclib4\Exception\InvalidArgumentException;
 use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\TimeoutException;
 use phpseclib4\Net\SSH2;
+use phpseclib4\Net\SSH2\MessageType;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class SSH2UnitTest extends PhpseclibTestCase
@@ -152,6 +154,65 @@ class SSH2UnitTest extends PhpseclibTestCase
 
         $ssh = new SSH2('localhost');
         $this->assertSame('{' . spl_object_hash($ssh) . '}', $ssh->getResourceId());
+    }
+
+    public function testKeyboardInteractiveLoginRetainsIncompleteCachedRequest(): void
+    {
+        $ssh = new SSH2('unused');
+        self::setVar($ssh, 'bitmap', SSH2::MASK_CONSTRUCTOR | SSH2::MASK_LOGIN_REQ);
+        self::setVar($ssh, 'server_identifier', 'SSH-2.0-test');
+
+        $request = Strings::packSSH2('Cs3N', MessageType::USERAUTH_INFO_REQUEST, '', '', '', 2)
+            . Strings::packSSH2('sC', 'First prompt: ', 0)
+            . Strings::packSSH2('sC', 'Second prompt: ', 0);
+        self::setVar($ssh, 'last_interactive_response', $request);
+
+        $this->assertFalse($ssh->login('user', []));
+        $this->assertSame($request, self::getVar($ssh, 'last_interactive_response'));
+
+        $this->assertFalse($ssh->login('user', ['First prompt: ' => 'first answer']));
+        $this->assertSame($request, self::getVar($ssh, 'last_interactive_response'));
+    }
+
+    public function testKeyboardInteractiveLoginConsumesCachedRequestForAllPrompts(): void
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'send_binary_packet'])
+            ->getMock();
+        self::setVar($ssh, 'bitmap', SSH2::MASK_CONSTRUCTOR | SSH2::MASK_LOGIN_REQ);
+        self::setVar($ssh, 'server_identifier', 'SSH-2.0-test');
+
+        $request = Strings::packSSH2('Cs3N', MessageType::USERAUTH_INFO_REQUEST, '', '', '', 2)
+            . Strings::packSSH2('sC', 'First prompt: ', 0)
+            . Strings::packSSH2('sC', 'Second prompt: ', 0);
+        self::setVar($ssh, 'last_interactive_response', $request);
+
+        $sent = [];
+        $ssh->expects($this->once())
+            ->method('send_binary_packet')
+            ->willReturnCallback(function (string $data) use (&$sent): void {
+                $sent[] = $data;
+            });
+
+        $receivedNextPacket = false;
+        try {
+            $ssh->login('user', [
+                'First prompt: ' => 'first answer',
+                'Second prompt: ' => 'second answer',
+            ]);
+        } catch (InvalidArgumentException $e) {
+            $receivedNextPacket = true;
+            $this->assertSame('fsock is not a resource.', $e->getMessage());
+        }
+
+        $this->assertTrue($receivedNextPacket, 'Processing a complete response should wait for the server reply');
+        $this->assertSame([
+            pack('CN', MessageType::USERAUTH_INFO_RESPONSE, 2)
+                . Strings::packSSH2('s', 'first answer')
+                . Strings::packSSH2('s', 'second answer'),
+        ], $sent);
+        $this->assertSame('', self::getVar($ssh, 'last_interactive_response'));
     }
 
     public function testReadUnauthenticated(): void
