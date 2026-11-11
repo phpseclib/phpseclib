@@ -432,25 +432,25 @@ class Stream
                     $this->sftp->touch($path, $time, $atime);
                     return true;
                 case STREAM_META_OWNER_NAME:
-                    if ($this->getNegotiatedVersion() >= 4) {
+                    if ($this->sftp->getNegotiatedVersion() >= 4) {
                         $this->sftp->chown($path, $var);
                         return true;
                     }
                     return false;
                 case STREAM_META_GROUP_NAME:
-                    if ($this->getNegotiatedVersion() >= 4) {
+                    if ($this->sftp->getNegotiatedVersion() >= 4) {
                         $this->sftp->chgrp($path, $var);
                         return true;
                     }
                     return false;
                 case STREAM_META_OWNER:
-                    if ($this->getNegotiatedVersion() < 4) {
+                    if ($this->sftp->getNegotiatedVersion() < 4) {
                         $this->sftp->chown($path, $var);
                         return true;
                     }
                     return false;
                 case STREAM_META_GROUP:
-                    if ($this->getNegotiatedVersion() < 4) {
+                    if ($this->sftp->getNegotiatedVersion() < 4) {
                         $this->sftp->chgrp($path, $var);
                         return true;
                     }
