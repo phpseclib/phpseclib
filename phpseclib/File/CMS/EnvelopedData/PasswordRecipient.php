@@ -77,7 +77,7 @@ class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
         $keyCipher->setIV((string) $this->recipient['keyEncryptionAlgorithm']['parameters']['parameters']);
         $result = $keyCipher->decrypt($result);
 
-        $length = ord($result);
+        $length = ord($result[0]);
         $cek = substr($result, 4, $length);
         $keyCheck = ~substr($result, 1, 3);
         if (substr($cek, 0, 3) != $keyCheck) {
