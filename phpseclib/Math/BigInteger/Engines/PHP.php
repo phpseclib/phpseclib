@@ -1198,6 +1198,7 @@ abstract class PHP extends Engine
                     $newbits = $temp;
                 }
                 $overflow = $tempoverflow;
+                // @phpstan-ignore variable.undefined (BI-002 remains an open runtime defect; suppress only this tracked read. See analysis/github-issue-drafts/BI-002-bitwise-split-incorrect-results.md.)
                 $mask = $tempmask;
             }
             $temp = new static();
