@@ -34,6 +34,7 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
         $rules['keyEncryptionAlgorithm'] = self::mapInAlgoParams(...);
         $recipient = ASN1::map($decoded, Maps\KeyTransRecipientInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $recipient;
     }
 

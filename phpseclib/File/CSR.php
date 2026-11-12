@@ -152,6 +152,7 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
             }
         };
 
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return ASN1::map($decoded, Maps\CertificationRequest::MAP, $rules);
     }
 

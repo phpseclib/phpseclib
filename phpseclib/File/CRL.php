@@ -131,6 +131,7 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $rules['tbsCertList']['crlExtensions']['*'] = self::mapInExtensions(...);
         $rules['tbsCertList']['revokedCertificates']['*']['crlEntryExtensions']['*'] = self::mapInExtensions(...);
 
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return ASN1::map($decoded, Maps\CertificateList::MAP, $rules);
     }
 

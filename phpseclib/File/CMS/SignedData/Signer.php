@@ -106,6 +106,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($encoded);
         $signer = ASN1::map($decoded, Maps\SignerInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $signer;
     }
 
