@@ -376,6 +376,7 @@ class GMP extends Engine
      */
     public function modPow(GMP $e, GMP $n): ?GMP
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the GMP operand/provider family; null is preserved.)
         return $this->powModOuter($e, $n);
     }
 
@@ -386,6 +387,7 @@ class GMP extends Engine
      */
     public function powMod(GMP $e, GMP $n): ?GMP
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the GMP operand/provider family; null is preserved.)
         return $this->powModOuter($e, $n);
     }
 
@@ -439,6 +441,7 @@ class GMP extends Engine
             $x = new self($x->value - 1);
         }
 
+        // @phpstan-ignore argument.type, argument.type (This GMP-specific recursive path receives and constructs only GMP-family candidates and bounds.)
         return self::randomRangePrime($min, $x);
     }
 
@@ -449,6 +452,7 @@ class GMP extends Engine
      */
     public static function randomRangePrime(GMP $min, GMP $max): ?GMP
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the GMP bounds/candidate family; null is preserved.)
         return self::randomRangePrimeOuter($min, $max);
     }
 
@@ -463,6 +467,7 @@ class GMP extends Engine
      */
     public static function randomRange(GMP $min, GMP $max): GMP
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the GMP bound/constructed-result family.)
         return self::randomRangeHelper($min, $max);
     }
 
