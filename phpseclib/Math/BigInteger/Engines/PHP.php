@@ -494,7 +494,9 @@ abstract class PHP extends Engine
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @return array{static, static}
+     * @template T of PHP
+     * @param T $y
+     * @return array{static, static|T}
      * @internal This function is based off of
      *     {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
      */
