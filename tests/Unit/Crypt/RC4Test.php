@@ -216,13 +216,13 @@ class RC4Test extends PhpseclibTestCase
     public function testKeySizes(): void
     {
         $objects = $engines = [];
-        $temp = new RC4(RC4::MODE_CTR);
+        $temp = new RC4();
         $temp->setPreferredEngine('internal');
         $objects[] = $temp;
         $engines[] = 'internal';
 
         if ($temp->isValidEngine('openssl')) {
-            $temp = new RC4(RC4::MODE_CTR);
+            $temp = new RC4();
             $temp->setPreferredEngine('openssl');
             $objects[] = $temp;
             $engines[] = 'OpenSSL';

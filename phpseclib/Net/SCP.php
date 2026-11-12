@@ -124,7 +124,7 @@ class SCP extends SSH2
                 try {
                     $fp = Files::open($data, 'rb');
                 } catch (FileSystemException $e) {
-                    $this->close_channel(self::CHANNEL_EXEC, true);
+                    $this->close_channel(self::CHANNEL_EXEC);
                     throw $e;
                 }
         }
@@ -153,7 +153,7 @@ class SCP extends SSH2
                 $callback($sent);
             }
         }
-        $this->close_channel(self::CHANNEL_EXEC, true);
+        $this->close_channel(self::CHANNEL_EXEC);
 
         if ($mode != self::SOURCE_STRING) {
             // @phpstan-ignore variable.undefined (Every supported non-string SCP source initializes $fp; other mode values are unsupported.)
@@ -184,7 +184,7 @@ class SCP extends SSH2
         $this->send_channel_packet(self::CHANNEL_EXEC, chr(0));
 
         if (!preg_match('#(?<perms>[^ ]+) (?<size>\d+) (?<name>.+)#', rtrim($info), $info)) {
-            $this->close_channel(self::CHANNEL_EXEC, true);
+            $this->close_channel(self::CHANNEL_EXEC);
             throw new UnexpectedSSHMessageException('Response did not meet expected format');
         }
 
@@ -196,7 +196,7 @@ class SCP extends SSH2
             try {
                 $fp = Files::open($local_file, 'wb');
             } catch (FileSystemException $e) {
-                $this->close_channel(self::CHANNEL_EXEC, true);
+                $this->close_channel(self::CHANNEL_EXEC);
                 throw $e;
             }
             $fclose_check = true;
@@ -226,7 +226,7 @@ class SCP extends SSH2
                     $data = substr($data, 0, -$diff);
                 } else {
                     $type = $data[$offset] === chr(1) ? 'warning' : 'error';
-                    $this->close_channel(self::CHANNEL_EXEC, true);
+                    $this->close_channel(self::CHANNEL_EXEC);
                     throw new FileSystemException("Received a $type from server: " . substr($data, 1));
                 }
             }
@@ -246,7 +246,7 @@ class SCP extends SSH2
             }
         }
 
-        $this->close_channel(self::CHANNEL_EXEC, true);
+        $this->close_channel(self::CHANNEL_EXEC);
 
         if ($fclose_check) {
             // @phpstan-ignore variable.undefined ($fclose_check is only true for a non-resource destination, whose branch assigns $fp via Files::open; open failure is rethrown)
@@ -268,7 +268,7 @@ class SCP extends SSH2
         // per https://goteleport.com/blog/scp-familiar-simple-insecure-slow/ non-zero responses mean there are errors
         if ($check_for_null && in_array($response[0], ["\1", "\2"])) {
             $type = $response[0] === chr(1) ? 'warning' : 'error';
-            $this->close_channel(self::CHANNEL_EXEC, true);
+            $this->close_channel(self::CHANNEL_EXEC);
             throw new FileSystemException("Received a $type from server: " . substr($response, 1));
         }
         return $response;
