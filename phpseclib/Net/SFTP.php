@@ -1169,11 +1169,13 @@ class SFTP extends SSH2
         }
 
         $pwd = $this->pwd;
+        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
         $stat['type'] = $this->chdir($filename) ?
             FileType::DIRECTORY :
             FileType::REGULAR;
         $this->pwd = $pwd;
 
+        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
         if ($stat['type'] == FileType::DIRECTORY) {
             $filename .= '/.';
         }
@@ -1226,11 +1228,13 @@ class SFTP extends SSH2
         }
 
         $pwd = $this->pwd;
+        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
         $lstat['type'] = $this->chdir($filename) ?
             FileType::DIRECTORY :
             FileType::REGULAR;
         $this->pwd = $pwd;
 
+        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
         if ($lstat['type'] == FileType::DIRECTORY) {
             $filename .= '/.';
         }
