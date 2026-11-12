@@ -486,6 +486,7 @@ class BCMath extends Engine
         if ($this->value === '2') {
             return true;
         }
+        // @phpstan-ignore binaryOp.invalid (The last character of the normalized decimal integer is one digit, 0-9; its modulo is safe on 32-bit and 64-bit PHP.)
         if ($this->value[-1] % 2 == 0) {
             return false;
         }
@@ -512,6 +513,7 @@ class BCMath extends Engine
         $r_value = &$r->value;
         $s = 0;
         // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals(static::$one[static::class]) check earlier
+        // @phpstan-ignore binaryOp.invalid (The last character of the normalized decimal integer is one digit, 0-9; its modulo is safe on 32-bit and 64-bit PHP.)
         while ($r_value[-1] % 2 == 0) {
             $r_value = bcdiv($r_value, '2', 0);
             ++$s;
@@ -573,6 +575,7 @@ class BCMath extends Engine
      */
     public function isOdd(): bool
     {
+        // @phpstan-ignore binaryOp.invalid (The last character of the normalized decimal integer is one digit, 0-9; its modulo is safe on 32-bit and 64-bit PHP.)
         return $this->value[-1] % 2 == 1;
     }
 
