@@ -225,6 +225,7 @@ class BCMath extends Engine
      */
     public function modInverse(BCMath $n): ?BCMath
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the BCMath operand/result family; null is preserved.)
         return $this->modInverseHelper($n);
     }
 
@@ -386,6 +387,7 @@ class BCMath extends Engine
      */
     public function modPow(BCMath $e, BCMath $n): ?BCMath
     {
+        // @phpstan-ignore return.type (Shared preprocessing loses the BCMath operand/provider family; null is preserved.)
         return $this->powModOuter($e, $n);
     }
 
@@ -396,6 +398,7 @@ class BCMath extends Engine
      */
     public function powMod(BCMath $e, BCMath $n): ?BCMath
     {
+        // @phpstan-ignore return.type (Shared preprocessing loses the BCMath operand/provider family; null is preserved.)
         return $this->powModOuter($e, $n);
     }
 
@@ -436,6 +439,7 @@ class BCMath extends Engine
      */
     public static function randomRangePrime(BCMath $min, BCMath $max): ?BCMath
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the BCMath bounds/candidate family; null is preserved.)
         return self::randomRangePrimeOuter($min, $max);
     }
 
