@@ -268,10 +268,8 @@ trait Extension
                 case 'id-pe-qcStatements':
                     $oldValue = $value instanceof Constructed ? $value->toArray() : $value;
                     $path = '*';
-                    /** @psalm-suppress InvalidReturnType */
-                    Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Constructed|Element|array {
+                    Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Choice|Element|array {
                         if ($val instanceof Element || "$val[statementId]" != 'id-etsi-qcs-QcLimitValue') {
-                            /** @psalm-suppress InvalidReturnStatement */
                             return $val;
                         }
                         if ($val instanceof BaseType) {
@@ -281,7 +279,6 @@ trait Extension
                             $val['statementInfo'] = ASN1::map(ASN1::decodeBER($temp), Maps\QcEuLimitValue::MAP);
                         }
                         $val['statementInfo']->enableForcedCache();
-                        /** @psalm-suppress InvalidReturnStatement */
                         return $val;
                     });
             }
