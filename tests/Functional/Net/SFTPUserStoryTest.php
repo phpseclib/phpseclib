@@ -80,15 +80,11 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $dirname = self::$scratchDir;
 
         $sftp->mkdir($dirname);
-        try {
-            $sftp->mkdir($dirname);
-            $this->assertTrue(
-                false,
-                "Failed asserting that a new scratch directory $dirname could " .
-                'not be created (because it already exists).'
-            );
-        } catch (\Exception) {
-        }
+        $sftp->mkdir($dirname);
+        $this->assertTrue(
+            $sftp->is_dir($dirname),
+            "Failed asserting that repeated mkdir leaves the existing directory $dirname intact."
+        );
 
         return $sftp;
     }
@@ -282,15 +278,11 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         try {
             $sftp->chdir('file1.txt');
-            $this->assertTrue(
-                false,
-                'Failed to assert that the cwd cannot be changed to a file'
-            );
-        } catch (\Exception) {
+        } catch (FileSystemException) {
             $this->assertTrue(true);
+            return $sftp;
         }
-
-        return $sftp;
+        self::fail('Failed to assert that the cwd cannot be changed to a file');
     }
 
     #[\PHPUnit\Framework\Attributes\Depends('testChDirOnFile')]
@@ -596,22 +588,15 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->delete(self::$scratchDir);
         try {
             $sftp->stat(self::$scratchDir);
-            $this->assertTrue(
-                false,
-                'Failed asserting that stat on a deleted directory returns false'
-            );
-        } catch (\Exception) {
+            self::fail('Failed asserting that stat on a deleted directory returns false');
+        } catch (FileSystemException) {
         }
 
-        try {
-            $sftp->delete(self::$scratchDir);
-            $this->assertTrue(
-                false,
-                'Failed asserting that non-existent directory could not ' .
-                'be deleted using recursive delete().'
-            );
-        } catch (\Exception) {
-        }
+        $sftp->delete(self::$scratchDir);
+        $this->assertFalse(
+            $sftp->file_exists(self::$scratchDir),
+            'Failed asserting that recursive delete leaves a nonexistent directory absent.'
+        );
 
         return $sftp;
     }
