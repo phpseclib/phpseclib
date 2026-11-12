@@ -12,6 +12,7 @@ namespace phpseclib4\Tests\Unit\Net;
 
 use phpseclib4\Net\SFTP;
 use phpseclib4\Net\SFTP\Stream;
+use phpseclib4\Net\SSH2;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class SFTPStreamUnitTest extends PhpseclibTestCase
@@ -37,6 +38,61 @@ class SFTPStreamUnitTest extends PhpseclibTestCase
         $this->assertMetadataBehavior(4, STREAM_META_GROUP_NAME, 'group', 'chgrp', true);
         $this->assertMetadataBehavior(5, STREAM_META_OWNER, 1000, 'chown', false);
         $this->assertMetadataBehavior(5, STREAM_META_GROUP, 1000, 'chgrp', false);
+    }
+
+    public function testParsePathAcceptsInvokableNotificationWithSession(): void
+    {
+        $sftp = new class extends SFTP {
+            public function __construct()
+            {
+            }
+        };
+        $notification = new class {
+            public function __invoke(mixed ...$args): void
+            {
+            }
+        };
+        $stream = new class extends Stream {
+            public function parsePath(string $path): ?string
+            {
+                return $this->parse_path($path);
+            }
+        };
+        $stream->context = stream_context_create(
+            ['sftp' => ['session' => $sftp]],
+            ['notification' => $notification]
+        );
+
+        $this->assertSame(
+            '/file?query=value#fragment',
+            $stream->parsePath('sftp://example.test/file?query=value#fragment')
+        );
+    }
+
+    public function testParsePathRejectsNonSftpConnectionResource(): void
+    {
+        $ssh2 = new class extends SSH2 {
+            public function __construct()
+            {
+            }
+        };
+        $connections = new \ReflectionProperty(SSH2::class, 'connections');
+        $previous = $connections->isInitialized() ? $connections->getValue() : [];
+        $id = $ssh2->getResourceId();
+        $connections->setValue(null, [$id => \WeakReference::create($ssh2)]);
+
+        try {
+            $stream = new class extends Stream {
+                public function parsePath(string $path): ?string
+                {
+                    return $this->parse_path($path);
+                }
+            };
+
+            $this->assertNull($stream->parsePath("sftp://$id/file"));
+        } finally {
+            $connections->setValue(null, $previous);
+        }
     }
 
     private function assertMetadataBehavior(

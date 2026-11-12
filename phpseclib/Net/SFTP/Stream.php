@@ -77,16 +77,12 @@ class Stream
      *
      * Technically this needs to be publicly accessible so PHP can set it directly
      *
-     * @var resource
+     * @var resource|null
      */
     public $context;
 
-    /**
-     * Notification callback function
-     *
-     * @var callable
-     */
-    private \Closure|string|array $notification;
+    /** Notification callback function */
+    private mixed $notification;
 
     /**
      * Registers this class as a URL wrapper.
@@ -127,30 +123,21 @@ class Stream
         $orig = $path;
         $url = parse_url($path) + ['port' => 22];
 
-        /**
-         * @var string $scheme
-         * @var string $host
-         * @var int $port
-         * @var string $user
-         * @var string $pass
-         * @var string $query
-         * @var string $fragment
-         */
-        $keys = ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'];
-        foreach ($keys as $key) {
-            if (isset($url[$key])) {
-                $$key = $url[$key];
-            }
-        }
+        $scheme = $url['scheme'] ?? '';
+        $host = $url['host'] ?? null;
+        $port = $url['port'];
+        $user = $url['user'] ?? null;
+        $pass = $url['pass'] ?? null;
+        $path = $url['path'] ?? $path;
+        $query = $url['query'] ?? null;
+        $fragment = $url['fragment'] ?? null;
 
         if (isset($query)) {
-            // @phpstan-ignore variable.undefined ($query is assigned by the variable-variable loop above only when the URL has a query; the enclosing isset guard makes this read safe.)
             $path .= '?' . $query;
         } elseif (preg_match('/(\?|\?#)$/', $orig)) {
             $path .= '?';
         }
         if (isset($fragment)) {
-            // @phpstan-ignore variable.undefined ($fragment is assigned by the variable-variable loop above only when the URL has a fragment; the enclosing isset guard makes this read safe.)
             $path .= '#' . $fragment;
         } elseif ($orig[-1] == '#') {
             $path .= '#';
@@ -162,6 +149,7 @@ class Stream
 
         if (isset($this->context)) {
             $context = stream_context_get_params($this->context);
+            // @phpstan-ignore isset.offset (stream_context_get_params() omits this key when no notification is configured.)
             if (isset($context['notification']) && is_callable($context['notification'])) {
                 $this->notification = $context['notification'];
             }
@@ -169,7 +157,7 @@ class Stream
 
         if (preg_match('/^{[a-z0-9]+}$/i', $host)) {
             $host = SSH2::getConnectionByResourceId($host);
-            if ($host === null) {
+            if (!$host instanceof SFTP) {
                 return null;
             }
             $this->sftp = $host;
