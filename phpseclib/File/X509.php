@@ -448,7 +448,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             throw new BadMethodCallException('MGF Hash can only be set for RSA X509 certificates');
         }
 
-        $publicKey = $publicKey->withMFGHash($hash);
+        $publicKey = $publicKey->withMGFHash($hash);
     }
 
     /** @psalm-api */

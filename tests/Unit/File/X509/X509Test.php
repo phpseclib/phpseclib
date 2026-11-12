@@ -270,6 +270,23 @@ aBtsWpliLSex/HHhtRW9AkBGcq67zKmEpJ9kXcYLEjJii3flFS+Ct/rNm+Hhm1l7
         $this->assertArrayHasKey('parameters', $cert['tbsCertificate']['signature']->toArray());
     }
 
+    public function testSetMFGHash(): void
+    {
+        $publicKey = RSA::createKey(512)->getPublicKey();
+        $x509 = new X509($publicKey);
+
+        $x509->setMFGHash('sha1');
+
+        $updatedPublicKey = $x509->getPublicKey();
+        $this->assertInstanceOf(RSA::class, $updatedPublicKey);
+        $this->assertSame('sha1', $updatedPublicKey->getMGFHash()->getHash());
+        $this->assertSame('sha256', $publicKey->getMGFHash()->getHash());
+
+        $ec = new X509(EC::createKey('ed25519')->getPublicKey());
+        $this->expectException(\phpseclib4\Exception\BadMethodCallException::class);
+        $ec->setMFGHash('sha1');
+    }
+
     public function testGetOID(): void
     {
         $this->assertEquals(ASN1::getOIDFromName('1.2.840.113549.1.1.5'), '1.2.840.113549.1.1.5');
