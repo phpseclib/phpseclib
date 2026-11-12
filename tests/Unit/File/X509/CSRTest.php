@@ -13,6 +13,7 @@ namespace phpseclib4\Tests\Unit\File\X509;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\File\CSR;
+use phpseclib4\File\ASN1;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class CSRTest extends PhpseclibTestCase
@@ -216,5 +217,21 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
         $this->assertArrayHasKey('attributes', $csr['certificationRequestInfo']);
         $this->assertCount(3, $csr['certificationRequestInfo']['attributes']);
         $this->assertCount(3, $csrObj->listExtensions());
+    }
+
+    public function testGetAttribute(): void
+    {
+        // openssl req -new -subj /CN=t -addext subjectAltName=DNS:example.com: getAttribute()
+        // looked for an 'extnId' in each attribute, which only extensions have (a TypeError)
+        $csr = CSR::load(base64_decode(
+            'MIHvMIGXAgEAMAwxCjAIBgNVBAMMAXQwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQVptrPWjqd'
+            . 'gp5mJq6IFfnc+beLSTL9t3lqDlmNpCCbWD+avSWCx4Z84F4wzcSlMJ/AUXGkof2YMBKkWvZuKw8c'
+            . 'oCkwJwYJKoZIhvcNAQkOMRowGDAWBgNVHREEDzANggtleGFtcGxlLmNvbTAKBggqhkjOPQQDAgNH'
+            . 'ADBEAiBMFicwM0z+f233dzJTpLLXY22vn3sDBHhft/JpYuvVRAIgfaZiXJgpfdk2KsOgZoz5NBlE'
+            . 'dVnNynhjGjrnlQ2HQps='
+        ), ASN1::FORMAT_DER);
+        $this->assertSame(['pkcs-9-at-extensionRequest'], $csr->listAttributes());
+        $this->assertNotNull($csr->getAttribute('pkcs-9-at-extensionRequest'));
+        $this->assertNull($csr->getAttribute('pkcs-9-at-challengePassword'));
     }
 }
