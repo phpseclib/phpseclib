@@ -160,6 +160,7 @@ class PHP64 extends PHP
      */
     public function modInverse(PHP64 $n): ?PHP64
     {
+        // @phpstan-ignore return.type (The shared Engine helper preserves the PHP64 operand family; null represents a non-invertible value.)
         return $this->modInverseHelper($n);
     }
 
@@ -167,10 +168,11 @@ class PHP64 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return PHP64[]
+     * @return array{gcd: PHP64, x: PHP64, y: PHP64}
      */
     public function extendedGCD(PHP64 $n): array
     {
+        // @phpstan-ignore return.type (The shared helper clones PHP64 operands and creates its working values via late static binding.)
         return $this->extendedGCDHelper($n);
     }
 
@@ -245,6 +247,7 @@ class PHP64 extends PHP
      */
     public function modPow(PHP64 $e, PHP64 $n): ?PHP64
     {
+        // @phpstan-ignore return.type (The shared Engine helper preserves the PHP64 operands and nullable result.)
         return $this->powModOuter($e, $n);
     }
 
@@ -255,6 +258,7 @@ class PHP64 extends PHP
      */
     public function powMod(PHP64 $e, PHP64 $n): ?PHP64
     {
+        // @phpstan-ignore return.type (The shared Engine helper preserves the PHP64 operands and nullable result.)
         return $this->powModOuter($e, $n);
     }
 
@@ -265,6 +269,7 @@ class PHP64 extends PHP
      */
     public static function randomRangePrime(PHP64 $min, PHP64 $max): ?PHP64
     {
+        // @phpstan-ignore return.type (Both bounds and candidates stay in the PHP64 family; null means no prime was found.)
         return self::randomRangePrimeOuter($min, $max);
     }
 
@@ -279,6 +284,7 @@ class PHP64 extends PHP
      */
     public static function randomRange(PHP64 $min, PHP64 $max): PHP64
     {
+        // @phpstan-ignore return.type (The shared helper returns an input bound or constructs results using this PHP64 class.)
         return self::randomRangeHelper($min, $max);
     }
 
@@ -287,6 +293,7 @@ class PHP64 extends PHP
      */
     public function pow(PHP64 $n): PHP64
     {
+        // @phpstan-ignore return.type (The PHP helper clones this PHP64 receiver or constructs PHP64 multiplication results.)
         return $this->powHelper($n);
     }
 

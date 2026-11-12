@@ -159,6 +159,7 @@ class PHP32 extends PHP
      */
     public function modInverse(PHP32 $n): ?PHP32
     {
+        // @phpstan-ignore return.type (The shared Engine helper preserves the PHP32 operand family; null represents a non-invertible value.)
         return $this->modInverseHelper($n);
     }
 
@@ -166,10 +167,11 @@ class PHP32 extends PHP
      * Calculates modular inverses.
      *
      * Say you have (30 mod 17 * x mod 17) mod 17 == 1.  x can be found using modular inverses.
-     * @return PHP32[]
+     * @return array{gcd: PHP32, x: PHP32, y: PHP32}
      */
     public function extendedGCD(PHP32 $n): array
     {
+        // @phpstan-ignore return.type (The shared helper clones PHP32 operands and creates its working values via late static binding.)
         return $this->extendedGCDHelper($n);
     }
 
@@ -244,6 +246,7 @@ class PHP32 extends PHP
      */
     public function modPow(PHP32 $e, PHP32 $n): ?PHP32
     {
+        // @phpstan-ignore return.type (The shared Engine helper preserves the PHP32 operands and nullable result.)
         return $this->powModOuter($e, $n);
     }
 
@@ -254,6 +257,7 @@ class PHP32 extends PHP
      */
     public function powMod(PHP32 $e, PHP32 $n): ?PHP32
     {
+        // @phpstan-ignore return.type (The shared Engine helper preserves the PHP32 operands and nullable result.)
         return $this->powModOuter($e, $n);
     }
 
@@ -264,6 +268,7 @@ class PHP32 extends PHP
      */
     public static function randomRangePrime(PHP32 $min, PHP32 $max): ?PHP32
     {
+        // @phpstan-ignore return.type (Both bounds and candidates stay in the PHP32 family; null means no prime was found.)
         return self::randomRangePrimeOuter($min, $max);
     }
 
@@ -278,6 +283,7 @@ class PHP32 extends PHP
      */
     public static function randomRange(PHP32 $min, PHP32 $max): PHP32
     {
+        // @phpstan-ignore return.type (The shared helper returns an input bound or constructs results using this PHP32 class.)
         return self::randomRangeHelper($min, $max);
     }
 
@@ -286,6 +292,7 @@ class PHP32 extends PHP
      */
     public function pow(PHP32 $n): PHP32
     {
+        // @phpstan-ignore return.type (The PHP helper clones this PHP32 receiver or constructs PHP32 multiplication results.)
         return $this->powHelper($n);
     }
 
