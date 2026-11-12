@@ -136,6 +136,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
             $pfx['authSafe']['content'] = $cms;
             /** @psalm-suppress UndefinedPropertyAssignment */
+            // @phpstan-ignore property.notFound (F21: reaching this point requires successful AuthenticatedSafe iteration; malformed roots fail earlier; see Package 54 analysis.)
             $pfx['authSafe']['content']->parent = $pfx['authSafe'];
         } finally {
             ASN1::enableCacheInvalidation();
