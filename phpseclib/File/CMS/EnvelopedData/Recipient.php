@@ -138,6 +138,7 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
 
     public function __toString(): string
     {
+        // @phpstan-ignore method.notFound (all internal concrete Recipient subclasses implement toString())
         return $this->toString();
     }
 
