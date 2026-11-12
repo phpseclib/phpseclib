@@ -538,10 +538,11 @@ Private-Lines: 1
 AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
 Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         $this->assertInstanceOf(PrivateKey::class, $private);
+        $private = $private->withSignatureFormat('ASN1');
         $public = $private->getPublicKey();
 
-        $signature1 = $private->sign($message, 'ASN1');
-        $signature2 = $private->sign($message, 'ASN1');
+        $signature1 = $private->sign($message);
+        $signature2 = $private->sign($message);
         // phpseclib's EC implementation uses a CSPRNG to generate the k parameter.
         // used correctly this should result in different signatures every time.
         // RFC6979 describes a deterministic EC scheme wherein two signatures for the same
@@ -549,17 +550,21 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         // unit test would need to be updated
         $this->assertNotEquals($signature1, $signature2);
 
-        $this->assertTrue($public->verify($message, $signature1, 'ASN1'));
-        $this->assertTrue($public->verify($message, $signature2, 'ASN1'));
+        $this->assertTrue($public->verify($message, $signature1));
+        $this->assertTrue($public->verify($message, $signature2));
 
-        $signature1 = $private->sign($message, 'SSH2');
-        $signature2 = $private->sign($message, 'SSH2');
+        $private = $private->withSignatureFormat('SSH2');
+        $public = $private->getPublicKey();
+        $signature1 = $private->sign($message);
+        $signature2 = $private->sign($message);
         $this->assertNotEquals($signature1, $signature2);
-        $this->assertTrue($public->verify($message, $signature1, 'SSH2'));
-        $this->assertTrue($public->verify($message, $signature2, 'SSH2'));
+        $this->assertTrue($public->verify($message, $signature1));
+        $this->assertTrue($public->verify($message, $signature2));
 
-        $signature = $private->sign($message, 'Raw');
-        $this->assertTrue($public->verify($message, $signature, 'Raw'));
+        $private = $private->withSignatureFormat('Raw');
+        $public = $private->getPublicKey();
+        $signature = $private->sign($message);
+        $this->assertTrue($public->verify($message, $signature));
 
         // reset engine
         EC::forceEngine();
