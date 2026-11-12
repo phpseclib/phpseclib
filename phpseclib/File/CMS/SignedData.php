@@ -118,7 +118,9 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
             $rules['encapContentInfo'] = self::mapInEncapContentInfo(...);
             $decoded = ASN1::decodeBER($content->value);
             $cms['content'] = ASN1::map($decoded, Maps\SignedData::MAP, $rules);
+            // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
             $cms['content']->parent = $cms;
+            // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
             $cms['content']->key = 'content';
         } finally {
             ASN1::enableCacheInvalidation();

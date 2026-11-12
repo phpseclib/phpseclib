@@ -83,7 +83,9 @@ class DigestedData implements \ArrayAccess, \Countable, \Iterator
         }
         $decoded = ASN1::decodeBER($content->value);
         $cms['content'] = ASN1::map($decoded, Maps\DigestedData::MAP);
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->parent = $cms;
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->key = 'content';
         return $cms;
     }

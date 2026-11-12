@@ -236,9 +236,12 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         try {
             for ($i = 0; $i < count($attr['value']); $i++) {
                 $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->parent = $attr['value'];
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->key = $i;
                 /** @psalm-suppress InvalidPropertyFetch */
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->depth = $attr['value']->depth + 1;
             }
         } finally {

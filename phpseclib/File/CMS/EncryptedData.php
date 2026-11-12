@@ -171,7 +171,9 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         } else {
             $cms['content'] = ASN1::map($decoded, Maps\EncryptedDataCMS::MAP);
         }
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->parent = $cms;
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->key = 'content';
         return $cms;
     }

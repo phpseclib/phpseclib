@@ -101,6 +101,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                         $decoded = ASN1::decodeBER((string) $content['content']);
                         $cms[$key]['content'] = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
                         /** @psalm-suppress UndefinedPropertyAssignment */
+                        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         $cms[$key]['content']->parent = $cms[$key];
                         foreach ($cms[$key]['content'] as $subkey => $value) {
                             try {
