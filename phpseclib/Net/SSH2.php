@@ -1870,6 +1870,7 @@ class SSH2
             return 16;
         }
 
+        // @phpstan-ignore match.unhandled (Negotiated names are constrained by the built-in supported-algorithm lists; keep unsupported values failing.)
         return match ($algorithm) {
             'none'
                 => 0,
@@ -2025,10 +2026,12 @@ class SSH2
                         case 'keyboard-interactive':
                             $hasArray = $hasString = false;
                             foreach ($args as $arg) {
+                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see analysis/github-issue-drafts/FLOW-008-ssh2-mfa-argument-selection.md.)
                                 if ($hasArray || is_array($arg)) {
                                     $hasArray = true;
                                     break;
                                 }
+                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see analysis/github-issue-drafts/FLOW-008-ssh2-mfa-argument-selection.md.)
                                 if ($hasString || is_string($arg)) {
                                     $hasString = true;
                                     break;
@@ -2261,17 +2264,15 @@ class SSH2
                 }
                 $responses = array_values($responses);
 
-                if (isset($this->keyboard_requests_responses)) {
-                    for ($i = 0; $i < $num_prompts; $i++) {
-                        [
-                            $prompt, // prompt - ie. "Password: "; must not be empty
-                            // echo
-                        ] = Strings::unpackSSH2('sC', $response);
-                        foreach ($this->keyboard_requests_responses as $key => $value) {
-                            if (substr($prompt, 0, strlen($key)) == $key) {
-                                $responses[] = $value;
-                                break;
-                            }
+                for ($i = 0; $i < $num_prompts; $i++) {
+                    [
+                        $prompt, // prompt - ie. "Password: "; must not be empty
+                        // echo
+                    ] = Strings::unpackSSH2('sC', $response);
+                    foreach ($this->keyboard_requests_responses as $key => $value) {
+                        if (substr($prompt, 0, strlen($key)) == $key) {
+                            $responses[] = $value;
+                            break;
                         }
                     }
                 }
@@ -3435,9 +3436,7 @@ class SSH2
                     $this->decompress_context = inflate_init(ZLIB_ENCODING_RAW, ['window' => $cinfo + 8]);
                     $payload = substr($payload, 2);
                 }
-                if ($this->decompress_context) {
-                    $payload = inflate_add($this->decompress_context, $payload, ZLIB_PARTIAL_FLUSH);
-                }
+                $payload = inflate_add($this->decompress_context, $payload, ZLIB_PARTIAL_FLUSH);
         }
 
         $this->get_seq_no++;
@@ -3939,8 +3938,6 @@ class SSH2
                                 }
                                 return $this->get_channel_packet($client_channel, $skip_extended);
                         }
-                        /** @psalm-suppress UnevaluatedCode */
-                        break;
                     case MessageType::CHANNEL_REQUEST:
                         switch ($type) {
                             case MessageType::CHANNEL_SUCCESS:
@@ -4066,9 +4063,7 @@ class SSH2
                     $this->compress_context = deflate_init(ZLIB_ENCODING_RAW, ['window' => 15]);
                     $header = "\x78\x9C";
                 }
-                if ($this->compress_context) {
-                    $data = $header . deflate_add($this->compress_context, $data, ZLIB_PARTIAL_FLUSH);
-                }
+                $data = $header . deflate_add($this->compress_context, $data, ZLIB_PARTIAL_FLUSH);
         }
 
         // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
