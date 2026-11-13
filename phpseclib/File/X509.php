@@ -1163,7 +1163,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         if ($value = $this->getSubjectDNProps('id-at-commonName')) {
-            $value = preg_quote($value[0], '#');
+            $value = preg_quote((string) $value[0], '#');
             $value = str_replace('\*', '[^.]*', $value);
             return preg_match('#^' . $value . '$#', $components['host']) === 1;
         }
