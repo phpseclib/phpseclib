@@ -1156,6 +1156,16 @@ class SSH2
     var $strict_kex_flag = false;
 
     /**
+     * Time of last read/write network activity
+     *
+     * @see self::_key_exchange()
+     * @see self::getKEXCount()
+     * @var int
+     * @access private
+     */
+    var $kex_count = 0;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1530,6 +1540,7 @@ class SSH2
      */
     function _key_exchange($kexinit_payload_server = false)
     {
+        $this->kex_count++;
         $this->bytesTransferredSinceLastKEX = 0;
 
         $preferred = $this->preferred;
@@ -1960,11 +1971,17 @@ class SSH2
             return false;
         }
         $temp = unpack('Nlength', $this->_string_shift($response, 4));
-        $this->server_public_host_key = $server_public_host_key = $this->_string_shift($response, $temp['length']);
+        $server_public_host_key = $this->_string_shift($response, $temp['length']);
 
         if (strlen($server_public_host_key) < 4) {
             return false;
         }
+        if (isset($this->server_public_host_key) && $this->server_public_host_key != $server_public_host_key) {
+            $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
+            return false;
+        }
+        $this->server_public_host_key = $server_public_host_key;
+
         $temp = unpack('Nlength', $this->_string_shift($server_public_host_key, 4));
         $public_key_format = $this->_string_shift($server_public_host_key, $temp['length']);
 
@@ -2028,6 +2045,13 @@ class SSH2
         );
 
         $this->exchange_hash = $kexHash->hash($this->exchange_hash);
+
+        if ($this->signature_validated) {
+            $this->signature_validated = false;
+            if ($this->getServerPublicHostKey() === false) {
+                return false;
+            }
+        }
 
         if ($this->session_id === false) {
             $this->session_id = $this->exchange_hash;
@@ -3628,7 +3652,12 @@ class SSH2
     function _reconnect()
     {
         $this->_reset_connection(NET_SSH2_DISCONNECT_CONNECTION_LOST);
+        $old_server_public_host_key = $this->server_public_host_key;
         if (!$this->_connect()) {
+            return false;
+        }
+        if ($old_server_public_host_key != $this->server_public_host_key) {
+            $this->_disconnect(NET_SSH2_DISCONNECT_BY_APPLICATION);
             return false;
         }
         foreach ($this->auth as $auth) {
@@ -5725,5 +5754,10 @@ class SSH2
         }
 
         return $result === "\0";
+    }
+
+    function getKEXCount()
+    {
+        return $this->kex_count;
     }
 }
