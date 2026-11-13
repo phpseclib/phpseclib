@@ -788,6 +788,7 @@ abstract class SymmetricKey
                         throw new LengthException('Derived key length cannot be longer 0 or less');
                     }
                     $dkLen = $func_args[3];
+                    $this->setKeyLength($method == 'pbkdf1' ? 4 * $dkLen : 8 * $dkLen);
                 } else {
                     $key_length = $this->explicit_key_length ?? $this->key_length;
                     $dkLen = $method == 'pbkdf1' ? 2 * $key_length : $key_length;
