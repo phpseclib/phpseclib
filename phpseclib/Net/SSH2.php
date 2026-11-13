@@ -1011,9 +1011,8 @@ class SSH2
      *
      * @see self::_key_exchange()
      * @see self::getKEXCount()
-     * @var int
      */
-    private $kex_count = 0;
+    private int $kex_count = 0;
 
     /**
      * Default Constructor.
@@ -5183,7 +5182,12 @@ class SSH2
         $this->doKeyReexchangeAfterXBytes = $bytes;
     }
 
-    public function getKEXCount()
+    /**
+     * How many key re-exchanges have taken place?
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
+    public function getKEXCount(): int
     {
         return $this->kex_count;
     }
