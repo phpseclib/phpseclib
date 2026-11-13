@@ -147,6 +147,7 @@ jobs:
                     sudo sshd -T -C "user=$PHPSECLIB_SSH_USERNAME,host=localhost,addr=127.0.0.1" | grep -x 'passwordauthentication yes'
 
                     # ---------- Port 23: keyboard-interactive only ----------
+                    # the port 23 server also does key re-exchanges after every 1KB
                     sudo tee /etc/ssh/sshd_config_kbdint > /dev/null <<'EOF'
                     Port 23
                     PidFile /run/sshd_kbdint.pid
@@ -157,6 +158,7 @@ jobs:
                     UsePAM yes
                     AuthenticationMethods keyboard-interactive
                     Subsystem sftp /usr/lib/openssh/sftp-server
+                    RekeyLimit 1K none
                     EOF
 
                     # ---------- Port 24: 2FA (publickey + keyboard-interactive) ----------

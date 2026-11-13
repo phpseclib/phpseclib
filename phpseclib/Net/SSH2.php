@@ -5185,8 +5185,6 @@ class SSH2
 
     /**
      * How many key re-exchanges have taken place?
-     *
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public function getKEXCount(): int
     {
