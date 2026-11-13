@@ -1343,7 +1343,7 @@ JYhGgW6KsKViE0hzQB8dSAcNcfwQPSKzOd02crXdJ7uYvZZK9prN83Oe1iDaizeA
 
     public function testBadCN()
     {
-        $x509 = new File_X509();
+        $x509 = new X509();
         $x509->loadCA('-----BEGIN CERTIFICATE-----
 MIICujCCAaKgAwIBAgIJAOPRzIzYFaOJMA0GCSqGSIb3DQEBCwUAMBIxEDAOBgNV
 BAMMB3Rlc3QtY2EwHhcNMjYxMTEzMTQwNzQ2WhcNMjYxMTE1MTQwNzQ2WjASMRAw
