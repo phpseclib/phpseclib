@@ -1950,7 +1950,8 @@ class SSH2
         if ($this->signature_validated) {
             $this->signature_validated = false;
             if ($this->getServerPublicHostKey() === false) {
-                return false;
+                $this->disconnect_helper(NET_SSH2_DISCONNECT_HOST_KEY_NOT_VERIFIABLE);
+                throw new \UnexpectedValueException('Server signature re-verification failed');
             }
         }
 
