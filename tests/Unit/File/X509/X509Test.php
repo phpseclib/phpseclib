@@ -1931,4 +1931,26 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         $this->expectException(UnexpectedValueException::class);
         X509::load($x509)->toArray();
     }
+
+    public function testBadCN()
+    {
+        $x509 = X509::load('-----BEGIN CERTIFICATE-----
+MIICtTCCAZ0CCQDcTlkpIgIQ6TANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAd0
+ZXN0LWNhMB4XDTI2MTExMzE0MjE1NloXDTI2MTExNTE0MjE1NlowJzElMCMGA1UE
+AwwcYmFuay5pbnRlcm5hbC50ZXN0fGV2aWwudGVzdDCCASIwDQYJKoZIhvcNAQEB
+BQADggEPADCCAQoCggEBALoKwh9LHObuXFrWE/Up/IRFeQtQR64OF1TJvX9gXcfp
+wunJ9LDh31fglcj+7etbJ36OhrAk5nd2l7GpkYPs5tExf2gpdIUSH3zyPXNVWMgU
+N3XgFJtMyTW8gn6Ve/pjRvcFsq7XN+V2F0hnb0iTl6Ta2nf9FzQvvjdz7ymhqPb1
+1bbUEAuED8klcYBO+Igwihz8Rsrrlp4RaDOZ+0tmJq8BgQLh5jW/nAfdQk0i8pSA
+UC0hevCmG2IRZVIA3xsS5I7LoJe+c6GULAMpO1qFfrpKMwBaND5vVc3hXW+G5w+2
+8TIA3dldq4/I5nknS/JEvm6pY+mYF7QRzDFOTf5yjP0CAwEAATANBgkqhkiG9w0B
+AQsFAAOCAQEAKEGAq7rvey0pVggLoXwLDk9XQ3D8Nco7X2V1NaF39w0ZGbpManh7
+xAkJgBjGFFosFr1yissz/FocKyU1opGeL33duvx0XQ/4RbuJLjJQA7GeZNBlzfJm
+3GQmcjsKnkb/efYEkrjLxqfqUwhu2no0DLF0gxEZMtAuJFRA/g6iV7mE8tJ5oZpf
+OtsZ2Kk/ePeci0H9BRLY8YDELOCHtjCrgUmlrh211TYMN9XBOSA/vLKvazTlmybC
+SGufzep/12RfSMqh1ohXDJBv0hTsXQboEju1Fyde9xD055zUBmFJJIpbjpKpchhD
+OxVSACNozMMrZrPHjqK0MHq/oHgwCcXOsA==
+-----END CERTIFICATE-----');
+        $this->assertFalse($x509->validateURL('https://bank.internal.test/'));
+    }
 }
