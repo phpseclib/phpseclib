@@ -1007,6 +1007,14 @@ class SSH2
     private bool $strict_kex_flag = false;
 
     /**
+     * Time of last read/write network activity
+     *
+     * @see self::_key_exchange()
+     * @see self::getKEXCount()
+     */
+    private int $kex_count = 0;
+
+    /**
      * Default Constructor.
      *
      * $host can either be a string, representing the host, or a stream resource.
@@ -1317,6 +1325,7 @@ class SSH2
      */
     private function key_exchange(?string $kexinit_payload_server = null): bool
     {
+        $this->kex_count++;
         $this->bytesTransferredSinceLastKEX = 0;
 
         $preferred = $this->preferred;
@@ -1513,17 +1522,17 @@ class SSH2
             'diffie-hellman-group17-sha512',
             'diffie-hellman-group18-sha512',
             'ecdh-sha2-nistp521'
-            => new Hash('sha512'),
+                => new Hash('sha512'),
             'ecdh-sha2-nistp384'
-            => new Hash('sha384'),
+                => new Hash('sha384'),
             'diffie-hellman-group-exchange-sha256',
             'diffie-hellman-group14-sha256',
             'ecdh-sha2-nistp256',
             'curve25519-sha256@libssh.org',
             'curve25519-sha256'
-            => new Hash('sha256'),
+                => new Hash('sha256'),
             default
-            => new Hash('sha1')
+                => new Hash('sha1')
         };
 
         // Only relevant in diffie-hellman-group-exchange-sha{1,256}, otherwise empty.
@@ -1604,6 +1613,12 @@ class SSH2
             $this->signature
         ] = Strings::unpackSSH2('Csss', $response);
 
+        if (isset($this->server_public_host_key) && $server_public_host_key != $this->server_public_host_key) {
+            $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
+            throw new UnexpectedValueException('Server public host key changed');
+        }
+        $this->server_public_host_key = $server_public_host_key;
+
         switch ($serverKexReplyMessage) {
             case MessageTypeExtra::KEX_ECDH_REPLY:
                 $this->updateLogHistory('SSH_MSG_KEXDH_REPLY', 'SSH_MSG_KEX_ECDH_REPLY');
@@ -1614,6 +1629,7 @@ class SSH2
 
         $this->server_public_host_key = $server_public_host_key;
         [$public_key_format] = Strings::unpackSSH2('s', $server_public_host_key);
+
         if (strlen($this->signature) < 4) {
             throw new LengthException('The signature needs at least four bytes');
         }
@@ -1649,6 +1665,15 @@ class SSH2
         );
 
         $this->exchange_hash = $kexHash->hash($this->exchange_hash);
+
+        if ($this->signature_validated) {
+            $this->signature_validated = false;
+            if ($this->getServerPublicHostKey() === null) {
+                $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
+                throw new UnexpectedValueException('Server signature re-verification failed');
+            }
+        }
+
         $this->session_id ??= $this->exchange_hash;
 
         $expected_key_format = match ($server_host_key_algorithm) {
@@ -1842,7 +1867,7 @@ class SSH2
 
         return match ($algorithm) {
             'none'
-            => 0,
+                => 0,
             'aes128-gcm@openssh.com',
             'aes128-cbc',
             'aes128-ctr',
@@ -1852,14 +1877,14 @@ class SSH2
             'blowfish-ctr',
             'twofish128-cbc',
             'twofish128-ctr'
-            => 16,
+                => 16,
             '3des-cbc',
             '3des-ctr',
             'aes192-cbc',
             'aes192-ctr',
             'twofish192-cbc',
             'twofish192-ctr'
-            => 24,
+                => 24,
             'aes256-gcm@openssh.com',
             'aes256-cbc',
             'aes256-ctr',
@@ -1867,9 +1892,9 @@ class SSH2
             'twofish-cbc',
             'twofish256-cbc',
             'twofish256-ctr'
-            => 32,
+                => 32,
             'chacha20-poly1305@openssh.com'
-            => 64
+                => 64
         };
     }
 
@@ -3117,7 +3142,14 @@ class SSH2
     private function reconnect(): bool
     {
         $this->disconnect_helper(DisconnectReason::BY_APPLICATION);
+        $old_server_public_host_key = $this->server_public_host_key;
+
         $this->connect();
+        if ($old_server_public_host_key != $this->server_public_host_key) {
+            $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
+            throw new UnexpectedValueException('Server public host key changed');
+        }
+
         foreach ($this->auth as $auth) {
             $result = $this->login(...$auth);
         }
@@ -4913,7 +4945,7 @@ class SSH2
      * Returns the server public host key.
      *
      * Caching this the first time you connect to a server and checking the result on subsequent connections
-     * is recommended.  Returns false if the server signature is not signed correctly with the public host key.
+     * is recommended.  Returns null if the server signature is not signed correctly with the public host key.
      */
     public function getServerPublicHostKey(): ?string
     {
@@ -5149,5 +5181,13 @@ class SSH2
     public function setBytesUntilKeyReexchange(int $bytes): void
     {
         $this->doKeyReexchangeAfterXBytes = $bytes;
+    }
+
+    /**
+     * How many key re-exchanges have taken place?
+     */
+    public function getKEXCount(): int
+    {
+        return $this->kex_count;
     }
 }
