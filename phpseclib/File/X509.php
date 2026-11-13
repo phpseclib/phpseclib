@@ -1079,7 +1079,7 @@ class X509
         if ($names = $this->getExtension('id-ce-subjectAltName')) {
             foreach ($names as $name) {
                 foreach ($name as $key => $value) {
-                    $value = preg_quote($value);
+                    $value = preg_quote($value, '#');
                     $value = str_replace('\*', '[^.]*', $value);
                     switch ($key) {
                         case 'dNSName':
@@ -1110,7 +1110,8 @@ class X509
         }
 
         if ($value = $this->getDNProp('id-at-commonName')) {
-            $value = str_replace(['.', '*'], ['\.', '[^.]*'], $value[0]);
+            $value = preg_quote($value[0], '#');
+            $value = str_replace('\*', '[^.]*', $value);
             return preg_match('#^' . $value . '$#', $components['host']) === 1;
         }
 
