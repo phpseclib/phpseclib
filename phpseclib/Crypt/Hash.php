@@ -513,7 +513,7 @@ class Hash
         // For the last chunk: pad to 32-byte boundary, endian-adjust,
         // NH hash and add bit-length.  Concatenate the result to Y.
         //
-        $length = count($m) ? strlen($m[$i]) : 0;
+        $length = strlen($m[$i] ?? '');
         $pad = 32 - ($length % 32);
         $pad = max(32, $length + $pad % 32);
         $m[$i] = str_pad($m[$i] ?? '', $pad, "\0"); // zeropad
