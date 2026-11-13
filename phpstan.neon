@@ -8,7 +8,7 @@ parameters:
         - phpseclib
         - tests
 
-    phpVersion: 80200
+    phpVersion: 80100 # Minimum supported PHP version; keep aligned with composer.json.
 
     reportUnmatchedIgnoredErrors: true
     checkMissingOverrideMethodAttribute: false
