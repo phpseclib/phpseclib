@@ -112,7 +112,7 @@ final class PublicKey extends EC implements Common\PublicKey
                 }
                 if (defined($keyTypeConstant) && !isset($this->context)) {
                     // algorithm 0 is used because EdDSA has a built-in hash
-                    $result = openssl_verify($message, $signature, $this->toString('PKCS8'), 0) === 1;
+                    $result = openssl_verify($message, $signature, $this->toString('PKCS8'), 0);
                     if ($result !== -1 && $result !== false) {
                         return (bool) $result;
                     }

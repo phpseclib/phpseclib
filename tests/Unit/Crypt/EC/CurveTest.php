@@ -570,6 +570,33 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         EC::forceEngine();
     }
 
+    public function testOpenSSLEd25519InvalidSignatureReturnsFalse(): void
+    {
+        if (!defined('OPENSSL_KEYTYPE_ED25519')) {
+            self::markTestSkipped('OpenSSL Ed25519 support requires PHP 8.4 or later');
+        }
+
+        try {
+            EC::forceEngine('PHP');
+            $privateKey = EC::createKey('Ed25519');
+            $publicKey = $privateKey->getPublicKey();
+            $message = 'Package 70 OpenSSL verification';
+            $signature = $privateKey->sign($message);
+
+            EC::forceEngine('OpenSSL');
+            try {
+                $this->assertTrue($publicKey->verify($message, $signature));
+            } catch (BadConfigurationException $e) {
+                self::markTestSkipped('OpenSSL Ed25519 verification is unavailable: ' . $e->getMessage());
+            }
+
+            $signature[0] = chr(ord($signature[0]) ^ 1);
+            $this->assertFalse($publicKey->verify($message, $signature));
+        } finally {
+            EC::forceEngine();
+        }
+    }
+
     public function testBadRSEd25519(): void
     {
         EC::forceEngine('PHP');
