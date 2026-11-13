@@ -32,6 +32,24 @@ use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
 {
+    public function testEncodeTimeValuesInGMTWithoutMutatingSource(): void
+    {
+        foreach ([
+            new \DateTime('2026-01-01T12:00:00+02:00'),
+            new \DateTimeImmutable('2026-01-01T12:00:00+02:00'),
+        ] as $date) {
+            $this->assertSame(
+                hex2bin('180f32303236303130313130303030305a'),
+                ASN1::encodeDER($date, ['type' => ASN1::TYPE_GENERALIZED_TIME])
+            );
+            $this->assertSame(
+                hex2bin('170d3236303130313130303030305a'),
+                ASN1::encodeDER($date, ['type' => ASN1::TYPE_UTC_TIME])
+            );
+            $this->assertSame('+02:00', $date->format('P'));
+        }
+    }
+
     /**
      * on older versions of \phpseclib4\File\ASN1 this would yield a PHP Warning
      */
