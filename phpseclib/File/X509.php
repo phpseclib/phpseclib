@@ -1130,7 +1130,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         if ($names = $this->getExtension('id-ce-subjectAltName')) {
-<<<<<<< HEAD
             foreach ($names['extnValue'] as $name) {
                 $key = $name->index;
                 $value = (string) $name->value;
