@@ -935,7 +935,7 @@ abstract class RSA extends AsymmetricKey
                         $hash = $this->hash->getHash();
 
                         $result = $this->signaturePadding === self::SIGNATURE_PSS ?
-                            $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) :
+                            $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) : // @phpstan-ignore arguments.count (PHPStan targets 8.2; this branch requires the PHP 8.5-only PSS constant, which adds the fifth OpenSSL argument.)
                             $func($message, $signature, $key, $hash);
 
                         if ($func === 'openssl_verify') {
@@ -999,7 +999,7 @@ abstract class RSA extends AsymmetricKey
                             break;
                         //case self::ENCRYPTION_OAEP:
                         default:
-                            $result = $func($message, $output, $key, OPENSSL_PKCS1_OAEP_PADDING, $hash);
+                            $result = $func($message, $output, $key, OPENSSL_PKCS1_OAEP_PADDING, $hash); // @phpstan-ignore arguments.count (PHPStan targets 8.2; PHP 8.5 added the fifth OAEP digest_algo argument, and this call is gated by PHP_VERSION_ID >= 80500.)
                     }
                     if ($result) {
                         return $output;
