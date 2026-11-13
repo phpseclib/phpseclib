@@ -1669,6 +1669,7 @@ class SSH2
         if ($this->signature_validated) {
             $this->signature_validated = false;
             if ($this->getServerPublicHostKey() === null) {
+                $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
                 throw new UnexpectedValueException('Server signature re-verification failed');
             }
         }
