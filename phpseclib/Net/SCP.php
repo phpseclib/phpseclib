@@ -109,6 +109,7 @@ class SCP extends SSH2
             case is_resource($data):
                 $mode = $mode & ~self::SOURCE_LOCAL_FILE;
                 $info = stream_get_meta_data($data);
+                // @phpstan-ignore isset.offset (Valid socket stream metadata may omit wrapper_type; preserve safe handling of resource sources.)
                 if (isset($info['wrapper_type']) && $info['wrapper_type'] == 'PHP' && $info['stream_type'] == 'Input') {
                     $fp = fopen('php://memory', 'w+');
                     stream_copy_to_stream($data, $fp);
