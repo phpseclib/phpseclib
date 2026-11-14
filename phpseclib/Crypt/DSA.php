@@ -263,6 +263,22 @@ abstract class DSA extends AsymmetricKey
      */
     protected static function onLoad(array $components)
     {
+        // FIPS 186-4 4.1 and 4.5: 1 < g < p, 0 < x < q, and 1 < y < p. Values out of range
+        // make the arithmetic fail (p = 0 or q = 0 is a DivisionByZeroError).
+        $one = new BigInteger(1);
+        $p = $components['p'];
+        $q = $components['q'];
+        $g = $components['g'];
+        if ($p->compare($one) <= 0 || $q->compare($one) <= 0 || $g->compare($one) <= 0 || $g->compare($p) >= 0) {
+            throw new \UnexpectedValueException('DSA parameters are out of range');
+        }
+        if (isset($components['x']) && ($components['x']->compare(new BigInteger()) <= 0 || $components['x']->compare($q) >= 0)) {
+            throw new \UnexpectedValueException('The DSA private key is out of range');
+        }
+        if (isset($components['y']) && ($components['y']->compare($one) <= 0 || $components['y']->compare($p) >= 0)) {
+            throw new \UnexpectedValueException('The DSA public key is out of range');
+        }
+
         if (!isset($components['x']) && !isset($components['y'])) {
             $new = new Parameters();
         } elseif (isset($components['x'])) {
