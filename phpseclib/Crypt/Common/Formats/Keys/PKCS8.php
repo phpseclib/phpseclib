@@ -214,7 +214,7 @@ abstract class PKCS8 extends PKCS
      */
     protected static function wrapPrivateKey(
         #[\SensitiveParameter] string $key,
-        Element|BaseType $params = new ExplicitNull(),
+        Element|BaseType|null $params = new ExplicitNull(),
         #[\SensitiveParameter] ?string $password = null,
         ?string $oid = null,
         array $options = []
@@ -228,7 +228,8 @@ abstract class PKCS8 extends PKCS
              ],
             'privateKey' => $key,
         ];
-        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448' && $oid != 'id-X25519' && $oid != 'id-X448') {
+        // ML-DSA keys pass null for $params since their AlgorithmIdentifier has no parameters (RFC 9881)
+        if (isset($params) && $oid != 'id-Ed25519' && $oid != 'id-Ed448' && $oid != 'id-X25519' && $oid != 'id-X448') {
             $key['privateKeyAlgorithm']['parameters'] = $params;
         }
         //if (!empty($attr)) {
@@ -273,7 +274,7 @@ abstract class PKCS8 extends PKCS
      */
     protected static function wrapPublicKey(
         string $key,
-        Element|BaseType $params = new ExplicitNull(),
+        Element|BaseType|null $params = new ExplicitNull(),
         ?string $oid = null,
         array $options = []
     ): string {
@@ -286,7 +287,7 @@ abstract class PKCS8 extends PKCS
             'publicKey' => "\0" . $key,
         ];
 
-        if ($oid != 'id-Ed25519' && $oid != 'id-Ed448' && $oid != 'id-X25519' && $oid != 'id-X448') {
+        if (isset($params) && $oid != 'id-Ed25519' && $oid != 'id-Ed448' && $oid != 'id-X25519' && $oid != 'id-X448') {
             $key['publicKeyAlgorithm']['parameters'] = $params;
         }
 
