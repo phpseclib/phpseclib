@@ -64,7 +64,7 @@ abstract class Base
     /**
      * Returns the length, in bits, of the modulo
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function getLength(): int
@@ -148,7 +148,7 @@ abstract class Base
     /**
      * Use a custom defined modular reduction function
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function setReduction(\Closure $func): void
@@ -189,6 +189,8 @@ abstract class Base
 
     /**
      * Multiply and Add Points
+     *
+     * @psalm-api
      */
     public function multiplyAddPoints(array $points, array $scalars): array
     {

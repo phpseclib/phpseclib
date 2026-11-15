@@ -1223,7 +1223,7 @@ class DES extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setupInlineCrypt()
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     protected function setupInlineCrypt(): void
     {

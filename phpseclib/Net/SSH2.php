@@ -1047,7 +1047,7 @@ class SSH2
      * Possible $engine values:
      * OpenSSL, Eval, PHP
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function setCryptoEngine(string $engine): void
     {
@@ -1061,7 +1061,7 @@ class SSH2
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function sendIdentificationStringFirst(): void
     {
@@ -1075,7 +1075,7 @@ class SSH2
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function sendIdentificationStringLast(): void
     {
@@ -1089,7 +1089,7 @@ class SSH2
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function sendKEXINITFirst(): void
     {
@@ -1103,7 +1103,7 @@ class SSH2
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function sendKEXINITLast(): void
     {
@@ -2502,7 +2502,7 @@ class SSH2
     /**
      * Get the output from stdError
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getStdError(): string
     {
@@ -2914,7 +2914,7 @@ class SSH2
      * if there's sufficient demand for such a feature.
      *
      * @see self::stopSubsystem()
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function startSubsystem(string $subsystem): bool
     {
@@ -2948,7 +2948,7 @@ class SSH2
      *
      * @see self::startSubsystem()
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function stopSubsystem(): void
     {
@@ -4061,10 +4061,6 @@ class SSH2
                 $packet_length += 4;
         }
 
-        // SSH binary packet padding is always 4-255 bytes; the block-rounding above
-        // guarantees $padding_length >= 4. Psalm can't track that through the modular
-        // arithmetic, so it sees int<min,max>.
-        /** @psalm-suppress InvalidArgument */
         $padding = random_bytes($padding_length);
 
         // we subtract 4 from packet_length because the packet_length field isn't supposed to include itself
@@ -4417,7 +4413,7 @@ class SSH2
      *
      * Returns a string if NET_SSH2_LOGGING == self::LOG_COMPLEX, an array if NET_SSH2_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getLog(): array|string|null
     {
@@ -4471,7 +4467,7 @@ class SSH2
     /**
      * Get Debug Messages
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getDebugMessages(): array
     {
@@ -4520,7 +4516,7 @@ class SSH2
      * version string. getServerIdentification() returns the server string. This function returns
      * the server string and the lines preceeding it.
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getRawServerIdentification(): string
     {
@@ -4532,7 +4528,7 @@ class SSH2
     /**
      * Returns a list of algorithms the server supports
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getServerAlgorithms(): array
     {
@@ -4805,7 +4801,7 @@ class SSH2
     /**
      * Force multiple channels (even if phpseclib has decided to disable them)
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function forceMultipleChannels(): void
     {
@@ -4815,7 +4811,7 @@ class SSH2
     /**
      * Allows you to set the terminal
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function setTerminal(string $term): void
     {
@@ -4934,7 +4930,7 @@ class SSH2
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getBannerMessage(): string
     {
@@ -5028,7 +5024,7 @@ class SSH2
     /**
      * Returns the number of columns for the terminal window size.
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getWindowColumns(): int
     {
@@ -5038,7 +5034,7 @@ class SSH2
     /**
      * Returns the number of rows for the terminal window size.
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getWindowRows(): int
     {
@@ -5048,7 +5044,7 @@ class SSH2
     /**
      * Sets the number of columns for the terminal window size.
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function setWindowColumns(int $value): void
     {
@@ -5058,7 +5054,7 @@ class SSH2
     /**
      * Sets the number of rows for the terminal window size.
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function setWindowRows(int $value): void
     {
@@ -5068,7 +5064,7 @@ class SSH2
     /**
      * Sets the number of columns and rows for the terminal window size.
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function setWindowSize(int $columns = 80, int $rows = 24): void
     {
@@ -5146,7 +5142,7 @@ class SSH2
      *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function getAuthMethodsToContinue(): ?array
     {
@@ -5156,7 +5152,7 @@ class SSH2
     /**
      * Enables "smart" multi-factor authentication (MFA)
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function enableSmartMFA(): void
     {
@@ -5166,7 +5162,7 @@ class SSH2
     /**
      * Disables "smart" multi-factor authentication (MFA)
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function disableSmartMFA(): void
     {
@@ -5176,7 +5172,7 @@ class SSH2
     /**
      * How many bytes until the next key re-exchange?
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function setBytesUntilKeyReexchange(int $bytes): void
     {

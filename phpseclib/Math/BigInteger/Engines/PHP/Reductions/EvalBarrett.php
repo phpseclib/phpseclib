@@ -49,8 +49,6 @@ abstract class EvalBarrett extends Base
 
     /**
      * Generate Custom Reduction
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected static function generateCustomReduction(PHP $m, string $class): \Closure
     {
