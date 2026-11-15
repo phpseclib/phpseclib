@@ -72,7 +72,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->tag = $tag;
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function getTag(): int
     {
         return $this->tag;
@@ -626,7 +626,7 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->invalidateCache();
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function firstKey(): mixed
     {
         if (!$this->mapping) {

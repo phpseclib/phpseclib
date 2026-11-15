@@ -1796,6 +1796,7 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @see self::enableContinuousBuffer()
+     * @psalm-api
      */
     public function disableContinuousBuffer(): void
     {
@@ -2280,7 +2281,6 @@ abstract class SymmetricKey
      * @see self::decrypt()
      * @see self::setupInlineCrypt()
      * @see self::encrypt()
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected function createInlineCryptFunction(array $cipher_code): \Closure
     {
