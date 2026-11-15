@@ -2520,6 +2520,9 @@ class SSH2
         //}
 
         $this->open_channel(self::CHANNEL_EXEC);
+        if ($this->is_timeout) {
+            throw new TimeoutException('Timed out waiting for server');
+        }
 
         if ($this->request_pty === true) {
             $terminal_modes = pack('C', TerminalMode::TTY_OP_END);
@@ -2665,6 +2668,7 @@ class SSH2
 
         $this->channel_status[$channel] = MessageType::CHANNEL_OPEN;
 
+        $this->is_timeout = false;
         /** @psalm-suppress InvalidReturnStatement */
         return $this->get_channel_packet($channel, $skip_extended);
     }
@@ -2686,6 +2690,9 @@ class SSH2
         }
 
         $this->open_channel(self::CHANNEL_SHELL);
+        if ($this->is_timeout) {
+            throw new TimeoutException('Timed out waiting for server');
+        }
 
         $terminal_modes = pack('C', TerminalMode::TTY_OP_END);
         $packet = Strings::packSSH2(
@@ -2919,6 +2926,9 @@ class SSH2
     public function startSubsystem(string $subsystem): bool
     {
         $this->open_channel(self::CHANNEL_SUBSYSTEM);
+        if ($this->is_timeout) {
+            return false;
+        }
 
         $packet = Strings::packSSH2(
             'CNsCs',

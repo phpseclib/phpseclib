@@ -397,6 +397,49 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertEquals(0, self::getVar($ssh, 'bitmap'));
     }
 
+    public function testExecChannelOpenTimeout(): void
+    {
+        $ssh = $this->createChannelOpenTimeoutMock();
+
+        try {
+            $ssh->exec('ls');
+            $this->fail('Failed asserting that exec() throws on timeout');
+        } catch (TimeoutException $e) {
+            $this->assertSame('Timed out waiting for server', $e->getMessage());
+        }
+        $this->assertTrue($ssh->isTimeout());
+    }
+
+    public function testOpenShellChannelOpenTimeout(): void
+    {
+        $ssh = $this->createChannelOpenTimeoutMock();
+
+        $this->expectException(TimeoutException::class);
+        $this->expectExceptionMessage('Timed out waiting for server');
+
+        $ssh->openShell();
+    }
+
+    private function createChannelOpenTimeoutMock(): SSH2
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['__destruct', 'isAuthenticated', 'get_channel_packet', 'send_binary_packet'])
+            ->getMock();
+        $ssh->method('isAuthenticated')
+            ->willReturn(true);
+        $ssh->expects($this->once())
+            ->method('send_binary_packet');
+        $ssh->expects($this->once())
+            ->method('get_channel_packet')
+            ->willReturnCallback(function () use ($ssh): bool {
+                self::setVar($ssh, 'is_timeout', true);
+                return true;
+            });
+
+        return $ssh;
+    }
+
     /** @psalm-suppress InvalidReturnType, InvalidReturnStatement */
     protected function createSSHMock(): SSH2
     {
