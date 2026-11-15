@@ -215,7 +215,9 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         // the order for this matters. if you do unset($x509['tbsCertificate']['extensions'][0]) first
         // then what had been $x509['tbsCertificate']['extensions'][4] will all of a sudden be
         // $x509['tbsCertificate']['extensions'][3]
+        /** @psalm-suppress InvalidArrayAccess */
         unset($x509['tbsCertificate']['extensions'][4]);
+        /** @psalm-suppress InvalidArrayAccess */
         unset($x509['tbsCertificate']['extensions'][0]);
 
         $this->assertCount(3, $x509['tbsCertificate']['extensions']);

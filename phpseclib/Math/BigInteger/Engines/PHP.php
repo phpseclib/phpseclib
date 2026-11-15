@@ -720,7 +720,7 @@ abstract class PHP extends Engine
 
         $value = static::trim($value);
 
-        if (isset($result->bitmask->value)) {
+        if (isset($result->bitmask)) {
             $length = min(count($value), count($result->bitmask->value));
             $value = array_slice($value, 0, $length);
 

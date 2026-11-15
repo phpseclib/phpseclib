@@ -105,7 +105,7 @@ class BitString extends BaseString implements \ArrayAccess, \Countable, \Iterato
         return isset($this->mappedValue[key($this->mappedValue)]);
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function toArray(): array
     {
         $this->preCheck();

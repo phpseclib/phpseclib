@@ -146,7 +146,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     /**
      * Sets the default hash algorithm
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function setHashAlgorithm(string $algo): void
     {
@@ -174,7 +174,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     /**
      * Sets the iteration count
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function setIterationCount(int $count): void
     {
@@ -184,7 +184,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     /**
      * Sets the salt length
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function setSaltLength(int $length): void
     {
@@ -707,7 +707,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $temp;
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function pfxFromLocalKeyID(string|BaseString $value): self
     {
         $temp = new self();

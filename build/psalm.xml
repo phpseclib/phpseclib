@@ -9,6 +9,7 @@
     ensureArrayIntOffsetsExist="true"
     ignoreInternalFunctionNullReturn="false"
     ignoreInternalFunctionFalseReturn="false"
+    runTaintAnalysis="false"
 >
     <projectFiles>
         <directory name="../phpseclib"/>
@@ -17,6 +18,9 @@
     <stubs>
         <file name="stubs/openssl.php"/>
     </stubs>
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+    </plugins>
     <issueHandlers>
         <MissingOverrideAttribute errorLevel="suppress" />
         <UnsupportedPropertyReferenceUsage errorLevel="suppress" />

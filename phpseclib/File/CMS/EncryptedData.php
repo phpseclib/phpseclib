@@ -176,13 +176,13 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function getAlgorithm(): string
     {
         return (string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm'];
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function getKey(): string
     {
         return $this->cek;
@@ -421,7 +421,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // return the first SearchableKey matching $keyIdentifier or null if none are found
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function findRecipient(string|X509 $keyIdentifier): ?SearchableKey
     {
         $recipients = $this->findRecipients($keyIdentifier);
@@ -694,7 +694,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // from https://www.rfc-editor.org/rfc/rfc3217#section-3.1
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public static function wrapDES(#[\SensitiveParameter] string $kek, #[\SensitiveParameter] string $cek): string
     {
         $icv = substr(sha1($cek, true), 0, 8);
@@ -733,7 +733,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         $this->cms['content']['originatorInfo']['certs'][] = ['certificate' => $cert];
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public function addCRL(CRL $crl): void
     {
         if (!isset($this->cms['content']['recipientInfos'])) {

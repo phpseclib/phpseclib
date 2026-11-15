@@ -676,7 +676,7 @@ abstract class ASN1
      *
      * The encoded cache is only used when encoding ASN.1 stuff
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function useEncodedCache(): void
     {
@@ -688,7 +688,7 @@ abstract class ASN1
      *
      * The encoded cache is only used when encoding ASN.1 stuff
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function ignoreEncodedCache(): void
     {
@@ -1116,7 +1116,7 @@ abstract class ASN1
         return $header . $value;
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public static function enable64BitOIDHandling(): void
     {
         if (PHP_INT_SIZE === 4) {
@@ -1125,7 +1125,7 @@ abstract class ASN1
         self::$use64BitOIDHandling = true;
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /** @psalm-api */
     public static function disable64BitOIDHandling(): void
     {
         self::$use64BitOIDHandling = false;
@@ -1478,7 +1478,7 @@ abstract class ASN1
     /**
      * Extracts the V part of a TLV DER / BER encoded string
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function extractValue(string $encoded): string
     {

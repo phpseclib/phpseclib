@@ -127,7 +127,7 @@ class Binary extends Base
      * Adds two points on the curve
      *
      * @return BinaryInteger[]
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function addPoint(array $p, array $q): array
     {
@@ -255,7 +255,7 @@ class Binary extends Base
      *  compile time."
      *
      * @psalm-suppress PossiblyUnusedParam
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function derivePoint(string $m): array
     {
@@ -265,7 +265,7 @@ class Binary extends Base
     /**
      * Tests whether or not the x / y values satisfy the equation
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function verifyPoint(array $p): bool
     {

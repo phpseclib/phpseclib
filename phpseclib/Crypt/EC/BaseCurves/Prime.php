@@ -384,7 +384,7 @@ class Prime extends Base
     /**
      * Returns the X coordinate and the derived Y coordinate
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function derivePoint(string $m): array
     {
@@ -411,7 +411,7 @@ class Prime extends Base
     /**
      * Tests whether or not the x / y values satisfy the equation
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public function verifyPoint(array $p): bool
     {
