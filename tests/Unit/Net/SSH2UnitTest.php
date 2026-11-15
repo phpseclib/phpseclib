@@ -440,6 +440,53 @@ class SSH2UnitTest extends PhpseclibTestCase
     }
 
     /**
+     * @requires PHPUnit < 10
+     */
+    public function testExecChannelOpenTimeout()
+    {
+        $ssh = $this->createChannelOpenTimeoutMock();
+
+        $this->assertFalse($ssh->exec('ls'));
+        $this->assertTrue($ssh->isTimeout());
+    }
+
+    /**
+     * @requires PHPUnit < 10
+     */
+    public function testOpenShellChannelOpenTimeout()
+    {
+        $ssh = $this->createChannelOpenTimeoutMock();
+
+        $this->expectException(TimeoutException::class);
+        $this->expectExceptionMessage('Timed out waiting for server');
+
+        $ssh->openShell();
+    }
+
+    /**
+     * @return SSH2
+     */
+    private function createChannelOpenTimeoutMock()
+    {
+        $ssh = $this->getMockBuilder(SSH2::class)
+            ->setConstructorArgs(['localhost'])
+            ->setMethods(['__destruct', 'isAuthenticated', 'get_channel_packet', 'send_binary_packet'])
+            ->getMock();
+        $ssh->method('isAuthenticated')
+            ->willReturn(true);
+        $ssh->expects($this->once())
+            ->method('send_binary_packet');
+        $ssh->expects($this->once())
+            ->method('get_channel_packet')
+            ->willReturnCallback(function () use ($ssh) {
+                self::setVar($ssh, 'is_timeout', true);
+                return true;
+            });
+
+        return $ssh;
+    }
+
+    /**
      * @return SSH2
      */
     protected function createSSHMock()
