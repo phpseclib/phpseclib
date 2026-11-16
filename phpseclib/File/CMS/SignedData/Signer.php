@@ -413,7 +413,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     private function setHash(string $hash): void
     {
         $origHash = strtolower($hash);
-        $hash = match ($hash) {
+        $hash = match (str_replace('-', '/', $hash)) {
             'md2' => 'md2',
             'md4' => 'md4',
             'md5' => 'md5',
