@@ -50,7 +50,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
 
     public static function load(string|array|Constructed $encoded): static
     {
-        $r = new \ReflectionClass(__CLASS__);
+        $r = new \ReflectionClass(static::class);
         $cms = $r->newInstanceWithoutConstructor();
         $cms->encryptedKey = is_string($encoded) ? static::loadString($encoded) : $encoded;
         return $cms;
@@ -131,7 +131,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
 
         $encryptedKey = (string) $this->encryptedKey['encryptedKey'];
         if ($cekAlgo == 'id-alg-CMS3DESwrap') {
-            $cek = self::unwrapDES($kek, $encryptedKey);
+            $cek = self::unwrap3DES($kek, $encryptedKey);
         } else {
             $iv = "\xa6\xa6\xa6\xa6\xa6\xa6\xa6\xa6";
             $cek = self::unwrapAES($kek, $iv, $encryptedKey);
@@ -238,6 +238,11 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public function __toString(): string
     {
         return $this->toString();
+    }
+
+    public function toString(): string
+    {
+        return ASN1::encodeDER($this->encryptedKey, Maps\RecipientEncryptedKey::MAP);
     }
 
     public function __debugInfo(): array

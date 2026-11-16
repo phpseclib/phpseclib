@@ -10,10 +10,13 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File\CMS;
 
-use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\{DH, EC, Hash};
+use phpseclib4\Crypt\EC\PublicKey as ECPublicKey;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\PublicKeyLoader;
+use phpseclib4\File\ASN1\{Element, Maps};
 use phpseclib4\File\CMS;
+use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
 use phpseclib4\File\X509;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1;
@@ -186,6 +189,74 @@ FndAlFnyh782RoE6ORRHxKgaO1qomK0ewReUTrO6mEt1SdbQDAHJX8XU2ro43Xl9
         $cms = CMS::load("$cms");
         $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (generated fixture yields EncryptedKey)
         $this->assertEquals($plaintext, $decrypted);
+    }
+
+    public function testEncryptedKeyLateStaticLoadAndSerialization(): void
+    {
+        $encryptedKey = new class([]) extends CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey {};
+        $loaded = $encryptedKey::load([]);
+        $this->assertSame(get_class($encryptedKey), get_class($loaded));
+
+        $private = EC::createKey('nistp256');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib test');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $cms = new CMS\EncryptedData('serialized encrypted key');
+        $cms->createNewRecipientFromX509($x509);
+        $cms = CMS::load((string) $cms);
+        $encryptedKey = $cms->getRecipients()[0];
+        $this->assertInstanceOf(EncryptedKey::class, $encryptedKey);
+
+        $this->assertSame(
+            ASN1::encodeDER($encryptedKey->toArray(true), Maps\RecipientEncryptedKey::MAP),
+            (string) $encryptedKey
+        );
+    }
+
+    public function testKeyAgreementEncryptedKeyUnwraps3DES(): void
+    {
+        $plaintext = 'three-des-wrapped key agreement';
+        $cek = str_repeat("\x42", 24);
+        $private = EC::createKey('nistp256');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib test');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $cms = new CMS\EncryptedData($plaintext, 'aes192-CBC-PAD', $cek);
+        $cms->createNewRecipientFromX509($x509);
+        $cms = CMS::load((string) $cms);
+        $encryptedKey = $cms->getRecipients()[0];
+        $this->assertInstanceOf(EncryptedKey::class, $encryptedKey);
+        $recipient = $encryptedKey->recipient;
+
+        $parameters = new Element(ASN1::encodeDER(
+            ['algorithm' => 'id-alg-CMS3DESwrap'],
+            Maps\AlgorithmIdentifier::MAP
+        ));
+        $recipient['keyEncryptionAlgorithm']['parameters'] = $parameters;
+
+        $originatorKey = $recipient['originator']['originatorKey']->toArray(true);
+        $spki = ASN1::map(
+            ASN1::decodeBER($private->getPublicKey()->toString('PKCS8', ['binary' => true])),
+            Maps\SubjectPublicKeyInfo::MAP
+        );
+        $originatorKey['algorithm']['parameters'] = $spki['algorithm']['parameters'];
+        $public = EC::loadPublicKey(ASN1::encodeDER($originatorKey, Maps\OriginatorPublicKey::MAP));
+        $this->assertInstanceOf(ECPublicKey::class, $public);
+        $secret = DH::computeSecret($private, $public);
+
+        preg_match('#DH-(sha\\d+)kdf-scheme$#', (string) $recipient['keyEncryptionAlgorithm']['algorithm'], $matches);
+        $sharedInfo = ASN1::encodeDER([
+            'keyInfo' => new Element($parameters->getEncoded()),
+            'suppPubInfo' => pack('N', 24 << 3),
+        ], Maps\ECCCMSSharedInfo::MAP);
+        $kek = CMS\EncryptedData::ANSIX963KDF($secret, 24, $sharedInfo, new Hash($matches[1]));
+        $encryptedKey['encryptedKey'] = CMS\EncryptedData::wrapDES($kek, $cek);
+
+        $this->assertSame($plaintext, $encryptedKey->withKey($private)->decrypt());
     }
 
     public function testDecryptWithKeyID(): void
