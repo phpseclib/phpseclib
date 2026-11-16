@@ -22,7 +22,7 @@ use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{BadMethodCallException, UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{OID, OctetString};
+use phpseclib4\File\ASN1\Types\{Choice, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\Common\Signable;
@@ -281,10 +281,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         foreach ($this->cms['content']['crls'] as $crl) {
-            $temp = match ($crl->index) {
-                'other' => 5,
-                'default' => 1,
-            };
+            $temp = $crl instanceof Choice && $crl->index === 'other' ? 5 : 1;
             if ($temp > $final) {
                 $final = $temp;
             }
@@ -419,7 +416,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
                 ]]
             ]]
         ];
-        return $this->createSigner($skeleton, $x509);
+        return $this->createSigner($skeleton);
     }
 
     /** @psalm-api */

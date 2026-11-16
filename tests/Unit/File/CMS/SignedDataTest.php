@@ -16,6 +16,7 @@ use phpseclib4\File\ASN1;
 use phpseclib4\File\CMS;
 use phpseclib4\File\CMS\SignedData;
 use phpseclib4\File\CMS\SignedData\Signer;
+use phpseclib4\File\CRL;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
 use phpseclib4\Exception\UnexpectedValueException;
@@ -250,6 +251,26 @@ ybcPA9iklr0wAwYBAAMBAA==
 
         $actual = (string) $cms['content']['signerInfos'][0]['signedAttrs'][0]['value'][0];
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testAddESSSigner(): void
+    {
+        $cms = new SignedData('hello, world!');
+        $x509 = new X509();
+        $x509->setDN('O=phpseclib test');
+        $signer = $cms->addESSSigner($x509);
+
+        $certHash = $signer->getSignedAttr('id-aa-signingCertificateV2')[0]['certs'][0]['certHash'];
+        $this->assertSame(hash('sha256', $x509->getEncoded(), true), (string) $certHash);
+    }
+
+    public function testCalculateVersionWithCRL(): void
+    {
+        $cms = new SignedData('hello, world!');
+        $cms->addCRL(new CRL());
+        $cms->addSigner(new X509());
+
+        $this->assertSame('v1', (string) $cms['content']['version']);
     }
 
     public function testOpenSSLEquivalncy(): void
