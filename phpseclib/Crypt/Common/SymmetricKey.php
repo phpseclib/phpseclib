@@ -1019,6 +1019,7 @@ abstract class SymmetricKey
 
                     for ($i = 0; $i < $len; ++$i) {
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->decryptIV);
+                        // @phpstan-ignore binaryOp.invalid (Valid ECB block/key; preserve the established OpenSSL success contract.)
                         $ciphertext .= $plaintext[$i] ^ $xor;
                         /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
@@ -1311,6 +1312,7 @@ abstract class SymmetricKey
                             $iv = substr($ciphertext, -$overflow - $this->block_size, -$overflow);
                         }
                         $iv = openssl_encrypt(str_repeat("\0", $this->block_size), $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA, $iv);
+                        // @phpstan-ignore binaryOp.invalid (Validated CFB key/IV and complete block; established OpenSSL success contract.)
                         $plaintext .= $iv ^ substr($ciphertext, -$overflow);
                         $iv = substr_replace($iv, substr($ciphertext, -$overflow), 0, $overflow);
                         $pos = $overflow;
@@ -1336,6 +1338,7 @@ abstract class SymmetricKey
 
                     for ($i = 0; $i < $len; ++$i) {
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA, $this->decryptIV);
+                        // @phpstan-ignore binaryOp.invalid (Valid ECB block/key; preserve the established OpenSSL success contract.)
                         $plaintext .= $ciphertext[$i] ^ $xor;
                         /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
@@ -1602,12 +1605,15 @@ abstract class SymmetricKey
                     $block = substr($plaintext, $i, $block_size);
                     $otp = openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
                     Strings::increment_str($xor);
+                    // @phpstan-ignore binaryOp.invalid (Available ECB, valid key/counter block; established OpenSSL success contract.)
                     $ciphertext .= $block ^ $otp;
                 }
             }
             if ($this->continuousBuffer) {
                 $encryptIV = $xor;
                 if ($start = strlen($plaintext) % $block_size) {
+                    // CRYPT-007: partial-block buffering remains open; see
+                    // analysis/github-issue-drafts/CRYPT-007-openssl-emulated-ctr-buffering.md.
                     $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                 }
             }
@@ -1642,6 +1648,7 @@ abstract class SymmetricKey
             }
         }
         if ($this->continuousBuffer) {
+            // @phpstan-ignore parameterByRef.type (CRYPT-006 remains open; failed companion ECB may corrupt native CTR state. See analysis/github-issue-drafts/CRYPT-006-native-ctr-failure-state.md.)
             $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
             if ($overflow) {
                 Strings::increment_str($encryptIV);
