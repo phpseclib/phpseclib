@@ -334,7 +334,7 @@ Mf7Jz8+drwf9tboRi44=
      * Parameters and keys out of range used to load, and p = 0 or q = 0 then made toString()
      * or sign() fail with a DivisionByZeroError
      */
-    /** @dataProvider outOfRangeKeys */
+    #[\PHPUnit\Framework\Attributes\DataProvider('outOfRangeKeys')]
     public function testOutOfRangeKeysAreRejected($key)
     {
         $this->expectException(NoKeyLoadedException::class);
