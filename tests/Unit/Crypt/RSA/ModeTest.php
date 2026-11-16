@@ -498,6 +498,89 @@ dMHAqhC117qQfr2KEJPJnTnJjkuWpiW2gRuBSdVE20oNAgMBAAE=
     }
 
     /**
+     * @group github2289
+     */
+    public function testPKCS1SHA512tAndSHA3()
+    {
+        $private = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBALFS4wkhaK97Z1bg
+fsep8PQviG7bwEZ7S6f74WDgopls3FxE4PJgKomM/PsIJzINjDrvQzNXGRBvlv2B
+WTyjU2FNssgY7n7X0TVD3DUN4j5DHBhzXzwucX0TYcb7DCkvlb83yOsV1Rg5YtKh
+UHpYNx5Qtwp5he01qgdXJyOjPVX7AgMBAAECgYBs8UebLHNsnJx4u6QodzgaTbm8
+ojYXF1j787wcEObU7BTWe1rYjkyUBZLHh9LM5ZXp/2WB/VjgyC4zwWxZ3N40OuUc
+u5Bwn/vI2KcOTQVOCVtsiv4gaMGPdHduBgR4SiKsnPM8VP/j6cxiWej08E7WFy9b
+FkLPZc6Zfsxwuw96gQJBAOmuy/XpEzpydOFluWw5GfZ4KqqY0JRnqygR0vcWjgUr
+X+VMjOVT2khng2G+GOXJM+O+PBsjtS9eMblz6gr65GkCQQDCQjG+U+2fBUajXcUA
+tAHfbOgzA3yY9SrxunJ690ufb3d8MgwKyZ21Q93U8G+hTV9tFwFMiy3zFQ7a2iOf
+40rDAkEArCoYIsjhXcJN0nI7tjwroKbP6HhF09C9DPx0zY5UfAKE2E8ZzyuEOqvo
+4+5GMaWXEUdqySP5rThcsiFwYT6PYQJAFcV3b75WRllABnUu7BpAj3rUN0tvvnDT
+xE3CINfwaMkEWi39vYPFIhieFwxvZmOWi1Jlud9rYe/9PzftgDDoIwJAcnAHdO6c
+txAvarWoANzLXQ5iKxQ1I+FGaY2LI/wIVHC9pSof6kPbSsdsOOWLs85Tjuu0J345
+bINnZJfGe2e4Lw==
+-----END PRIVATE KEY-----')->withPadding(RSA::SIGNATURE_PKCS1);
+        $public = $private->getPublicKey();
+
+        // OpenSSL's signatures of 'abc', the second one without the NULL parameters
+        $signatures = [
+            'sha512/224' => [
+                'AwAsF5AomJ73f5gqGW7KXNXrBMnFdcTwW9+z4L/8NJpFjQRYE905ySzZD+Vo6H9egt1ejeCyJC/loya68aV5VT6ZsIFXCHK7PaoosJyDK24OFKvZlaYMCGzFyNC2RqZm96nGGqxq2vpmDsRpQdOKsoMRfIZVMwnbn7AhDd5r63Y=',
+                'aSK2ZjV725BUmMZU76WJl30vn+ITW5u7efuYaINQ5PPtVhwKQrsC/VVgPsImvjj1Xg2Cqh59GwwdycIFsoMmwoHph+cvDsbLXMALDXgJDWhbTikZpDr6Dry4zgAsu/b3kdztdzUODHusXj0S+z3MOj/JO47HUi0qxnMqayzqCHU=',
+            ],
+            'sha512/256' => [
+                'h4GHJnBeDfhw7oPEJE/CyQi+iKxSRxRqyDoU4+aYEI3vRgUgxmFyqqidb+2y5aUMuJk6Yc9xoy96iTSnkDYdolsUXSsn1U7D/hhkwIP1N/IQTrKxWP7f2jLyMFcfddOEb+KHFitT/4RiL4r7Kps0nnoSbVeBCadXZC9CoIogf98=',
+                'OK3wn8MjDi9zikpbTvIee95cLzPRYTqZO+Pb5tn56hNi5KxoVNBMm6QPDm4XtNKZeCASmvN9UQdxD+F3LKvKELcg1qGYw1445b+nU6Efz081VohWyAqNM4+gxe06x5zevm4zz+mMC0a9ro3NvR+/g1OTamaOnFho1TVkRxdF4lQ=',
+            ],
+            'sha3/224' => [
+                'NsqBCvFDBOeUSJ8Ql3oAx39vJNzc57QmEQLgpT/mKI8YhTWQDpNwnEvvE2XhsYC8zgOjSfikf7ztumL95kW1Z0zdI/k4Gg2nIpg/JcrhcocVcl4pOoq5bZBJfoZD7dvqczvLrKhwtrTkDi5xEk21SKRiTw6CNcdqWtXpy5aos/s=',
+                'ORxVopWZEmzUTP+7BEYbmjdQAHBfbbESdHhHq/f7sbBO+X82eWSDYK7O3Tkn2ujU7zqSurW4chyFOFst36aX8eVE+3M5hjDNA9VmaacKIJbGrM1g01tP4mU9vF7eQQLpjROeC8X7FrSwpHGTUi3sp0y9DfXjZv4MQYxuTJUDUPE=',
+            ],
+            'sha3/256' => [
+                'lQn2HrYvVAp0c1x8XWzdkYpLXoopa77lgIgM4nOY8kIFKYjTFJoiTo5+BmF/1/w8usnzny7vNqV8CZPiIFWD0Oqkwa4CyBX/84dNRIvSYseo/Y3EL6cWt4Vh0rGkf2ppMsxWxrI9tamOpjx4x58vmIOrCyUvm8m+EowishuGcP8=',
+                'mw+xQvb9Jek3Vr0EBukfVHL5kV3Ki7VDsRew2xhVIgdEXDe61TSrptcnDuXc/roLH3V0GOTfrZI9+Cy5SSeYG6aMIlxXkREUd6c1DEr6dYm80N4ftd3nkv9HBVzOTKdNywY9YyXj0xIpeCXD9kJnxwwoX2lR3/q/zvS4Sd6J0rw=',
+            ],
+            'sha3/384' => [
+                'fn7jtnAULHMaRZP2oPaRfblLUGbgER3D95c4c0h+B+l6hnzuwGjfwj1iCgS+EdfipOWO1jEih+0SxNEq220HzYgPJAOdFtacaQkt4c+9y1C43evjeS4MCkpP9myXmLjY/ZccPNMgGmnTn5wf1oROpMgpVGML+HwS1x0x8z5k5tA=',
+                'd18rnaMVLqVMRK4O0MKKwhC6lbBvqrREitfGxAQPBjjUMauvCslhMRyUe3Pkmtlzap2fnY5Nb1FuVnOcnv3rSsHzREocyzVEdQ9uTlQxyWxODNomSwfYC0p2IXl5ttgCsD8zZqZGIIiayF1ZOBb9ZpzxTD6BVEe+irlznJhw/80=',
+            ],
+            'sha3/512' => [
+                'gWCNf4yuKrrRkywcaRdXJcG2Vo9P3rnlFubxCK3fVPkuKf/yBaD+p/4ZSC+5zxGqyOG/vgxWE5jliNxcyYJB7PlyLr9MkhobE0ptDYBG+DcxRkudzmNRzaiiG12EC9Cti8Glmt4HZyF40Ey/XVBMhkxMUQOkXCwZuUAf6yfh9V8=',
+                'fs0Ou8Bw8lWXCKr6Na2XRB0IydhXekG5TI0kYFm3bYFlVESUJWaAXMJseF8EUY8C951iS7AH5wi0ooFK8GfcIGHJ9sbBQB+Dx1Y/9vIXtAkR0O0+VlgU2Adm8yJSmu/2ZYWDi0qZ6t53ppth6ssPqDwm/D4hVP/mQHCFRQi+4OY=',
+            ],
+        ];
+
+        RSA::forceEngine('PHP');
+        try {
+            foreach ($signatures as $hash => $pair) {
+                list($withNull, $withoutNull) = array_map('base64_decode', $pair);
+                $this->assertSame($withNull, $private->withHash($hash)->sign('abc'), $hash);
+                $this->assertTrue($public->withHash($hash)->verify('abc', $withNull), $hash);
+                $this->assertTrue($public->withHash($hash)->verify('abc', $withoutNull), $hash);
+            }
+        } finally {
+            RSA::forceEngine();
+        }
+    }
+
+    /**
+     * @group github2289
+     */
+    public function testGetPublicKeyAndPSSFormatWithSHA512tAndSHA3()
+    {
+        $private = RSA::createKey(1024)
+            ->withPadding(RSA::SIGNATURE_PSS)
+            ->withHash('sha512/256')
+            ->withMGFHash('sha512/224');
+        $signature = $private->sign('zzzz');
+
+        $this->assertTrue($private->getPublicKey()->verify('zzzz', $signature));
+        $public = PublicKeyLoader::load($private->getPublicKey()->toString('PSS'));
+        $this->assertTrue($public->verify('zzzz', $signature));
+
+        $private = $private->withHash('sha3/256')->withMGFHash('sha3/384');
+        $this->assertTrue($private->getPublicKey()->verify('zzzz', $private->sign('zzzz')));
+    }
+
+    /**
      * @group github2136
      */
     public function testEncryptOneKeyDecryptAnotherKey()
