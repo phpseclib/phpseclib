@@ -64,9 +64,11 @@ abstract class Montgomery extends Base
         // at this point, 2^$j * $n/(2^$j) == $n
 
         $mod1 = clone $n;
+        // @phpstan-ignore variable.undefined (BI-007 remains open for zero modulus: the empty-limb path never initializes $j. See analysis/github-issue-drafts/BI-007-biginteger-zero-input-contracts.md.)
         $mod1->rshift($j);
         $mod2 = new $class();
         $mod2->value = [1];
+        // @phpstan-ignore variable.undefined (BI-007 remains open for zero modulus: the empty-limb path never initializes $j. See analysis/github-issue-drafts/BI-007-biginteger-zero-input-contracts.md.)
         $mod2->lshift($j);
 
         $part1 = $mod1->value != [1] ? parent::slidingWindow($x, $e, $mod1, $class) : new $class();

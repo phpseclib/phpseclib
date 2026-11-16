@@ -322,6 +322,7 @@ abstract class Engine implements \JsonSerializable
 
         $x = $x->compare(static::$zero[static::class]) < 0 ? $x->add($n) : $x;
 
+        // @phpstan-ignore smaller.alwaysFalse (Keep this post-extendedGCD guard rather than assume an overridable engine method cannot change receiver state.)
         return $this->compare(static::$zero[static::class]) < 0 ? $this->normalize($n->subtract($x)) : $this->normalize($x);
     }
 

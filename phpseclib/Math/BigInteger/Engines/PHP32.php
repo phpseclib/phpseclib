@@ -104,6 +104,7 @@ class PHP32 extends PHP
      */
     public static function isValidEngine(): bool
     {
+        // @phpstan-ignore greaterOrEqual.alwaysTrue (PHP integer sizes are modeled as 4 or 8 bytes; retain the explicit minimum-width requirement, including 32-bit builds.)
         return PHP_INT_SIZE >= 4 && !self::testJITOnWindows();
     }
 

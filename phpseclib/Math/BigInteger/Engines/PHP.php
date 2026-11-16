@@ -1071,6 +1071,7 @@ abstract class PHP extends Engine
                 break;
             }
         }
+        // @phpstan-ignore variable.undefined (BI-007 remains open for zero input: no inner iteration initializes $j, and the public zero contract is undefined. See analysis/github-issue-drafts/BI-007-biginteger-zero-input-contracts.md.)
         $s = static::BASE * $i + $j;
         $r->rshift($s);
         return $s;
