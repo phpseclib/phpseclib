@@ -1658,4 +1658,20 @@ ckL9SmrZMjBFy018kLDOuh7N5rcxFpuX7VVkCj1Q4PX1FbuDBZAq03Ngd59LG8j/
 jTzMU4Qamw1/CyFh8p4vdWEAsg==
 -----END ENCRYPTED PRIVATE KEY-----', 'password');
     }
+
+    public function testLargeKey()
+    {
+        $start = microtime(true);
+        try {
+            PublicKeyLoader::load('-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIGAMFwGCSqGSIb3DQEFDTBPMC4GCSqGSIb3DQEFDDAhBAhzYWx0c2FsdAIDAw1A
+AgIFADAMBggqhkiG9w0CCQUAMB0GCWCGSAFlAwQBAgQQAAAAAAAAAAAAAAAAAAAA
+AAQgQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUE=
+-----END ENCRYPTED PRIVATE KEY-----', 'wrong-password');
+            $this->fail('Key loaded when it should not have');
+        } catch (NoKeyLoadedException) {
+        }
+        $elapsed = microtime(true) - $start;
+        $this->assertLessThan(1, $elapsed, 'Key took longer to load than it should have');
+    }
 }

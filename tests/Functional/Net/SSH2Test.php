@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Functional\Net;
 
 use phpseclib4\Exception\NoSupportedAlgorithmsException;
+use phpseclib4\Net\SFTP;
 use phpseclib4\Net\SSH2;
 use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
@@ -194,6 +195,16 @@ class SSH2Test extends PhpseclibFunctionalTestCase
             $ssh->login($username, $password),
             'SSH2 login using an open socket failed.'
         );
+    }
+
+    public function testKeyReexchange(): void
+    {
+        $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'), 23);
+        $username = $this->getEnv('SSH_USERNAME');
+        $password = $this->getEnv('SSH_PASSWORD');
+        $sftp->login($username, $password);
+        $sftp->put('test.txt', str_repeat('x', 1024 * 10));
+        $this->assertGreaterThan(1, $sftp->getKEXCount());
     }
 
     #[\PHPUnit\Framework\Attributes\Depends('testExecWithMethodCallback')]

@@ -37,6 +37,9 @@ class KeyAgreeRecipient extends Recipient
 
     public static function mapInAlgoParams(Constructed $algorithm): void
     {
+        if (!isset($algorithm['parameters'])) {
+            return;
+        }
         ASN1::disableCacheInvalidation();
         $temp = ASN1::decodeBER($algorithm['parameters']->getEncoded());
         $algorithm['parameters'] = ASN1::map($temp, Maps\AlgorithmIdentifier::MAP);

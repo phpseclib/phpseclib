@@ -163,7 +163,11 @@ abstract class AsymmetricKey
         $components['format'] = $format;
         $components['secret'] ??= '';
         $comment = $components['comment'] ?? null;
-        $new = static::onLoad($components);
+        try {
+            $new = static::onLoad($components);
+        } catch (\Throwable $e) {
+            throw new NoKeyLoadedException('Unable to read key');
+        }
         $new->format = $format;
         $new->comment = $comment;
         return $new instanceof PrivateKey ?
