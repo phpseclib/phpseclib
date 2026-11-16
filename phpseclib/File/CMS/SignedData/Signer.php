@@ -556,6 +556,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->signer['signatureAlgorithm'] = $algorithm;
+        // @phpstan-ignore method.notFound (BI-021 runtime defect remains open: Common\PrivateKey includes SSH-agent Identity, whose effective hash is tied to agent flags; see analysis/github-issue-drafts/BI-021-cms-signer-privatekey-hash-capability.md.)
         $this->setHash((string) $key->getHash());
     }
 
@@ -576,13 +577,10 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             if ($total === 1) {
                 $addCert = false;
                 for ($i = 0; $i < count($this->cms['content']['certificates']); $i++) {
-                    switch (true) {
-                        case isset($this->cms['content']['certificates'][$i]['certificate']):
-                            $found = (string) $this->cms['content']['certificates'][$i]['certificate'];
-                        //    break;
-                        //case isset($this->cms['content']['certificates'][$i]['extendedCertificate']['certificate']):
-                        //    $found = (string) $this->cms['content']['certificates'][$i]['extendedCertificate']['certificate'];
+                    if (!isset($this->cms['content']['certificates'][$i]['certificate'])) {
+                        continue;
                     }
+                    $found = (string) $this->cms['content']['certificates'][$i]['certificate'];
                     if ($found === $expected) {
                         $this->cms['content']['certificates'][$i]['certificate'] = $x509;
                     }

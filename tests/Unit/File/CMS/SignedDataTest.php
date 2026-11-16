@@ -13,6 +13,8 @@ namespace phpseclib4\Tests\Unit\File\CMS;
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\Types\{Choice, OID};
 use phpseclib4\File\CMS;
 use phpseclib4\File\CMS\SignedData;
 use phpseclib4\File\CMS\SignedData\Signer;
@@ -378,6 +380,23 @@ ybcPA9iklr0wAwYBAAMBAA==
         $cms = CMS::load("$cms");
 
         $this->assertTrue($cms->validateSignature(false));
+    }
+
+    public function testCopySigningX509AttributesPreservesOtherCertificateChoice(): void
+    {
+        $cms = CMS::load(file_get_contents(__DIR__ . '/FE.pdf.p7m'));
+        $signer = $cms->getSigners()[0];
+        $certificate = $signer->getCertificate();
+        $this->assertNotNull($certificate);
+
+        $cms['content']['certificates'][] = new Choice('other', [
+            'otherCertFormat' => new OID('1.2.3'),
+            'otherCert' => new Element("\x05\x00"),
+        ]);
+
+        $signer->copySigningX509Attributes($certificate);
+
+        $this->assertSame('other', $cms['content']['certificates'][1]->index);
     }
 
     public function testDetachedSigCreation(): void
