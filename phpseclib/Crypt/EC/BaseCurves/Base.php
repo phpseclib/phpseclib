@@ -96,7 +96,9 @@ abstract class Base
         $d = $d->toBits();
         for ($i = 0; $i < strlen($d); $i++) {
             $d_i = (int) $d[$i];
+            // @phpstan-ignore method.notFound (Prime/Binary and named Edwards curves supply addPoint(); Montgomery curves override this scalar-multiplication path.)
             $r[1 - $d_i] = $this->addPoint($r[0], $r[1]);
+            // @phpstan-ignore method.notFound (Prime/Binary and named Edwards curves supply doublePoint(); Montgomery curves override this scalar-multiplication path.)
             $r[$d_i] = $this->doublePoint($r[$d_i]);
         }
 
@@ -159,6 +161,7 @@ abstract class Base
      */
     public function setReduction(\Closure $func): void
     {
+        // @phpstan-ignore property.notFound (BI-013 remains open: Binary curves inherit this API but BinaryField has no setReduction(). See analysis/github-issue-drafts/BI-013-binary-curve-set-reduction.md.)
         $this->factory->setReduction($func);
     }
 
@@ -204,6 +207,7 @@ abstract class Base
         $p2 = $this->convertToInternal($points[1]);
         $p1 = $this->multiplyPoint($p1, $scalars[0]);
         $p2 = $this->multiplyPoint($p2, $scalars[1]);
+        // @phpstan-ignore method.notFound (EC-001 remains open: inherited multiplyAddPoints() is exposed on Montgomery curves without addPoint(). See analysis/github-issue-drafts/EC-001-montgomery-multiply-add-contract.md.)
         $r = $this->addPoint($p1, $p2);
         return $this->convertToAffine($r);
     }

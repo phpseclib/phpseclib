@@ -396,7 +396,9 @@ class Prime extends Base
             3 => true,
             default => throw new UnexpectedValueException("Coordinate not in recognized format (found $y; expected 2 or 3)")
         };
+        // @phpstan-ignore method.notFound (Inherited convertInteger() uses this curve's PrimeField factory; xp and the coefficients are PrimeInteger values from that field.)
         $temp = $xp->multiply($this->a);
+        // @phpstan-ignore method.notFound (The same PrimeField factory supplies xp; the common finite-field return type loses its arithmetic methods.)
         $temp = $xp->multiply($xp)->multiply($xp)->add($temp);
         $temp = $temp->add($this->b);
         $b = $temp->squareRoot();
@@ -705,7 +707,8 @@ class Prime extends Base
     /**
      * Converts an affine point to a jacobian coordinate
      *
-     * @return PrimeInteger[]
+     * Preserves input coordinates and metadata, adding Z and a boolean 'fresh'
+     * marker for affine input; the returned array is not field-integer-only.
      */
     public function convertToInternal(array $p): array
     {

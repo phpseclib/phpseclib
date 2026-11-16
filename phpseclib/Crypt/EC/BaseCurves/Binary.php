@@ -329,7 +329,8 @@ class Binary extends Base
     /**
      * Converts an affine point to a jacobian coordinate
      *
-     * @return BinaryInteger[]
+     * Preserves input coordinates and metadata, adding Z and a boolean 'fresh'
+     * marker for affine input; the returned array is not field-integer-only.
      */
     public function convertToInternal(array $p): array
     {
