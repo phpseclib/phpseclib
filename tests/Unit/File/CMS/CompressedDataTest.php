@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File\CMS;
 
+use phpseclib4\Exception\UnsupportedValueException;
 use phpseclib4\File\CMS;
 use phpseclib4\Tests\PhpseclibTestCase;
 
@@ -52,5 +53,91 @@ cT0=');
         $plaintext = 'ASDFASDF';
         $cms = new CMS\CompressedData($plaintext);
         $this->assertEquals($plaintext, $cms->getContent());
+    }
+
+    public function testGetContentRefreshesCacheAfterCompressedContentChanges(): void
+    {
+        if (!function_exists('zlib_encode')) {
+            self::markTestSkipped('zlib_encode() not available');
+        }
+
+        $created = new CMS\CompressedData('first content');
+        $loaded = CMS::load((string) $created);
+        foreach ([$created, $loaded] as $cms) {
+            $this->assertSame('first content', $cms->getContent());
+
+            $cms['content']['encapContentInfo']['eContent'] = zlib_encode('updated content', ZLIB_ENCODING_DEFLATE);
+
+            $this->assertSame('updated content', $cms->getContent());
+        }
+    }
+
+    public function testGetContentRetriesInvalidPayloadAndRecovers(): void
+    {
+        if (!function_exists('zlib_encode') || !function_exists('zlib_decode')) {
+            self::markTestSkipped('zlib_encode() or zlib_decode() not available');
+        }
+
+        $cms = new CMS\CompressedData('cached plaintext');
+        $this->assertSame('cached plaintext', $cms->getContent());
+
+        $cms['content']['encapContentInfo']['eContent'] = 'invalid compressed data';
+        $warnings = 0;
+        set_error_handler(static function (int $severity, string $message) use (&$warnings): bool {
+            if ($severity === E_WARNING && str_contains($message, 'zlib_decode()')) {
+                $warnings++;
+                return true;
+            }
+
+            return false;
+        });
+        try {
+            for ($i = 0; $i < 2; $i++) {
+                try {
+                    $cms->getContent();
+                    self::fail('Invalid compressed content should not return cached plaintext');
+                } catch (UnsupportedValueException $e) {
+                    $this->assertSame('zlib_decode() returned false', $e->getMessage());
+                }
+            }
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertSame(2, $warnings);
+
+        $cms['content']['encapContentInfo']['eContent'] = zlib_encode('recovered plaintext', ZLIB_ENCODING_DEFLATE);
+        $this->assertSame('recovered plaintext', $cms->getContent());
+        $this->assertSame('recovered plaintext', $cms->getContent());
+    }
+
+    public function testGetContentCachesEmptyPlaintextAndRefreshesIt(): void
+    {
+        if (!function_exists('zlib_encode') || !function_exists('zlib_decode')) {
+            self::markTestSkipped('zlib_encode() or zlib_decode() not available');
+        }
+
+        $cms = new CMS\CompressedData('');
+        $this->assertSame('', $cms->getContent());
+        $this->assertSame('', $cms->getContent());
+
+        $cms['content']['encapContentInfo']['eContent'] = zlib_encode('nonempty plaintext', ZLIB_ENCODING_DEFLATE);
+        $this->assertSame('nonempty plaintext', $cms->getContent());
+        $this->assertSame('nonempty plaintext', $cms->getContent());
+    }
+
+    public function testGetContentMutationSurvivesSerialization(): void
+    {
+        if (!function_exists('zlib_encode') || !function_exists('zlib_decode')) {
+            self::markTestSkipped('zlib_encode() or zlib_decode() not available');
+        }
+
+        $cms = CMS::load((string) new CMS\CompressedData('original plaintext'));
+        $this->assertSame('original plaintext', $cms->getContent());
+
+        $cms['content']['encapContentInfo']['eContent'] = zlib_encode('replacement plaintext', ZLIB_ENCODING_DEFLATE);
+        $this->assertSame('replacement plaintext', $cms->getContent());
+
+        $reloaded = CMS::load((string) $cms);
+        $this->assertSame('replacement plaintext', $reloaded->getContent());
     }
 }
