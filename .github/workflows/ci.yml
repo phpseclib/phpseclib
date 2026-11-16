@@ -96,6 +96,8 @@ jobs:
                     key: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
                     restore-keys: composer-${{ runner.os }}-${{ github.job }}-php${{ matrix.php-version }}-
             -   name: Override PHPUnit and ParaTest versions
+                # PHP versions without overrides run the versions composer.json pins, so Dependabot's updates get tested
+                if: matrix.phpunit
                 shell: bash
                 run: |
                     composer require --dev --no-update \
@@ -215,5 +217,3 @@ jobs:
                     -   { php-version: '8.2', phpunit: '^11.5', paratest: '^7.8.5' }
                     -   { php-version: '8.3', phpunit: '^11.5', paratest: '^7.8.5' }
                     -   { php-version: '8.4', phpunit: '^12.5', paratest: '^7.16' }
-                    -   { php-version: '8.5', phpunit: '^13.1', paratest: '^7.22' }
-                    -   { php-version: '8.6', phpunit: '^13.1', paratest: '^7.22' }
