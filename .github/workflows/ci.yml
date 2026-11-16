@@ -102,7 +102,7 @@ jobs:
                       "phpunit/phpunit:${{ matrix.phpunit }}" \
                       "brianium/paratest:${{ matrix.paratest }}"
             -   name: Remove Psalm
-                # the tests don't run it, and no Psalm 6 release installs on PHP 8.6
+                # the tests don't run it, and Psalm 7 doesn't install on PHP 8.1
                 run: composer remove --dev --no-update vimeo/psalm
             -   name: Composer Install
                 run: composer update --with-all-dependencies --no-interaction

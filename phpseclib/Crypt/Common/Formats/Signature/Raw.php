@@ -29,7 +29,7 @@ abstract class Raw
     /**
      * Loads a signature
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function load(array $sig): array
     {
@@ -49,7 +49,7 @@ abstract class Raw
     /**
      * Returns a signature in the appropriate format
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function save(BigInteger $r, BigInteger $s): array
     {
