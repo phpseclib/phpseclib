@@ -808,7 +808,7 @@ kbZNIHu+PaE0osExnxdlkiC+VYqhRANCAAS8yEueJvIAnCk++0rsD8X9dk3hAmyb
     /** @dataProvider publicKeysAtInfinity */
     public function testPublicKeyAtInfinityIsRejected($key)
     {
-        $this->expectException('UnexpectedValueException');
+        $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load(hex2bin($key));
     }
 }
