@@ -403,7 +403,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             $map[$key] = $candidate;
                             if (isset($rules[$key]) && !$map[$key] instanceof Element) {
                                 if (!is_callable($rules[$key])) {
-                                    $map[$key]->rules = $rules[$key];
+                                    if ($map[$key] instanceof Constructed || $map[$key] instanceof Choice) {
+                                        $map[$key]->rules = $rules[$key];
+                                    }
                                 } else {
                                     $rules[$key]($map[$key]);
                                     $this->rules = [];

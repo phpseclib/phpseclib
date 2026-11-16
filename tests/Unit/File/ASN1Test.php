@@ -540,6 +540,40 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertSame('5', (string) $result['value']);
     }
 
+    public function testDescendantRulesAreNotAssignedToPrimitiveValues(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+        $deprecations = [];
+        set_error_handler(static function (int $severity, string $message) use (&$deprecations): bool {
+            if ($severity === E_DEPRECATED) {
+                $deprecations[] = $message;
+                return true;
+            }
+            return false;
+        });
+
+        try {
+            $constructed = ASN1::map(
+                ASN1::decodeBER(hex2bin('3003020105')),
+                $map,
+                ['value' => ['nested' => []]]
+            );
+            $this->assertInstanceOf(Constructed::class, $constructed);
+            $value = $constructed['value'];
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame('5', (string) $value);
+        $this->assertFalse(property_exists($value, 'rules'));
+        $this->assertSame([], $deprecations);
+    }
+
     public function testBlobsOnBadDecodesMissingOptionalSetChild(): void
     {
         $map = [
