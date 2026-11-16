@@ -845,7 +845,7 @@ Jq9z4moG4whp3JsuiBQG9wnaHVrQPA4=
     #[\PHPUnit\Framework\Attributes\DataProvider('publicKeysAtInfinity')]
     public function testPublicKeyAtInfinityIsRejected(string $key): void
     {
-        $this->expectException(UnexpectedValueException::class);
+        $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load(hex2bin($key));
     }
 }
