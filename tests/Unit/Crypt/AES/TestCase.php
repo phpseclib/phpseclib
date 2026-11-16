@@ -137,6 +137,20 @@ abstract class TestCase extends PhpseclibTestCase
         }
     }
 
+    public function testBcryptPasswordUsesDefaultKeyLength(): void
+    {
+        $encryptor = new AES('ctr');
+        $encryptor->setPreferredEngine($this->engine);
+        $encryptor->setPassword('password', 'bcrypt', 'salt');
+        $ciphertext = $encryptor->encrypt('password-derived key');
+
+        $decryptor = new AES('ctr');
+        $decryptor->setPreferredEngine($this->engine);
+        $decryptor->setPassword('password', 'bcrypt', 'salt');
+
+        $this->assertSame('password-derived key', $decryptor->decrypt($ciphertext));
+    }
+
     #[\PHPUnit\Framework\Attributes\Group('github451')]
     public function testKeyPaddingRijndael(): void
     {

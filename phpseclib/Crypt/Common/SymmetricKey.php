@@ -835,10 +835,8 @@ abstract class SymmetricKey
                         $s = substr($s, 0, $blockLength);
 
                         $p = '';
-                        if (strlen($password)) {
-                            while (strlen($p) < $blockLength) {
-                                $p .= $password;
-                            }
+                        while (strlen($p) < $blockLength) {
+                            $p .= $password;
                         }
                         $p = substr($p, 0, $blockLength);
 
@@ -2067,7 +2065,8 @@ abstract class SymmetricKey
             case self::ENGINE_EVAL:
                 if ($this->nonIVChanged) {
                     $this->setupKey();
-                    $this->setupInlineCrypt();
+                    // Eval engine selection guarantees this optional subclass hook exists.
+                    $this->setupInlineCrypt(); // @phpstan-ignore method.notFound (Optional hook checked by isValidEngineHelper(); preserve subclass API.)
                 }
         }
 
