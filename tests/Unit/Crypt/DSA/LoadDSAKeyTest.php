@@ -309,7 +309,7 @@ Mf7Jz8+drwf9tboRi44=
     /** @dataProvider outOfRangeKeys */
     public function testOutOfRangeKeysAreRejected($key)
     {
-        $this->expectException('UnexpectedValueException');
+        $this->expectException(NoKeyLoadedException::class);
         PublicKeyLoader::load($key);
     }
 }

@@ -288,9 +288,9 @@ abstract class DSA extends AsymmetricKey
             $new = new PublicKey();
         }
 
-        $new->p = $components['p'];
-        $new->q = $components['q'];
-        $new->g = $components['g'];
+        $new->p = $p;
+        $new->q = $q;
+        $new->g = $g;
 
         if (isset($components['y'])) {
             $new->y = $components['y'];
