@@ -95,6 +95,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             $decoded = ASN1::decodeBER($pfx['authSafe']['content']->value);
             $cms = ASN1::map($decoded, ASN1\Maps\AuthenticatedSafe::MAP);
 
+            // @phpstan-ignore foreach.nonIterable (BI-026 remains open: malformed ASN.1 blob recovery may yield a non-iterable root; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
             foreach ($cms as $key => $content) {
                 switch ($content['contentType']) {
                     case 'id-data': // id-data from CMS specs
@@ -103,6 +104,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                         /** @psalm-suppress UndefinedPropertyAssignment */
                         // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         $cms[$key]['content']->parent = $cms[$key];
+                        // @phpstan-ignore foreach.nonIterable (BI-026 remains open: malformed SafeContents recovery may yield a non-iterable root; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         foreach ($cms[$key]['content'] as $subkey => $value) {
                             try {
                                 $cms[$key]['content'][$subkey]['bagValue'] = match ("$value[bagId]") {
@@ -126,6 +128,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                         $decoded = ASN1::decodeBER($content);
                         $contents = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
 
+                        // @phpstan-ignore foreach.nonIterable (BI-026 remains open: decrypted malformed SafeContents may yield a non-iterable root; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         foreach ($contents as $content) {
                             if ($content['bagId'] == 'CertBag') {
                                 $content['bagValue'] = self::handleCertBag($content['bagValue']->value);
@@ -374,7 +377,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             } else {
                 $obj = [
                     'bagId' => 'KeyBag',
-                    'bagValue' => $obj->withoutPassword(),
+                    'bagValue' => $obj->withPassword(null),
                 ] + $extra;
             }
             $this->pfx['authSafe']['content'][] = [

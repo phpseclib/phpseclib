@@ -14,13 +14,27 @@ use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\RSA\PrivateKey as RSAPrivateKey;
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\EC\PrivateKey as ECPrivateKey;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
+use phpseclib4\System\SSH\Agent\Identity;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class PFXTest extends PhpseclibTestCase
 {
+    public function testAddingNonExportableAgentKeyWithoutPasswordIsRejected(): void
+    {
+        $socket = fopen('php://memory', 'r+');
+        $this->assertIsResource($socket);
+
+        $pfx = new PFX();
+        $pfx->removePassword();
+
+        $this->expectException(BadMethodCallException::class);
+        $pfx->add(new Identity($socket));
+    }
+
     public function testEncryptedComplicated(): void
     {
         // pfx1.der contains 2x key pairs (ie. 2x X509 certs and 2x private keys)
