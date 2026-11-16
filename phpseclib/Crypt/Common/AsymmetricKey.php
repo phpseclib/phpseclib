@@ -347,7 +347,7 @@ abstract class AsymmetricKey
      *
      * Set to the empty string to use the default config file
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      */
     public static function setOpenSSLConfigPath(string $path): void
     {
@@ -473,7 +473,7 @@ abstract class AsymmetricKey
      * Not currently used but the method exists in case we do
      * want to use it at some point
      *
-     * @psalm-suppress PossiblyUnusedMethod
+     * @psalm-api
      * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function computek(string $h1): string
