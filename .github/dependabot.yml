@@ -65,3 +65,43 @@ updates:
             github-actions:
                 patterns:
                     - "*"
+    -   package-ecosystem: "composer"
+        directory: "/"
+        target-branch: "master"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "master"
+        cooldown:
+            default-days: 7
+        # only the pinned dev tools. "increase" would raise the minimum versions of the library's own requirements
+        allow:
+            -   dependency-type: "development"
+        versioning-strategy: "increase"
+        groups:
+            composer:
+                patterns:
+                    - "*"
+                update-types:
+                    - "minor"
+                    - "patch"
+    -   package-ecosystem: "composer"
+        directory: "/"
+        target-branch: "4.0"
+        schedule:
+            interval: "weekly"
+        commit-message:
+            prefix: "4.0"
+        cooldown:
+            default-days: 7
+        # only the pinned dev tools. "increase" would raise the minimum versions of the library's own requirements
+        allow:
+            -   dependency-type: "development"
+        versioning-strategy: "increase"
+        groups:
+            composer:
+                patterns:
+                    - "*"
+                update-types:
+                    - "minor"
+                    - "patch"
