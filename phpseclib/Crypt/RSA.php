@@ -147,6 +147,8 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * Signature padding mode
+     *
+     * @var self::SIGNATURE_PSS|self::SIGNATURE_PKCS1
      */
     protected int $signaturePadding = self::SIGNATURE_PSS;
 
