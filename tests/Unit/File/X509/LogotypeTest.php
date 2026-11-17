@@ -328,7 +328,7 @@ class LogotypeTest extends PhpseclibTestCase
                 $file
             );
 
-            $this->assertNotEmpty("$details[logotypeHash][0][hashValue]", $file);
+            $this->assertNotSame('', (string) $details['logotypeHash'][0]['hashValue'], $file);
 
             // and the whole certificate survives a round trip untouched
             $this->assertSame(

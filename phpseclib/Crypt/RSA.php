@@ -912,7 +912,7 @@ abstract class RSA extends AsymmetricKey
                         'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match',
                     $this->hash->getHash() !== 'sha1' && PHP_VERSION_ID < 80500 =>
                         'Engine OpenSSL is forced but non-sha1 hashes are only supported on PHP 8.5.0+',
-                    strlen($this->label) =>
+                    $this->label !== '' =>
                         'Engine OpenSSL is forced but can\'t be used because the label is not the empty string',
                     default => null
                 };

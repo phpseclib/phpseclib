@@ -42,7 +42,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 -----END RSA PRIVATE KEY-----';
 
         // libsodium doesn't support RSA but it still ought not result in any errors outside of the BadConfigurationException being thrown
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        $engines = ['libsodium', 'OpenSSL', 'PHP', null];
         foreach ($engines as $engine) {
             try {
                 RSA::forceEngine($engine);
@@ -422,9 +422,9 @@ zUlir0ACPypC1Q==
                 $ciphertext = $publicKey->withLabel('whatever')->encrypt($data);
 
                 try {
-                    $this->assertFalse($privateKey->decrypt($ciphertext));
-                    $this->fail('Ciphertext should not have decrypted');
-                } catch (\Exception $e) {
+                    $privateKey->decrypt($ciphertext);
+                    self::fail('Ciphertext should not have decrypted with a different label');
+                } catch (BadDecryptionException) {
                 }
 
                 $decrypted = $privateKey->withLabel('whatever')->decrypt($ciphertext);
