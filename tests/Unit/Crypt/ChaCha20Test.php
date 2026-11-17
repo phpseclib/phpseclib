@@ -274,18 +274,18 @@ class ChaCha20Test extends PhpseclibTestCase
         }
     }
 
-    public function testNonceSizeOf8()
+    public function testNonceSizeOf8(): void
     {
         $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
         foreach ($engines as $engine) {
             $c = new ChaCha20();
+            $c->enablePoly1305();
+            $c->setNonce(str_repeat('x', 8));
+            $c->setKey(str_repeat('x', 32));
             $c->setPreferredEngine($engine);
             if ($c->getEngine() != $engine) {
                 continue;
             }
-            $c->enablePoly1305();
-            $c->setNonce(str_repeat('x', 8));
-            $c->setKey(str_repeat('x', 32));
             $r = $c->encrypt('aaa');
             $tag = $c->getTag();
 
@@ -297,11 +297,63 @@ class ChaCha20Test extends PhpseclibTestCase
             $c->setTag($tag);
             $c->setNonce(str_repeat('x', 8));
             $c->setKey(str_repeat('x', 32));
+            $c->setPreferredEngine($engine);
             $c->decrypt($r);
 
             $c->setTag('zzzz');
             $this->expectException(BadDecryptionException::class);
             $c->decrypt($r);
+        }
+    }
+
+    public function testTruncatedTag(): void
+    {
+        $key = str_repeat('k', 32);
+        $plaintext = 'attack at dawn';
+ 
+        foreach ([8, 12] as $nonceLength) {
+            $nonce = str_repeat('n', $nonceLength);
+ 
+            $c = new ChaCha20();
+            $c->enablePoly1305();
+            $c->setKey($key);
+            $c->setNonce($nonce);
+            $c->setPreferredEngine('PHP');
+            $ciphertext = $c->encrypt($plaintext);
+            $tag = $c->getTag();
+ 
+            $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
+            foreach ($engines as $engine) {
+                foreach ([4, 12, 16] as $tagLength) {
+                    // the engine is set after enablePoly1305() and setNonce() because libsodium and
+                    // OpenSSL (AEAD) aren't valid engines until Poly1305 is enabled and the nonce is set
+                    $c = new ChaCha20();
+                    $c->enablePoly1305();
+                    $c->setKey($key);
+                    $c->setNonce($nonce);
+                    $c->setPreferredEngine($engine);
+                    if ($c->getEngine() != $engine) {
+                        continue;
+                    }
+ 
+                    $c->setTag(substr($tag, 0, $tagLength));
+                    try {
+                        $result = $c->decrypt($ciphertext);
+                    } catch (BadDecryptionException $e) {
+                        $result = $e->getMessage();
+                    }
+                    $this->assertSame($plaintext, $result, "Failed asserting that a valid $tagLength-byte tag is accepted with $engine engine and $nonceLength-byte nonce");
+ 
+                    $c->setTag(str_repeat("\0", $tagLength));
+                    $rejected = false;
+                    try {
+                        $c->decrypt($ciphertext);
+                    } catch (BadDecryptionException $e) {
+                        $rejected = true;
+                    }
+                    $this->assertTrue($rejected, "Failed asserting that an invalid $tagLength-byte tag is rejected with $engine engine and $nonceLength-byte nonce");
+                }
+            }
         }
     }
 }
