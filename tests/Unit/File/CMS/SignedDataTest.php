@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\File\CMS;
 
 use phpseclib4\Crypt\EC;
+use phpseclib4\Crypt\RSA;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\CMS;
 use phpseclib4\File\CMS\SignedData;
@@ -518,5 +519,25 @@ ybcPA9iklr0wAwYBAAMBAA==
         }
         // a failed decode must not leave the global cache invalidation turned off
         $this->assertTrue(ASN1::invalidateCache());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Group('github2289')]
+    public function testRSASignerWithSHA512tAndSHA3(): void
+    {
+        $private = RSA::createKey(1024);
+        foreach ([[RSA::SIGNATURE_PKCS1, 'sha512/256'], [RSA::SIGNATURE_PSS, 'sha3/256']] as [$padding, $hash]) {
+            $key = $private->withPadding($padding)->withHash($hash)->withMGFHash($hash);
+            $x509 = new X509($key->getPublicKey());
+            $x509->setDN('O=phpseclib demo');
+            $x509->makeCA();
+            $key->sign($x509);
+
+            $cms = new SignedData('zzz');
+            $key->sign($cms->addSigner($x509));
+
+            $cms = CMS::load("$cms");
+            $this->assertSame('id-' . $hash, (string) $cms->getSigners()[0]['digestAlgorithm']['algorithm']);
+            $this->assertTrue($cms->validateSignature(false), $hash);
+        }
     }
 }

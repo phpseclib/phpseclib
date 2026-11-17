@@ -38,7 +38,7 @@ trait ASN1Signature
     private static function identifySignatureAlgorithmHelper(PrivateKey $key): array
     {
         $key = $key->getPublicKey();
-        $hash = (string) $key->getHash();
+        $hash = str_replace('-', '/', (string) $key->getHash());
         if ($key instanceof RSA) {
             if ($key->getPadding() & RSA::SIGNATURE_PSS) {
                 $r = PSS::load($key->toString('PSS'));

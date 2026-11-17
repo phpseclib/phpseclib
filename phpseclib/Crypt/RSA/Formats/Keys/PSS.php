@@ -201,10 +201,10 @@ abstract class PSS extends Progenitor
             'trailerField' => new BigInteger(1),
         ];
         if (isset($options['hash'])) {
-            $params['hashAlgorithm']['algorithm'] = 'id-' . $options['hash'];
+            $params['hashAlgorithm']['algorithm'] = 'id-' . str_replace('-', '/', $options['hash']);
         }
         if (isset($options['MGFHash'])) {
-            $temp = ['algorithm' => 'id-' . $options['MGFHash']];
+            $temp = ['algorithm' => 'id-' . str_replace('-', '/', $options['MGFHash'])];
             $temp = ASN1::encodeDER($temp, Maps\HashAlgorithm::MAP);
             $params['maskGenAlgorithm'] = [
                 'algorithm' => 'id-mgf1',
