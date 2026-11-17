@@ -524,18 +524,15 @@ bINnZJfGe2e4Lw==
     #[\PHPUnit\Framework\Attributes\Group('github2289')]
     public function testGetPublicKeyAndPSSFormatWithSHA512tAndSHA3(): void
     {
-        $private = RSA::createKey(1024)
-            ->withPadding(RSA::SIGNATURE_PSS)
-            ->withHash('sha512/256')
-            ->withMGFHash('sha512/224');
-        $signature = $private->sign('zzzz');
+        $private = RSA::createKey(1024)->withPadding(RSA::SIGNATURE_PSS);
+        foreach ([['sha512/256', 'sha512/224'], ['sha3/256', 'sha3/384']] as [$hash, $mgfHash]) {
+            $key = $private->withHash($hash)->withMGFHash($mgfHash);
+            $signature = $key->sign('zzzz');
 
-        $this->assertTrue($private->getPublicKey()->verify('zzzz', $signature));
-        $public = PublicKeyLoader::load($private->getPublicKey()->toString('PSS'));
-        $this->assertTrue($public->verify('zzzz', $signature));
-
-        $private = $private->withHash('sha3/256')->withMGFHash('sha3/384');
-        $this->assertTrue($private->getPublicKey()->verify('zzzz', $private->sign('zzzz')));
+            $this->assertTrue($key->getPublicKey()->verify('zzzz', $signature), $hash);
+            $public = PublicKeyLoader::load($key->getPublicKey()->toString('PSS'));
+            $this->assertTrue($public->verify('zzzz', $signature), $hash);
+        }
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github2136')]
