@@ -1260,7 +1260,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                 return false;
             }
 
-            if (self::$checkBasicConstraints && $expected == 'keyCertSign' && !$this->isCA) {
+            if (self::$checkBasicConstraints && $expected == 'keyCertSign') {
                 if (!$this->hasExtension('id-ce-basicConstraints')) {
                     return false;
                 }
