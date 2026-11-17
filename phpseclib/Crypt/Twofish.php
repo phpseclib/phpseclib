@@ -51,7 +51,7 @@ class Twofish extends BlockCipher
     /**
      * Q-Table
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $q0 = [
         0xA9, 0x67, 0xB3, 0xE8, 0x04, 0xFD, 0xA3, 0x76,
@@ -91,7 +91,7 @@ class Twofish extends BlockCipher
     /**
      * Q-Table
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $q1 = [
         0x75, 0xF3, 0xC6, 0xF4, 0xDB, 0x7B, 0xFB, 0xC8,
@@ -131,7 +131,7 @@ class Twofish extends BlockCipher
     /**
      * M-Table
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $m0 = [
         0xBCBC3275, 0xECEC21F3, 0x202043C6, 0xB3B3C9F4, 0xDADA03DB, 0x02028B7B, 0xE2E22BFB, 0x9E9EFAC8,
@@ -171,7 +171,7 @@ class Twofish extends BlockCipher
     /**
      * M-Table
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $m1 = [
         0xA9D93939, 0x67901717, 0xB3719C9C, 0xE8D2A6A6, 0x04050707, 0xFD985252, 0xA3658080, 0x76DFE4E4,
@@ -211,7 +211,7 @@ class Twofish extends BlockCipher
     /**
      * M-Table
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $m2 = [
         0xBC75BC32, 0xECF3EC21, 0x20C62043, 0xB3F4B3C9, 0xDADBDA03, 0x027B028B, 0xE2FBE22B, 0x9EC89EFA,
@@ -251,7 +251,7 @@ class Twofish extends BlockCipher
     /**
      * M-Table
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $m3 = [
         0xD939A9D9, 0x90176790, 0x719CB371, 0xD2A6E8D2, 0x05070405, 0x9852FD98, 0x6580A365, 0xDFE476DF,

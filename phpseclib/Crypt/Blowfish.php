@@ -137,7 +137,7 @@ class Blowfish extends BlockCipher
      *
      * S-Box
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $sbox = [
         0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96, 0xba7c9045, 0xf12c7f99,
@@ -276,7 +276,7 @@ class Blowfish extends BlockCipher
     /**
      * P-Array consists of 18 32-bit subkeys
      *
-     * @var int[]
+     * @var array<int, int|float>
      */
     private static array $parray = [
         0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
