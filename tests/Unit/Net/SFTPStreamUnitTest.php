@@ -102,7 +102,7 @@ class SFTPStreamUnitTest extends PhpseclibTestCase
         string $method,
         bool $expectedResult
     ): void {
-        $sftp = new class($version) extends SFTP {
+        $sftp = new class ($version) extends SFTP {
             public int $testVersion;
 
             /** @var list<string> */

@@ -500,11 +500,13 @@ class SSH2UnitTest extends PhpseclibTestCase
 
     public function testMalformedChannelCloseDisconnectsWithoutClosingChannel(): void
     {
-        foreach ([
-            chr(MessageType::CHANNEL_CLOSE),
-            pack('CC', MessageType::CHANNEL_CLOSE, 0),
-            pack('Cn', MessageType::CHANNEL_CLOSE, 0),
-        ] as $packet) {
+        foreach (
+            [
+                chr(MessageType::CHANNEL_CLOSE),
+                pack('CC', MessageType::CHANNEL_CLOSE, 0),
+                pack('Cn', MessageType::CHANNEL_CLOSE, 0),
+            ] as $packet
+        ) {
             $ssh = $this->getMockBuilder(SSH2::class)
                 ->disableOriginalConstructor()
                 ->onlyMethods(['__destruct', 'send_binary_packet'])

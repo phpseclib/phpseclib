@@ -252,18 +252,20 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             $sftp->chmod($root, 0711, true);
             $sftp->clearStatCache();
 
-            foreach ([
-                $root,
-                "$root/empty",
-                "$root/one",
-                "$root/one/only.txt",
-                "$root/many",
-                "$root/many/a.txt",
-                "$root/many/b.txt",
-                "$root/nested",
-                "$root/nested/inner",
-                "$root/nested/inner/leaf.txt",
-            ] as $path) {
+            foreach (
+                [
+                    $root,
+                    "$root/empty",
+                    "$root/one",
+                    "$root/one/only.txt",
+                    "$root/many",
+                    "$root/many/a.txt",
+                    "$root/many/b.txt",
+                    "$root/nested",
+                    "$root/nested/inner",
+                    "$root/nested/inner/leaf.txt",
+                ] as $path
+            ) {
                 $this->assertSame(0711, $sftp->stat($path)['mode'] & 0777, $path);
             }
         } finally {

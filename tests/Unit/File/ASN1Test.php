@@ -34,10 +34,12 @@ class ASN1Test extends PhpseclibTestCase
 {
     public function testEncodeTimeValuesInGMTWithoutMutatingSource(): void
     {
-        foreach ([
-            new \DateTime('2026-01-01T12:00:00+02:00'),
-            new \DateTimeImmutable('2026-01-01T12:00:00+02:00'),
-        ] as $date) {
+        foreach (
+            [
+                new \DateTime('2026-01-01T12:00:00+02:00'),
+                new \DateTimeImmutable('2026-01-01T12:00:00+02:00'),
+            ] as $date
+        ) {
             $this->assertSame(
                 hex2bin('180f32303236303130313130303030305a'),
                 ASN1::encodeDER($date, ['type' => ASN1::TYPE_GENERALIZED_TIME])

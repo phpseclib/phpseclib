@@ -193,7 +193,8 @@ FndAlFnyh782RoE6ORRHxKgaO1qomK0ewReUTrO6mEt1SdbQDAHJX8XU2ro43Xl9
 
     public function testEncryptedKeyLateStaticLoadAndSerialization(): void
     {
-        $encryptedKey = new class([]) extends CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey {};
+        $encryptedKey = new class ([]) extends CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey {
+        };
         $loaded = $encryptedKey::load([]);
         $this->assertSame(get_class($encryptedKey), get_class($loaded));
 
