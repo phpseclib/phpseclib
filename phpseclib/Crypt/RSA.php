@@ -587,6 +587,9 @@ abstract class RSA extends AsymmetricKey
                 break;
             case 'sha3/512':
                 $t = "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x05\x00\x04\x40";
+                break;
+            default:
+                throw new UnsupportedAlgorithmException($this->hash->getHash() . ' is not supported by PKCS#1 v1.5');
         }
         $t .= $h;
         $tLen = strlen($t);
