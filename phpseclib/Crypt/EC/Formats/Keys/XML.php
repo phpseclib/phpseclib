@@ -183,6 +183,7 @@ abstract class XML
             $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))), // @phpstan-ignore method.notFound (XPath selects the X element; DOM list typing is broader)
             $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))), // @phpstan-ignore method.notFound (XPath selects the Y element; DOM list typing is broader)
         ];
+        // @phpstan-ignore method.notFound (XML's private loaders construct Prime curves or named Prime/Binary curves from the fixed OID table; these implement verifyPoint().)
         if (!$curve->verifyPoint($point)) {
             throw new UnexpectedValueException('Unable to verify that point exists on curve');
         }
@@ -372,6 +373,8 @@ abstract class XML
         }
 
         if (self::$rfc4050) {
+            // XML-002 remains open; see analysis/github-issue-drafts/XML-002-rfc4050-binary-coordinate-encoding.md.
+            // @phpstan-ignore binaryOp.invalid, binaryOp.invalid (XML-002: X/Y binary coordinates are emitted as decimal, not RFC4050 hex octets; no runtime fix.)
             return '<' . $pre . 'ECDSAKeyValue xmlns' . $post . '="http://www.w3.org/2001/04/xmldsig-more#">' . "\r\n" .
                    self::encodeXMLParameters($curve, $pre, $options) . "\r\n" .
                    '<' . $pre . 'PublicKey>' . "\r\n" .
