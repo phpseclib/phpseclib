@@ -276,25 +276,32 @@ class ChaCha20Test extends PhpseclibTestCase
 
     public function testNonceSizeOf8()
     {
-        $c = new ChaCha20();
-        $c->enablePoly1305();
-        $c->setNonce(str_repeat('x', 8));
-        $c->setKey(str_repeat('x', 32));
-        $r = $c->encrypt('aaa');
-        $tag = $c->getTag();
+        $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
+        foreach ($engines as $engine) {
+            $c = new ChaCha20();
+            $c->setPreferredEngine($engine);
+            if ($c->getEngine() != $engine) {
+                continue;
+            }
+            $c->enablePoly1305();
+            $c->setNonce(str_repeat('x', 8));
+            $c->setKey(str_repeat('x', 32));
+            $r = $c->encrypt('aaa');
+            $tag = $c->getTag();
 
-        $this->assertSame(hex2bin('785c7cfd23bb5121e9054c0f6f147194'), $tag, "Failed asserting that 0x785c7cfd23bb5121e9054c0f6f147194 matches 0x" . bin2hex($tag));
-        $this->assertSame(hex2bin('a8dbff'), $r);
+            $this->assertSame(hex2bin('785c7cfd23bb5121e9054c0f6f147194'), $tag, "Failed asserting that 0x785c7cfd23bb5121e9054c0f6f147194 matches 0x" . bin2hex($tag));
+            $this->assertSame(hex2bin('a8dbff'), $r);
 
-        $c = new ChaCha20();
-        $c->enablePoly1305();
-        $c->setTag($tag);
-        $c->setNonce(str_repeat('x', 8));
-        $c->setKey(str_repeat('x', 32));
-        $c->decrypt($r);
+            $c = new ChaCha20();
+            $c->enablePoly1305();
+            $c->setTag($tag);
+            $c->setNonce(str_repeat('x', 8));
+            $c->setKey(str_repeat('x', 32));
+            $c->decrypt($r);
 
-        $c->setTag('zzzz');
-        $this->expectException(BadDecryptionException::class);
-        $c->decrypt($r);
+            $c->setTag('zzzz');
+            $this->expectException(BadDecryptionException::class);
+            $c->decrypt($r);
+        }
     }
 }
