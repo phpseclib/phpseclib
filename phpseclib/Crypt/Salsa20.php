@@ -156,8 +156,9 @@ class Salsa20 extends StreamCipher
         }
 
         $c = clone $this;
-        $c->setCounter(0);
         $c->usePoly1305 = false;
+        $c->changed = true;
+        $c->setCounter(0);
         $block = $c->encrypt(str_repeat("\0", 256));
         $this->setPoly1305Key(substr($block, 0, 32));
 

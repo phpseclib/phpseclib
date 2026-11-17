@@ -1949,10 +1949,6 @@ abstract class SymmetricKey
      */
     public function setTag($tag)
     {
-        if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
-            $this->createPoly1305Key();
-        }
-
         if ($this->mode != self::MODE_GCM && !$this->usePoly1305) {
             throw new \BadMethodCallException('Authentication tags are only utilized in GCM mode or with Poly1305');
         }

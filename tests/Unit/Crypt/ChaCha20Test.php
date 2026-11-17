@@ -9,6 +9,7 @@
 namespace phpseclib3\Tests\Unit\Crypt;
 
 use phpseclib3\Crypt\ChaCha20;
+use phpseclib3\Exception\BadDecryptionException;
 use phpseclib3\Tests\PhpseclibTestCase;
 
 class ChaCha20Test extends PhpseclibTestCase
@@ -224,5 +225,29 @@ class ChaCha20Test extends PhpseclibTestCase
 
             $this->assertSame($p1, $p2, "Failed asserting that ciphertext matches expected value with $engine engine");
         }
+    }
+
+    public function testNonceSizeOf8()
+    {
+        $c = new ChaCha20();
+        $c->enablePoly1305();
+        $c->setNonce(str_repeat('x', 8));
+        $c->setKey(str_repeat('x', 32));
+        $r = $c->encrypt('aaa');
+        $tag = $c->getTag();
+
+        $this->assertSame(hex2bin('785c7cfd23bb5121e9054c0f6f147194'), $tag, "Failed asserting that 0x785c7cfd23bb5121e9054c0f6f147194 matches 0x" . bin2hex($tag));
+        $this->assertSame(hex2bin('a8dbff'), $r);
+
+        $c = new ChaCha20();
+        $c->enablePoly1305();
+        $c->setTag($tag);
+        $c->setNonce(str_repeat('x', 8));
+        $c->setKey(str_repeat('x', 32));
+        $c->decrypt($r);
+
+        $c->setTag('zzzz');
+        $this->expectException(BadDecryptionException::class);
+        $c->decrypt($r);
     }
 }
