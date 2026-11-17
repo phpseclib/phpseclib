@@ -249,7 +249,6 @@ class SCP extends SSH2
         $this->close_channel(self::CHANNEL_EXEC);
 
         if ($fclose_check) {
-            // @phpstan-ignore variable.undefined ($fclose_check is only true for a non-resource destination, whose branch assigns $fp via Files::open; open failure is rethrown)
             fclose($fp);
         }
 

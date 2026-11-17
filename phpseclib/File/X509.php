@@ -1259,7 +1259,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                 return false;
             }
 
-            if (self::$checkBasicConstraints && $expected == 'keyCertSign') {
+            if (self::$checkBasicConstraints && $expected == 'keyCertSign') { // @phpstan-ignore equal.alwaysFalse, booleanAnd.alwaysFalse (FI-004 remains open and unfixed: this known array/string defect is awaiting maintainer review; see analysis/github-issue-drafts/FI-004-x509-isissuerof-basic-constraints.md.)
                 if (!$this->hasExtension('id-ce-basicConstraints')) {
                     return false;
                 }

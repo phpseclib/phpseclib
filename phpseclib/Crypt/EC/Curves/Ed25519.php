@@ -193,7 +193,7 @@ class Ed25519 extends TwistedEdwards
         $y = $y->toBytes();
         $y[0] = $y[0] & chr(0x7F);
         if ($x->isOdd()) {
-            $y[0] = $y[0] | chr(0x80);
+            $y[0] = chr(ord($y[0]) | 0x80);
         }
         $y = strrev($y);
 

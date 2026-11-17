@@ -245,6 +245,7 @@ class ChaCha20Test extends PhpseclibTestCase
                         continue;
                     }
                     $ciphertext = $c->encrypt($plaintext);
+                    // @phpstan-ignore isset.expr (The dynamic variable is initialized by the first engine iteration; keep the runtime guard for test sequencing.)
                     if (isset($$var)) {
                         $message = "Failed asserting that $engine (with a nonce size of $nonceSize) ";
                         if ($calculatePoly) {
@@ -266,7 +267,6 @@ class ChaCha20Test extends PhpseclibTestCase
                     $c->setCounter(1);
                     if ($calculatePoly) {
                         $c->enablePoly1305();
-                        // @phpstan-ignore variable.undefined (The first, always-available PHP engine round without Poly1305 initializes ciphertext$nonceSize before any Poly1305 round assigns $tag here.)
                         $c->setTag($tag);
                     }
                     $result = $c->decrypt($ciphertext);

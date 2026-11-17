@@ -932,7 +932,7 @@ class Hash
             $M = strlen($text) ? str_split($text, $const_Bsize) : [''];
 
             // Step 2
-            $n = ceil($len / $const_Bsize);
+            $n = intdiv($len, $const_Bsize) + ($len % $const_Bsize === 0 ? 0 : 1);
             // Step 3
             if ($n == 0) {
                 $n = 1;

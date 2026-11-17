@@ -3985,11 +3985,9 @@ class SSH2
                         break;
                     }
 
-                    // @phpstan-ignore variable.undefined (the 's' decode above throws unless the packet carries a full data string, impossible without the channel field that assigned $channel)
                     if ($client_channel == $channel) {
                         return $data;
                     }
-                    // @phpstan-ignore variable.undefined (the 's' decode above throws unless the packet carries a full data string, impossible without the channel field that assigned $channel)
                     $this->channel_buffers[$channel][] = chr($type) . $data;
                     break;
                 case MessageType::CHANNEL_CLOSE:
