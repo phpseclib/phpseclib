@@ -424,10 +424,14 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             'sha512/224' => 'id-sha512/224',
             'sha512/256' => 'id-sha512/256',
             'sha512' => 'id-sha512',
+            'sha3/224' => 'id-sha3/224',
+            'sha3/256' => 'id-sha3/256',
+            'sha3/384' => 'id-sha3/384',
+            'sha3/512' => 'id-sha3/512',
             default => null
         };
         if (!isset($hash)) {
-            throw new UnsupportedAlgorithmException("$origHash is not a supported algorithm: try md2, md4, md5, sha1, sha224, sha256, sha384, sha512, sha512/224 or sha512/256 instead");
+            throw new UnsupportedAlgorithmException("$origHash is not a supported algorithm: try md2, md4, md5, sha1, sha224, sha256, sha384, sha512, sha512/224, sha512/256, sha3/224, sha3/256, sha3/384 or sha3/512 instead");
         }
         $hashObj = new Hash($origHash);
         $this->compile();

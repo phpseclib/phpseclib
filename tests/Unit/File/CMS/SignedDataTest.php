@@ -522,22 +522,22 @@ ybcPA9iklr0wAwYBAAMBAA==
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github2289')]
-    public function testRSASignerWithSHA512t(): void
+    public function testRSASignerWithSHA512tAndSHA3(): void
     {
-        $private = RSA::createKey(1024)
-            ->withPadding(RSA::SIGNATURE_PKCS1)
-            ->withHash('sha512/256');
-        $x509 = new X509($private->getPublicKey());
-        $x509->setDN('O=phpseclib demo');
-        $x509->makeCA();
-        $private->sign($x509);
+        $private = RSA::createKey(1024);
+        foreach ([[RSA::SIGNATURE_PKCS1, 'sha512/256'], [RSA::SIGNATURE_PSS, 'sha3/256']] as [$padding, $hash]) {
+            $key = $private->withPadding($padding)->withHash($hash)->withMGFHash($hash);
+            $x509 = new X509($key->getPublicKey());
+            $x509->setDN('O=phpseclib demo');
+            $x509->makeCA();
+            $key->sign($x509);
 
-        $cms = new SignedData('zzz');
-        $signer = $cms->addSigner($x509);
-        $private->sign($signer);
+            $cms = new SignedData('zzz');
+            $key->sign($cms->addSigner($x509));
 
-        $cms = CMS::load("$cms");
-        $this->assertSame('id-sha512/256', (string) $cms->getSigners()[0]['digestAlgorithm']['algorithm']);
-        $this->assertTrue($cms->validateSignature(false));
+            $cms = CMS::load("$cms");
+            $this->assertSame('id-' . $hash, (string) $cms->getSigners()[0]['digestAlgorithm']['algorithm']);
+            $this->assertTrue($cms->validateSignature(false), $hash);
+        }
     }
 }
