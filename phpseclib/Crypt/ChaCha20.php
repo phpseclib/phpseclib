@@ -169,8 +169,9 @@ class ChaCha20 extends Salsa20
             if (!isset($this->oldtag)) {
                 throw new InvalidStateException('Authentication Tag has not been set');
             }
-            $params[0] .= $this->oldtag;
-            if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
+            // libsodium only accepts 16 byte tags
+            if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12 && strlen($this->oldtag) == 16) {
+                $params[0] .= $this->oldtag;
                 $plaintext = sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
                 $this->oldtag = null;
                 if ($plaintext === false) {
