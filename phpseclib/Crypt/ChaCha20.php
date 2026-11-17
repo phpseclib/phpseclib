@@ -139,9 +139,14 @@ class ChaCha20 extends Salsa20
 
         $newciphertext = substr($ciphertext, 0, strlen($plaintext));
 
-        $this->newtag = $this->usingGeneratedPoly1305Key ?
-            substr($ciphertext, strlen($plaintext)) :
-            $this->poly1305($newciphertext);
+        if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
+            $this->newtag = substr($ciphertext, strlen($plaintext));
+        } else {
+            if ($this->usePoly1305 && (!isset($this->poly1305Key) || $this->changed)) {
+                $this->createPoly1305Key();
+            }
+            $this->newtag = $this->poly1305($newciphertext);
+        }
 
         return $newciphertext;
     }
@@ -160,20 +165,21 @@ class ChaCha20 extends Salsa20
     {
         $params = [$ciphertext, $this->aad, $this->nonce, $this->key];
 
-        if (isset($this->poly1305Key)) {
+        if ($this->usePoly1305) {
             if (!isset($this->oldtag)) {
-                throw new InvalidStateException('Authentication Tag has not been set - call setTag() first');
+                throw new InvalidStateException('Authentication Tag has not been set');
             }
             $params[0] .= $this->oldtag;
-            if ($this->usingGeneratedPoly1305Key) {
-                $plaintext = strlen($this->nonce) == 8 ?
-                    sodium_crypto_aead_chacha20poly1305_decrypt(...$params) :
-                    sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
+            if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
+                $plaintext = sodium_crypto_aead_chacha20poly1305_ietf_decrypt(...$params);
                 $this->oldtag = null;
                 if ($plaintext === false) {
                     throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
                 }
                 return $plaintext;
+            }
+            if ($this->changed || !isset($this->poly1305Key)) {
+                $this->createPoly1305Key();
             }
             $newtag = $this->poly1305($ciphertext);
             if ($this->oldtag != substr($newtag, 0, strlen($this->oldtag))) {
@@ -231,7 +237,7 @@ class ChaCha20 extends Salsa20
             case 12: // 96 bits
                 break;
             default:
-                throw new LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only 64-bit nonces or 96-bit nonces are supported');
+                throw new LengthException('Nonce of size ' . strlen($nonce) . ' not supported by this algorithm. Only nonces of 8 bytes (96-bits) or 12 bytes (96-bits) are supported');
         }
 
         $this->nonce = $nonce;
