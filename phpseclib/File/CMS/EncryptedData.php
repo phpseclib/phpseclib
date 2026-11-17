@@ -578,11 +578,11 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
             if (!($publicKey->getPadding() & RSA::ENCRYPTION_OAEP)) {
                 $algorithm = ['algorithm' => 'rsaEncryption', 'parameters' => new ASN1\Types\ExplicitNull()];
             } else {
-                $hash = (string) $publicKey->getHash();
+                $hash = str_replace('-', '/', (string) $publicKey->getHash());
                 if (substr($hash, 0, 3) == 'sha') {
                     $hash = "id-$hash";
                 }
-                $mgfHash = (string) $publicKey->getMGFHash();
+                $mgfHash = str_replace('-', '/', (string) $publicKey->getMGFHash());
                 if (substr($mgfHash, 0, 3) == 'sha') {
                     $mgfHash = "id-$mgfHash";
                 }
