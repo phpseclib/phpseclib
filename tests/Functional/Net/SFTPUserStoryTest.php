@@ -279,6 +279,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         try {
             $sftp->chdir('file1.txt');
         } catch (FileSystemException) {
+            // @phpstan-ignore method.alreadyNarrowedType (Retain expected-exception success marker.)
             $this->assertTrue(true);
             return $sftp;
         }

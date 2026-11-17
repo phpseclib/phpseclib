@@ -18,10 +18,7 @@ use phpseclib4\Tests\PhpseclibFunctionalTestCase;
  */
 abstract class SFTPTestCase extends PhpseclibFunctionalTestCase
 {
-    /**
-     * @var SFTP
-     */
-    protected $sftp;
+    protected ?SFTP $sftp = null;
     protected $scratchDir;
 
     public function setUp(): void

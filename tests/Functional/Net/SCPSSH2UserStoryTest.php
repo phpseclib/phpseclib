@@ -8,6 +8,7 @@
 
 namespace phpseclib4\Tests\Functional\Net;
 
+use phpseclib4\Exception\FileSystemException;
 use phpseclib4\Net\SCP;
 use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
@@ -93,11 +94,8 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         $scp->exec('rm ' . self::$remoteFile);
         try {
             $scp->get(self::$remoteFile);
-            $this->assertTrue(
-                false,
-                'Failed asserting that get() on a non-existant file failed'
-            );
-        } catch (\Exception) {
+            self::fail('Failed asserting that get() on a non-existant file failed');
+        } catch (FileSystemException) {
         }
         $scp->put(self::$remoteFile, self::$exampleData);
         $content = $scp->get(self::$remoteFile);
