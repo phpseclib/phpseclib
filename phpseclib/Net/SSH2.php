@@ -2595,7 +2595,7 @@ class SSH2
      * If $callback is set to false then \phpseclib4\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of (SCP.php uses it)
      *
-     * @psalm-return ($callback is callable ? null : string)
+     * @return ($callback is callable ? null : string)
      */
     public function exec(string $command, ?\Closure $callback = null): ?string
     {

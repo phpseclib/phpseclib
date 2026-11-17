@@ -66,7 +66,6 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $temp;
     }
 
-    /** @psalm-api */
     public function withKey(#[\SensitiveParameter] EC\PrivateKey $key): self
     {
         $private = &$key;

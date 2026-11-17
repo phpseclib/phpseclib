@@ -440,7 +440,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withHash($hash);
     }
 
-    /** @psalm-api */
     public function setMFGHash(string $hash): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];

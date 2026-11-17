@@ -372,7 +372,7 @@ abstract class Strings
     /**
      * Find whether the type of a variable is string (or could be converted to one)
      *
-     * @psalm-assert-if-true string|\Stringable $var
+     * @phpstan-assert-if-true string|\Stringable $var
      */
     public static function is_stringable(mixed $var): bool
     {

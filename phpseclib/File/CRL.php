@@ -179,7 +179,6 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->getIssuerDNProps($propName);
     }
 
-    /** @psalm-api */
     public function hasDNProp(string $propName): bool
     {
         return $this->hasIssuerDNProp($propName);
@@ -196,7 +195,6 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setIssuerDN($props);
     }
 
-    /** @psalm-api */
     public function resetDN(): void
     {
         self::resetIssuerDN();

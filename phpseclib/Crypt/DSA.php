@@ -334,7 +334,6 @@ abstract class DSA extends AsymmetricKey
     /**
      * Returns the signature format currently being used
      *
-     * @psalm-api
      */
     public function getSignatureFormat(): string
     {

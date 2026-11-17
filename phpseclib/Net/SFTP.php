@@ -560,7 +560,6 @@ class SFTP extends SSH2
     /**
      * Enable path canonicalization
      *
-     * @psalm-api
      */
     public function enablePathCanonicalization(): void
     {

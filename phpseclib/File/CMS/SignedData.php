@@ -600,7 +600,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms['content']['certificates'][] = ['certificate' => $cert];
     }
 
-    /** @psalm-api */
     public function addCRL(CRL $crl): void
     {
         $this->cms['content']['crls'][] = $crl;

@@ -62,12 +62,8 @@ jobs:
                 run: composer update --with-all-dependencies --no-interaction
             -   name: PHP_CodeSniffer
                 run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
-            -   name: Psalm
-                # psalm forks its workers, and forked workers crash on revolt's IoPollDriver (the default on PHP 8.6
-                # since revolt/event-loop 1.1.0) because they share its epoll instance with the parent
-                env:
-                    REVOLT_DRIVER: Revolt\EventLoop\Driver\StreamSelectDriver
-                run: vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
+            -   name: PHPStan
+                run: composer phpstan
     tests:
         name: Tests
         timeout-minutes: 15
@@ -106,9 +102,6 @@ jobs:
                     composer require --dev --no-update \
                       "phpunit/phpunit:${{ matrix.phpunit }}" \
                       "brianium/paratest:${{ matrix.paratest }}"
-            -   name: Remove Psalm
-                # the tests don't run it, and Psalm 7 doesn't install on PHP 8.1
-                run: composer remove --dev --no-update vimeo/psalm
             -   name: Composer Install
                 # ParaTest's PHP constraint doesn't allow 8.7 yet
                 run: composer update --with-all-dependencies --no-interaction ${{ matrix.php-version == '8.7' && '--ignore-platform-req=php+' || '' }}

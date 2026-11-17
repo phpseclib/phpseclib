@@ -1,6 +1,5 @@
 {
     "$schema": "/phpactor.schema.json",
     "language_server_phpstan.enabled": true,
-    "language_server_psalm.enabled": true,
     "php_code_sniffer.enabled": true
 }

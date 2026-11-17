@@ -82,7 +82,6 @@ class SCP extends SSH2
      * care of that, yourself.
      *
      * @param string|resource $data
-     * @psalm-api
      */
     public function put(
         string $remote_file,
