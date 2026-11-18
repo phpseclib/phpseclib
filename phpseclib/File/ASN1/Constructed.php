@@ -52,7 +52,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
     public array $rules = [];
     private string $wrapping = '';
     private bool $forcedCache = false;
-    private bool $indefinite = false;
 
     public function __construct(
         private string $encoded,
@@ -61,7 +60,8 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         private int $start,
         private int $encoded_pos,
         private int $headerlength,
-        private string $rawheader
+        private string $rawheader,
+        private bool $indefinite
     ) {
     }
 
@@ -77,12 +77,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
     public function getTag(): int
     {
         return $this->tag;
-    }
-
-    public function setIndefinite(bool $indefinite): static
-    {
-        $this->indefinite = $indefinite;
-        return $this;
     }
 
     public function linkMapping(array $mapping, array $rules = []): void
@@ -118,13 +112,12 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
     {
         $origOffset = $offset;
         while (true) {
-            ['tag' => $tag, 'class' => $class, 'constructed' => $constructed] = ASN1::decodeTag($this->encoded, $offset);
-            $length = ASN1::decodeLength($this->encoded, $offset);
-            // end-of-contents is UNIVERSAL 0, primitive, length 0; [0] IMPLICIT NULL-like
-            // elements (80 00, a0 00, ...) are ordinary content
-            if ($tag === 0 && $class === ASN1::CLASS_UNIVERSAL && !$constructed && $length === 0) {
+            if (substr($this->encoded, $offset, 2) === "\0\0") {
+                $offset += 2;
                 break;
             }
+            ASN1::decodeTag($this->encoded, $offset);
+            $length = ASN1::decodeLength($this->encoded, $offset);
             if (!isset($length)) {
                 // the nested element is one level deeper than this one; its siblings are not
                 $nested = $depth;
