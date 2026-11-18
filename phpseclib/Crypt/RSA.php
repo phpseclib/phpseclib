@@ -485,7 +485,7 @@ abstract class RSA extends AsymmetricKey
         $h = $this->hash->hash($m);
 
         // see http://tools.ietf.org/html/rfc3447#page-43
-        $t = match ($this->hash->getHash()) {
+        $t = match (str_replace('-', '/', $this->hash->getHash())) {
             'md2' => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x02\x05\x00\x04\x10",
             'md5' => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10",
             'sha1' => "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14",
@@ -501,9 +501,9 @@ abstract class RSA extends AsymmetricKey
             // the OIDs are from this URL:
             // https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration#Hash
             'sha3/224' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x07\x05\x00\x04\x1c",
-            'sha3/256' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x05\x00\x04\x20",
-            'sha3/384' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x05\x00\x04\x30",
-            'sha3/512' => "\x30\x2d\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x05\x00\x04\x40",
+            'sha3/256' => "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x05\x00\x04\x20",
+            'sha3/384' => "\x30\x41\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x05\x00\x04\x30",
+            'sha3/512' => "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x05\x00\x04\x40",
         };
 
         $t .= $h;
@@ -540,7 +540,7 @@ abstract class RSA extends AsymmetricKey
         }
 
         // see http://tools.ietf.org/html/rfc3447#page-43
-        $t = match ($hashName) {
+        $t = match (str_replace('-', '/', $hashName)) {
             'sha1' => "\x30\x1f\x30\x07\x06\x05\x2b\x0e\x03\x02\x1a\x04\x14",
             'sha256' => "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x04\x20",
             'sha384' => "\x30\x3f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x02\x04\x30",
@@ -554,9 +554,9 @@ abstract class RSA extends AsymmetricKey
             // the OIDs are from this URL:
             // https://csrc.nist.gov/projects/computer-security-objects-register/algorithm-registration#Hash
             'sha3/224' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x07\x04\x1c",
-            'sha3/256' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x04\x20",
-            'sha3/384' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x04\x30",
-            'sha3/512' => "\x30\x2b\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x04\x40",
+            'sha3/256' => "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x08\x04\x20",
+            'sha3/384' => "\x30\x3f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x09\x04\x30",
+            'sha3/512' => "\x30\x4f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x0A\x04\x40",
         };
         $t .= $h;
         $tLen = strlen($t);
@@ -612,7 +612,8 @@ abstract class RSA extends AsymmetricKey
         $new = clone $this;
 
         // \phpseclib4\Crypt\Hash supports algorithms that PKCS#1 doesn't support. md5-96 and sha1-96, for example.
-        switch (strtolower($hash)) {
+        // Hash::getHash() returns sha512/224 and sha3/224 as sha512-224 and sha3-224, so accept both.
+        switch (str_replace('-', '/', strtolower($hash))) {
             case 'md2':
             case 'md5':
             case 'sha1':
@@ -649,7 +650,8 @@ abstract class RSA extends AsymmetricKey
         $new = clone $this;
 
         // \phpseclib4\Crypt\Hash supports algorithms that PKCS#1 doesn't support.  md5-96 and sha1-96, for example.
-        switch (strtolower($hash)) {
+        // Hash::getHash() returns sha512/224 and sha3/224 as sha512-224 and sha3-224, so accept both.
+        switch (str_replace('-', '/', strtolower($hash))) {
             case 'md2':
             case 'md5':
             case 'sha1':

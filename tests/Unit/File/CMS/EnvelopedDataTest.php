@@ -411,4 +411,26 @@ HZ5LFXx7/Cul
         ), ASN1::FORMAT_DER);
         $this->assertIsArray($cms->toArray(true));
     }
+
+    #[\PHPUnit\Framework\Attributes\Group('github2289')]
+    public function testOAEPWithSHA512tAndSHA3(): void
+    {
+        $plaintext = 'hello, world!';
+
+        // the certificate's RSASSA-PSS key carries the hashes over to the recipient
+        $private = RSA::createKey(1024)
+            ->withHash('sha512/256')
+            ->withMGFHash('sha3/256');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib demo');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $cms = new CMS\EncryptedData($plaintext);
+        $cms->createNewRecipientFromX509($x509);
+
+        $cms = CMS::load("$cms");
+        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt();
+        $this->assertEquals($plaintext, $decrypted);
+    }
 }
