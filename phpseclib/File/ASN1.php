@@ -51,6 +51,7 @@ use phpseclib4\File\ASN1\Types\{
     OctetString,
     PrintableString,
     TeletexString,
+    UniversalString,
     UTCTime,
     UTF8String,
     VideotexString,
@@ -208,8 +209,6 @@ abstract class ASN1
      */
     private static bool $useEncodedCache = true;
 
-    private static ?bool $use64BitOIDHandling = null;
-
     /**
      * Cache Invalidation Flag
      *
@@ -240,6 +239,7 @@ abstract class ASN1
 
         $type = ord($encoded[$encoded_pos++]);
         $offset = 1;
+        $maxTag = PHP_INT_MAX >> 7;
 
         $constructed = ($type >> 5) & 1;
 
@@ -254,6 +254,9 @@ abstract class ASN1
                 $temp = ord($encoded[$encoded_pos++]);
                 $offset++;
                 $loop = $temp >> 7;
+                if ($tag > $maxTag) {
+                    throw new UnexpectedValueException('Tag number is too large');
+                }
                 $tag <<= 7;
                 $temp &= 0x7F;
                 if ($offset == 2 && $temp == 0) {
@@ -291,6 +294,13 @@ abstract class ASN1
             // support it up to four.
             $length &= 0x7F;
             $temp = substr($encoded, $encoded_pos, $length);
+            if (strlen($temp) < $length) {
+                // the missing octets would otherwise read as zero
+                throw new UnexpectedValueException('Not enough bytes to decode length');
+            }
+            if (strlen($temp) > 4 && ltrim(substr($temp, 0, -4), chr(0)) !== '') {
+                throw new UnexpectedValueException('Length is too large');
+            }
             $encoded_pos += $length;
             [, $length] = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
         }
@@ -334,6 +344,10 @@ abstract class ASN1
         ] = self::decodeTag($encoded, $encoded_pos);
         $length = self::decodeLength($encoded, $encoded_pos);
         $current['headerlength'] = $encoded_pos - $old_encoded_pos;
+        if (!isset($length) && !$constructed) {
+            // X.690 8.1.3.2: the indefinite form is only for constructed encodings
+            throw new UnexpectedValueException('Primitive element with indefinite length');
+        }
         if (isset($length)) {
             $current['length'] = $length;
         }
@@ -374,6 +388,7 @@ abstract class ASN1
                             0,
                             $current['headerlength'],
                             $headercontent,
+                            !isset($length)
                         ) :
                         $content,
                     'length'   => $length,
@@ -407,7 +422,8 @@ abstract class ASN1
                 $start,
                 $encoded_pos,
                 $current['headerlength'],
-                $headercontent
+                $headercontent,
+                !isset($length)
             )];
         }
 
@@ -464,9 +480,7 @@ abstract class ASN1
                     if (strlen($content) > 128) {
                         throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
                     }
-                    if (ord($content[-1]) & 0x80) {
-                        throw new UnexpectedValueException('OID is malformed');
-                    }
+                    self::checkOIDEncoding($content);
                 } catch (\Exception $e) {
                     if (!self::$blobsOnBadDecodes) {
                         throw $e;
@@ -513,6 +527,9 @@ abstract class ASN1
             case self::TYPE_BMP_STRING:
                 $current['content'] = new BMPString($content);
                 break;
+            case self::TYPE_UNIVERSAL_STRING:
+                $current['content'] = new UniversalString($content);
+                break;
             case self::TYPE_UTC_TIME:
             case self::TYPE_GENERALIZED_TIME:
                 try {
@@ -522,7 +539,7 @@ abstract class ASN1
                 }
                 break;
             default:
-                if ($tag === 0 && $length === 0) {
+                if (substr($encoded, $old_encoded_pos, $current['headerlength']) === "\0\0") {
                     throw new EOCException('End-of-content (indefinite form) tag encountered');
                 }
                 throw new UnexpectedValueException("An unknown tag ($tag) was encountered");
@@ -546,7 +563,8 @@ abstract class ASN1
         foreach ($mapping['children'] as $key => $option) {
             switch (true) {
                 case isset($option['constant']) && isset($decoded['constant']) && $option['constant'] == $decoded['constant']:
-                case !isset($option['constant']) && $option['type'] == $decoded['type']:
+                // a tagged element's 'type' is its class, which must not match a universal type
+                case !isset($option['constant']) && !isset($decoded['constant']) && $option['type'] == $decoded['type']:
                     return new Choice($key, self::map($decoded, $option, $rules[$key] ?? []));
             }
         }
@@ -602,13 +620,15 @@ abstract class ASN1
             return isset($mapping['mapping']) ? self::applyMap($temp['content'], $mapping['mapping']) : $temp['content'];
         }
 
-        if ($decoded['type'] == $mapping['type']) {
+        if (!isset($decoded['constant']) && $decoded['type'] == $mapping['type']) {
             return isset($mapping['mapping']) ? self::applyMap($decoded['content'], $mapping['mapping']) : $decoded['content'];
         }
 
         // if $decoded['type'] and $mapping['type'] are both strings, but different types of strings,
         // let it through
         switch (true) {
+            case isset($decoded['constant']):
+            case isset($decoded['class']):
             case $decoded['type'] < 18: // self::TYPE_NUMERIC_STRING == 18
             case $decoded['type'] > 30: // self::TYPE_BMP_STRING == 30
             case $mapping['type'] < 18:
@@ -618,12 +638,31 @@ abstract class ASN1
                 return $decoded['content'];
         }
 
-        throw new UnexpectedValueException(
-            'Unable to perform mapping - found ' .
-            self::convertTypeConstantToString($decoded['type']) .
-            ' - expected ' .
-            self::convertTypeConstantToString($mapping['type'])
-        );
+        $message = 'Unable to perform mapping - found ';
+        if (!isset($decoded['constant'])) {
+            $message .= self::convertTypeConstantToString($decoded['type']);
+        } else {
+            $message .= match ($decoded['type']) {
+                self::CLASS_APPLICATION => 'application',
+                self::CLASS_PRIVATE => 'private',
+                self::CLASS_CONTEXT_SPECIFIC => 'context specific'
+            };
+            $message .= ' tag with a constant of ' . $decoded['constant'];
+        }
+        $message .= ' expected ';
+        if (!isset($mapping['constant'])) {
+            $message .= self::convertTypeConstantToString($mapping['type']);
+        } else {
+            if (isset($mapping['class'])) {
+                $message .= match ($mapping['class']) {
+                    self::CLASS_APPLICATION => 'application tag',
+                    self::CLASS_PRIVATE => 'private tag',
+                    self::CLASS_CONTEXT_SPECIFIC => 'context specific'
+                };
+            }
+            $message .= ' with a constant of ' . $mapping['constant'];
+        }
+        throw new UnexpectedValueException($message);
     }
 
     private static function applyMap(Integer|BitString $content, array $mapping): Integer|BitString
@@ -641,6 +680,9 @@ abstract class ASN1
                 break;
             case BitString::class:
                 $raw = (string) $content;
+                if ($raw === '') {
+                    throw new UnexpectedValueException('A BIT STRING needs at least the unused-bits octet');
+                }
                 $offset = ord($raw[0]);
                 $size = (strlen($raw) - 1) * 8 - $offset;
                 /*
@@ -651,13 +693,17 @@ abstract class ASN1
                     therefore ensure that different semantics are not associated with such values which differ only in the number of trailing
                     0 bits."
                 */
-                $bits = count($mapping) == $size ? [] : array_fill(0, count($mapping) - $size, false);
+                $bits = count($mapping) <= $size ? [] : array_fill(0, count($mapping) - $size, false);
                 for ($i = strlen($raw) - 1; $i > 0; $i--) {
                     $current = ord($raw[$i]);
                     for ($j = $offset; $j < 8; $j++) {
                         $bits[] = (bool) ($current & (1 << $j));
                     }
                     $offset = 0;
+                }
+                // bits past the named ones: BER allows trailing zero bits, and unknown bits are ignored
+                if ($size > count($mapping)) {
+                    $bits = array_slice($bits, $size - count($mapping));
                 }
                 $values = [];
                 $map = array_reverse($mapping);
@@ -1116,21 +1162,6 @@ abstract class ASN1
         return $header . $value;
     }
 
-    /** @psalm-api */
-    public static function enable64BitOIDHandling(): void
-    {
-        if (PHP_INT_SIZE === 4) {
-            throw new BadConfigurationException('64-bit OID handling is unavailable on 32-bit PHP installs');
-        }
-        self::$use64BitOIDHandling = true;
-    }
-
-    /** @psalm-api */
-    public static function disable64BitOIDHandling(): void
-    {
-        self::$use64BitOIDHandling = false;
-    }
-
     /**
      * BER-decode the OID
      *
@@ -1145,79 +1176,38 @@ abstract class ASN1
             $eighty = new BigInteger(80);
         }
 
-        if (!isset(self::$use64BitOIDHandling)) {
-            self::$use64BitOIDHandling = PHP_INT_SIZE === 8;
-        }
-
         $oid = [];
-        $pos = 0;
-        $len = strlen($content);
 
-        // see https://github.com/openjdk/jdk/blob/2deb318c9f047ec5a4b160d66a4b52f93688ec42/src/java.base/share/classes/sun/security/util/ObjectIdentifier.java#L55
-        if ($len > 128) {
-            throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
-        }
+        self::checkOIDEncoding($content);
 
-        if (ord($content[-1]) & 0x80) {
-            throw new UnexpectedValueException('OID is malformed');
-        }
+        $arcs = preg_split('#([\x80-\xFF]*[\x00-\x7F])#', $content, flags: PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        foreach ($arcs as $arc) {
+            /*
+              "The subidentifier shall be encoded in the fewest possible octets, that is, the leading octet of the subidentifier
+               shall not have the value \x80"
 
-        $n = new BigInteger();
-        $subn = $numBytes = 0;
-        if (self::$use64BitOIDHandling) {
-            $prefix = '';
-            while ($pos < $len) {
-                $temp = ord($content[$pos++]);
-                $subn <<= 7;
-                $subn |= ($temp & 0x7F);
-                $numBytes++;
-                $endByte = ~$temp & 0x80;
-                if ($numBytes === PHP_INT_SIZE) {
-                    // the idea here is that if we have 8 bytes then we have 8 bits that we need to throw away. those
-                    // 8 bits form 1 byte and the remaining bits form 7 bytes. since we've already compacted the 64 bits
-                    // down to 56 bits (7 bytes) we can just throw away the most significant byte, hence the substring.
-                    // at this point, appending to the string we've been building up is basically the same as left
-                    // shifting that string by 56 bits and then doing a bitwise OR with our new 56-bit integer
-
-                    // this trick doesn't work on 32-bit systems because on a 32-bit system you'd have 4 bytes and 4 bits
-                    // that need to be thrown away. the problem with that being that you can't simply throw away 4 bits
-                    // by doing a substring.
-                    $prefix .= substr(pack('J', $subn), 1);
-                    $subn = $numBytes = 0;
-                    if ($endByte) {
-                        $oid[] = new BigInteger($prefix, 256);
-                        $prefix = '';
-                    }
-                } elseif ($endByte) {
-                    if (strlen($prefix)) {
-                        $arc = new BigInteger($prefix, 256);
-                        $arc = $arc->bitwise_leftShift($numBytes * 7);
-                        $oid[] = $arc->bitwise_or(new BigInteger($subn));
-                        $prefix = '';
-                    } else {
-                        $oid[] = new BigInteger($subn);
-                    }
-                    $subn = $numBytes = 0;
-                }
+              -- https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=22
+            */
+            if ($arc[0] === "\x80") {
+                throw new UnexpectedValueException('OID subidentifier has a leading 0x80 octet');
             }
-        } else {
-            while ($pos < $len) {
-                $temp = ord($content[$pos++]);
-                $subn <<= 7;
-                $subn |= ($temp & 0x7F);
-                $numBytes++;
-                $endByte = ~$temp & 0x80;
-                if ($numBytes === PHP_INT_SIZE || $endByte) {
-                    $n = $n->bitwise_leftShift($numBytes * 7);
-                    $n = $n->bitwise_or(new BigInteger($subn));
-                    $subn = $numBytes = 0;
-                    if ($endByte) {
-                        $oid[] = $n;
-                        $n = new BigInteger();
-                    }
-                }
+            $arc = str_pad($arc, (strlen($arc) + 7) & ~7, "\0", STR_PAD_LEFT);
+            $arr = str_split($arc, 8);
+            $new = '';
+            foreach ($arr as $part) {
+                $part &= "\x7F\x7F\x7F\x7F\x7F\x7F\x7F\x7F";
+                $bytes = array_map('ord', str_split($part));
+                $new .= chr((($bytes[0] << 1) | ($bytes[1] >> 6)) & 0xFF) .
+                    chr((($bytes[1] << 2) | ($bytes[2] >> 5)) & 0xFF) .
+                    chr((($bytes[2] << 3) | ($bytes[3] >> 4)) & 0xFF) .
+                    chr((($bytes[3] << 4) | ($bytes[4] >> 3)) & 0xFF) .
+                    chr((($bytes[4] << 5) | ($bytes[5] >> 2)) & 0xFF) .
+                    chr((($bytes[5] << 6) | ($bytes[6] >> 1)) & 0xFF) .
+                    chr((($bytes[6] << 7) |  $bytes[7]) & 0xFF);
             }
+            $oid[] = new BigInteger($new, 256);
         }
+
         $part1 = array_shift($oid);
         $first = floor(ord($content[0]) / 40);
         /*
@@ -1235,6 +1225,28 @@ abstract class ASN1
         }
 
         return new OID(implode('.', $oid));
+    }
+
+    /**
+     * X.690 8.19: at least one subidentifier, each ending in an octet with bit 8 clear and
+     * none starting with 0x80 (a subidentifier is encoded in as few octets as possible)
+     */
+    private static function checkOIDEncoding(string $content): void
+    {
+        $len = strlen($content);
+
+        // see https://github.com/openjdk/jdk/blob/2deb318c9f047ec5a4b160d66a4b52f93688ec42/src/java.base/share/classes/sun/security/util/ObjectIdentifier.java#L55
+        if ($len > 128) {
+            throw new ResourceLimitException('Object Identifier size is limited to 128 bytes');
+        }
+
+        if (!$len) {
+            throw new UnexpectedValueException('OID is empty');
+        }
+
+        if (ord($content[-1]) & 0x80) {
+            throw new UnexpectedValueException('OID is malformed');
+        }
     }
 
     /**
@@ -1318,6 +1330,16 @@ abstract class ASN1
 
         $format = 'YmdHis';
 
+        // DateTime::createFromFormat skips non-digits in front of numbers and rolls
+        // out-of-range fields over (month 13, Feb 30, 24:00, :60), so check the form here
+        // and its warnings below
+        $pattern = $tag == self::TYPE_UTC_TIME ?
+            '#^\d{10}(?:\d{2})?(?:Z|[+-](\d\d)(\d\d))?$#D' :
+            '#^\d{14}(?:\.\d{1,6})?(?:Z|[+-](\d\d)(\d\d))?$#D';
+        if (!preg_match($pattern, $content, $m) || (isset($m[1]) && ($m[1] > 23 || $m[2] > 59))) {
+            throw new UnexpectedValueException('Malformed time');
+        }
+
         if ($tag == self::TYPE_UTC_TIME) {
             // https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf#page=28 says "the seconds
             // element shall always be present" but none-the-less I've seen X509 certs where it isn't and if the
@@ -1343,7 +1365,8 @@ abstract class ASN1
             UTCTime::createFromFormat($format, $content) :
             GeneralizedTime::createFromFormat($format, $content);
 
-        if ($result === false) {
+        $errors = \DateTime::getLastErrors();
+        if ($result === false || ($errors !== false && ($errors['warning_count'] || $errors['error_count']))) {
             throw new UnexpectedValueException('Unable to parse date time');
         }
 
@@ -1543,11 +1566,18 @@ abstract class ASN1
         return self::$recursionDepth;
     }
 
-    public static function convertToPrimitive(BaseType|PublicKey|X509|CRL $value): string|null|bool
+    /**
+     * Turn a decoded value into a PHP scalar (or an array of them)
+     *
+     * A CHOICE or an ANY can hold a raw Element, a string, or an array that a rule
+     * produced, as well as a BaseType.
+     */
+    public static function convertToPrimitive(Element|BaseType $value): string|bool|null
     {
         return match ($value::class) {
             ExplicitNull::class => null,
-            Boolean::class => $value->value,
+            Boolean::class, Element::class => $value->value,
+            /** @var \Stringable $value */
             default => (string) $value
         };
     }

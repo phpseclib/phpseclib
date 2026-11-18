@@ -22,7 +22,7 @@ use phpseclib4\Exception\{
     UnexpectedValueException,
     UnsupportedValueException
 };
-use phpseclib4\File\ASN1\Constructed;
+use phpseclib4\File\ASN1\{Constructed, Element};
 use phpseclib4\File\{ASN1, X509};
 use phpseclib4\File\CMS\EnvelopedData\KeyAgreeRecipient\EncryptedKey;
 use phpseclib4\File\CMS\EnvelopedData\Recipient;
@@ -195,7 +195,7 @@ class Choice implements \ArrayAccess, \Countable, \Iterator, BaseType
         if ($this->value instanceof Signer || $this->value instanceof Recipient || $this->value instanceof EncryptedKey) {
             return [$this->index => $this->value->toArray($convertPrimitives)];
         }
-        return [$this->index => $convertPrimitives ? ASN1::convertToPrimitive($this->value) : $this->value];
+        return [$this->index => $convertPrimitives && ($this->value instanceof BaseType || $this->value instanceof Element) ? ASN1::convertToPrimitive($this->value) : $this->value];
     }
 
     public function reconstituteKeyHelper(): ?string
