@@ -1955,4 +1955,20 @@ OxVSACNozMMrZrPHjqK0MHq/oHgwCcXOsA==
 -----END CERTIFICATE-----');
         $this->assertFalse($x509->validateURL('https://bank.internal.test/'));
     }
+
+    #[\PHPUnit\Framework\Attributes\Group('github2289')]
+    public function testRSASignatureWithSHA512t(): void
+    {
+        $private = RSA::createKey(1024)
+            ->withPadding(RSA::SIGNATURE_PKCS1)
+            ->withHash('sha512/256');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib demo');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $x509 = X509::load("$x509");
+        $this->assertSame('sha512-256WithRSAEncryption', (string) $x509['signatureAlgorithm']['algorithm']);
+        $this->assertTrue($x509->validateSignature(false));
+    }
 }
