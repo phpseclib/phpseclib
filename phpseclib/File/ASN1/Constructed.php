@@ -250,8 +250,11 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
         }
 
+        $malformed = null;
+
         $content_len = strlen($this->encoded);
         while ($offset < $content_len) {
+            $elementOffset = $offset;
             try {
                 $temp = ASN1::decodeBER($this->encoded, $this->start + $offset, $offset);
                 $offset += $temp['headerlength'];
@@ -270,6 +273,13 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 if (!$this->indefinite) {
                     throw new UnexpectedValueException('End-of-contents in definite-length content');
                 }
+                break;
+            } catch (\Exception $e) {
+                $canHoldBlob = $this->tag == ASN1::TYPE_SEQUENCE || $this->tag == ASN1::TYPE_SET;
+                if (!$canHoldBlob || !ASN1::isBlobsOnBadDecodesEnabled() || $e instanceof ExcessivelyDeepDataException) {
+                    throw $e;
+                }
+                $malformed = new MalformedData(substr($this->encoded, $elementOffset));
                 break;
             }
         }
@@ -497,6 +507,24 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                 break;
             default:
                 throw new UnexpectedValueException('Unable to decode element (' . $this->tag . ') @ ' . $this->start);
+        }
+
+        if (isset($malformed)) {
+            $key = null;
+            // could also do !isset($mapping['max]). every map that has $mapping['min'] set also has $mapping['max'] set
+            if (!isset($mapping['min'])) {
+                foreach (array_keys($mapping['children']) as $candidate) {
+                    if (!isset($this->decoded[$candidate])) {
+                        $key = $candidate;
+                        break;
+                    }
+                }
+            }
+            if (isset($key)) {
+                $this->decoded[$key] = $malformed;
+            } else {
+                $this->decoded[] = $malformed;
+            }
         }
     }
 

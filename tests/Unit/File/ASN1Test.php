@@ -15,6 +15,7 @@ use phpseclib4\Exception\NoKeyLoadedException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\Constructed;
 use phpseclib4\File\ASN1\MalformedData;
+use phpseclib4\File\ASN1\Types\Integer;
 use phpseclib4\File\ASN1\Maps;
 use phpseclib4\Common\Functions\Arrays;
 use phpseclib4\File\X509;
@@ -438,8 +439,8 @@ class ASN1Test extends PhpseclibTestCase
         $bad[] = [
             '3033300f1f808080060960864801650304020104207509e5bda0c762d2bac7f90d758b5b2263fa01ccbc542ab5e3df163be08e6ca9',
             Maps\DigestInfo::MAP,
-            null,
             'digestAlgorithm',
+            'algorithm',
         ];
         return $bad;
     }
@@ -1027,5 +1028,43 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         $this->assertInstanceOf(Constructed::class, $m);
         $this->expectException(UnexpectedValueException::class);
         $this->assertCount(1, $m);
+    }
+
+    public function testUnframeableElementBecomesBlobWhenBlobsAreEnabled(): void
+    {
+        // same data as testTruncatedLengthIsNotEndOfContents: the UTCTime's indefinite length
+        // can't be measured, so it, and everything after it, is kept as MalformedData
+        ASN1::enableBlobsOnBadDecodes();
+        try {
+            $m = ASN1::map(
+                ASN1::decodeBER(hex2bin('30183780970337343017033932351703303133170333323100f4')),
+                self::SEQUENCE_OF_ANY
+            );
+            $this->assertInstanceOf(Constructed::class, $m);
+            $this->assertCount(1, $m);
+            $this->assertInstanceOf(MalformedData::class, $m[0]);
+            $this->assertSame('3780970337343017033932351703303133170333323100f4', bin2hex($m[0]->value));
+
+            // the elements before the unframeable one are still decoded
+            $m = ASN1::map(ASN1::decodeBER(hex2bin('30090201013780170100f4')), self::SEQUENCE_OF_ANY);
+            $this->assertInstanceOf(Constructed::class, $m);
+            $this->assertCount(2, $m);
+            $this->assertInstanceOf(Integer::class, $m[0]);
+            $this->assertInstanceOf(MalformedData::class, $m[1]);
+
+            // with named children the blob lands under the key the element would have had
+            $m = ASN1::map(ASN1::decodeBER(hex2bin('30090201013780170100f4')), [
+                'type' => ASN1::TYPE_SEQUENCE,
+                'children' => [
+                    'a' => ['type' => ASN1::TYPE_INTEGER],
+                    'b' => ['type' => ASN1::TYPE_UTC_TIME],
+                ],
+            ]);
+            $this->assertInstanceOf(Constructed::class, $m);
+            $this->assertInstanceOf(Integer::class, $m['a']);
+            $this->assertInstanceOf(MalformedData::class, $m['b']);
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
     }
 }
