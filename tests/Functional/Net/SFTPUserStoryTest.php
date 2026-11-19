@@ -829,7 +829,7 @@ class Functional_Net_SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testReplyAfterTimeout()
     {
         // a connection of its own, since testExecNlist leaves a PTY exec open, which makes exec() fail
-        $sftp = new Net_SFTP($this->getEnv('SSH_HOSTNAME'));
+        $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
         $this->assertTrue($sftp->login($this->getEnv('SSH_USERNAME'), $this->getEnv('SSH_PASSWORD')));
 
         $sftp->disableStatCache();
