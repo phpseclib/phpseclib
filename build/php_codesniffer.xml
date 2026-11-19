@@ -16,4 +16,9 @@
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
         <exclude name="PSR12.Files.FileHeader.IncorrectOrder"/>
     </rule>
+
+    <!-- the OID classes' OIDs constants are part of the public API -->
+    <rule ref="Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase">
+        <exclude-pattern>*/phpseclib/File/ASN1/OIDs/*</exclude-pattern>
+    </rule>
 </ruleset>
