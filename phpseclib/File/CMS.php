@@ -103,26 +103,32 @@ abstract class CMS
     public static function mapInCerts(Constructed $certs): void
     {
         ASN1::disableCacheInvalidation();
-        for ($i = 0; $i < count($certs); $i++) {
-            if ($certs[$i]->index != 'certificate') {
-                continue;
+        try {
+            for ($i = 0; $i < count($certs); $i++) {
+                if ($certs[$i]->index != 'certificate') {
+                    continue;
+                }
+                $certs[$i]['certificate'] = X509::load((string) $certs[$i]->getEncoded());
             }
-            $certs[$i]['certificate'] = X509::load((string) $certs[$i]->getEncoded());
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     /** @psalm-api */
     public static function mapInCRLs(Constructed $crls): void
     {
         ASN1::disableCacheInvalidation();
-        for ($i = 0; $i < count($crls); $i++) {
-            if (!isset($crls[$i]['crl'])) {
-                continue;
+        try {
+            for ($i = 0; $i < count($crls); $i++) {
+                if (!isset($crls[$i]['crl'])) {
+                    continue;
+                }
+                $crls[$i] = CRL::load((string) $crls[$i]->getEncoded());
             }
-            $crls[$i] = CRL::load((string) $crls[$i]->getEncoded());
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     /**

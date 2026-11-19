@@ -13,6 +13,7 @@ namespace phpseclib4\Tests\Unit\File\X509;
 use phpseclib4\Crypt\RSA\PrivateKey as RSAPrivateKey;
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\EC\PrivateKey as ECPrivateKey;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -266,5 +267,31 @@ class PFXTest extends PhpseclibTestCase
 
         $pfx = PFX::load("$pfx", '')->toArray();
         $this->assertIsArray($pfx);
+    }
+
+    public function testFailedLoadRestoresCacheInvalidation(): void
+    {
+        try {
+            PFX::load("\x30\x03\x02\x01\x03");
+            $this->fail('Expected an UnexpectedValueException');
+        } catch (UnexpectedValueException) {
+        }
+
+        $this->assertLoadedCertificatesCanBeEdited();
+    }
+
+    private function assertLoadedCertificatesCanBeEdited(): void
+    {
+        $private = EC::createKey('Ed25519');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('CN=before');
+        $private->sign($x509);
+        $x509 = X509::load("$x509");
+        $x509->setDN('CN=after');
+        $private->sign($x509);
+
+        $x509 = X509::load("$x509");
+        $this->assertSame('CN = after', $x509->getSubjectDN(X509::DN_STRING));
+        $this->assertTrue($x509->validateSignature(false));
     }
 }

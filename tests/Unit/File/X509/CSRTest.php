@@ -10,10 +10,12 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File\X509;
 
+use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\File\CSR;
 use phpseclib4\File\ASN1;
+use phpseclib4\File\X509;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class CSRTest extends PhpseclibTestCase
@@ -233,5 +235,34 @@ yGSdZsGMatjn2ld+Ndj3uAYlujyKlqGcAOb53bu+PswH5KXTJJquOJH84UoKraog
         $this->assertSame(['pkcs-9-at-extensionRequest'], $csr->listAttributes());
         $this->assertNotNull($csr->getAttribute('pkcs-9-at-extensionRequest'));
         $this->assertNull($csr->getAttribute('pkcs-9-at-challengePassword'));
+    }
+
+    public function testUnmappedAttributeRestoresCacheInvalidation(): void
+    {
+        // the only attribute is pkcs-9-at-unstructuredAddress, which CSR doesn't map
+        $csr = CSR::load('-----BEGIN CERTIFICATE REQUEST-----
+MIGxMGUCAQAwDzENMAsGA1UEAwwEdGVzdDAqMAUGAytlcAMhAD3we+A7pSWSQeW2
+42hUWuV5igUp/7cyq5YwrPonprYKoCMwIQYJKoZIhvcNAQkIMRQMEjEyMyBFeGFt
+cGxlIFN0cmVldDAFBgMrZXADQQCT4y2BlbJRZI2KevqHv0ExEcjPUugz0m7H5Z+5
+K9Xv5VFaY7ysDXQKrDSOs28bYcjFAtEBiYHt/m8vEhvrUJkA
+-----END CERTIFICATE REQUEST-----');
+        $this->assertCount(1, $csr->listAttributes());
+
+        $this->assertLoadedCertificatesCanBeEdited();
+    }
+
+    private function assertLoadedCertificatesCanBeEdited(): void
+    {
+        $private = EC::createKey('Ed25519');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('CN=before');
+        $private->sign($x509);
+        $x509 = X509::load("$x509");
+        $x509->setDN('CN=after');
+        $private->sign($x509);
+
+        $x509 = X509::load("$x509");
+        $this->assertSame('CN = after', $x509->getSubjectDN(X509::DN_STRING));
+        $this->assertTrue($x509->validateSignature(false));
     }
 }
