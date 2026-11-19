@@ -13,8 +13,6 @@ jobs:
     lint:
         name: Lint
         timeout-minutes: 5
-        # 8.6 is still a nightly build, so its jobs may fail without failing the run
-        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -40,17 +38,16 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '8.1'
+                    php-version: '8.6'
                     tools: squizlabs/php_codesniffer:3, friendsofphp/php-cs-fixer:3
             -   name: PHP_CodeSniffer
                 run: phpcs --standard=build/php_codesniffer.xml
             -   name: PHP CS Fixer
-                run: php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no
+                # PHP CS Fixer refuses to run on PHP versions it doesn't support yet, like 8.6 for now
+                run: php-cs-fixer fix --config=build/php-cs-fixer.php --diff --dry-run --using-cache=no --allow-unsupported-php-version=yes
     tests:
         name: Tests
         timeout-minutes: 15
-        # 8.6 is still a nightly build, so its jobs may fail without failing the run
-        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
