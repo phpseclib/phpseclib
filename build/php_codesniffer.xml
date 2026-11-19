@@ -11,7 +11,7 @@
     <arg value="p"/>
 
     <rule ref="PSR12">
-        <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps"/>
+        <exclude name="Squiz.Classes.ValidClassName.NotPascalCase"/>
         <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps"/>
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
         <exclude name="PSR12.Files.FileHeader.IncorrectOrder"/>

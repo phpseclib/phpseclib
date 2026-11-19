@@ -317,12 +317,12 @@ class ChaCha20 extends Salsa20
         // in https://datatracker.ietf.org/doc/html/rfc7539#section-2.1 the addition,
         // xor'ing and rotation are all on the same line so i'm keeping it on the same
         // line here as well
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         $a+= $b; $d = self::leftRotate(self::safe_intval($d) ^ self::safe_intval($a), 16);
         $c+= $d; $b = self::leftRotate(self::safe_intval($b) ^ self::safe_intval($c), 12);
         $a+= $b; $d = self::leftRotate(self::safe_intval($d) ^ self::safe_intval($a), 8);
         $c+= $d; $b = self::leftRotate(self::safe_intval($b) ^ self::safe_intval($c), 7);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
     }
 
     /**
@@ -375,7 +375,7 @@ class ChaCha20 extends Salsa20
         $z14 = $x14;
         $z15 = $x15;
 
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         // columnRound
         $x0 += $x4; $x12 = self::leftRotate(self::safe_intval($x12) ^ self::safe_intval($x0), 16);
         $x8 += $x12; $x4 = self::leftRotate(self::safe_intval($x4) ^ self::safe_intval($x8), 12);
@@ -795,7 +795,7 @@ class ChaCha20 extends Salsa20
         $x9 += $x14; $x4 = self::leftRotate(self::safe_intval($x4) ^ self::safe_intval($x9), 12);
         $x3 += $x4; $x14 = self::leftRotate(self::safe_intval($x14) ^ self::safe_intval($x3), 8);
         $x9 += $x14; $x4 = self::leftRotate(self::safe_intval($x4) ^ self::safe_intval($x9), 7);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $x0 += $z0;
         $x1 += $z1;
