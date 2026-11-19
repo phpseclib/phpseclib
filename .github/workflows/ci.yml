@@ -13,8 +13,6 @@ jobs:
     lint:
         name: Lint
         timeout-minutes: 5
-        # 8.6 is still a nightly build, so its jobs may fail without failing the run
-        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -69,8 +67,6 @@ jobs:
     tests:
         name: Tests
         timeout-minutes: 15
-        # 8.6 is still a nightly build, so its jobs may fail without failing the run
-        continue-on-error: ${{ matrix.php-version == '8.6' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
