@@ -176,6 +176,15 @@ class Net_SFTP extends Net_SSH2
     var $packet_buffer = '';
 
     /**
+     * Number of requests whose replies haven't been read yet
+     *
+     * @var int
+     * @see self::_precheck()
+     * @access private
+     */
+    var $pending_replies = 0;
+
+    /**
      * Extensions supported by the server
      *
      * @var array
@@ -590,6 +599,15 @@ class Net_SFTP extends Net_SSH2
 
         if ($this->pwd === false) {
             return $this->_init_sftp_connection();
+        }
+
+        // the server still replies to requests that earlier calls stopped waiting for, eg. because they timed out, and
+        // since most requests use the same request id, those replies would be taken as replies to this call's requests
+        $this->requestBuffer = array();
+        while ($this->pending_replies > 0) {
+            if ($this->_get_sftp_packet() === false) {
+                return false;
+            }
         }
 
         return true;
@@ -3678,6 +3696,7 @@ class Net_SFTP extends Net_SSH2
         $start = strtok(microtime(), ' ') + strtok(''); // http://php.net/microtime#61838
         $result = $this->_send_channel_packet(NET_SFTP_CHANNEL, $packet);
         $stop = strtok(microtime(), ' ') + strtok('');
+        $this->pending_replies++;
 
         if (defined('NET_SFTP_LOGGING')) {
             $packet_type = '-> ' . $this->packet_types[$type] .
@@ -3715,6 +3734,8 @@ class Net_SFTP extends Net_SSH2
         $this->use_request_id = false;
         $this->pwd = false;
         $this->requestBuffer = array();
+        $this->packet_buffer = '';
+        $this->pending_replies = 0;
         $this->partial_init = false;
     }
 
@@ -3766,9 +3787,10 @@ class Net_SFTP extends Net_SSH2
             if ($temp === true) {
                 if ($this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
                     $this->channel_close = true;
+                    $this->packet_buffer = '';
+                    $this->pending_replies = 0;
                 }
                 $this->packet_type = false;
-                $this->packet_buffer = '';
                 return false;
             }
             if ($temp === false) {
@@ -3779,9 +3801,11 @@ class Net_SFTP extends Net_SSH2
         if (strlen($this->packet_buffer) < 4) {
             return false;
         }
-        extract(unpack('Nlength', $this->_string_shift($this->packet_buffer, 4)));
+        // what's been read of a packet stays in the buffer until all of it has been, so if reading it times out, the
+        // next call finishes reading it instead of taking the rest of it as the start of another packet
+        extract(unpack('Nlength', substr($this->packet_buffer, 0, 4)));
         $tempLength = $length;
-        $tempLength-= strlen($this->packet_buffer);
+        $tempLength-= strlen($this->packet_buffer) - 4;
 
         // 256 * 1024 is what SFTP_MAX_MSG_LENGTH is set to in OpenSSH's sftp-common.h
         if (!$this->allow_arbitrary_length_packets && !$this->use_request_id && $tempLength > 256 * 1024) {
@@ -3795,9 +3819,10 @@ class Net_SFTP extends Net_SSH2
             if (is_bool($temp)) {
                 if ($temp && $this->channel_status[NET_SFTP_CHANNEL] === NET_SSH2_MSG_CHANNEL_CLOSE) {
                     $this->channel_close = true;
+                    $this->packet_buffer = '';
+                    $this->pending_replies = 0;
                 }
                 $this->packet_type = false;
-                $this->packet_buffer = '';
                 return false;
             }
             $this->packet_buffer.= $temp;
@@ -3805,6 +3830,9 @@ class Net_SFTP extends Net_SSH2
         }
 
         $stop = strtok(microtime(), ' ') + strtok('');
+
+        $this->_string_shift($this->packet_buffer, 4);
+        $this->pending_replies--;
 
         $this->packet_type = ord($this->_string_shift($this->packet_buffer));
 
