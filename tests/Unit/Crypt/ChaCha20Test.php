@@ -310,10 +310,10 @@ class ChaCha20Test extends PhpseclibTestCase
     {
         $key = str_repeat('k', 32);
         $plaintext = 'attack at dawn';
- 
+
         foreach ([8, 12] as $nonceLength) {
             $nonce = str_repeat('n', $nonceLength);
- 
+
             $c = new ChaCha20();
             $c->enablePoly1305();
             $c->setKey($key);
@@ -321,7 +321,7 @@ class ChaCha20Test extends PhpseclibTestCase
             $c->setPreferredEngine('PHP');
             $ciphertext = $c->encrypt($plaintext);
             $tag = $c->getTag();
- 
+
             $engines = ['PHP', 'OpenSSL', 'OpenSSL (AEAD)', 'libsodium'];
             foreach ($engines as $engine) {
                 foreach ([4, 12, 16] as $tagLength) {
@@ -335,7 +335,7 @@ class ChaCha20Test extends PhpseclibTestCase
                     if ($c->getEngine() != $engine) {
                         continue;
                     }
- 
+
                     $c->setTag(substr($tag, 0, $tagLength));
                     try {
                         $result = $c->decrypt($ciphertext);
@@ -343,7 +343,7 @@ class ChaCha20Test extends PhpseclibTestCase
                         $result = $e->getMessage();
                     }
                     $this->assertSame($plaintext, $result, "Failed asserting that a valid $tagLength-byte tag is accepted with $engine engine and $nonceLength-byte nonce");
- 
+
                     $c->setTag(str_repeat("\0", $tagLength));
                     $rejected = false;
                     try {
