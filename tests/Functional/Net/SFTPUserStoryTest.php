@@ -823,4 +823,35 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
             'Failed asserting that hardlink stat is the same as original file stat'
         );
     }
+
+    #[\PHPUnit\Framework\Attributes\Group('github1959')]
+    public function testReplyAfterTimeout(): void
+    {
+        // a connection of its own, since testExecNlist leaves a PTY exec open, which makes exec() fail
+        $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
+        $this->assertTrue($sftp->login($this->getEnv('SSH_USERNAME'), $this->getEnv('SSH_PASSWORD')));
+
+        $sftp->disableStatCache();
+        $sftp->put('timeout.txt', 'aa');
+        $fifo = $sftp->pwd() . '/timeout.fifo';
+        $sftp->exec('mkfifo ' . escapeshellarg($fifo));
+
+        // the server doesn't reply to opening a fifo until something opens it for writing too
+        $sftp->setTimeout(1);
+        try {
+            $sftp->get($fifo);
+        } catch (\RuntimeException $e) {
+        }
+        $this->assertTrue($sftp->isTimeout());
+
+        $sftp->setTimeout(10);
+        $sftp->exec('echo > ' . escapeshellarg($fifo));
+        $this->assertSame(
+            2,
+            $sftp->filesize('timeout.txt'),
+            'Failed asserting that a reply that arrived after a timeout was not taken as the next reply'
+        );
+
+        $sftp->delete($fifo);
+    }
 }
