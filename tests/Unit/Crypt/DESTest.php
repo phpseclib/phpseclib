@@ -6,12 +6,14 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
+namespace phpseclib4\Tests\Unit\Crypt;
+
 use phpseclib4\Crypt\DES;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 // the AES tests establish the correctness of the modes of operation. this test is inteded to establish the consistency of
 // key and iv padding between the multiple engines
-class Unit_Crypt_DESTest extends PhpseclibTestCase
+class DESTest extends PhpseclibTestCase
 {
     public function testEncryptPadding()
     {
