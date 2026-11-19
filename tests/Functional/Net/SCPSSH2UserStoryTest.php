@@ -77,10 +77,8 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
         return $scp;
     }
 
-    /**
-     * @group github873
-     */
     #[\PHPUnit\Framework\Attributes\Depends('testGetFile')]
+    #[\PHPUnit\Framework\Attributes\Group('github873')]
     public function testGetBadFilePutGet($scp)
     {
         $scp->exec('rm ' . self::$remoteFile);
