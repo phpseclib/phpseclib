@@ -40,7 +40,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '8.2'
+                    php-version: '8.6'
                 env:
                     update: true
             -   name: Get Composer Cache Directory and Week
@@ -56,8 +56,6 @@ jobs:
                     path: ${{ steps.composer-cache.outputs.dir }}
                     key: composer-${{ runner.os }}-${{ github.job }}-${{ hashFiles('composer.json') }}-${{ steps.composer-cache.outputs.week }}
                     restore-keys: composer-${{ runner.os }}-${{ github.job }}-
-            -   name: Override PHPUnit and ParaTest versions
-                run: composer require --dev --no-update "phpunit/phpunit:^11.5" "brianium/paratest:^7.8.5"
             -   name: Composer Install
                 run: composer update --with-all-dependencies --no-interaction
             -   name: PHP_CodeSniffer
