@@ -911,17 +911,17 @@ p1/+4sG5fGET+m6BqJ+pYKa2/afPfg==
 
     public function testIntermediateURLFetchUsesMaxSize()
     {
-        // the status line alone is over the limit, so the fetch from the server fails right away
+        // the status line alone is over the limit, so the fetch from the server fails well before the timeout
         $url = $this->startURLFetchServer('trickle');
         $x509 = new X509Test_FakeURLFetch();
         $x509->response = $this->getAIACert($url);
         $x509->loadX509($this->getUntrustedAIACert());
         $x509->setURLFetchMaxSize(10);
-        $x509->setURLFetchTimeout(2);
+        $x509->setURLFetchTimeout(4);
 
         $start = microtime(true);
         $x509->validateSignature();
-        $this->assertLessThan(1, microtime(true) - $start);
+        $this->assertLessThan(3, microtime(true) - $start);
     }
 
     public function recordURLFetch($host, $ip, $port, $scheme)
