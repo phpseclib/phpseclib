@@ -10,9 +10,11 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File\X509;
 
+use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\RSA\PrivateKey as RSAPrivateKey;
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\EC\PrivateKey as ECPrivateKey;
+use phpseclib4\File\ASN1;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -266,5 +268,86 @@ class PFXTest extends PhpseclibTestCase
 
         $pfx = PFX::load("$pfx", '')->toArray();
         $this->assertIsArray($pfx);
+    }
+
+    /**
+     * A DER certificate whose bytes look like PEM armor to ASN1::extractBER()
+     *
+     * RSA with PKCS#1 v1.5 padding is deterministic so, with a fixed key, DN, serial and validity period, this
+     * certificate is byte-for-byte the same every time. The CN contains "\n-" and the signature ends in "-", so
+     * ASN1::extractBER() treats everything from the "\n-" to the end as a "-----BEGIN ...-----" line and strips it.
+     * Random keys run into this about once in tens of thousands of certificates.
+     */
+    private static function certThatLooksLikePEM(): X509
+    {
+        $key = RSA::load('-----BEGIN RSA PRIVATE KEY-----
+MIICWwIBAAKBgQDKlJTM9lelnOata//o5FenaL6o0b2bOul4BF8Xflc8B6ZCo5Ir
+n+a9a1aOaOtubViKxG3IC+Zyu97IoaZuCMLESXnFx9tHwIzeP0rkq28KPtKvi2X1
+y/U2Y94S2efcfTfXSgztHT+n8PlvU+qx8ulMz26rr+9D0p/cPvXh9pS8cwIDAQAB
+AoGBAJcZL8uYylL6rowXi+83sbFqTRs6JcRMsqsUB6FMWOCri/UUcAgd4krSbuMV
+mtTotiv6yy90wNQ/ELJw7+QOoMXXe8s5jXcc+iymowpCXwrSfXX0h5u7ajNEBUPD
+USWePhJm+VwvxfAd5JjRWdaiUa/ZLvOKZ3bHw1M3Aa+z/QrxAkEA6aQB6500DzKK
+gf4d9rlC21V1RcpWocvn66z/15C3PnC8C/0dOtMZGKk1KEULpgk6hBTgupSkKDlx
+FlPcAYgrNQJBAN33n90pHVOk1QIAd4jTqn4lAEa7HcWBLng7FrbGVbENjXKaA1lI
+33ntNfsolnO2Qe/aufj+ZxEsIo9ut4cxFgcCQFrj4ZdeLX1oBPfy+ocbpQWcZiXD
+RBZnM468Wz7p3k9dHdpwGinjK1UrpjFHQvPRjUEKui37Wy0Gw5aTAvhZl60CQDXD
+fuNQzBuwdy+u8UUhD9DSIYkAVau7KIhSt6O50pO6FqLFjz4XGporzMFzCU4pvTrd
+neIjrM9KA2z+glGqoA0CPw+lyCd8t0pkaJdDVNFb5SRckBJ+ZpyJ3p9XK9Gk9/Ay
+56on1VNqFT+mX0WXmu5h/ALUkQ21/kE+3E6TClBm1A==
+-----END RSA PRIVATE KEY-----')->withPadding(RSA::SIGNATURE_PKCS1);
+
+        $x509 = new X509($key->getPublicKey());
+        $x509->setDN(['id-at-commonName' => "phpseclib\n-test"]);
+        $x509->setSerialNumber('27', 10);
+        $x509->setStartDate('2026-01-01 00:00:00 UTC');
+        $x509->setEndDate('2036-01-01 00:00:00 UTC');
+        $key->sign($x509);
+
+        return $x509;
+    }
+
+    public function testCertBagThatLooksLikePEM(): void
+    {
+        $x509 = self::certThatLooksLikePEM();
+        $der = $x509->toString(['binary' => true]);
+        // if this fails the fixture no longer triggers the problem and the rest of the test proves nothing
+        $this->assertSame('', ASN1::extractBER($der), 'certificate no longer looks like PEM to extractBER()');
+
+        // id-encryptedData cert bag
+        $pfx = new PFX();
+        $pfx->setPassword('password');
+        $pfx->add($x509);
+        $pfx = PFX::load("$pfx", 'password');
+        $this->assertSame($der, $pfx->getCertificates()[0]->toString(['binary' => true]));
+
+        // id-data (unencrypted) cert bag
+        $pfx = new PFX();
+        $pfx->removePassword();
+        $pfx->add($x509);
+        $pfx = PFX::load("$pfx");
+        $this->assertSame($der, $pfx->getCertificates()[0]->toString(['binary' => true]));
+    }
+
+    public function testFailedLoadLeavesCacheInvalidationEnabled(): void
+    {
+        try {
+            try {
+                PFX::load('not a pfx');
+                $this->fail('PFX::load() should have thrown');
+            } catch (\Exception $e) {
+            }
+
+            // makeCA() sets the subject key identifier and then reads it back. if a failed load left cache
+            // invalidation disabled the read gets the stale cached encoding without it and
+            // setAuthorityKeyIdentifier() gets null
+            $key = EC::createKey('Ed25519');
+            $x509 = new X509($key->getPublicKey());
+            $x509->setDN('O=phpseclib');
+            $x509->makeCA();
+            $this->assertTrue($x509->hasExtension('id-ce-authorityKeyIdentifier'));
+        } finally {
+            // don't break every test that runs after this one in the same process if it fails
+            ASN1::enableCacheInvalidation();
+        }
     }
 }
