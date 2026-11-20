@@ -131,7 +131,7 @@ trait Extension
             case 'id-ce-nameConstraints':
                 $rules['permittedSubtrees']['*']['base'] = $rules['excludedSubtrees']['*']['base'] = function (Choice $el): void {
                     // an address and a mask, IPv4 or IPv6; anything else stays an OCTET STRING
-                    if (isset($el['iPAddress']) && in_array(strlen((string) $el['iPAddress']), [8, 32], true)) {
+                    if (isset($el['iPAddress']) && in_array(strlen((string) $el['iPAddress']), [8, 32])) {
                         $ip = (string) $el['iPAddress'];
                         $size = strlen($ip) >> 1;
                         $mask = substr($ip, $size);
@@ -152,7 +152,7 @@ trait Extension
                 // which needs Constructed
                 $rule = function (Choice|Constructed $el): void {
                     // IPv4 or IPv6; anything else stays an OCTET STRING (inet_ntop would give false)
-                    if (isset($el['iPAddress']) && in_array(strlen("$el[iPAddress]"), [4, 16], true)) {
+                    if (isset($el['iPAddress']) && in_array(strlen("$el[iPAddress]"), [4, 16])) {
                         $el['iPAddress'] = inet_ntop("$el[iPAddress]");
                     }
                 };
@@ -235,6 +235,8 @@ trait Extension
                     $paths = ['permittedSubtrees/*/base', 'excludedSubtrees/*/base'];
                     foreach ($paths as $path) {
                         Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Choice|Element|array {
+                            // an is_array() check is done here vs the instanceof OctetString check that's done above because
+                            // this extension, uniquely, has an IP address and a subnet mask that can be denoted as an array
                             if ($val instanceof Element || !isset($val['iPAddress']) || !is_array($val['iPAddress'])) {
                                 return $val;
                             }
