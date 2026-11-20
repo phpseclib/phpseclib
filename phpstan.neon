@@ -22,7 +22,8 @@ parameters:
             count: 1 
 
         # R3: outer ContentInfo survives offset access before return (Constructed).
-        # Inner blob hazards stay reported; see analysis/phpstan-asn1-r3-guarded-return-policy.md.
+        # Inner blob hazards remain reported; this suppression covers only the
+        # outer ContentInfo return type.
         -
             identifier: return.type
             rawMessage: 'Method phpseclib4\File\CMS\CompressedData::loadString() should return phpseclib4\File\ASN1\Constructed but returns (ArrayAccess&phpseclib4\File\ASN1\Element)|(ArrayAccess&phpseclib4\File\ASN1\Types\BaseType).'
@@ -105,7 +106,6 @@ parameters:
         # supplied by the concrete families; no universal Engine API is implied.
         # The previous Psalm gate broadly tolerated UndefinedMethod; this policy
         # is bounded to the reviewed files (no per-method precision).
-        # See analysis/phpstan-suppression-parity-review.md.
         -
             identifier: method.notFound
             path: phpseclib/Math/BigInteger/Engines/Engine.php
@@ -124,7 +124,6 @@ parameters:
         # backends (GMP string|\GMP, BCMath string, PHP string|array), not by
         # Engine. Bounded to the exact $value messages; PHPStan's broader
         # property.notFound category is not suppressed file-wide.
-        # See analysis/phpstan-engine-value-state-ep2-review.md.
         -
             identifier: property.notFound
             rawMessage: 'Access to an undefined property phpseclib4\Math\BigInteger\Engines\Engine::$value.'
