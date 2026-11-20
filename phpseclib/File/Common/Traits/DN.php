@@ -40,22 +40,23 @@ trait DN
     public static function mapInDNs(array|Constructed &$dn): void
     {
         ASN1::disableCacheInvalidation();
-
-        if ("$dn[type]" == 'id-at-postalAddress') {
-            $dn['value'] = ASN1::map(ASN1::decodeBER($dn['value']->getEncoded()), Maps\PostalAddress::MAP);
-            // if we swapped out the above line for the following code then
-            // $cert['tbsCertificate']['subject']['rdnSequence'][0][0]['value'] would be an array vs a BaseType
-            // object and ->getEncoded() wouldn't work
-            /*
-            $temp = ASN1::map(ASN1::decodeBER($dn['value']->getEncoded()), Maps\PostalAddress::MAP);
-            $dn['value'] = [];
-            foreach ($temp as $key => $part) {
-                $dn['value'][] = current($part->toArray());
+        try {
+            if ("$dn[type]" == 'id-at-postalAddress') {
+                $dn['value'] = ASN1::map(ASN1::decodeBER($dn['value']->getEncoded()), Maps\PostalAddress::MAP);
+                // if we swapped out the above line for the following code then
+                // $cert['tbsCertificate']['subject']['rdnSequence'][0][0]['value'] would be an array vs a BaseType
+                // object and ->getEncoded() wouldn't work
+                /*
+                $temp = ASN1::map(ASN1::decodeBER($dn['value']->getEncoded()), Maps\PostalAddress::MAP);
+                $dn['value'] = [];
+                foreach ($temp as $key => $part) {
+                    $dn['value'][] = current($part->toArray());
+                }
+                */
             }
-            */
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-
-        ASN1::enableCacheInvalidation();
     }
 
     private static function mapOutDNsInner(array|Constructed|Element &$dns): void

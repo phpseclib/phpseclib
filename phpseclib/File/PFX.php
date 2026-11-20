@@ -88,57 +88,58 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         #[\SensitiveParameter] ?string $password
     ): Constructed {
         ASN1::disableCacheInvalidation();
+        try {
+            $decoded = ASN1::decodeBER($pfx);
+            $pfx = ASN1::map($decoded, ASN1\Maps\PFX::MAP);
 
-        $decoded = ASN1::decodeBER($pfx);
-        $pfx = ASN1::map($decoded, ASN1\Maps\PFX::MAP);
+            $decoded = ASN1::decodeBER($pfx['authSafe']['content']->value);
+            $cms = ASN1::map($decoded, ASN1\Maps\AuthenticatedSafe::MAP);
 
-        $decoded = ASN1::decodeBER($pfx['authSafe']['content']->value);
-        $cms = ASN1::map($decoded, ASN1\Maps\AuthenticatedSafe::MAP);
-
-        foreach ($cms as $key => $content) {
-            switch ($content['contentType']) {
-                case 'id-data': // id-data from CMS specs
-                    $decoded = ASN1::decodeBER((string) $content['content']);
-                    $cms[$key]['content'] = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
-                    /** @psalm-suppress UndefinedPropertyAssignment */
-                    $cms[$key]['content']->parent = $cms[$key];
-                    foreach ($cms[$key]['content'] as $subkey => $value) {
-                        try {
-                            $cms[$key]['content'][$subkey]['bagValue'] = match ("$value[bagId]") {
-                                'PKCS8ShroudedKeyBag' => PublicKeyLoader::load("$value[bagValue]", $password),
-                                'KeyBag' => PublicKeyLoader::load("$value[bagValue]"),
-                                'CertBag' => self::handleCertBag("$value[bagValue]"),
-                                default => $value['bagValue']
-                            };
-                        } catch (\Exception $e) {
+            foreach ($cms as $key => $content) {
+                switch ($content['contentType']) {
+                    case 'id-data': // id-data from CMS specs
+                        $decoded = ASN1::decodeBER((string) $content['content']);
+                        $cms[$key]['content'] = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
+                        /** @psalm-suppress UndefinedPropertyAssignment */
+                        $cms[$key]['content']->parent = $cms[$key];
+                        foreach ($cms[$key]['content'] as $subkey => $value) {
+                            try {
+                                $cms[$key]['content'][$subkey]['bagValue'] = match ("$value[bagId]") {
+                                    'PKCS8ShroudedKeyBag' => PublicKeyLoader::load("$value[bagValue]", $password),
+                                    'KeyBag' => PublicKeyLoader::load("$value[bagValue]"),
+                                    'CertBag' => self::handleCertBag("$value[bagValue]"),
+                                    default => $value['bagValue']
+                                };
+                            } catch (\Exception $e) {
+                            }
                         }
-                    }
-                    break;
-                case 'id-encryptedData':
-                    if (!isset($password)) {
-                        throw new PasswordNeededException('Encrypted data was found, however, no password has been provided');
-                    }
-                    $decoded = ASN1::decodeBER((string) $content['content']);
-                    $content = ASN1::map($decoded, ASN1\Maps\CMSEncryptedData::MAP);
-                    $cipher = self::getCryptoObjectFromAlgorithmIdentifier($content['encryptedContentInfo']['contentEncryptionAlgorithm'], $password);
-                    $content = $cipher->decrypt((string) $content['encryptedContentInfo']['encryptedContent']);
-                    $decoded = ASN1::decodeBER($content);
-                    $contents = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
-
-                    foreach ($contents as $content) {
-                        if ($content['bagId'] == 'CertBag') {
-                            $content['bagValue'] = self::handleCertBag($content['bagValue']->value);
+                        break;
+                    case 'id-encryptedData':
+                        if (!isset($password)) {
+                            throw new PasswordNeededException('Encrypted data was found, however, no password has been provided');
                         }
-                    }
-                    $cms[$key]['content'] = $contents;
+                        $decoded = ASN1::decodeBER((string) $content['content']);
+                        $content = ASN1::map($decoded, ASN1\Maps\CMSEncryptedData::MAP);
+                        $cipher = self::getCryptoObjectFromAlgorithmIdentifier($content['encryptedContentInfo']['contentEncryptionAlgorithm'], $password);
+                        $content = $cipher->decrypt((string) $content['encryptedContentInfo']['encryptedContent']);
+                        $decoded = ASN1::decodeBER($content);
+                        $contents = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
+
+                        foreach ($contents as $content) {
+                            if ($content['bagId'] == 'CertBag') {
+                                $content['bagValue'] = self::handleCertBag($content['bagValue']->value);
+                            }
+                        }
+                        $cms[$key]['content'] = $contents;
+                }
             }
+
+            $pfx['authSafe']['content'] = $cms;
+            /** @psalm-suppress UndefinedPropertyAssignment */
+            $pfx['authSafe']['content']->parent = $pfx['authSafe'];
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-
-        $pfx['authSafe']['content'] = $cms;
-        /** @psalm-suppress UndefinedPropertyAssignment */
-        $pfx['authSafe']['content']->parent = $pfx['authSafe'];
-
-        ASN1::enableCacheInvalidation();
 
         return $pfx;
     }
@@ -482,7 +483,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         $decoded = ASN1::decodeBER($value);
         $result = ASN1::map($decoded, ASN1\Maps\CertBag::MAP);
         if ($result['certId'] == 'x509Certificate') {
-            $result['certValue'] = X509::load((string) $result['certValue']);
+            $result['certValue'] = X509::load((string) $result['certValue'], ASN1::FORMAT_DER);
         }
         return $result;
     }

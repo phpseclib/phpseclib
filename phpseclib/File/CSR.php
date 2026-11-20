@@ -282,29 +282,30 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
     public static function mapInAttributes(Constructed $attr): void
     {
         ASN1::disableCacheInvalidation();
-
-        $id = "$attr[type]";
-        $map = self::getAttrMapping($id);
-        if ($map === false) {
-            return;
-        }
-        $rule = [];
-        if ($id == 'pkcs-9-at-extensionRequest') {
-            $rule['*'] = self::mapInExtensions(...);
-        }
-        foreach ($attr['value'] as $key => $value) {
-            $value = &$attr['value'][$key];
-            $decoded = ASN1::decodeBER($value instanceof Element ? $value->value : $value->getEncodedWithWrapping());
-            $value = ASN1::map($decoded, $map, $rule);
-            if ($value instanceof Constructed && $attr['value'] instanceof Constructed) {
-                $value->parent = $attr['value'];
-                $value->depth = $attr['value']->depth + 1;
-                $value->key = $key;
+        try {
+            $id = "$attr[type]";
+            $map = self::getAttrMapping($id);
+            if ($map === false) {
+                return;
             }
-            unset($value);
+            $rule = [];
+            if ($id == 'pkcs-9-at-extensionRequest') {
+                $rule['*'] = self::mapInExtensions(...);
+            }
+            foreach ($attr['value'] as $key => $value) {
+                $value = &$attr['value'][$key];
+                $decoded = ASN1::decodeBER($value instanceof Element ? $value->value : $value->getEncodedWithWrapping());
+                $value = ASN1::map($decoded, $map, $rule);
+                if ($value instanceof Constructed && $attr['value'] instanceof Constructed) {
+                    $value->parent = $attr['value'];
+                    $value->depth = $attr['value']->depth + 1;
+                    $value->key = $key;
+                }
+                unset($value);
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-
-        ASN1::enableCacheInvalidation();
     }
 
     public function getPublicKey(): PublicKey

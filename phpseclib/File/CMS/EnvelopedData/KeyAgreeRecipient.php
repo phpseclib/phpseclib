@@ -41,23 +41,29 @@ class KeyAgreeRecipient extends Recipient
             return;
         }
         ASN1::disableCacheInvalidation();
-        $temp = ASN1::decodeBER($algorithm['parameters']->getEncoded());
-        $algorithm['parameters'] = ASN1::map($temp, Maps\AlgorithmIdentifier::MAP);
-        ASN1::enableCacheInvalidation();
+        try {
+            $temp = ASN1::decodeBER($algorithm['parameters']->getEncoded());
+            $algorithm['parameters'] = ASN1::map($temp, Maps\AlgorithmIdentifier::MAP);
+        } finally {
+            ASN1::enableCacheInvalidation();
+        }
     }
 
     public static function mapInEncryptedKeys(Constructed $keys): void
     {
         ASN1::disableCacheInvalidation();
-        foreach ($keys as $i => $key) {
-            $keys[$i] = new KeyAgreeRecipient\EncryptedKey($key);
-            $keys[$i]->parent = $keys;
-            $keys[$i]->key = $i;
-            $keys[$i]->depth = $keys->depth + 1;
-            //$keys[$i]->cms = $keys->cms;
-            //$keys[$i]->recipient = $keys->recipient;
+        try {
+            foreach ($keys as $i => $key) {
+                $keys[$i] = new KeyAgreeRecipient\EncryptedKey($key);
+                $keys[$i]->parent = $keys;
+                $keys[$i]->key = $i;
+                $keys[$i]->depth = $keys->depth + 1;
+                //$keys[$i]->cms = $keys->cms;
+                //$keys[$i]->recipient = $keys->recipient;
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     /** @psalm-api */

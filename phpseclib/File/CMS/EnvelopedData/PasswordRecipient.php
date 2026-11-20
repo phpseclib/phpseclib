@@ -47,10 +47,13 @@ class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
             default => null,
         };
         ASN1::disableCacheInvalidation();
-        if (isset($temp)) {
-            $algorithm['parameters'] = $temp;
+        try {
+            if (isset($temp)) {
+                $algorithm['parameters'] = $temp;
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     public function withPassword(#[\SensitiveParameter] string $password): self

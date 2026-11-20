@@ -110,84 +110,85 @@ trait Extension
     public static function mapInExtensions(Constructed $ext): void
     {
         ASN1::disableCacheInvalidation();
-
-        $extnId = "$ext[extnId]";
-
-        $map = self::getMapping($extnId);
-
-        $rules = [];
-        switch ($extnId) {
-            case 'id-ce-certificatePolicies':
-                $rules['*']['policyQualifiers']['*'] = function (Constructed $el): void {
-                    if ("$el[policyQualifierId]" == 'id-qt-unotice' && $el['qualifier'] instanceof ASN1\Element) {
-                        $el['qualifier'] = ASN1::map(ASN1::decodeBER($el['qualifier']->getEncoded()), Maps\UserNotice::MAP);
-                    }
-                    // in theory id-qt-cps maps to Maps\CPSuri::MAP but since id-qt-cps isn't a constructed type it will have
-                    // already been decoded to a string by the time it gets back aroud to map() and we don't want to
-                    // decode it again
-                };
-                break;
-            // see https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10
-            case 'id-ce-nameConstraints':
-                $rules['permittedSubtrees']['*']['base'] = $rules['excludedSubtrees']['*']['base'] = function (Choice $el): void {
-                    // an address and a mask, IPv4 or IPv6; anything else stays an OCTET STRING
-                    if (isset($el['iPAddress']) && in_array(strlen((string) $el['iPAddress']), [8, 32])) {
-                        $ip = (string) $el['iPAddress'];
-                        $size = strlen($ip) >> 1;
-                        $mask = substr($ip, $size);
-                        $ip = substr($ip, 0, $size);
-                        $el['iPAddress'] = [inet_ntop($ip), inet_ntop($mask)];
-                    }
-                };
-                break;
-            // see https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.6
-            case 'id-ce-subjectAltName':
-            case 'id-ce-issuerAltName':
-            case 'id-ce-authorityKeyIdentifier':
-            case 'id-pe-authorityInfoAccess':
-            case 'id-ce-cRLDistributionPoints':
-                $path = self::getPathToIPAddress($extnId);
-                $rule = &Arrays::subArray($rules, $path, true);
-                // pretty much every $extnId requires Choice, save for id-pe-authorityInfoAccess,
-                // which needs Constructed
-                $rule = function (Choice|Constructed $el): void {
-                    // IPv4 or IPv6; anything else stays an OCTET STRING (inet_ntop would give false)
-                    if (isset($el['iPAddress']) && in_array(strlen("$el[iPAddress]"), [4, 16])) {
-                        $el['iPAddress'] = inet_ntop("$el[iPAddress]");
-                    }
-                };
-                break;
-            case 'id-pe-qcStatements':
-                $rules['*'] = function (Constructed $el): void {
-                    if ("$el[statementId]" == 'id-etsi-qcs-QcLimitValue' && $el['qualifier'] instanceof ASN1\Element) {
-                        $el['statementInfo'] = ASN1::map(ASN1::decodeBER($el['statementInfo']->getEncoded()), Maps\QcEuLimitValue::MAP);
-                    }
-                };
-        }
-
-        if ($map === true) {
-            $map = ['type' => ASN1::TYPE_ANY];
-        }
-
         try {
-            if (isset($map)) {
-                $ext['extnValue'] = ASN1::map(ASN1::decodeBER((string) $ext['extnValue']), $map, $rules);
-                if ($ext['extnValue'] instanceof Constructed) {
-                    $ext['extnValue']->parent = $ext;
-                    $ext['extnValue']->depth = $ext->depth + 1;
-                    $ext['extnValue']->key = 'extnValue';
-                }
-            } else {
-                $temp = ASN1::decodeBER((string) $ext['extnValue']);
-                $ext['extnValue'] = is_array($temp) && $temp['content'] instanceof Constructed ?
-                    new Element($ext['extnValue']->value) :
-                    $temp;
-            }
-        } catch (\Exception $e) {
-            $ext['extnValue'] = new Element($ext['extnValue']->value);
-        }
+            $extnId = "$ext[extnId]";
 
-        ASN1::enableCacheInvalidation();
+            $map = self::getMapping($extnId);
+
+            $rules = [];
+            switch ($extnId) {
+                case 'id-ce-certificatePolicies':
+                    $rules['*']['policyQualifiers']['*'] = function (Constructed $el): void {
+                        if ("$el[policyQualifierId]" == 'id-qt-unotice' && $el['qualifier'] instanceof ASN1\Element) {
+                            $el['qualifier'] = ASN1::map(ASN1::decodeBER($el['qualifier']->getEncoded()), Maps\UserNotice::MAP);
+                        }
+                        // in theory id-qt-cps maps to Maps\CPSuri::MAP but since id-qt-cps isn't a constructed type it will have
+                        // already been decoded to a string by the time it gets back aroud to map() and we don't want to
+                        // decode it again
+                    };
+                    break;
+                // see https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10
+                case 'id-ce-nameConstraints':
+                    $rules['permittedSubtrees']['*']['base'] = $rules['excludedSubtrees']['*']['base'] = function (Choice $el): void {
+                        // an address and a mask, IPv4 or IPv6; anything else stays an OCTET STRING
+                        if (isset($el['iPAddress']) && in_array(strlen((string) $el['iPAddress']), [8, 32])) {
+                            $ip = (string) $el['iPAddress'];
+                            $size = strlen($ip) >> 1;
+                            $mask = substr($ip, $size);
+                            $ip = substr($ip, 0, $size);
+                            $el['iPAddress'] = [inet_ntop($ip), inet_ntop($mask)];
+                        }
+                    };
+                    break;
+                // see https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.6
+                case 'id-ce-subjectAltName':
+                case 'id-ce-issuerAltName':
+                case 'id-ce-authorityKeyIdentifier':
+                case 'id-pe-authorityInfoAccess':
+                case 'id-ce-cRLDistributionPoints':
+                    $path = self::getPathToIPAddress($extnId);
+                    $rule = &Arrays::subArray($rules, $path, true);
+                    // pretty much every $extnId requires Choice, save for id-pe-authorityInfoAccess,
+                    // which needs Constructed
+                    $rule = function (Choice|Constructed $el): void {
+                        // IPv4 or IPv6; anything else stays an OCTET STRING (inet_ntop would give false)
+                        if (isset($el['iPAddress']) && in_array(strlen("$el[iPAddress]"), [4, 16])) {
+                            $el['iPAddress'] = inet_ntop("$el[iPAddress]");
+                        }
+                    };
+                    break;
+                case 'id-pe-qcStatements':
+                    $rules['*'] = function (Constructed $el): void {
+                        if ("$el[statementId]" == 'id-etsi-qcs-QcLimitValue' && $el['qualifier'] instanceof ASN1\Element) {
+                            $el['statementInfo'] = ASN1::map(ASN1::decodeBER($el['statementInfo']->getEncoded()), Maps\QcEuLimitValue::MAP);
+                        }
+                    };
+            }
+
+            if ($map === true) {
+                $map = ['type' => ASN1::TYPE_ANY];
+            }
+
+            try {
+                if (isset($map)) {
+                    $ext['extnValue'] = ASN1::map(ASN1::decodeBER((string) $ext['extnValue']), $map, $rules);
+                    if ($ext['extnValue'] instanceof Constructed) {
+                        $ext['extnValue']->parent = $ext;
+                        $ext['extnValue']->depth = $ext->depth + 1;
+                        $ext['extnValue']->key = 'extnValue';
+                    }
+                } else {
+                    $temp = ASN1::decodeBER((string) $ext['extnValue']);
+                    $ext['extnValue'] = is_array($temp) && $temp['content'] instanceof Constructed ?
+                        new Element($ext['extnValue']->value) :
+                        $temp;
+                }
+            } catch (\Exception $e) {
+                $ext['extnValue'] = new Element($ext['extnValue']->value);
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
+        }
     }
 
     private static function mapOutExtensionsHelper(array|Constructed|Element &$extensions): void

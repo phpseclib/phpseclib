@@ -98,49 +98,52 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         }
 
         ASN1::disableCacheInvalidation();
-        foreach ($cms->cms['content']['recipientInfos'] as $i => $recipient) {
-            $recipient = &$cms->cms['content']['recipientInfos'][$i];
-            $key = $recipient->index;
-            if ($recipient instanceof Choice) {
-                $encoded = chr(ASN1::TYPE_SEQUENCE | 0x20) . substr($recipient->value->getEncoded(), 1);
-                $recipient[$key] = match ($key) {
-                    'ktri' => KeyTransRecipient::load($encoded),
-                    'kari' => KeyAgreeRecipient::load($encoded),
-                    'kekri' => KEKRecipient::load($encoded),
-                    'pwri' => PasswordRecipient::load($encoded),
-                    //'ori' => OtherRecipient::load($recipient),
-                    default => $recipient->value,
-                };
-                if (!$recipient[$key] instanceof Constructed) {
-                    $recipient[$key]->parent = $recipient;
-                    $recipient[$key]->depth = $recipient->depth + 1;
-                    $recipient[$key]->key = $key;
-                }
-            } elseif (is_array($recipient)) {
-                $key = array_key_first($recipient);
-                $value = $recipient[$key];
-                $recipient[$key] = match ($key) {
-                    'ktri' => new KeyTransRecipient($value),
-                    'kari' => new KeyAgreeRecipient($value),
-                    'kekri' => new KEKRecipient($value),
-                    'pwri' => new PasswordRecipient($value),
-                    default => $value,
-                };
-            }
-            if (!$recipient[$key] instanceof Constructed) {
-                $recipient[$key]->cms = $cms;
-                if ($recipient[$key] instanceof KeyAgreeRecipient) {
-                    $encryptedKeys = &$recipient[$key]['recipientEncryptedKeys'];
-                    for ($i = 0; $i < count($encryptedKeys); $i++) {
-                        $encryptedKeys[$i]->cms = $cms;
-                        $encryptedKeys[$i]->recipient = $recipient[$key];
+        try {
+            foreach ($cms->cms['content']['recipientInfos'] as $i => $recipient) {
+                $recipient = &$cms->cms['content']['recipientInfos'][$i];
+                $key = $recipient->index;
+                if ($recipient instanceof Choice) {
+                    $encoded = chr(ASN1::TYPE_SEQUENCE | 0x20) . substr($recipient->value->getEncoded(), 1);
+                    $recipient[$key] = match ($key) {
+                        'ktri' => KeyTransRecipient::load($encoded),
+                        'kari' => KeyAgreeRecipient::load($encoded),
+                        'kekri' => KEKRecipient::load($encoded),
+                        'pwri' => PasswordRecipient::load($encoded),
+                        //'ori' => OtherRecipient::load($recipient),
+                        default => $recipient->value,
+                    };
+                    if (!$recipient[$key] instanceof Constructed) {
+                        $recipient[$key]->parent = $recipient;
+                        $recipient[$key]->depth = $recipient->depth + 1;
+                        $recipient[$key]->key = $key;
                     }
-                    unset($encryptedKeys);
+                } elseif (is_array($recipient)) {
+                    $key = array_key_first($recipient);
+                    $value = $recipient[$key];
+                    $recipient[$key] = match ($key) {
+                        'ktri' => new KeyTransRecipient($value),
+                        'kari' => new KeyAgreeRecipient($value),
+                        'kekri' => new KEKRecipient($value),
+                        'pwri' => new PasswordRecipient($value),
+                        default => $value,
+                    };
                 }
+                if (!$recipient[$key] instanceof Constructed) {
+                    $recipient[$key]->cms = $cms;
+                    if ($recipient[$key] instanceof KeyAgreeRecipient) {
+                        $encryptedKeys = &$recipient[$key]['recipientEncryptedKeys'];
+                        for ($i = 0; $i < count($encryptedKeys); $i++) {
+                            $encryptedKeys[$i]->cms = $cms;
+                            $encryptedKeys[$i]->recipient = $recipient[$key];
+                        }
+                        unset($encryptedKeys);
+                    }
+                }
+                unset($recipient);
             }
-            unset($recipient);
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
 
         return $cms;
     }
@@ -160,8 +163,11 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
             $rules['originatorInfo']['certs'] = [CMS::class, 'mapInCerts'];
             $rules['originatorInfo']['crls'] = [CMS::class, 'mapInCRLs'];
             ASN1::disableCacheInvalidation();
-            $cms['content'] = ASN1::map($decoded, Maps\EnvelopedData::MAP, $rules);
-            ASN1::enableCacheInvalidation();
+            try {
+                $cms['content'] = ASN1::map($decoded, Maps\EnvelopedData::MAP, $rules);
+            } finally {
+                ASN1::enableCacheInvalidation();
+            }
         } else {
             $cms['content'] = ASN1::map($decoded, Maps\EncryptedDataCMS::MAP);
         }

@@ -56,8 +56,11 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
                 return;
         }
         ASN1::disableCacheInvalidation();
-        $algorithm['parameters'] = ASN1::map($temp, $map, $rules);
-        ASN1::enableCacheInvalidation();
+        try {
+            $algorithm['parameters'] = ASN1::map($temp, $map, $rules);
+        } finally {
+            ASN1::enableCacheInvalidation();
+        }
     }
 
     /** @psalm-api */

@@ -155,45 +155,57 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
     public static function mapInEncapContentInfo(Constructed $eContent): void
     {
         ASN1::disableCacheInvalidation();
-        if (self::extensionMatch('id-ct-TSTInfo', $eContent['eContentType'])) {
-            $temp = ASN1::decodeBER((string) $eContent['eContent']);
-            $eContent['eContent'] = ASN1::map($temp, Maps\TSTInfo::MAP);
+        try {
+            if (self::extensionMatch('id-ct-TSTInfo', $eContent['eContentType'])) {
+                $temp = ASN1::decodeBER((string) $eContent['eContent']);
+                $eContent['eContent'] = ASN1::map($temp, Maps\TSTInfo::MAP);
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     // this NEEDS to be public so that Constructed.php can call it
     public static function mapInCerts(Constructed $certs): void
     {
         ASN1::disableCacheInvalidation();
-        for ($i = 0; $i < count($certs); $i++) {
-            if ($certs[$i]->index != 'certificate') {
-                continue;
+        try {
+            for ($i = 0; $i < count($certs); $i++) {
+                if ($certs[$i]->index != 'certificate') {
+                    continue;
+                }
+                $certs[$i]['certificate'] = X509::load((string) $certs[$i]->getEncoded(), ASN1::FORMAT_DER);
             }
-            $certs[$i]['certificate'] = X509::load((string) $certs[$i]->getEncoded());
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     public static function mapInCRLs(Constructed $crls): void
     {
         ASN1::disableCacheInvalidation();
-        for ($i = 0; $i < count($crls); $i++) {
-            if (!isset($crls[$i]['crl'])) {
-                continue;
+        try {
+            for ($i = 0; $i < count($crls); $i++) {
+                if (!isset($crls[$i]['crl'])) {
+                    continue;
+                }
+                $crls[$i] = CRL::load((string) $crls[$i]->getEncoded(), ASN1::FORMAT_DER);
             }
-            $crls[$i] = CRL::load((string) $crls[$i]->getEncoded());
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     public static function mapInSigners(Constructed $signers): void
     {
         ASN1::disableCacheInvalidation();
-        for ($i = 0; $i < count($signers); $i++) {
-            $signers[$i] = Signer::load((string) $signers[$i]->getEncoded());
+        try {
+            for ($i = 0; $i < count($signers); $i++) {
+                $signers[$i] = Signer::load((string) $signers[$i]->getEncoded());
+            }
+        } finally {
+            ASN1::enableCacheInvalidation();
         }
-        ASN1::enableCacheInvalidation();
     }
 
     public function toString(array $options = []): string
