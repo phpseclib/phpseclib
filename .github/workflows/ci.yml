@@ -61,6 +61,10 @@ jobs:
             -   name: PHP_CodeSniffer
                 run: vendor/bin/phpcs --standard=build/php_codesniffer.xml
             -   name: Psalm
+                # psalm forks its workers, and forked workers crash on revolt's IoPollDriver (the default on PHP 8.6
+                # since revolt/event-loop 1.1.0) because they share its epoll instance with the parent
+                env:
+                    REVOLT_DRIVER: Revolt\EventLoop\Driver\StreamSelectDriver
                 run: vendor/bin/psalm --config=build/psalm.xml --no-cache --long-progress --report-show-info=false
     tests:
         name: Tests
