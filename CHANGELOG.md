@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.0.4 - 2026-11-20
+
+- updates for PHP 8.6
+- ASN1 parser improvements (#2227, #2228, #2229)
+- RSA: PKCS1 signature sha3 fixes (#2289)
+- ChaCha20: various fixes
+- X509: fix id-at-commonName validateURL() check
+- SSH2: harden key re-exchange handling
+- SFTP: timeout handling tweaks
+- SymmetricKey: don't allow illegal key lengths in setPassword()
+
 ## 4.0.3 - 2026-11-02
 
 - SymmetricKey: create upper bound for how many rounds PBKDFs will do
@@ -28,6 +39,15 @@
 - SSH2/SFTP: throw exceptions instead of returning false
 - bump minimum required PHP version to 8.1.0
 - namespace changed from `\phpseclib3` to `\phpseclib4` to facilitate a yet to be written phpseclib 3 shim (phpseclib3_compat)
+
+## 3.0.59 - 2026-11-20
+
+- updates for PHP 8.6
+- RSA: PKCS1 signature sha3 fixes (#2289)
+- ChaCha20: various fixes
+- X509: fix id-at-commonName validateURL() check
+- SSH2: harden key re-exchange handling
+- SFTP: timeout handling tweaks
 
 ## 3.0.58 - 2026-11-02
 
@@ -421,6 +441,13 @@
   - GCM / Poly1305
   - Salsa20 / ChaCha20
 - namespace changed from `phpseclib\` to `\phpseclib3` to facilitate phpseclib 2 shim (phpseclib2_compat)
+
+## 2.0.57 - 2026-11-20
+
+- updates for PHP 8.6
+- X509: fix id-at-commonName validateURL() check
+- SSH2: harden key re-exchange handling
+- SFTP: timeout handling tweaks
 
 ## 2.0.56 - 2026-11-02
 
@@ -847,6 +874,13 @@
 
 - Classes were renamed and namespaced ([#243](https://github.com/phpseclib/phpseclib/issues/243))
 - The use of an autoloader is now required (e.g. Composer)
+
+## 1.0.32 - 2026-11-20
+
+- updates for PHP 8.6
+- X509: fix id-at-commonName validateURL() check
+- SSH2: harden key re-exchange handling
+- SFTP: timeout handling tweaks
 
 ## 1.0.31 - 2026-11-02
 
