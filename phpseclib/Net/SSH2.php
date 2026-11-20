@@ -232,7 +232,7 @@ class SSH2
      *
      * @see self::getServerIdentification()
      */
-    protected string $server_identifier;
+    protected string $server_identifier = '';
 
     /**
      * Raw Server Identifier
@@ -768,7 +768,7 @@ class SSH2
     /**
      * Contents of stdError
      */
-    private string $stdErrorLog;
+    private string $stdErrorLog = '';
 
     /**
      * The Last Interactive Response
