@@ -47,7 +47,7 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
     public static function load(string|array|Constructed $encoded): static
     {
         $recipient = new static();
-        // @phpstan-ignore staticMethod.notFound (CMS-004: built-in recipients implement loadString(); downstream subclass contract remains open; see analysis/github-issue-drafts/CMS-004-recipient-loadstring-subclass-contract.md.)
+        // @phpstan-ignore staticMethod.notFound (CMS-004: built-in recipients implement loadString(); downstream subclass contract remains open; see CMS-004-recipient-loadstring-subclass-contract.md.)
         $recipient->recipient = is_string($encoded) ? static::loadString($encoded) : $encoded;
         return $recipient;
     }
@@ -139,7 +139,7 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
 
     public function __toString(): string
     {
-        // @phpstan-ignore method.notFound (all internal concrete Recipient subclasses implement toString())
+        // @phpstan-ignore method.notFound (BI-032: all internal concrete Recipient subclasses implement toString())
         return $this->toString();
     }
 

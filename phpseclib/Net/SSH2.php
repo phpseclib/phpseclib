@@ -2026,12 +2026,12 @@ class SSH2
                         case 'keyboard-interactive':
                             $hasArray = $hasString = false;
                             foreach ($args as $arg) {
-                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see analysis/github-issue-drafts/FLOW-008-ssh2-mfa-argument-selection.md.)
+                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see FLOW-008-ssh2-mfa-argument-selection.md.)
                                 if ($hasArray || is_array($arg)) {
                                     $hasArray = true;
                                     break;
                                 }
-                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see analysis/github-issue-drafts/FLOW-008-ssh2-mfa-argument-selection.md.)
+                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see FLOW-008-ssh2-mfa-argument-selection.md.)
                                 if ($hasString || is_string($arg)) {
                                     $hasString = true;
                                     break;

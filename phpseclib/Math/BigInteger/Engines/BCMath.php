@@ -429,7 +429,7 @@ class BCMath extends Engine
             $result->value = bcmod($result->value, $result->bitmask->value, 0);
         }
 
-        // @phpstan-ignore return.type (BI-004: confirmed runtime static return defect remains open; see analysis/github-issue-drafts/BI-004-bcmath64-negative-inverse-normalize-return.md)
+        // @phpstan-ignore return.type (BI-004: confirmed runtime static return defect remains open; see BI-004-bcmath64-negative-inverse-normalize-return.md)
         return $result;
     }
 
@@ -455,7 +455,7 @@ class BCMath extends Engine
      */
     public static function randomRange(BCMath $min, BCMath $max): static
     {
-        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see analysis/github-issue-drafts/BI-003-bcmath64-operand-selected-static-returns.md)
+        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see BI-003-bcmath64-operand-selected-static-returns.md)
         return self::randomRangeHelper($min, $max);
     }
 
@@ -538,7 +538,7 @@ class BCMath extends Engine
      */
     public static function min(BCMath ...$nums): static
     {
-        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see analysis/github-issue-drafts/BI-003-bcmath64-operand-selected-static-returns.md)
+        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see BI-003-bcmath64-operand-selected-static-returns.md)
         return self::minHelper($nums);
     }
 
@@ -547,7 +547,7 @@ class BCMath extends Engine
      */
     public static function max(BCMath ...$nums): static
     {
-        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see analysis/github-issue-drafts/BI-003-bcmath64-operand-selected-static-returns.md)
+        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see BI-003-bcmath64-operand-selected-static-returns.md)
         return self::maxHelper($nums);
     }
 

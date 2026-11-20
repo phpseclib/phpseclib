@@ -32,7 +32,7 @@ class KeyAgreeRecipient extends Recipient
         $rules['recipientEncryptedKeys'] = self::mapInEncryptedKeys(...);
         $recipient = ASN1::map($decoded, Maps\KeyAgreeRecipientInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
-        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $recipient;
     }
 

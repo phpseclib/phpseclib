@@ -106,7 +106,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($encoded);
         $signer = ASN1::map($decoded, Maps\SignerInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
-        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $signer;
     }
 
@@ -236,12 +236,12 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         try {
             for ($i = 0; $i < count($attr['value']); $i++) {
                 $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
-                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->parent = $attr['value'];
-                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->key = $i;
                 /** @psalm-suppress InvalidPropertyFetch */
-                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->depth = $attr['value']->depth + 1;
             }
         } finally {
@@ -556,7 +556,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->signer['signatureAlgorithm'] = $algorithm;
-        // @phpstan-ignore method.notFound (BI-021 runtime defect remains open: Common\PrivateKey includes SSH-agent Identity, whose effective hash is tied to agent flags; see analysis/github-issue-drafts/BI-021-cms-signer-privatekey-hash-capability.md.)
+        // @phpstan-ignore method.notFound (BI-021 runtime defect remains open: Common\PrivateKey includes SSH-agent Identity, whose effective hash is tied to agent flags; see BI-021-cms-signer-privatekey-hash-capability.md.)
         $this->setHash((string) $key->getHash());
     }
 

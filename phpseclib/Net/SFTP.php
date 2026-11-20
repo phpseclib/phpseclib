@@ -1168,13 +1168,13 @@ class SFTP extends SSH2
         }
 
         $pwd = $this->pwd;
-        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
+        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         $stat['type'] = $this->chdir($filename) ?
             FileType::DIRECTORY :
             FileType::REGULAR;
         $this->pwd = $pwd;
 
-        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
+        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         if ($stat['type'] == FileType::DIRECTORY) {
             $filename .= '/.';
         }
@@ -1227,13 +1227,13 @@ class SFTP extends SSH2
         }
 
         $pwd = $this->pwd;
-        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
+        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         $lstat['type'] = $this->chdir($filename) ?
             FileType::DIRECTORY :
             FileType::REGULAR;
         $this->pwd = $pwd;
 
-        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see analysis/github-issue-drafts/FLOW-007-sftp-stat-fallback-classification.md.)
+        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         if ($lstat['type'] == FileType::DIRECTORY) {
             $filename .= '/.';
         }
@@ -2778,9 +2778,9 @@ class SFTP extends SSH2
             $this->append_log($packet_type, $packet);
         }
 
-        // @phpstan-ignore variable.undefined (A non-null request ID reaches this only when request-id mode unpacked the validated packet above.)
+        // @phpstan-ignore variable.undefined (FLOW-009: a non-null request ID reaches this only when request-id mode unpacked the validated packet above.)
         if (isset($request_id) && $this->use_request_id && $packet_id != $request_id) {
-            // @phpstan-ignore variable.undefined (The guarded packet ID above is defined whenever request-id mode is enabled.)
+            // @phpstan-ignore variable.undefined (FLOW-009: the guarded packet ID above is defined whenever request-id mode is enabled.)
             $this->requestBuffer[$packet_id] = [
                 'packet_type' => $this->packet_type,
                 'packet' => $packet,

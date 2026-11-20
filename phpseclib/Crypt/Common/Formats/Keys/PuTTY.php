@@ -246,13 +246,13 @@ abstract class PuTTY
         $private = Strings::base64_decode(implode('', array_map('trim', array_slice($key, $offset, $privateLength))));
 
         if ($encryption != 'none') {
-            // @phpstan-ignore variable.undefined, variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher and key unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+            // @phpstan-ignore variable.undefined, variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher and key unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setKey($symkey);
-            // @phpstan-ignore variable.undefined, variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher and IV unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+            // @phpstan-ignore variable.undefined, variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher and IV unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setIV($symiv);
-            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->disablePadding();
-            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $private = $crypto->decrypt($private);
         }
 
@@ -340,9 +340,9 @@ abstract class PuTTY
                     $hash->setKey(sha1($hashkey, true));
             }
 
-            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the encryption key unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the encryption key unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setKey($symkey);
-            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the initialization vector unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the initialization vector unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
@@ -351,7 +351,7 @@ abstract class PuTTY
         $private = Strings::base64_encode($private);
         $key .= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key .= chunk_split($private, 64);
-        // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the MAC hash unset; see analysis/github-issue-drafts/FLOW-005-putty-invalid-encryption-and-version.md.)
+        // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the MAC hash unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
         $key .= 'Private-MAC: ' . Strings::bin2hex($hash->hash($source)) . "\r\n";
 
         return $key;

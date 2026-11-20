@@ -343,7 +343,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             }
         };
 
-        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return ASN1::map($decoded, Maps\Certificate::MAP, $rules);
     }
 
@@ -1259,7 +1259,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                 return false;
             }
 
-            if (self::$checkBasicConstraints && $expected == 'keyCertSign') { // @phpstan-ignore equal.alwaysFalse, booleanAnd.alwaysFalse (FI-004 remains open and unfixed: this known array/string defect is awaiting maintainer review; see analysis/github-issue-drafts/FI-004-x509-isissuerof-basic-constraints.md.)
+            if (self::$checkBasicConstraints && $expected == 'keyCertSign') { // @phpstan-ignore equal.alwaysFalse, booleanAnd.alwaysFalse (FI-004 remains open and unfixed: this known array/string defect is awaiting maintainer review; see FI-004-x509-isissuerof-basic-constraints.md.)
                 if (!$this->hasExtension('id-ce-basicConstraints')) {
                     return false;
                 }

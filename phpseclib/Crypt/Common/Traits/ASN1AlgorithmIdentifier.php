@@ -255,7 +255,7 @@ trait ASN1AlgorithmIdentifier
                     // PHPStan cannot track extract()'s schema locals; preserve the pattern and accept the malformed-input risk.
                     extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray()); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
 
-                    $effectiveKeyLength = match ((int) $rc2ParametersVersion->toString()) { // @phpstan-ignore variable.undefined (BI-028 remains open: the optional RC2 version can be absent; see analysis/github-issue-drafts/BI-028-rc2-pbes2-optional-version.md.)
+                    $effectiveKeyLength = match ((int) $rc2ParametersVersion->toString()) { // @phpstan-ignore variable.undefined (BI-028 remains open: the optional RC2 version can be absent; see BI-028-rc2-pbes2-optional-version.md.)
                         160 => 40,
                         120 => 64,
                         58 => 128,

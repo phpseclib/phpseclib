@@ -373,7 +373,7 @@ abstract class XML
         }
 
         if (self::$rfc4050) {
-            // XML-002 remains open; see analysis/github-issue-drafts/XML-002-rfc4050-binary-coordinate-encoding.md.
+            // XML-002 remains open; see XML-002-rfc4050-binary-coordinate-encoding.md.
             // @phpstan-ignore binaryOp.invalid, binaryOp.invalid (XML-002: X/Y binary coordinates are emitted as decimal, not RFC4050 hex octets; no runtime fix.)
             return '<' . $pre . 'ECDSAKeyValue xmlns' . $post . '="http://www.w3.org/2001/04/xmldsig-more#">' . "\r\n" .
                    self::encodeXMLParameters($curve, $pre, $options) . "\r\n" .

@@ -304,7 +304,7 @@ abstract class EC extends AsymmetricKey
         if (!isset($components['dA']) && !isset($components['QA'])) {
             $new = new Parameters();
             $new->curve = $components['curve'];
-            return $new; // @phpstan-ignore return.type (The built-in parameter child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
+            return $new; // @phpstan-ignore return.type (CRYPT-002: the built-in parameter child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
         }
 
         // SEC1 3.2.2: a public key is not the point at infinity, which the encoding 00 stands for
@@ -324,10 +324,10 @@ abstract class EC extends AsymmetricKey
         $new->QA = $components['QA'];
 
         if ($new->curve instanceof TwistedEdwardsCurve) {
-            return $new->withHash($components['curve']::HASH); // @phpstan-ignore return.type (The built-in key child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
+            return $new->withHash($components['curve']::HASH); // @phpstan-ignore return.type (CRYPT-002: the built-in key child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
         }
 
-        return $new; // @phpstan-ignore return.type (The built-in key child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
+        return $new; // @phpstan-ignore return.type (CRYPT-002: the built-in key child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
     }
 
     /**

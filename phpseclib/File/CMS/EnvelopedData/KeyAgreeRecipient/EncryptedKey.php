@@ -62,7 +62,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         $decoded = ASN1::decodeBER($encoded);
         $temp = ASN1::map($decoded, Maps\RecipientEncryptedKey::MAP);
         //ASN1::enableCacheInvalidation();
-        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $temp;
     }
 

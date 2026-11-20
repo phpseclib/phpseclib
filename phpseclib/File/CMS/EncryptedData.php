@@ -171,9 +171,9 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         } else {
             $cms['content'] = ASN1::map($decoded, Maps\EncryptedDataCMS::MAP);
         }
-        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->parent = $cms;
-        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see analysis/github-issue-drafts/BI-026-asn1-loadstring-blob-root-typeerrors.md.)
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->key = 'content';
         return $cms;
     }
@@ -632,7 +632,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         } else {
             $privateKey = EC::createKey($publicKey->getCurve());
             /** @psalm-suppress InvalidArgument */
-            // @phpstan-ignore argument.type (CMS-002 remains open: X509 can hold EC/Common\PublicKey implementations that DH::computeSecret() rejects; see analysis/github-issue-drafts/CMS-002-cms-recipient-custom-ec-public-key.md.)
+            // @phpstan-ignore argument.type (CMS-002 remains open: X509 can hold EC/Common\PublicKey implementations that DH::computeSecret() rejects; see CMS-002-cms-recipient-custom-ec-public-key.md.)
             $secret = \phpseclib4\Crypt\DH::computeSecret($privateKey, $publicKey);
             $parameters = new ASN1\Element(ASN1::encodeDER(['algorithm' => 'id-aes128-wrap'], Maps\AlgorithmIdentifier::MAP));
             $sharedInfo = [

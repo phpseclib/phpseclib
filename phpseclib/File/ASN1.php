@@ -1096,7 +1096,7 @@ abstract class ASN1
 
                 switch (true) {
                     case $source instanceof BaseType && $source->hasTypeID():
-                        // @phpstan-ignore method.notFound (BI-027: Choice can report hasTypeID() without defining getTypeID(); reproduced runtime defect remains open. See analysis/github-issue-drafts/BI-027-asn1-choice-typeid-contract.md.)
+                        // @phpstan-ignore method.notFound (BI-027: Choice can report hasTypeID() without defining getTypeID(); reproduced runtime defect remains open. See BI-027-asn1-choice-typeid-contract.md.)
                         return self::encode_der($source, ['type' => $source->getTypeID()] + $mapping, null);
                     case !isset($source):
                         return self::encode_der(null, ['type' => self::TYPE_NULL] + $mapping, null);
@@ -1125,7 +1125,7 @@ abstract class ASN1
             case self::TYPE_VIDEOTEX_STRING:
             case self::TYPE_GRAPHIC_STRING:
             case self::TYPE_GENERAL_STRING:
-                if ($source instanceof BaseType && $source->hasTypeID() && $source->getTypeID() != $tag) { // @phpstan-ignore method.notFound (BI-027: Choice can report hasTypeID() without defining getTypeID(); reproduced runtime defect remains open. See analysis/github-issue-drafts/BI-027-asn1-choice-typeid-contract.md.)
+                if ($source instanceof BaseType && $source->hasTypeID() && $source->getTypeID() != $tag) { // @phpstan-ignore method.notFound (BI-027: Choice can report hasTypeID() without defining getTypeID(); reproduced runtime defect remains open. See BI-027-asn1-choice-typeid-contract.md.)
                     throw new UnexpectedValueException('Object type does not match the expected type for ' . implode('/', self::$location));
                 }
                 $value = (string) $source;
@@ -1153,7 +1153,7 @@ abstract class ASN1
                 $tag = ($mapping['class'] << 6) | 0x20 | $mapping['cast'];
             } else {
                 // FLOW-006: retain the original implicit-tag calculation pending independent ASN.1 semantic validation; the undefined $temp access is a confirmed runtime defect, not fixed by this suppression.
-                $tag = ($mapping['class'] << 6) | (ord($temp[0]) & 0x20) | $mapping['cast']; // @phpstan-ignore variable.undefined (FLOW-006: deliberately retain the original implementation; runtime defect remains open. See analysis/github-issue-drafts/FLOW-006-asn1-implicit-tag-undefined-temp.md.)
+                $tag = ($mapping['class'] << 6) | (ord($temp[0]) & 0x20) | $mapping['cast']; // @phpstan-ignore variable.undefined (FLOW-006: deliberately retain the original implementation; runtime defect remains open. See FLOW-006-asn1-implicit-tag-undefined-temp.md.)
             }
         }
 

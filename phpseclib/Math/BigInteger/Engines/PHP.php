@@ -1071,7 +1071,7 @@ abstract class PHP extends Engine
                 break;
             }
         }
-        // @phpstan-ignore variable.undefined (BI-007 remains open for zero input: no inner iteration initializes $j, and the public zero contract is undefined. See analysis/github-issue-drafts/BI-007-biginteger-zero-input-contracts.md.)
+        // @phpstan-ignore variable.undefined (BI-007 remains open for zero input: no inner iteration initializes $j, and the public zero contract is undefined. See BI-007-biginteger-zero-input-contracts.md.)
         $s = static::BASE * $i + $j;
         $r->rshift($s);
         return $s;
@@ -1199,7 +1199,7 @@ abstract class PHP extends Engine
                     $newbits = $temp;
                 }
                 $overflow = $tempoverflow;
-                // @phpstan-ignore variable.undefined (BI-002 remains an open runtime defect; suppress only this tracked read. See analysis/github-issue-drafts/BI-002-bitwise-split-incorrect-results.md.)
+                // @phpstan-ignore variable.undefined (BI-002 remains an open runtime defect; suppress only this tracked read. See BI-002-bitwise-split-incorrect-results.md.)
                 $mask = $tempmask;
             }
             $temp = new static();

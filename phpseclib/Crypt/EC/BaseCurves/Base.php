@@ -161,7 +161,7 @@ abstract class Base
      */
     public function setReduction(\Closure $func): void
     {
-        // @phpstan-ignore property.notFound (BI-013 remains open: Binary curves inherit this API but BinaryField has no setReduction(). See analysis/github-issue-drafts/BI-013-binary-curve-set-reduction.md.)
+        // @phpstan-ignore property.notFound (BI-013 remains open: Binary curves inherit this API but BinaryField has no setReduction(). See BI-013-binary-curve-set-reduction.md.)
         $this->factory->setReduction($func);
     }
 
@@ -207,7 +207,7 @@ abstract class Base
         $p2 = $this->convertToInternal($points[1]);
         $p1 = $this->multiplyPoint($p1, $scalars[0]);
         $p2 = $this->multiplyPoint($p2, $scalars[1]);
-        // @phpstan-ignore method.notFound (EC-001 remains open: inherited multiplyAddPoints() is exposed on Montgomery curves without addPoint(). See analysis/github-issue-drafts/EC-001-montgomery-multiply-add-contract.md.)
+        // @phpstan-ignore method.notFound (EC-001 remains open: inherited multiplyAddPoints() is exposed on Montgomery curves without addPoint(). See EC-001-montgomery-multiply-add-contract.md.)
         $r = $this->addPoint($p1, $p2);
         return $this->convertToAffine($r);
     }
