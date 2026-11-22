@@ -13,6 +13,8 @@ jobs:
     lint:
         name: Lint
         timeout-minutes: 5
+        # 8.7 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.7' }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -29,7 +31,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
+                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6', '8.7']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -69,6 +71,8 @@ jobs:
     tests:
         name: Tests
         timeout-minutes: 15
+        # 8.7 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.7' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
@@ -105,7 +109,8 @@ jobs:
                 # the tests don't run it, and Psalm 7 doesn't install on PHP 8.1
                 run: composer remove --dev --no-update vimeo/psalm
             -   name: Composer Install
-                run: composer update --with-all-dependencies --no-interaction
+                # ParaTest's PHP constraint doesn't allow 8.7 yet
+                run: composer update --with-all-dependencies --no-interaction ${{ matrix.php-version == '8.7' && '--ignore-platform-req=php+' || '' }}
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
                 run: |
@@ -209,7 +214,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
+                php-version: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6', '8.7']
                 include:
                     -   { php-version: '8.1', phpunit: '^10.5', paratest: '^7.0' }
                     -   { php-version: '8.2', phpunit: '^11.5', paratest: '^7.8.5' }
