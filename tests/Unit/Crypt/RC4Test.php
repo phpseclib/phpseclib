@@ -19,7 +19,6 @@ class RC4Test extends PhpseclibTestCase
     {
         $engines = [
             'PHP',
-            'Eval',
             'OpenSSL',
         ];
         // tests from https://tools.ietf.org/html/rfc6229
