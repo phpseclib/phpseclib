@@ -229,6 +229,9 @@ class GMP extends Engine
      */
     public function compare(GMP $y): int
     {
+        // On PHP < 8.5 with MPIR (Windows builds), GMP's <=> / gmp_cmp() can return
+        // values other than -1/0/1 (e.g. gmp_init(1) <=> gmp_init(-1) === 2).
+        // See https://bugs.php.net/bug.php?id=75192 and php/php-src#16685.
         return gmp_cmp($this->value, $y->value) <=> 0;
     }
 
