@@ -229,7 +229,7 @@ class GMP extends Engine
      */
     public function compare(GMP $y): int
     {
-        return $this->value <=> $y->value;
+        return gmp_cmp($this->value, $y->value) <=> 0;
     }
 
     /**
