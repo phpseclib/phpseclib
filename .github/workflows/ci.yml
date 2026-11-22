@@ -109,7 +109,8 @@ jobs:
                 # the tests don't run it, and Psalm 7 doesn't install on PHP 8.1
                 run: composer remove --dev --no-update vimeo/psalm
             -   name: Composer Install
-                run: composer update --with-all-dependencies --no-interaction
+                # ParaTest's PHP constraint doesn't allow 8.7 yet
+                run: composer update --with-all-dependencies --no-interaction ${{ matrix.php-version == '8.7' && '--ignore-platform-req=php+' || '' }}
             -   name: Setup Secure Shell Functional Tests
                 if: matrix.os == 'ubuntu-latest'
                 run: |
