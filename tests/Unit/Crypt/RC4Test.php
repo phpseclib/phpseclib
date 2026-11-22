@@ -18,7 +18,6 @@ class RC4Test extends PhpseclibTestCase
     {
         $engines = [
             'PHP',
-            'Eval',
             'mcrypt',
             'OpenSSL',
         ];
