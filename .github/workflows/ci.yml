@@ -61,6 +61,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-version }}
+                    extensions: gmp, sodium
             -   name: Get Composer Cache Directory and Week
                 id: composer-cache
                 shell: bash
