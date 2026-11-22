@@ -13,6 +13,8 @@ jobs:
     lint:
         name: Lint
         timeout-minutes: 5
+        # 8.7 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.7' }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout
@@ -27,7 +29,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
+                php-version: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6', '8.7']
     quality_tools:
         name: Quality Tools
         timeout-minutes: 5
@@ -49,6 +51,8 @@ jobs:
         name: Tests
         # the Windows jobs usually take 3 to 12 minutes, mostly in EC\CurveTest, and a slow runner can need more than 15
         timeout-minutes: ${{ matrix.os == 'windows-latest' && 30 || 15 }}
+        # 8.7 is still a nightly build, so its jobs may fail without failing the run
+        continue-on-error: ${{ matrix.php-version == '8.7' }}
         runs-on: ${{ matrix.os }}
         steps:
             -   name: Checkout
@@ -137,4 +141,4 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, windows-latest, macos-latest]
-                php-version: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
+                php-version: ['7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6', '8.7']
