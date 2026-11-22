@@ -20,7 +20,6 @@ class DESTest extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
         ];
 
@@ -45,7 +44,6 @@ class DESTest extends PhpseclibTestCase
         $engines = [
             'PHP',
             'Eval',
-            'mcrypt',
             'OpenSSL',
         ];
 

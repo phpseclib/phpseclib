@@ -19,6 +19,29 @@ class OpenSSLTest extends TestCase
         $this->engine = 'OpenSSL';
     }
 
+    public static function continuousBufferCombos(): array
+    {
+        return self::withoutOFB8(parent::continuousBufferCombos());
+    }
+
+    public static function continuousBufferBatteryCombos(): array
+    {
+        return self::withoutOFB8(parent::continuousBufferBatteryCombos());
+    }
+
+    public static function continuousBufferBatteryCombosWithoutSingleCombos(): array
+    {
+        return self::withoutOFB8(parent::continuousBufferBatteryCombosWithoutSingleCombos());
+    }
+
+    /**
+     * OpenSSL has no OFB8 mode, so these combos could only ever be skipped.
+     */
+    private static function withoutOFB8(array $combos): array
+    {
+        return array_filter($combos, fn (array $combo) => !in_array('ofb8', $combo, true));
+    }
+
     public function testOFBUsesOpenSSLOFBMode(): void
     {
         $mode = self::callFunc(new AES('ofb'), 'openssl_translate_mode');
