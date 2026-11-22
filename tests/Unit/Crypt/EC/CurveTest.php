@@ -119,18 +119,7 @@ final class CurveTest extends PhpseclibTestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('curves')]
     public function testInternalSign($name): void
     {
-        // tests utilizing dataProvider only seem to output when all the dataProvider input
-        // has been exhausted. ie. when this test has been ran on every curve. on my local
-        // system it takes about 2.5m for this test to run, with the most time consuming curves
-        // being sect571r1 and sect571k1, which take about 30s each. on Travis CI, however,
-        // these curves seem to take about 2m each to run:
-        // https://travis-ci.org/terrafrost/phpseclib/jobs/450262081
-        // because of the 10m timeout that Travis CI has this means that there's a very
-        // good chance the binary curves (sect*) will timeout before the test is able to
-        // output anything
-        if (substr($name, 0, 4) == 'sect') {
-            self::markTestSkipped('Binary field curves are being skipped');
-        }
+        self::skipSlowCurves($name);
 
         $plaintext = 'zzz';
 
@@ -178,9 +167,7 @@ final class CurveTest extends PhpseclibTestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('curves')]
     public function testInternalVerify($name): void
     {
-        if (substr($name, 0, 4) == 'sect') {
-            self::markTestSkipped('Binary field curves are being skipped');
-        }
+        self::skipSlowCurves($name);
 
         $plaintext = 'zzz';
 
@@ -200,6 +187,16 @@ final class CurveTest extends PhpseclibTestCase
 
         // reset engine
         EC::forceEngine();
+    }
+
+    /**
+     * The 409- and 571-bit binary field curves take 10 to 20 seconds each with the PHP engine.
+     */
+    private static function skipSlowCurves(string $name): void
+    {
+        if (preg_match('#^sect(?:409|571)#', $name)) {
+            self::markTestSkipped('The 409- and 571-bit binary field curves are too slow to test');
+        }
     }
 
     /**
