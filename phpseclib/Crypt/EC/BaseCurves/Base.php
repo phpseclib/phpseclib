@@ -205,14 +205,15 @@ abstract class Base
     /**
      * Multiply and Add Points
      *
+     * @param \phpseclib3\Math\BinaryField\Integer[] $scalars
      * @return int[]
      */
     public function multiplyAddPoints(array $points, array $scalars)
     {
         $p1 = $this->convertToInternal($points[0]);
         $p2 = $this->convertToInternal($points[1]);
-        $p1 = $this->multiplyPoint($p1, $scalars[0]);
-        $p2 = $this->multiplyPoint($p2, $scalars[1]);
+        $p1 = $this->multiplyPoint($p1, $scalars[0]->toBigInteger());
+        $p2 = $this->multiplyPoint($p2, $scalars[1]->toBigInteger());
         $r = $this->addPoint($p1, $p2);
         return $this->convertToAffine($r);
     }
