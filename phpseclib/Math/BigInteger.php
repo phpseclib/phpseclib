@@ -596,7 +596,7 @@ class BigInteger implements \JsonSerializable
     }
 
     /**
-     * Checks a numer to see if it's prime
+     * Checks a number to see if it's prime
      *
      * Assuming the $t parameter is not set, this function has an error rate of 2**-80.  The main motivation for the
      * $t parameter is distributability.  BigInteger::randomPrime() can be distributed across multiple pageloads
