@@ -25,7 +25,7 @@ use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
 use phpseclib4\File\ASN1\Maps\CRLReason;
-use phpseclib4\File\ASN1\Types\{BitString, OctetString};
+use phpseclib4\File\ASN1\Types\{BitString, Choice, OctetString};
 use phpseclib4\File\Common\Signable;
 use phpseclib4\Math\BigInteger;
 
@@ -374,7 +374,71 @@ class CRL implements \ArrayAccess, \Countable, \Iterator, Signable
     public function toArray(bool $convertPrimitives = false): array
     {
         $this->compile();
-        return $this->crl instanceof Constructed ? $this->crl->toArray($convertPrimitives) : $this->crl;
+
+        $tbs = $this->crl['tbsCertList'];
+        if (!isset($tbs['revokedCertificates'])) {
+            return $this->crl->toArray($convertPrimitives);
+        }
+        $list = $tbs['revokedCertificates'];
+
+        // convert everything except revokedCertificates the normal way.
+        // modifying $tbs->decoded directly (vs offsetUnset) doesn't invalidate the encoded cache
+        $tbsDecoded = $tbs->decoded;
+        $tbs->decoded = array_diff_key($tbsDecoded, ['revokedCertificates' => true]);
+        try {
+            $result = $this->crl->toArray($convertPrimitives);
+        } finally {
+            $tbs->decoded = $tbsDecoded;
+        }
+
+        // convert revokedCertificates one entry at a time, discarding each entry's decoded object tree as we go.
+        // without this every entry ends up existing twice: once as a decoded Constructed tree and once as an array.
+        // this is safe because compile() guarantees that the encoded data is intact, so the entries can be lazily
+        // re-decoded (the rules for revokedCertificates are arrays, not callables, so they survive re-decoding)
+        $revoked = [];
+        $total = count($list);
+        try {
+            for ($i = 0; $i < $total; $i++) {
+                $revoked[] = $list[$i]->toArray($convertPrimitives);
+                self::releaseDecoded($list->decoded[$i]);
+                unset($list->decoded[$i]);
+            }
+        } finally {
+            $list->decoded = null;
+        }
+
+        // put revokedCertificates back in its original position
+        $tbsResult = [];
+        foreach (array_keys($tbsDecoded) as $key) {
+            $tbsResult[$key] = $key === 'revokedCertificates' ? $revoked : $result['tbsCertList'][$key];
+        }
+        unset($revoked);
+        $result['tbsCertList'] = $tbsResult;
+
+        return $result;
+    }
+
+    /**
+     * Discard the decoded object tree of an element
+     *
+     * Every child holds a reference to its parent ($child->parent) so simply discarding the top level
+     * leaves the parent <-> child cycles to PHP's cycle collector, which is slow and, until it runs,
+     * keeps the memory in use. Breaking the back references depth-first lets refcounting free
+     * everything immediately. Only call this on elements whose encoded data is intact, so that
+     * they can be lazily re-decoded.
+     */
+    private static function releaseDecoded(Constructed|Choice $el): void
+    {
+        $children = $el instanceof Choice ? [$el->value] : ($el->decoded ?? []);
+        foreach ($children as $child) {
+            if ($child instanceof Constructed || $child instanceof Choice) {
+                self::releaseDecoded($child);
+                $child->parent = null;
+            }
+        }
+        if ($el instanceof Constructed) {
+            $el->decoded = null;
+        }
     }
 
     /**
