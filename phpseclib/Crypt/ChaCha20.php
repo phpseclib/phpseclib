@@ -142,7 +142,7 @@ class ChaCha20 extends Salsa20
         if ($this->usingGeneratedPoly1305Key && strlen($this->nonce) == 12) {
             $this->newtag = substr($ciphertext, strlen($plaintext));
         } else {
-            if ($this->usePoly1305 && (!isset($this->poly1305Key) || $this->changed)) {
+            if (!isset($this->poly1305Key) || $this->changed) {
                 $this->createPoly1305Key();
             }
             $this->newtag = $this->poly1305($newciphertext);

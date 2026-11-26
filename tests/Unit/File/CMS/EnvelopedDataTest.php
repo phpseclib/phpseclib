@@ -470,6 +470,7 @@ HZ5LFXx7/Cul
             $this->fail('the recipient was accepted');
         } catch (UnexpectedValueException) {
         }
+        // @phpstan-ignore method.alreadyNarrowedType (Retain the successful test marker.)
         $this->assertTrue(true);
     }
 
@@ -486,6 +487,7 @@ HZ5LFXx7/Cul
             . 'cy9ma1ObxSLfYbQfvtN4ymUOSDOKAT7Dmw+H5u0rR4sgHkvInUxHvHrJ8LEax0fV8YthuTQYDrov'
             . '43dtXQ=='
         ), ASN1::FORMAT_DER);
+        // @phpstan-ignore method.alreadyNarrowedType (Sole decode assertion.)
         $this->assertIsArray($cms->toArray(true));
     }
 
@@ -507,7 +509,7 @@ HZ5LFXx7/Cul
         $cms->createNewRecipientFromX509($x509);
 
         $cms = CMS::load("$cms");
-        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt();
+        $decrypted = $cms->getRecipients()[0]->withKey($private)->decrypt(); // @phpstan-ignore method.notFound (generated fixture yields KeyTransRecipient)
         $this->assertEquals($plaintext, $decrypted);
     }
 }

@@ -795,7 +795,7 @@ MDAyIDQzMzk5ODkwMzEVMBMGA1UEBRMMMjQ5NzEyS0pNOTgwMTUwMwYDVQQDDCxD
 RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
 
         $decoded = ASN1::decodeBER($sample);
-        $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray();
+        $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray(); // @phpstan-ignore method.notFound
         $this->assertIsArray($result);
     }
 
@@ -1120,10 +1120,10 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         // KeyUsage (9 named bits) encoded in 16 bits with digitalSignature and keyCertSign set:
         // array_fill() got a negative count, a ValueError
         // the same as the minimal encoding 03 02 02 84; bits past the names are ignored
-        $minimal = ASN1::map(ASN1::decodeBER(hex2bin('03020284')), Maps\KeyUsage::MAP)->toArray();
+        $minimal = ASN1::map(ASN1::decodeBER(hex2bin('03020284')), Maps\KeyUsage::MAP)->toArray(); // @phpstan-ignore method.notFound
         $this->assertSame(['keyCertSign', 'digitalSignature'], $minimal);
-        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0303008400')), Maps\KeyUsage::MAP)->toArray());
-        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0304008400ff')), Maps\KeyUsage::MAP)->toArray());
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0303008400')), Maps\KeyUsage::MAP)->toArray()); // @phpstan-ignore method.notFound
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0304008400ff')), Maps\KeyUsage::MAP)->toArray()); // @phpstan-ignore method.notFound
     }
 
     public function testNamedBitStringWithoutUnusedBitsOctet(): void

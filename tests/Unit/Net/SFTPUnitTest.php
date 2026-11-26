@@ -150,7 +150,7 @@ class SFTPUnitTest extends PhpseclibTestCase
                 }
             }
 
-            protected function get_channel_packet(int $client_channel, bool $skip_extended = false): string|bool
+            protected function get_channel_packet(int $client_channel, bool $skip_extended = false): string
             {
                 if (!count($this->responses)) {
                     throw new \UnexpectedValueException('No SFTP packet to read');

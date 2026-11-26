@@ -307,7 +307,9 @@ RBZnM468Wz7p3k9dHdpwGinjK1UrpjFHQvPRjUEKui37Wy0Gw5aTAvhZl60CQDXD
 fuNQzBuwdy+u8UUhD9DSIYkAVau7KIhSt6O50pO6FqLFjz4XGporzMFzCU4pvTrd
 neIjrM9KA2z+glGqoA0CPw+lyCd8t0pkaJdDVNFb5SRckBJ+ZpyJ3p9XK9Gk9/Ay
 56on1VNqFT+mX0WXmu5h/ALUkQ21/kE+3E6TClBm1A==
------END RSA PRIVATE KEY-----')->withPadding(RSA::SIGNATURE_PKCS1);
+-----END RSA PRIVATE KEY-----');
+        self::assertInstanceOf(RSAPrivateKey::class, $key);
+        $key = $key->withPadding(RSA::SIGNATURE_PKCS1);
 
         $x509 = new X509($key->getPublicKey());
         $x509->setDN(['id-at-commonName' => "phpseclib\n-test"]);

@@ -2022,6 +2022,7 @@ OxVSACNozMMrZrPHjqK0MHq/oHgwCcXOsA==
         $this->assertSame('c0a8000101', bin2hex($san[0]['iPAddress']));
         $nc = $x->getExtension('id-ce-nameConstraints')['extnValue']->toArray(true);
         $this->assertSame('0a000000ff00000001', bin2hex($nc['permittedSubtrees'][0]['base']['iPAddress']));
+        // @phpstan-ignore method.alreadyNarrowedType (Sole re-encoding assertion.)
         $this->assertIsString($x->toString());
     }
 

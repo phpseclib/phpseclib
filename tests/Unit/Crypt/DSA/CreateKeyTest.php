@@ -86,6 +86,7 @@ class CreateKeyTest extends PhpseclibTestCase
             $this->fail('The public keys of generated keys should not have a loaded format');
         } catch (NoKeyLoadedException) {
         }
+        // @phpstan-ignore method.alreadyNarrowedType (Retain the successful test marker.)
         $this->assertTrue(true);
     }
 }

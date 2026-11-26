@@ -1941,7 +1941,6 @@ class SFTP extends SSH2
                         $response = $this->get_sftp_packet($packets_sent - $i);
                     } catch (SSHChannelExitSignalException $e) {
                         if (!isset($local_file)) {
-                            // @phpstan-ignore variable.undefined (!isset($local_file) within the documented null|string|resource|Closure domain means null, whose setup branch initializes $content.)
                             $e->partialOutput = $content;
                         }
                         throw $e;
@@ -1953,7 +1952,6 @@ class SFTP extends SSH2
                         $temp = substr($response, 4);
                         $offset += strlen($temp);
                         if (!isset($local_file)) {
-                            // @phpstan-ignore variable.undefined (!isset($local_file) within the documented null|string|resource|Closure domain means null, whose setup branch initializes $content.)
                             $content .= $temp;
                         } elseif (is_callable($local_file)) {
                             $local_file($temp);

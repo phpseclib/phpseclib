@@ -417,7 +417,7 @@ abstract class SymmetricKey
      * The cipher methods supported by OpenSSL, as keys
      *
      * @see self::isValidOpenSSLCipher()
-     * @var array<string, true>|null
+     * @var array<string, true>
      */
     private static array $openssl_cipher_methods;
 

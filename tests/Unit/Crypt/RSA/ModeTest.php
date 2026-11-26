@@ -497,7 +497,9 @@ tAHfbOgzA3yY9SrxunJ690ufb3d8MgwKyZ21Q93U8G+hTV9tFwFMiy3zFQ7a2iOf
 xE3CINfwaMkEWi39vYPFIhieFwxvZmOWi1Jlud9rYe/9PzftgDDoIwJAcnAHdO6c
 txAvarWoANzLXQ5iKxQ1I+FGaY2LI/wIVHC9pSof6kPbSsdsOOWLs85Tjuu0J345
 bINnZJfGe2e4Lw==
------END PRIVATE KEY-----')->withPadding(RSA::SIGNATURE_PKCS1);
+-----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $private);
+        $private = $private->withPadding(RSA::SIGNATURE_PKCS1);
         $public = $private->getPublicKey();
 
         // OpenSSL's signatures of 'abc', the second one without the NULL parameters
@@ -551,6 +553,7 @@ bINnZJfGe2e4Lw==
 
             $this->assertTrue($key->getPublicKey()->verify('zzzz', $signature), $hash);
             $public = PublicKeyLoader::load($key->getPublicKey()->toString('PSS'));
+            $this->assertInstanceOf(PublicKey::class, $public);
             $this->assertTrue($public->verify('zzzz', $signature), $hash);
         }
     }

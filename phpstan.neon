@@ -67,7 +67,7 @@ parameters:
         -
             identifier: new.static
             path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 30
+            count: 31
         -
             identifier: new.static
             path: phpseclib/Math/BigInteger/Engines/BCMath.php
@@ -109,7 +109,7 @@ parameters:
         -
             identifier: method.notFound
             path: phpseclib/Math/BigInteger/Engines/Engine.php
-            count: 18
+            count: 19
         -
             identifier: staticMethod.notFound
             paths:
