@@ -234,6 +234,13 @@ abstract class RSA extends AsymmetricKey
     protected static ?string $forcedEngine = null;
 
     /**
+     * Whether OpenSSL returns a random message instead of an error when PKCS#1 v1.5 decryption fails
+     *
+     * @see self::opensslRejectsImplicitly()
+     */
+    private static ?bool $opensslImplicitRejection = null;
+
+    /**
      * Sets the public exponent for key generation
      *
      * This will be 65537 unless changed.
@@ -967,11 +974,17 @@ abstract class RSA extends AsymmetricKey
                         }
                         $func = 'openssl_public_decrypt';
                     }
-                    if ($this->encryptionPadding === self::ENCRYPTION_PKCS1 && OPENSSL_VERSION_NUMBER >= 0x30200000) {
+                    if (
+                        $this->encryptionPadding === self::ENCRYPTION_PKCS1 &&
+                        (OPENSSL_VERSION_NUMBER >= 0x30200000 || ($func === 'openssl_private_decrypt' && $this->opensslRejectsImplicitly($key)))
+                    ) {
                         // quoting https://docs.openssl.org/3.4/man3/RSA_public_encrypt/#return-values :
                         //
                         // "Since version 3.2.0, the default provider in OpenSSL does not return an error when padding checks fail.
                         //  Instead it generates a random message"
+                        //
+                        // the OpenSSL 3.0 and 1.1.1 builds that come with the Windows builds of PHP 8.1 to 8.4 do this as well,
+                        // which is why opensslRejectsImplicitly() checks for it instead of going by the version.
                         //
                         // the idea is that even a perfect implementation of PKCS1 padding can be used to conduct a Bleichenbacher
                         // padding oracle attack.
@@ -987,7 +1000,7 @@ abstract class RSA extends AsymmetricKey
                         // shouldn't use DES encryption but if you need to you need to and phpseclib isn't here to judge. that's a big
                         // difference between phpseclib and stuff like libsodium.
                         if (self::$forcedEngine === 'OpenSSL') {
-                            throw new BadConfigurationException('Engine OpenSSL is forced but cannot be used to decrypt PKCS1 encrypted strings with OpenSSL 3.2.0+');
+                            throw new BadConfigurationException('Engine OpenSSL is forced but cannot be used to decrypt PKCS1 encrypted strings because it returns a random message when the padding is invalid (eg. OpenSSL 3.2.0+)');
                         }
                         return null;
                     }
@@ -1012,6 +1025,28 @@ abstract class RSA extends AsymmetricKey
         }
 
         return null;
+    }
+
+    /**
+     * Checks whether OpenSSL returns a random message instead of an error when PKCS#1 v1.5 decryption fails
+     */
+    private function opensslRejectsImplicitly(#[\SensitiveParameter] string $key): bool
+    {
+        if (isset(self::$opensslImplicitRejection)) {
+            return self::$opensslImplicitRejection;
+        }
+        // a key OpenSSL can't use says nothing about the padding checks, so it isn't remembered
+        if (openssl_pkey_get_private($key) === false) {
+            while (openssl_error_string() !== false) {
+            }
+            return false;
+        }
+        // 1 decrypts to 1, which is never valid PKCS#1 v1.5 padding
+        $output = '';
+        $result = openssl_private_decrypt(str_pad("\1", $this->k, "\0", STR_PAD_LEFT), $output, $key, OPENSSL_PKCS1_PADDING);
+        while (openssl_error_string() !== false) {
+        }
+        return self::$opensslImplicitRejection = $result;
     }
 
     /**
