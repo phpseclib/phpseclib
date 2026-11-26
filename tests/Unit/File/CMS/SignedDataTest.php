@@ -480,6 +480,7 @@ ybcPA9iklr0wAwYBAAMBAA==
         $private = EC::createKey('secp256k1');
         $cms = new CMS\SignedData('hello world!');
         $private->sign($cms);
+        $this->assertNotEmpty("$cms");
         $cert = $cms->getSigners()[0]->getCertificate();
         $this->assertTrue($cert->validateSignature(false));
     }

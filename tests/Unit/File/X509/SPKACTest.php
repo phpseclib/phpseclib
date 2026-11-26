@@ -34,6 +34,8 @@ class SPKACTest extends PhpseclibTestCase
 
         $spkac = SPKAC::load('SPKAC=' . $test);
 
+        $this->assertNotEmpty($spkac->toArray());
+
         $this->assertTrue(
             $spkac->validateSignature(),
             'Failed asserting that the signature is valid'

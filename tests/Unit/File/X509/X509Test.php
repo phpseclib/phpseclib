@@ -680,6 +680,8 @@ Fqfy+n5VpXOdrjic4yZ52yS5sUaq05s6ZZvnmdU=
         $cert->removeExtension('id-ce-subjectAltName');
         $cert->addDomains('www.google.com');
         $cakey->sign($cert);
+
+        $this->assertNotEmpty("$cert");
     }
 
     // this test will fail without an active internet connection

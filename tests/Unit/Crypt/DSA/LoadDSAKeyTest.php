@@ -60,6 +60,9 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
+        $this->assertNotEmpty("$dsa");
+        $this->assertNotEmpty($dsa->getPublicKey()->toString('PuTTY'));
+        $this->assertNotEmpty($dsa->getParameters()->toString('PuTTY'));
         $length = ['L' => 2048, 'N' => 160];
         $this->assertSame($length, $dsa->getLength());
 
@@ -103,6 +106,9 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
+        $this->assertNotEmpty("$dsa");
+        $this->assertNotEmpty($dsa->getPublicKey()->toString('PKCS1'));
+        $this->assertNotEmpty((string) $dsa->getParameters());
 
         $this->assertFalse($dsa->hasPassword());
         $dsa = $dsa->withPassword('password');
@@ -155,6 +161,7 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PublicKey::class, $dsa);
+        $this->assertNotEmpty("$dsa");
     }
 
     public function testPKCS8Private(): void
@@ -172,6 +179,7 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
+        $this->assertNotEmpty("$dsa");
     }
 
     public function testPuTTYBadMAC(): void

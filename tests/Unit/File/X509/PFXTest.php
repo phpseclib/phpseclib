@@ -54,6 +54,9 @@ class PFXTest extends PhpseclibTestCase
         $privateKeys = $r->getPrivateKeys();
         $this->assertCount(2, $privateKeys);
 
+        $this->assertNotEmpty($r->toArray());
+        $this->assertNotEmpty($r->keys());
+
         $friendly = $r->getFriendlyNames();
         $this->assertCount(3, $friendly);
         // each of the friendly names are instances of BMPString, which encodes every character with two bytes
