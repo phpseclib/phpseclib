@@ -570,8 +570,6 @@ class SFTP extends SSH2
      * Disable path canonicalization
      *
      * If this is enabled then $sftp->pwd() will not return the canonicalized absolute path
-     *
-     * @psalm-api
      */
     public function disablePathCanonicalization(): void
     {
@@ -580,8 +578,6 @@ class SFTP extends SSH2
 
     /**
      * Enable arbitrary length packets
-     *
-     * @psalm-api
      */
     public function enableArbitraryLengthPackets(): void
     {
@@ -590,8 +586,6 @@ class SFTP extends SSH2
 
     /**
      * Disable arbitrary length packets
-     *
-     * @psalm-api
      */
     public function disableArbitraryLengthPackets(): void
     {
@@ -2215,7 +2209,6 @@ class SFTP extends SSH2
     /**
      * Gets last access time of file
      *
-     * @psalm-api
      * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileatime(string $path): int|float
@@ -2226,7 +2219,6 @@ class SFTP extends SSH2
     /**
      * Gets file modification time
      *
-     * @psalm-api
      * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filemtime(string $path): int|float
@@ -2247,7 +2239,6 @@ class SFTP extends SSH2
     /**
      * Gets file owner
      *
-     * @psalm-api
      * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileowner(string $path): int|string
@@ -2260,7 +2251,6 @@ class SFTP extends SSH2
     /**
      * Gets file group
      *
-     * @psalm-api
      * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filegroup(string $path): int|string
@@ -2366,8 +2356,6 @@ class SFTP extends SSH2
 
     /**
      * Renames a file or a directory on the SFTP server.
-     *
-     * @psalm-api
      */
     public function rename(string $oldname, string $newname): void
     {
@@ -2816,8 +2804,6 @@ class SFTP extends SSH2
      * Returns a log of the packets that have been sent and received.
      *
      * Returns a string if PacketType::LOGGING == self::LOG_COMPLEX, an array if PacketType::LOGGING == self::LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
-     *
-     * @psalm-api
      */
     public function getSFTPLog(): array|string|null
     {
@@ -2833,8 +2819,6 @@ class SFTP extends SSH2
 
     /**
      * Returns all errors on the SFTP layer and resets internal error array
-     *
-     * @psalm-api
      */
     public function getErrors(): array
     {
@@ -2845,8 +2829,6 @@ class SFTP extends SSH2
 
     /**
      * Get supported SFTP versions
-     *
-     * @psalm-api
      */
     public function getSupportedVersions(): array
     {
@@ -2867,8 +2849,6 @@ class SFTP extends SSH2
 
     /**
      * Get supported SFTP extensions
-     *
-     * @psalm-api
      */
     public function getSupportedExtensions(): array
     {
@@ -2885,8 +2865,6 @@ class SFTP extends SSH2
 
     /**
      * Get supported SFTP versions
-     *
-     * @psalm-api
      */
     public function getNegotiatedVersion(): int
     {
@@ -2901,8 +2879,6 @@ class SFTP extends SSH2
      * If you're preferred version isn't supported then the highest supported
      * version of SFTP will be utilized. Set to null or false or int(0) to
      * unset the preferred version
-     *
-     * @psalm-api
      */
     public function setPreferredVersion(int $version): void
     {
@@ -2922,8 +2898,6 @@ class SFTP extends SSH2
 
     /**
      * Enable Date Preservation
-     *
-     * @psalm-api
      */
     public function enableDatePreservation(): void
     {
@@ -2932,8 +2906,6 @@ class SFTP extends SSH2
 
     /**
      * Disable Date Preservation
-     *
-     * @psalm-api
      */
     public function disableDatePreservation(): void
     {
@@ -2944,8 +2916,6 @@ class SFTP extends SSH2
      * Copy
      *
      * This method (currently) only works if the copy-data extension is available
-     *
-     * @psalm-api
      */
     public function copy(string $oldname, string $newname): void
     {
@@ -3107,7 +3077,6 @@ class SFTP extends SSH2
         ];
     }
 
-    /** @psalm-api */
     public function hardlink(string $oldpath, string $newpath): void
     {
         $this->precheck();

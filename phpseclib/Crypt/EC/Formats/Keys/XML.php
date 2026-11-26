@@ -41,7 +41,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * XML Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class XML
 {

@@ -162,7 +162,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->csr->__debugInfo();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->csr instanceof Constructed ? $this->csr->keys() : array_keys($this->csr);
@@ -331,7 +330,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->csr['certificationRequestInfo']['subjectPKInfo'] = $publicKey;
     }
 
-    /** @psalm-api */
     public function removePublicKey(): void
     {
         $this->csr['certificationRequestInfo']['subjectPKInfo'] = [
@@ -495,13 +493,11 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         self::setSubjectDN($props);
     }
 
-    /** @psalm-api */
     public function resetDN(): void
     {
         self::resetSubjectDN();
     }
 
-    /** @psalm-api */
     public function removeDNProps(string $propName): void
     {
         self::removeSubjectDNProps($propName);
@@ -512,25 +508,21 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         self::addSubjectDNProp($propName, $value);
     }
 
-    /** @psalm-api */
     public function addDNProps(string $propName, array $values): void
     {
         self::addSubjectDNProps($propName, $values);
     }
 
-    /** @psalm-api */
     public function hasDNProp(string $propName): bool
     {
         return self::hasSubjectDNProp($propName);
     }
 
-    /** @psalm-api */
     public function getDNProps(string $propName): array
     {
         return self::getSubjectDNProps($propName);
     }
 
-    /** @psalm-api */
     public function getDN(int $format = self::DN_STRING): array|string
     {
         return self::getSubjectDN($format);
@@ -608,7 +600,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
-    /** @psalm-api */
     public function hasAttribute(string $name): bool
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -622,7 +613,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         return false;
     }
 
-    /** @psalm-api */
     public function hasExtension(string $name): bool
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -663,7 +653,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         ];
     }
 
-    /** @psalm-api */
     public function removeAttribute(string $type): void
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -676,7 +665,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-api */
     public function removeExtension(string $name): void
     {
         if (!isset($this->csr['certificationRequestInfo']['attributes'])) {
@@ -754,7 +742,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setAttribute('pkcs-9-at-challengePassword', [$value]);
     }
 
-    /** @psalm-api */
     public function getChallengePassword(): ?string
     {
         $attr = $this->getAttribute('pkcs-9-at-challengePassword');
@@ -763,8 +750,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Register the mapping for a custom/unsupported extension.
-     *
-     * @psalm-api
      */
     public static function registerExtension(string $id, array $mapping): void
     {
@@ -779,8 +764,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Register the mapping for a custom/unsupported extension.
-     *
-     * @psalm-api
      */
     public static function getRegisteredExtension(string $id): ?array
     {
@@ -828,8 +811,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
      * Returns true if the signature is verified, false if it is not correct or on error
      *
      * The behavior of this function is inspired by {@link http://php.net/openssl-verify openssl_verify}.
-     *
-     * @psalm-api
      */
     public function validateSignature(): bool
     {

@@ -122,8 +122,6 @@ class TwistedEdwards extends Base
 
     /**
      * Returns the a coefficient
-     *
-     * @psalm-api
      */
     public function getA(): PrimeInteger
     {
@@ -132,8 +130,6 @@ class TwistedEdwards extends Base
 
     /**
      * Returns the d coefficient
-     *
-     * @psalm-api
      */
     public function getD(): PrimeInteger
     {

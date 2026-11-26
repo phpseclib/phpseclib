@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\OpenSSL as Progenitor;
  * OpenSSL Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class OpenSSL extends Progenitor
 {

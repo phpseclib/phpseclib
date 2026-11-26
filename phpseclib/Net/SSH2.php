@@ -1047,8 +1047,6 @@ class SSH2
      *
      * Possible $engine values:
      * OpenSSL, Eval, PHP
-     *
-     * @psalm-api
      */
     public static function setCryptoEngine(string $engine): void
     {
@@ -1061,8 +1059,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendIdentificationStringFirst(): void
     {
@@ -1075,8 +1071,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendIdentificationStringLast(): void
     {
@@ -1089,8 +1083,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendKEXINITFirst(): void
     {
@@ -1103,8 +1095,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendKEXINITLast(): void
     {
@@ -2515,8 +2505,6 @@ class SSH2
 
     /**
      * Get the output from stdError
-     *
-     * @psalm-api
      */
     public function getStdError(): string
     {
@@ -2928,7 +2916,6 @@ class SSH2
      * if there's sufficient demand for such a feature.
      *
      * @see self::stopSubsystem()
-     * @psalm-api
      */
     public function startSubsystem(string $subsystem): bool
     {
@@ -2961,8 +2948,6 @@ class SSH2
      * Stops a subsystem.
      *
      * @see self::startSubsystem()
-     *
-     * @psalm-api
      */
     public function stopSubsystem(): void
     {
@@ -4431,8 +4416,6 @@ class SSH2
      * Returns a log of the packets that have been sent and received.
      *
      * Returns a string if NET_SSH2_LOGGING == self::LOG_COMPLEX, an array if NET_SSH2_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
-     *
-     * @psalm-api
      */
     public function getLog(): array|string|null
     {
@@ -4485,8 +4468,6 @@ class SSH2
 
     /**
      * Get Debug Messages
-     *
-     * @psalm-api
      */
     public function getDebugMessages(): array
     {
@@ -4534,8 +4515,6 @@ class SSH2
      * string." The implication is that lines preceeeding the version string are *not* part of the
      * version string. getServerIdentification() returns the server string. This function returns
      * the server string and the lines preceeding it.
-     *
-     * @psalm-api
      */
     public function getRawServerIdentification(): string
     {
@@ -4546,8 +4525,6 @@ class SSH2
 
     /**
      * Returns a list of algorithms the server supports
-     *
-     * @psalm-api
      */
     public function getServerAlgorithms(): array
     {
@@ -4819,8 +4796,6 @@ class SSH2
 
     /**
      * Force multiple channels (even if phpseclib has decided to disable them)
-     *
-     * @psalm-api
      */
     public function forceMultipleChannels(): void
     {
@@ -4829,8 +4804,6 @@ class SSH2
 
     /**
      * Allows you to set the terminal
-     *
-     * @psalm-api
      */
     public function setTerminal(string $term): void
     {
@@ -4948,8 +4921,6 @@ class SSH2
      *
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
-     *
-     * @psalm-api
      */
     public function getBannerMessage(): string
     {
@@ -5044,8 +5015,6 @@ class SSH2
 
     /**
      * Returns the number of columns for the terminal window size.
-     *
-     * @psalm-api
      */
     public function getWindowColumns(): int
     {
@@ -5054,8 +5023,6 @@ class SSH2
 
     /**
      * Returns the number of rows for the terminal window size.
-     *
-     * @psalm-api
      */
     public function getWindowRows(): int
     {
@@ -5064,8 +5031,6 @@ class SSH2
 
     /**
      * Sets the number of columns for the terminal window size.
-     *
-     * @psalm-api
      */
     public function setWindowColumns(int $value): void
     {
@@ -5074,8 +5039,6 @@ class SSH2
 
     /**
      * Sets the number of rows for the terminal window size.
-     *
-     * @psalm-api
      */
     public function setWindowRows(int $value): void
     {
@@ -5084,8 +5047,6 @@ class SSH2
 
     /**
      * Sets the number of columns and rows for the terminal window size.
-     *
-     * @psalm-api
      */
     public function setWindowSize(int $columns = 80, int $rows = 24): void
     {
@@ -5162,8 +5123,6 @@ class SSH2
      * Return the list of authentication methods that may productively continue authentication.
      *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
-     *
-     * @psalm-api
      */
     public function getAuthMethodsToContinue(): ?array
     {
@@ -5172,8 +5131,6 @@ class SSH2
 
     /**
      * Enables "smart" multi-factor authentication (MFA)
-     *
-     * @psalm-api
      */
     public function enableSmartMFA(): void
     {
@@ -5182,8 +5139,6 @@ class SSH2
 
     /**
      * Disables "smart" multi-factor authentication (MFA)
-     *
-     * @psalm-api
      */
     public function disableSmartMFA(): void
     {
@@ -5192,8 +5147,6 @@ class SSH2
 
     /**
      * How many bytes until the next key re-exchange?
-     *
-     * @psalm-api
      */
     public function setBytesUntilKeyReexchange(int $bytes): void
     {

@@ -33,7 +33,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * libsodium Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class libsodium
 {

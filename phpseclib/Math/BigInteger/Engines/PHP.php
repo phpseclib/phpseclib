@@ -22,7 +22,6 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException};
  * Pure-PHP Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  *
  * @method self add(self $y)
  * @method self subtract(self $y)

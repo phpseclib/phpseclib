@@ -348,8 +348,6 @@ abstract class AsymmetricKey
      * Sets the OpenSSL config file path
      *
      * Set to the empty string to use the default config file
-     *
-     * @psalm-api
      */
     public static function setOpenSSLConfigPath(string $path): void
     {
@@ -476,7 +474,6 @@ abstract class AsymmetricKey
      * want to use it at some point
      *
      * @return BigInteger
-     * @psalm-api
      * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function computek(string $h1): BigInteger

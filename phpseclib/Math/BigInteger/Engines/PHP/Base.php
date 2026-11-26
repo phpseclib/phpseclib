@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\PHP;
  * PHP Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Base extends PHP
 {

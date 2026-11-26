@@ -1814,7 +1814,6 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @see self::enableContinuousBuffer()
-     * @psalm-api
      */
     public function disableContinuousBuffer(): void
     {

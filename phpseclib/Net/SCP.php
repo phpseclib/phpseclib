@@ -168,7 +168,6 @@ class SCP extends SSH2
      * If $local_file is defined, writes the file locally and returns null.
      *
      * @param string|resource|null $local_file
-     * @psalm-api
      */
     public function get(string $remote_file, mixed $local_file = null, ?\Closure $progressCallback = null): ?string
     {

@@ -725,8 +725,6 @@ abstract class ASN1
      * Use Encoded Cache
      *
      * The encoded cache is only used when encoding ASN.1 stuff
-     *
-     * @psalm-api
      */
     public static function useEncodedCache(): void
     {
@@ -737,8 +735,6 @@ abstract class ASN1
      * Ignore Encoded Cache
      *
      * The encoded cache is only used when encoding ASN.1 stuff
-     *
-     * @psalm-api
      */
     public static function ignoreEncodedCache(): void
     {
@@ -1506,8 +1502,6 @@ abstract class ASN1
 
     /**
      * Extracts the V part of a TLV DER / BER encoded string
-     *
-     * @psalm-api
      */
     public static function extractValue(string $encoded): string
     {

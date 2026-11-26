@@ -1125,8 +1125,6 @@ class Hash
      * defined as "the KECCAK instance with KECCAK-f[1600] as the underlying permutation and
      * capacity c". This is relevant because, altho the KECCAK standard defines a mode
      * (KECCAK-f[800]) designed for 32-bit machines that mode is incompatible with SHA3
-     *
-     * @psalm-api
      */
     private static function sha3_32(string $p, int $c, int $r, int $d, int $padType): string
     {
@@ -1305,8 +1303,6 @@ class Hash
 
     /**
      * Pure-PHP 64-bit implementation of SHA3
-     *
-     * @psalm-api
      */
     private static function sha3_64(string $p, int $c, int $r, int $d, int $padType): string
     {

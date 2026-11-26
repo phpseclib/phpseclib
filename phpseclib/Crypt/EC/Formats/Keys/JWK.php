@@ -26,7 +26,6 @@ use phpseclib4\Math\BigInteger;
  * JWK Formatted EC Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class JWK extends Progenitor
 {

@@ -24,7 +24,6 @@ use phpseclib4\Math\BigInteger;
  * JWK Formatted RSA Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class JWK extends Progenitor
 {

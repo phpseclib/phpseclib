@@ -73,7 +73,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->tag = $tag;
     }
 
-    /** @psalm-api */
     public function getTag(): int
     {
         return $this->tag;
@@ -719,7 +718,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->invalidateCache();
     }
 
-    /** @psalm-api */
     public function firstKey(): mixed
     {
         if (!$this->mapping) {

@@ -311,8 +311,6 @@ class Identity implements PrivateKey
 
     /**
      * Returns the comment
-     *
-     * @psalm-api
      */
     public function getComment(): ?string
     {

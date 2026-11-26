@@ -29,7 +29,6 @@ use phpseclib4\Math\BigInteger;
  * XML Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class XML
 {

@@ -37,7 +37,6 @@ use phpseclib4\Math\BigInteger\Engines\Engine;
  * numbers.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class BigInteger implements \JsonSerializable
 {

@@ -648,7 +648,6 @@ class Twofish extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::_setupInlineCrypt()
-     * @psalm-api
      */
     protected function setupInlineCrypt(): void
     {

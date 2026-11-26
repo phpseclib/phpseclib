@@ -71,8 +71,6 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Enable binary output (DER)
-     *
-     * @psalm-api
      */
     public static function enableBinaryOutput(): void
     {
@@ -81,15 +79,12 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Disable binary output (ie. enable PEM)
-     *
-     * @psalm-api
      */
     public static function disableBinaryOutput(): void
     {
         self::$binary = false;
     }
 
-    /** @psalm-api */
     public function hasPublicKey(): bool
     {
         return $this->spkac['publicKeyAndChallenge']['spki'] instanceof PublicKey;
@@ -100,7 +95,6 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['publicKeyAndChallenge']['spki'] = $publicKey;
     }
 
-    /** @psalm-api */
     public function removePublicKey(): void
     {
         $this->spkac['publicKeyAndChallenge']['spki'] = [
@@ -160,7 +154,6 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->spkac['publicKeyAndChallenge']['challenge'] = $challenge & str_repeat("\x7F", strlen($challenge));
     }
 
-    /** @psalm-api */
     public function getChallenge(): string
     {
         $this->compile();
@@ -331,7 +324,6 @@ class SPKAC implements \ArrayAccess, \Countable, \Iterator, Signable
         unset($this->spkac[$offset]);
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->spkac instanceof Constructed ? $this->spkac->keys() : array_keys($this->spkac);

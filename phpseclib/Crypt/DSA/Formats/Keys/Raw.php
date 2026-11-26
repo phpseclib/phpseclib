@@ -24,7 +24,6 @@ use phpseclib4\Math\BigInteger;
  * Raw DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Raw
 {

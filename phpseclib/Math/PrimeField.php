@@ -25,7 +25,6 @@ use phpseclib4\Math\PrimeField\Integer;
  * Prime Finite Fields
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class PrimeField extends FiniteField
 {

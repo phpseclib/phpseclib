@@ -44,7 +44,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * "PKCS1" (RFC5915) Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {

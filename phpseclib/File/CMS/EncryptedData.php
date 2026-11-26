@@ -184,13 +184,11 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
-    /** @psalm-api */
     public function getAlgorithm(): string
     {
         return (string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm'];
     }
 
-    /** @psalm-api */
     public function getKey(): string
     {
         return $this->cek;
@@ -749,7 +747,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         $this->cms['content']['originatorInfo']['certs'][] = ['certificate' => $cert];
     }
 
-    /** @psalm-api */
     public function addCRL(CRL $crl): void
     {
         if (!isset($this->cms['content']['recipientInfos'])) {

@@ -32,7 +32,6 @@ use phpseclib4\Math\BigInteger;
  * Raw RSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Raw
 {

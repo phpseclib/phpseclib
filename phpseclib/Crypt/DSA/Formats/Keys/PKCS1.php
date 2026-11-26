@@ -40,7 +40,6 @@ use phpseclib4\Math\BigInteger;
  * PKCS#1 Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {

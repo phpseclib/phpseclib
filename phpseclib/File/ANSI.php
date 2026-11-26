@@ -24,7 +24,6 @@ namespace phpseclib4\File;
  * Pure-PHP ANSI Decoder
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class ANSI
 {

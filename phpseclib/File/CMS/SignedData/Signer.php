@@ -249,7 +249,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-api */
     public function listSignedAttrs(): array
     {
         $names = [];
@@ -259,7 +258,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $names;
     }
 
-    /** @psalm-api */
     public function hasSignedAttr(string $type): bool
     {
         return $this->getSignedAttr($type) !== null;
@@ -289,7 +287,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->signer['signedAttrs'][] = ['type' => $type, 'value' => [$value]];
     }
 
-    /** @psalm-api */
     public function listUnsignedAttrs(): array
     {
         $names = [];
@@ -299,7 +296,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $names;
     }
 
-    /** @psalm-api */
     public function hasUnsignedAttr(string $type): bool
     {
         return $this->getUnsignedAttr($type) !== null;
@@ -316,7 +312,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
-    /** @psalm-api */
     public function setUnsignedAttr(string $type, mixed $value): void
     {
         $this->compile();
@@ -471,7 +466,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms->recalculateHashAlgorithms();
     }
 
-    /** @psalm-api */
     public function validateSignature(bool $caonly = true): bool
     {
         if (count($this->signer['signedAttrs'])) {
@@ -694,7 +688,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->signer->valid();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->signer instanceof Constructed ? $this->signer->keys() : array_keys($this->signer);

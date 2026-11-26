@@ -19,7 +19,6 @@ use phpseclib4\Crypt\EC\BaseCurves\Montgomery;
 use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Math\BigInteger;
 
-/** @psalm-api */
 class Curve448 extends Montgomery
 {
     public const SIZE = 56;

@@ -151,8 +151,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the default hash algorithm
-     *
-     * @psalm-api
      */
     public static function setHashAlgorithm(string $algo): void
     {
@@ -179,8 +177,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the iteration count
-     *
-     * @psalm-api
      */
     public static function setIterationCount(int $count): void
     {
@@ -189,8 +185,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the salt length
-     *
-     * @psalm-api
      */
     public static function setSaltLength(int $length): void
     {
@@ -715,7 +709,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $temp;
     }
 
-    /** @psalm-api */
     public function pfxFromLocalKeyID(string|BaseString $value): self
     {
         $temp = new self();

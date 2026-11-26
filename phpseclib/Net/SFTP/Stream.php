@@ -26,7 +26,6 @@ use phpseclib4\Net\SSH2\MessageType as SSH2MessageType;
  * SFTP Stream Wrapper
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class Stream
 {

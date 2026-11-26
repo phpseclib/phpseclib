@@ -20,7 +20,6 @@ use phpseclib4\Exception\{InvalidStateException, UnexpectedValueException, Unsup
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
-/** @psalm-api */
 class Ed448 extends TwistedEdwards
 {
     public const HASH = 'shake256-912';

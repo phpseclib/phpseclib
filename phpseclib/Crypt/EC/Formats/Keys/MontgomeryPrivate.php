@@ -32,7 +32,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * Montgomery Curve Private Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class MontgomeryPrivate
 {

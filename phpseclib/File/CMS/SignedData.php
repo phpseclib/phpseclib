@@ -419,7 +419,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->createSigner($skeleton);
     }
 
-    /** @psalm-api */
     public function addNakedSigner(X509 $x509, int $type = CMS::ISSUER_AND_DN): Signer
     {
         // When [signedAttrs] is absent, the result is just the message digest of the [the encapContentInfo eContent OCTET STRING].
@@ -510,7 +509,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cms->valid();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->cms instanceof Constructed ? $this->cms->keys() : array_keys($this->cms);
@@ -532,7 +530,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $signers;
     }
 
-    /** @psalm-api */
     public function findSigner(X509 $x509): ?Signer
     {
         $this->compile();
@@ -559,7 +556,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-api */
     public function detach(): void
     {
         $this->fp = null;
@@ -627,7 +623,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $expected == $matches;
     }
 
-    /** @psalm-api */
     public function getEncoded(): string
     {
         $this->compile();

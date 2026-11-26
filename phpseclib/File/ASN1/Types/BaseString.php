@@ -21,7 +21,6 @@ use phpseclib4\Exception\{BadMethodCallException, CharacterConversionException};
  * ASN.1 Base String
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class BaseString implements BaseType
 {

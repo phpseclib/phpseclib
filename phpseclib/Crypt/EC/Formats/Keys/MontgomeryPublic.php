@@ -25,7 +25,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * Montgomery Public Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class MontgomeryPublic
 {

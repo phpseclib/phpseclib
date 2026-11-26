@@ -691,7 +691,6 @@ class Blowfish extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setup()
-     * @psalm-api
      */
     protected function setupInlineCrypt(): void
     {

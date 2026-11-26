@@ -483,8 +483,6 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
-     *
-     * @psalm-api
      */
     public function getSignatureFormat(): string
     {
@@ -520,8 +518,6 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the context
-     *
-     * @psalm-api
      */
     public function getContext(): string
     {

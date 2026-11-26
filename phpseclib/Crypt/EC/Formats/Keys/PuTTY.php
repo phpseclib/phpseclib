@@ -26,7 +26,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * PuTTY Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PuTTY extends Progenitor
 {
