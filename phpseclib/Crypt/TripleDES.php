@@ -247,7 +247,7 @@ class TripleDES extends DES
         // except for: self::MODE_3CBC (inner chaining CBC) with a key > 64bits
 
         // if the key is smaller then 8, do what we'd normally do
-        if ($this->mode_3cbc && strlen($this->key) > 8) {
+        if ($this->mode_3cbc && isset($this->key) && strlen($this->key) > 8) {
             return $this->des[2]->encrypt(
                 $this->des[1]->decrypt(
                     $this->des[0]->encrypt(
@@ -267,7 +267,7 @@ class TripleDES extends DES
      */
     public function decrypt(string $ciphertext): string
     {
-        if ($this->mode_3cbc && strlen($this->key) > 8) {
+        if ($this->mode_3cbc && isset($this->key) && strlen($this->key) > 8) {
             return $this->unpad(
                 $this->des[0]->decrypt(
                     $this->des[1]->encrypt(

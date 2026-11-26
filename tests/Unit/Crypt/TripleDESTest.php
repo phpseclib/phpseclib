@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\Crypt;
 
 use phpseclib4\Crypt\TripleDES;
+use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class TripleDESTest extends PhpseclibTestCase
@@ -188,6 +189,15 @@ class TripleDESTest extends PhpseclibTestCase
             $result = bin2hex($des->encrypt(str_repeat('a', 16)));
             $this->assertEquals($result, $expected, "Failed asserting inner chainin worked correctly in $engine engine");
         }
+    }
+
+    public function testInnerChainingNoKey(): void
+    {
+        $this->expectException(InvalidStateException::class);
+        $des = new TripleDES('3cbc');
+        $des->setIV(str_repeat("\0", 8));
+        // no setKey() call
+        $des->encrypt('zzz');
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('provideForCorrectSelfUseInLambda')]
