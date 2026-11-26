@@ -45,36 +45,51 @@ class SFTPUnitTest extends PhpseclibTestCase
 
     public function testTruncatedRequestIdPacketIsRejectedWithoutBuffering(): void
     {
-        $sftp = (new \ReflectionClass(SFTP::class))->newInstanceWithoutConstructor();
-        $setProperty = static function (string $name, mixed $value) use ($sftp): void {
-            $property = new \ReflectionProperty(SFTP::class, $name);
-            $property->setValue($sftp, $value);
-        };
-        $setProperty('use_request_id', true);
-        $setProperty('packet_buffer', "\0\0\0\x04\x65\x01\x02\x03");
+        $sftp = new class extends SFTP {
+            /**
+             * SFTP packets waiting to be read
+             *
+             * @var list<string>
+             */
+            public array $responses = [];
 
-        $method = new \ReflectionMethod(SFTP::class, 'get_sftp_packet');
-        $warnings = [];
-        set_error_handler(static function (int $severity, string $message) use (&$warnings): bool {
-            $warnings[] = $message;
-            return true;
-        });
+            public function __construct()
+            {
+                parent::__construct('localhost');
 
-        try {
-            try {
-                $method->invoke($sftp, 7);
-                $this->fail('Expected a truncated packet to be rejected');
-            } catch (UnexpectedValueException $e) {
-                $this->assertSame('Packet is too small', $e->getMessage());
+                // what logging in and starting the SFTP subsystem would have set up
+                $this->bitmap = SSH2::MASK_LOGIN;
+                (new \ReflectionProperty(SFTP::class, 'pwd'))->setValue($this, '/home/test');
+                (new \ReflectionProperty(SFTP::class, 'version'))->setValue($this, 3);
+                (new \ReflectionProperty(SFTP::class, 'use_request_id'))->setValue($this, true);
             }
-        } finally {
-            restore_error_handler();
+
+            protected function send_channel_packet(int $client_channel, string $data): void
+            {
+            }
+
+            protected function get_channel_packet(int $client_channel, bool $skip_extended = false): string
+            {
+                if (!count($this->responses)) {
+                    throw new \UnexpectedValueException('No SFTP packet to read');
+                }
+                return array_shift($this->responses);
+            }
+        };
+        $sftp->disableStatCache();
+
+        // a length of 4 leaves no room for the request id that follows the packet type
+        $sftp->responses[] = pack('NC', 4, PacketType::ATTRS) . "\x01\x02\x03";
+        try {
+            $sftp->stat('file.txt');
+            $this->fail('Expected a truncated packet to be rejected');
+        } catch (UnexpectedValueException $e) {
+            $this->assertSame('Packet is too small', $e->getMessage());
         }
 
-        $this->assertSame([], $warnings);
-        $this->assertSame('', (new \ReflectionProperty(SFTP::class, 'packet_buffer'))->getValue($sftp));
-        $this->assertSame(-1, (new \ReflectionProperty(SFTP::class, 'packet_type'))->getValue($sftp));
-        $this->assertSame([], (new \ReflectionProperty(SFTP::class, 'requestBuffer'))->getValue($sftp));
+        // nothing of the truncated packet is left to be read as part of the next one
+        $sftp->responses[] = pack('NCNNJN', 21, PacketType::ATTRS, 1, Attribute::SIZE | Attribute::PERMISSIONS, 5, 0100644);
+        $this->assertSame(5, $sftp->stat('file.txt')['size']);
     }
 
     /**
