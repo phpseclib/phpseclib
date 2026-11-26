@@ -24,14 +24,11 @@ use phpseclib4\Math\BigInteger;
  * JWK Formatted RSA Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class JWK extends Progenitor
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -81,10 +78,12 @@ abstract class JWK extends Progenitor
         }
 
         if ($count == count($vars)) {
+            // @phpstan-ignore variable.undefined ($count reaching 8 means every loop iteration above assigned a $components entry.)
             return $components + ['isPublicKey' => false];
         }
 
         if ($count == 2 && $publicCount == 2) {
+            // @phpstan-ignore variable.undefined ($publicCount reaching 2 means both the 'n' and 'e' arms above assigned $components entries.)
             return $components + ['isPublicKey' => true];
         }
 

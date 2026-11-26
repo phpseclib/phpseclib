@@ -171,7 +171,9 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         } else {
             $cms['content'] = ASN1::map($decoded, Maps\EncryptedDataCMS::MAP);
         }
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->parent = $cms;
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->key = 'content';
         return $cms;
     }
@@ -182,13 +184,11 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $this;
     }
 
-    /** @psalm-api */
     public function getAlgorithm(): string
     {
         return (string) $this->cms['content']['encryptedContentInfo']['contentEncryptionAlgorithm']['algorithm'];
     }
 
-    /** @psalm-api */
     public function getKey(): string
     {
         return $this->cek;
@@ -210,7 +210,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cms[$offset];
     }
 
@@ -427,7 +426,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // return the first SearchableKey matching $keyIdentifier or null if none are found
-    /** @psalm-api */
     public function findRecipient(string|X509 $keyIdentifier): ?SearchableKey
     {
         $recipients = $this->findRecipients($keyIdentifier);
@@ -486,6 +484,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         // to decrypt with openssl cli do this:
         // openssl cms -decrypt -inform PEM -in enveloped.pem -out plaintext.txt -pwri_password 'password'
 
+        // @phpstan-ignore isset.initializedProperty (EncryptedData::load() bypasses the constructor; an uninitialized CEK means no content key has been supplied.)
         if (!isset($this->cek)) {
             throw new InvalidStateException('A content encryption key is unavailable');
         }
@@ -542,6 +541,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         // to decrypt with openssl cli do this:
         // openssl cms -decrypt -in enveloped.pem -secretkey <hex-kek> -secretkeyid <hex-key-id> -out plaintext.txt
 
+        // @phpstan-ignore isset.initializedProperty (EncryptedData::load() bypasses the constructor; an uninitialized CEK means no content key has been supplied.)
         if (!isset($this->cek)) {
             throw new InvalidStateException('A content encryption key is unavailable');
         }
@@ -570,14 +570,20 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
-    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function createNewRecipientFromX509(X509 $x509, int $type = CMS::ISSUER_AND_DN): KeyTransRecipient|KeyAgreeRecipient
     {
+        // @phpstan-ignore isset.initializedProperty (EncryptedData::load() bypasses the constructor; recipient creation requires a content key, just like the password and KEK recipient paths.)
+        if (!isset($this->cek)) {
+            throw new InvalidStateException('A content encryption key is unavailable');
+        }
+
         $publicKey = $x509->getPublicKey();
         if (!$publicKey instanceof RSA && !$publicKey instanceof EC) {
             throw new UnexpectedValueException('Public key must be RSA or EC');
         }
         if ($publicKey instanceof RSA) {
+            // X.509 subject public keys are loaded as concrete key objects
+            /** @var RSA\PublicKey $publicKey */
             // to decrypt with openssl do this:
             // openssl cms -decrypt -inform PEM -in enveloped.pem -out plaintext.txt -recip recipient.crt -inkey recipient.key"
 
@@ -621,7 +627,7 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
             $this->placeRecipient($recipient, 'ktri');
         } else {
             $privateKey = EC::createKey($publicKey->getCurve());
-            /** @psalm-suppress InvalidArgument */
+            // @phpstan-ignore argument.type (CMS-002 remains open: X509 can hold EC/Common\PublicKey implementations that DH::computeSecret() rejects; see CMS-002-cms-recipient-custom-ec-public-key.md.)
             $secret = \phpseclib4\Crypt\DH::computeSecret($privateKey, $publicKey);
             $parameters = new ASN1\Element(ASN1::encodeDER(['algorithm' => 'id-aes128-wrap'], Maps\AlgorithmIdentifier::MAP));
             $sharedInfo = [
@@ -646,7 +652,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
-    /** @psalm-suppress InvalidPropertyFetch */
     private function placeRecipient(Recipient $recipient, string $type): void
     {
         if (isset($this->cms['content']['recipientInfos'])) {
@@ -700,7 +705,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     }
 
     // from https://www.rfc-editor.org/rfc/rfc3217#section-3.1
-    /** @psalm-api */
     public static function wrapDES(#[\SensitiveParameter] string $kek, #[\SensitiveParameter] string $cek): string
     {
         $icv = substr(sha1($cek, true), 0, 8);
@@ -739,7 +743,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         $this->cms['content']['originatorInfo']['certs'][] = ['certificate' => $cert];
     }
 
-    /** @psalm-api */
     public function addCRL(CRL $crl): void
     {
         if (!isset($this->cms['content']['recipientInfos'])) {

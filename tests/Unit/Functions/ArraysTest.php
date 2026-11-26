@@ -41,12 +41,10 @@ IOkKcGQRCMha8X2e7GmlpdWC1ycenlbN0nbVeSv3JUMcafC4+Q==
         $cert = X509::load($cert);
 
         $path = 'tbsCertificate/extensions/*/extnValue/*/distributionPoint/fullName/*/*';
-        /** @psalm-suppress UnusedClosureParam */
         ArrayFunctions::subArrayMapWithWildcards($cert, $path, fn($v) => 'zzz');
         $this->assertEquals('zzz', $cert['tbsCertificate']['extensions'][1]['extnValue'][0]['distributionPoint']['fullName'][0]['uniformResourceIdentifier']);
 
         $path = 'tbsCertificate/subjectPublicKeyInfo/xxx';
-        /** @psalm-suppress UnusedClosureParam */
         ArrayFunctions::subArrayMapWithWildcards($cert, $path, fn($v) => 'zzz');
         $this->assertInstanceOf(PublicKey::class, $cert['tbsCertificate']['subjectPublicKeyInfo']);
     }

@@ -73,7 +73,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->tag = $tag;
     }
 
-    /** @psalm-api */
     public function getTag(): int
     {
         return $this->tag;
@@ -160,7 +159,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
             }
         }
 
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->decoded[$offset];
     }
 
@@ -403,7 +401,9 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             $map[$key] = $candidate;
                             if (isset($rules[$key]) && !$map[$key] instanceof Element) {
                                 if (!is_callable($rules[$key])) {
-                                    $map[$key]->rules = $rules[$key];
+                                    if ($map[$key] instanceof Constructed || $map[$key] instanceof Choice) {
+                                        $map[$key]->rules = $rules[$key];
+                                    }
                                 } else {
                                     $rules[$key]($map[$key]);
                                     $this->rules = [];
@@ -494,7 +494,10 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
                             $map[$key] = self::fillInDefault($child);
                         } elseif (!isset($child['optional'])) {
                             if (ASN1::isBlobsOnBadDecodesEnabled()) {
-                                $map[$key] = new MalformedData($temp['content']);
+                                if (!$decoded) {
+                                    throw new UnexpectedValueException("Unable to find a matching element for $key in the SET");
+                                }
+                                $map[$key] = new MalformedData($decoded[count($decoded) - 1]['content']);
                                 break;
                             }
                             throw new UnexpectedValueException("Unable to find a matching element for $key in the SET");
@@ -714,7 +717,6 @@ class Constructed implements \ArrayAccess, \Countable, \Iterator, BaseType
         $this->invalidateCache();
     }
 
-    /** @psalm-api */
     public function firstKey(): mixed
     {
         if (!$this->mapping) {

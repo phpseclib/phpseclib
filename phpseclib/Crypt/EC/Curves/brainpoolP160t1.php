@@ -31,7 +31,6 @@ namespace phpseclib4\Crypt\EC\Curves;
 use phpseclib4\Crypt\EC\BaseCurves\Prime;
 use phpseclib4\Math\BigInteger;
 
-/** @psalm-api */
 class brainpoolP160t1 extends Prime
 {
     public function __construct()

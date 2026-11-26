@@ -32,6 +32,26 @@ use phpseclib4\Tests\PhpseclibTestCase;
 
 class ASN1Test extends PhpseclibTestCase
 {
+    public function testEncodeTimeValuesInGMTWithoutMutatingSource(): void
+    {
+        foreach (
+            [
+                new \DateTime('2026-01-01T12:00:00+02:00'),
+                new \DateTimeImmutable('2026-01-01T12:00:00+02:00'),
+            ] as $date
+        ) {
+            $this->assertSame(
+                hex2bin('180f32303236303130313130303030305a'),
+                ASN1::encodeDER($date, ['type' => ASN1::TYPE_GENERALIZED_TIME])
+            );
+            $this->assertSame(
+                hex2bin('170d3236303130313130303030305a'),
+                ASN1::encodeDER($date, ['type' => ASN1::TYPE_UTC_TIME])
+            );
+            $this->assertSame('+02:00', $date->format('P'));
+        }
+    }
+
     /**
      * on older versions of \phpseclib4\File\ASN1 this would yield a PHP Warning
      */
@@ -99,7 +119,7 @@ class ASN1Test extends PhpseclibTestCase
                '+zoEIxqgXjGgPdrWkzU/H6rnXiqMtiZZqUXwWY0zkCmy';
 
         $decoded = ASN1::decodeBER(base64_decode($str));
-        $result = ASN1::map($decoded, $AS_REP)->toArray();
+        $result = ASN1::map($decoded, $AS_REP)->toArray(); // @phpstan-ignore method.notFound
 
         $this->assertIsArray($result);
     }
@@ -256,7 +276,7 @@ class ASN1Test extends PhpseclibTestCase
         ASN1::enableBlobsOnBadDecodes();
 
         $decoded = ASN1::decodeBER(base64_decode($str));
-        $result = ASN1::map($decoded, $AS_REP)->toArray();
+        $result = ASN1::map($decoded, $AS_REP)->toArray(); // @phpstan-ignore method.notFound
 
         $this->assertIsArray($result);
         $this->assertCount(3, $result);
@@ -372,7 +392,7 @@ class ASN1Test extends PhpseclibTestCase
 
         $a = pack('H*', '3026a011180f32303137303432313039303535305aa111180f32303138303432313230353935395a');
         $a = ASN1::decodeBER($a);
-        $a = ASN1::map($a, $map)->toArray();
+        $a = ASN1::map($a, $map)->toArray(); // @phpstan-ignore method.notFound
 
         $this->assertIsArray($a);
     }
@@ -447,15 +467,14 @@ class ASN1Test extends PhpseclibTestCase
 
     /**
      * Test that an exception is thrown on bad decodes
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('badDecodes')]
     public function testExceptionsOnBadDecodes(string $data, array $map, ?string $path, ?string $key): void
     {
         $this->expectException(\Exception::class);
         $decoded = ASN1::decodeBER(pack('H*', $data));
-        ASN1::map($decoded, $map)->toArray();
+        // badDecodes supplies DigestInfo::MAP; preserve the negative-path exception test.
+        ASN1::map($decoded, $map)->toArray(); // @phpstan-ignore method.notFound
     }
 
     /**
@@ -478,13 +497,134 @@ class ASN1Test extends PhpseclibTestCase
         $this->assertInstanceOf(MalformedData::class, $result);
     }
 
+    public function testBlobsOnBadDecodesMissingRequiredSetChildThrowsControlledException(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+
+        ASN1::enableBlobsOnBadDecodes();
+        $this->expectException(\phpseclib4\Exception\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Unable to find a matching element for value in the SET');
+
+        try {
+            $result = ASN1::map(ASN1::decodeBER("\x31\x00"), $map);
+            $this->assertInstanceOf(Constructed::class, $result);
+            $result->toArray();
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
+    }
+
+    public function testBlobsOnBadDecodesRequiredSetChild(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+
+        ASN1::enableBlobsOnBadDecodes();
+        try {
+            $constructed = ASN1::map(ASN1::decodeBER("\x31\x03\x02\x01\x05"), $map);
+            $this->assertInstanceOf(Constructed::class, $constructed);
+            $result = $constructed->toArray();
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
+
+        $this->assertSame('5', (string) $result['value']);
+    }
+
+    public function testDescendantRulesAreNotAssignedToPrimitiveValues(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SEQUENCE,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+        $deprecations = [];
+        set_error_handler(static function (int $severity, string $message) use (&$deprecations): bool {
+            if ($severity === E_DEPRECATED) {
+                $deprecations[] = $message;
+                return true;
+            }
+            return false;
+        });
+
+        try {
+            $constructed = ASN1::map(
+                ASN1::decodeBER(hex2bin('3003020105')),
+                $map,
+                ['value' => ['nested' => []]]
+            );
+            $this->assertInstanceOf(Constructed::class, $constructed);
+            $value = $constructed['value'];
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame('5', (string) $value);
+        $this->assertFalse(property_exists($value, 'rules'));
+        $this->assertSame([], $deprecations);
+    }
+
+    public function testBlobsOnBadDecodesMissingOptionalSetChild(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => [
+                    'optional' => true,
+                    'type' => ASN1::TYPE_INTEGER,
+                ],
+            ],
+        ];
+
+        ASN1::enableBlobsOnBadDecodes();
+        try {
+            $constructed = ASN1::map(ASN1::decodeBER("\x31\x00"), $map);
+            $this->assertInstanceOf(Constructed::class, $constructed);
+            $result = $constructed->toArray();
+        } finally {
+            ASN1::disableBlobsOnBadDecodes();
+        }
+
+        $this->assertSame([], $result);
+    }
+
+    public function testStrictModeMissingRequiredSetChildThrowsSchemaException(): void
+    {
+        $map = [
+            'type' => ASN1::TYPE_SET,
+            'children' => [
+                'value' => ['type' => ASN1::TYPE_INTEGER],
+            ],
+        ];
+
+        ASN1::disableBlobsOnBadDecodes();
+        $this->expectException(\phpseclib4\Exception\UnexpectedValueException::class);
+        $this->expectExceptionMessage('Unable to find a matching element for value in the SET');
+
+        $result = ASN1::map(ASN1::decodeBER("\x31\x00"), $map);
+        $this->assertInstanceOf(Constructed::class, $result);
+        $result->toArray();
+    }
+
     #[\PHPUnit\Framework\Attributes\Group('github2104')]
     public function testBadBigInteger(): void
     {
         $this->expectException(\Exception::class);
         $key = pack('H*', 'a309486df62e19383a7faecd02423d44fb28773f36403f8a5e3c45f62549c855');
         $decoded = ASN1::decodeBER($key);
-        ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray();
+        // Preserve the owner's intentional malformed-input exception-path expression.
+        // The primitive-map success-path toArray() contract is not asserted as valid.
+        ASN1::map($decoded, \phpseclib4\File\ASN1\Maps\DSAPublicKey::MAP)->toArray(); // @phpstan-ignore method.notFound
     }
 
     public function testChoiceDecode(): void
@@ -592,14 +732,14 @@ cKVMm1WnOQd4aQgCvzv2r7/gsdX++496vRpBMTfwa1qLBjG6
         // SEQUENCE { [2] EXPLICIT { [0] IMPLICIT SEQUENCE { INTEGER 5 } } }
         $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa2\x05\xa0\x03\x02\x01\x05"), $map);
 
-        $this->assertSame(['second'], $result->keys());
+        $this->assertSame(['second'], $result->keys()); // @phpstan-ignore method.notFound (The fixed SEQUENCE map decodes this valid fixture to a Constructed value.)
         $this->assertSame('alpha', $result['second']->index);
         $this->assertSame('5', (string) $result['second']['alpha']['n']);
 
         // ...and the [1] sibling still resolves to itself
         $result = ASN1::map(ASN1::decodeBER("\x30\x07\xa1\x05\xa0\x03\x02\x01\x05"), $map);
 
-        $this->assertSame(['first'], $result->keys());
+        $this->assertSame(['first'], $result->keys()); // @phpstan-ignore method.notFound (The same fixed SEQUENCE map decodes this valid sibling fixture to a Constructed value.)
     }
 
     /**
@@ -653,7 +793,7 @@ MDAyIDQzMzk5ODkwMzEVMBMGA1UEBRMMMjQ5NzEyS0pNOTgwMTUwMwYDVQQDDCxD
 RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
 
         $decoded = ASN1::decodeBER($sample);
-        $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray();
+        $result = ASN1::map($decoded, Maps\TSTInfo::MAP)->toArray(); // @phpstan-ignore method.notFound
         $this->assertIsArray($result);
     }
 
@@ -978,10 +1118,10 @@ RVJUSU5PTUlTX1VOSVRFX0hPUk9EQVRBR0VfODE2MTBfMDA1MDAwMDQyMA==');
         // KeyUsage (9 named bits) encoded in 16 bits with digitalSignature and keyCertSign set:
         // array_fill() got a negative count, a ValueError
         // the same as the minimal encoding 03 02 02 84; bits past the names are ignored
-        $minimal = ASN1::map(ASN1::decodeBER(hex2bin('03020284')), Maps\KeyUsage::MAP)->toArray();
+        $minimal = ASN1::map(ASN1::decodeBER(hex2bin('03020284')), Maps\KeyUsage::MAP)->toArray(); // @phpstan-ignore method.notFound
         $this->assertSame(['keyCertSign', 'digitalSignature'], $minimal);
-        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0303008400')), Maps\KeyUsage::MAP)->toArray());
-        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0304008400ff')), Maps\KeyUsage::MAP)->toArray());
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0303008400')), Maps\KeyUsage::MAP)->toArray()); // @phpstan-ignore method.notFound
+        $this->assertSame($minimal, ASN1::map(ASN1::decodeBER(hex2bin('0304008400ff')), Maps\KeyUsage::MAP)->toArray()); // @phpstan-ignore method.notFound
     }
 
     public function testNamedBitStringWithoutUnusedBitsOctet(): void

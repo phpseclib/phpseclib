@@ -25,7 +25,6 @@ namespace phpseclib4\Math\BigInteger\Engines;
  * BCMath64 Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class BCMath64 extends BCMath
 {

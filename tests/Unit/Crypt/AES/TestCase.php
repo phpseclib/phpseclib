@@ -12,6 +12,7 @@ namespace phpseclib4\Tests\Unit\Crypt\AES;
 
 use phpseclib4\Crypt\AES;
 use phpseclib4\Crypt\Rijndael;
+use phpseclib4\Exception\BadDecryptionException;
 use phpseclib4\Exception\InvalidStateException;
 use phpseclib4\Exception\LengthException;
 use phpseclib4\Exception\ResourceLimitException;
@@ -88,6 +89,66 @@ abstract class TestCase extends PhpseclibTestCase
         }
 
         $this->assertEquals($plaintext, $actual);
+    }
+
+    public function testPoly1305Decrypt(): void
+    {
+        $key = str_repeat('K', 16);
+        $iv = str_repeat('I', 16);
+        $poly1305Key = str_repeat('M', 32);
+
+        foreach (['authenticated plaintext', ''] as $plaintext) {
+            $encryptor = new AES('ctr');
+            $encryptor->setPreferredEngine($this->engine);
+            $encryptor->setKey($key);
+            $encryptor->setIV($iv);
+            $encryptor->setPoly1305Key($poly1305Key);
+            $ciphertext = $encryptor->encrypt($plaintext);
+            $encryptor->enablePoly1305();
+            $tag = $encryptor->getTag();
+
+            $decryptor = new AES('ctr');
+            $decryptor->setPreferredEngine($this->engine);
+            $decryptor->setKey($key);
+            $decryptor->setIV($iv);
+            $decryptor->setPoly1305Key($poly1305Key);
+            $decryptor->setTag($tag);
+
+            $this->_checkEngine($decryptor);
+            $this->assertSame($plaintext, $decryptor->decrypt($ciphertext));
+
+            if ($plaintext !== '') {
+                $invalidDecryptor = new AES('ctr');
+                $invalidDecryptor->setPreferredEngine($this->engine);
+                $invalidDecryptor->setKey($key);
+                $invalidDecryptor->setIV($iv);
+                $invalidDecryptor->setPoly1305Key($poly1305Key);
+                $invalidDecryptor->setTag(str_repeat("\0", 16));
+                $this->_checkEngine($invalidDecryptor);
+
+                $rejected = false;
+                try {
+                    $invalidDecryptor->decrypt($ciphertext);
+                } catch (BadDecryptionException) {
+                    $rejected = true;
+                }
+                $this->assertTrue($rejected, 'An incorrect Poly1305 tag must be rejected');
+            }
+        }
+    }
+
+    public function testBcryptPasswordUsesDefaultKeyLength(): void
+    {
+        $encryptor = new AES('ctr');
+        $encryptor->setPreferredEngine($this->engine);
+        $encryptor->setPassword('password', 'bcrypt', 'salt');
+        $ciphertext = $encryptor->encrypt('password-derived key');
+
+        $decryptor = new AES('ctr');
+        $decryptor->setPreferredEngine($this->engine);
+        $decryptor->setPassword('password', 'bcrypt', 'salt');
+
+        $this->assertSame('password-derived key', $decryptor->decrypt($ciphertext));
     }
 
     #[\PHPUnit\Framework\Attributes\Group('github451')]
@@ -417,6 +478,101 @@ abstract class TestCase extends PhpseclibTestCase
         $aes->setIV(str_repeat('x', 16));
 
         $aes->encrypt(str_repeat('a', 16));
+    }
+
+    public function testNoIVRepeatedEncryptAndDecrypt(): void
+    {
+        $aes = new AES('cbc');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey(str_repeat('x', 16));
+        $this->_checkEngine($aes);
+
+        for ($i = 0; $i < 2; ++$i) {
+            $this->assertMissingIVException(fn () => $aes->encrypt('x'));
+        }
+
+        $aes = new AES('cbc');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey(str_repeat('x', 16));
+        $this->_checkEngine($aes);
+
+        for ($i = 0; $i < 2; ++$i) {
+            $this->assertMissingIVException(fn () => $aes->decrypt(str_repeat('x', 16)));
+        }
+    }
+
+    public function testNoIVSetupFailureCanRecoverForEncryption(): void
+    {
+        $aes = new AES('cbc');
+        $aes->setPreferredEngine($this->engine);
+        $aes->setKey(str_repeat('x', 16));
+        $this->_checkEngine($aes);
+
+        $this->assertMissingIVException(fn () => $aes->encrypt('x'));
+        $this->assertMissingIVException(fn () => $aes->encrypt('x'));
+
+        $aes->setIV(str_repeat('y', 16));
+        $plaintext = 'retry after failed encryption setup';
+        $this->assertSame($plaintext, $aes->decrypt($aes->encrypt($plaintext)));
+    }
+
+    public function testNoIVSetupFailureCanRecoverForDecryption(): void
+    {
+        $key = str_repeat('x', 16);
+        $iv = str_repeat('y', 16);
+        $plaintext = 'retry after failed decryption setup';
+
+        $encryptor = new AES('cbc');
+        $encryptor->setPreferredEngine($this->engine);
+        $encryptor->setKey($key);
+        $encryptor->setIV($iv);
+        $this->_checkEngine($encryptor);
+        $ciphertext = $encryptor->encrypt($plaintext);
+
+        $decryptor = new AES('cbc');
+        $decryptor->setPreferredEngine($this->engine);
+        $decryptor->setKey($key);
+        $this->_checkEngine($decryptor);
+
+        $this->assertMissingIVException(fn () => $decryptor->decrypt($ciphertext));
+        $this->assertMissingIVException(fn () => $decryptor->decrypt($ciphertext));
+
+        $decryptor->setIV($iv);
+        $this->assertSame($plaintext, $decryptor->decrypt($ciphertext));
+    }
+
+    public function testRijndaelSetupFailureRemainsRetryable(): void
+    {
+        $rijndael = new Rijndael('cbc');
+        $rijndael->setPreferredEngine('PHP');
+        $rijndael->setKey(str_repeat('x', 16));
+        $rijndael->setIV(str_repeat('y', 16));
+        $rijndael->setBlockLength(192);
+
+        for ($i = 0; $i < 2; ++$i) {
+            try {
+                $rijndael->encrypt('x');
+                self::fail('Expected an IV length exception for the old IV');
+            } catch (LengthException $e) {
+                $this->assertSame('The IV length (16) does not match the block size (24)', $e->getMessage());
+            }
+        }
+
+        $rijndael->setIV(str_repeat('z', 24));
+        $plaintext = 'retry after Rijndael setup failure';
+        $this->assertSame($plaintext, $rijndael->decrypt($rijndael->encrypt($plaintext)));
+    }
+
+    private function assertMissingIVException(callable $operation): void
+    {
+        try {
+            $operation();
+        } catch (InvalidStateException $e) {
+            $this->assertSame('No IV has been defined - call setIV() first', $e->getMessage());
+            return;
+        }
+
+        self::fail('Expected an InvalidStateException for the missing IV');
     }
 
     public function testMiscFunctions(): void

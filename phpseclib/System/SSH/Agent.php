@@ -168,7 +168,7 @@ class Agent
                 case 'ecdsa-sha2-nistp256':
                 case 'ecdsa-sha2-nistp384':
                 case 'ecdsa-sha2-nistp521':
-                    $key = PublicKeyLoader::load($key_type . ' ' . base64_encode($key_blob));
+                    $key = PublicKeyLoader::loadPublicKey($key_type . ' ' . base64_encode($key_blob));
             }
             // resources are passed by reference by default
             if (isset($key)) {
@@ -186,8 +186,6 @@ class Agent
 
     /**
      * Returns the SSH Agent identity matching a given public key or null if no identity is found
-     *
-     * @psalm-api
      */
     public function findIdentityByPublicKey(PublicKey&AsymmetricKey $key): ?Identity
     {
@@ -205,8 +203,6 @@ class Agent
     /**
      * Signal that agent forwarding should
      * be requested when a channel is opened
-     *
-     * @psalm-api
      */
     public function startSSHForwarding(): void
     {
@@ -217,8 +213,6 @@ class Agent
 
     /**
      * Request agent forwarding of remote server
-     *
-     * @psalm-suppress UnusedReturnValue
      */
     private function request_forwarding(SSH2 $ssh): bool
     {

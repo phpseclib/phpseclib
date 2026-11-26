@@ -6,6 +6,7 @@ namespace phpseclib4\Tests\Unit\Net;
 
 use phpseclib4\Common\Functions\Strings;
 use phpseclib4\Exception\ConnectionClosedException;
+use phpseclib4\Exception\UnexpectedValueException;
 use phpseclib4\Net\SFTP;
 use phpseclib4\Net\SFTP\Attribute;
 use phpseclib4\Net\SFTP\PacketType;
@@ -40,6 +41,55 @@ class SFTPUnitTest extends PhpseclibTestCase
             $sftp->rawlist('.', true),
             'Failed asserting that an interrupted recursive rawlist() does not affect later ones'
         );
+    }
+
+    public function testTruncatedRequestIdPacketIsRejectedWithoutBuffering(): void
+    {
+        $sftp = new class extends SFTP {
+            /**
+             * SFTP packets waiting to be read
+             *
+             * @var list<string>
+             */
+            public array $responses = [];
+
+            public function __construct()
+            {
+                parent::__construct('localhost');
+
+                // what logging in and starting the SFTP subsystem would have set up
+                $this->bitmap = SSH2::MASK_LOGIN;
+                (new \ReflectionProperty(SFTP::class, 'pwd'))->setValue($this, '/home/test');
+                (new \ReflectionProperty(SFTP::class, 'version'))->setValue($this, 3);
+                (new \ReflectionProperty(SFTP::class, 'use_request_id'))->setValue($this, true);
+            }
+
+            protected function send_channel_packet(int $client_channel, string $data): void
+            {
+            }
+
+            protected function get_channel_packet(int $client_channel, bool $skip_extended = false): string
+            {
+                if (!count($this->responses)) {
+                    throw new \UnexpectedValueException('No SFTP packet to read');
+                }
+                return array_shift($this->responses);
+            }
+        };
+        $sftp->disableStatCache();
+
+        // a length of 4 leaves no room for the request id that follows the packet type
+        $sftp->responses[] = pack('NC', 4, PacketType::ATTRS) . "\x01\x02\x03";
+        try {
+            $sftp->stat('file.txt');
+            $this->fail('Expected a truncated packet to be rejected');
+        } catch (UnexpectedValueException $e) {
+            $this->assertSame('Packet is too small', $e->getMessage());
+        }
+
+        // nothing of the truncated packet is left to be read as part of the next one
+        $sftp->responses[] = pack('NCNNJN', 21, PacketType::ATTRS, 1, Attribute::SIZE | Attribute::PERMISSIONS, 5, 0100644);
+        $this->assertSame(5, $sftp->stat('file.txt')['size']);
     }
 
     /**
@@ -115,7 +165,7 @@ class SFTPUnitTest extends PhpseclibTestCase
                 }
             }
 
-            protected function get_channel_packet(int $client_channel, bool $skip_extended = false): string|bool
+            protected function get_channel_packet(int $client_channel, bool $skip_extended = false): string
             {
                 if (!count($this->responses)) {
                     throw new \UnexpectedValueException('No SFTP packet to read');

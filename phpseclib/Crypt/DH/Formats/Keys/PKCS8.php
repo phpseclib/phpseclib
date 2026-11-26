@@ -31,7 +31,6 @@ use phpseclib4\Math\BigInteger;
  * PKCS#8 Formatted DH Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -70,7 +69,7 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER($key[$type . 'Algorithm']['parameters']->value);
-        $components = ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
+        $components = ASN1::map($decoded, Maps\DHParameter::MAP)->toArray(); // @phpstan-ignore method.notFound
 
         $decoded = ASN1::decodeBER((string) $key[$type]);
         if (!$decoded['content'] instanceof BigInteger) {
@@ -83,8 +82,6 @@ abstract class PKCS8 extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $prime,

@@ -26,7 +26,6 @@ use phpseclib4\Math\BigInteger;
  * ASN1 Signature Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class IEEE
 {
@@ -48,8 +47,6 @@ abstract class IEEE
 
     /**
      * Returns a signature in the appropriate format
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function save(BigInteger $r, BigInteger $s, string $curve, int $length): string
     {

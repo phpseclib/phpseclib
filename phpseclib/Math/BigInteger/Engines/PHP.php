@@ -22,7 +22,12 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException};
  * Pure-PHP Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
+ *
+ * @method self add(self $y)
+ * @method self subtract(self $y)
+ * @method self multiply(self $x)
+ * @method array{self, self} divide(self $y)
+ * @method ?self modInverse(self $n)
  */
 abstract class PHP extends Engine
 {
@@ -81,7 +86,7 @@ abstract class PHP extends Engine
     /**
      * Default constructor
      *
-     * @param mixed $x integer Base-10 number or base-$base number if $base set.
+     * @param int|string|\GMP $x integer Base-10 number or base-$base number if $base set.
      * @see parent::__construct()
      */
     public function __construct(int|string|\GMP $x = 0, int $base = 10)
@@ -488,7 +493,9 @@ abstract class PHP extends Engine
      * same.  If the remainder would be negative, the "common residue" is equal to the sum of the remainder
      * and the divisor (basically, the "common residue" is the first positive modulo).
      *
-     * @return array{static, static}
+     * @template T of PHP
+     * @param T $y
+     * @return array{static, static|T}
      * @internal This function is based off of
      *     {@link http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf#page=9 HAC 14.20}.
      */
@@ -704,7 +711,9 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros and truncates (if necessary) to maintain the appropriate precision
      *
-     * @return static
+     * @template T of PHP
+     * @param T $result
+     * @return T
      */
     protected function normalize(PHP $result): PHP
     {
@@ -780,8 +789,8 @@ abstract class PHP extends Engine
      *
      * Removes leading zeros
      *
-     * @param list<static> $value
-     * @return list<static>
+     * @param list<int> $value
+     * @return list<int>
      */
     protected static function trim(array $value): array
     {
@@ -923,8 +932,8 @@ abstract class PHP extends Engine
     /**
      * Performs squaring
      *
-     * @param list<static> $x
-     * @return list<static>
+     * @param list<int> $x
+     * @return list<int>
      */
     protected static function square(array $x): array
     {
@@ -1061,6 +1070,7 @@ abstract class PHP extends Engine
                 break;
             }
         }
+        // @phpstan-ignore variable.undefined (BI-007 remains open for zero input: no inner iteration initializes $j, and the public zero contract is undefined. See BI-007-biginteger-zero-input-contracts.md.)
         $s = static::BASE * $i + $j;
         $r->rshift($s);
         return $s;
@@ -1182,11 +1192,13 @@ abstract class PHP extends Engine
                 }
                 $newbits = 0;
                 for ($j = count($digit) - 1; $j >= 0; $j--) {
+                    // @phpstan-ignore variable.undefined (Nonzero overflow follows a mask assignment; zero overflow returns to the first arm before another read.)
                     $temp = $digit[$j] & $mask;
                     $digit[$j] = ($digit[$j] >> $overflow) | ($newbits << $remaining);
                     $newbits = $temp;
                 }
                 $overflow = $tempoverflow;
+                // @phpstan-ignore variable.undefined (BI-002 remains an open runtime defect; suppress only this tracked read. See BI-002-bitwise-split-incorrect-results.md.)
                 $mask = $tempmask;
             }
             $temp = new static();
@@ -1251,7 +1263,6 @@ abstract class PHP extends Engine
           xdebug.start_with_request=yes
           xdebug.output_dir=/path/to/whatever
         */
-        /** @psalm-suppress InvalidArrayOffset */
         while (count($vals) && $vals[count($vals) - 1] == 0) {
             unset($vals[count($vals) - 1]);
         }

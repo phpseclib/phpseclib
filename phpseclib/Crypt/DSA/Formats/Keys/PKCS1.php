@@ -40,7 +40,6 @@ use phpseclib4\Math\BigInteger;
  * PKCS#1 Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -56,12 +55,12 @@ abstract class PKCS1 extends Progenitor
         $decoded = ASN1::decodeBER($key);
 
         try {
-            return ASN1::map($decoded, Maps\DSAParams::MAP)->toArray();
+            return ASN1::map($decoded, Maps\DSAParams::MAP)->toArray(); // @phpstan-ignore method.notFound
         } catch (\Exception) {
         }
 
         try {
-            $key = ASN1::map($decoded, Maps\DSAPrivateKey::MAP)->toArray();
+            $key = ASN1::map($decoded, Maps\DSAPrivateKey::MAP)->toArray(); // @phpstan-ignore method.notFound
             if ($key['version']->toString() !== '0') {
                 throw new UnsupportedValueException('DSA Private Keys only work when the version number is 0');
             }
@@ -144,8 +143,6 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(
         BigInteger $p,

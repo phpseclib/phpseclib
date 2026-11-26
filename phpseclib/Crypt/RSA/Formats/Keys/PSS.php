@@ -34,7 +34,6 @@ use phpseclib4\Math\BigInteger;
  * PKCS#8 Formatted RSA-PSS Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PSS extends Progenitor
 {

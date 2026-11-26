@@ -320,6 +320,7 @@ abstract class Strings
                 $p1 = ($b * 0x0802) & 0x22110;
                 $p2 = ($b * 0x8020) & 0x88440;
                 $temp = ($p1 | $p2) * 0x10101;
+                // @phpstan-ignore function.impossibleType (On 32-bit PHP this product exceeds PHP_INT_MAX and is promoted to float; preserve the byte-reversal fallback.)
                 if (is_float($temp)) {
                     $temp = (int) fmod($temp, 0x7FFFFFFF);
                 }
@@ -371,7 +372,7 @@ abstract class Strings
     /**
      * Find whether the type of a variable is string (or could be converted to one)
      *
-     * @psalm-assert-if-true string|\Stringable $var
+     * @phpstan-assert-if-true string|\Stringable $var
      */
     public static function is_stringable(mixed $var): bool
     {

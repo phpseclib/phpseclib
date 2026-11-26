@@ -109,7 +109,7 @@ trait Common
                 case 'characteristic-two-field':
                     $curve = new BinaryCurve();
                     $params = ASN1::decodeBER($data['fieldID']['parameters']->value);
-                    $params = ASN1::map($params, Maps\Characteristic_two::MAP)->toArray();
+                    $params = ASN1::map($params, Maps\Characteristic_two::MAP)->toArray(); // @phpstan-ignore method.notFound
                     $modulo = [(int) $params['m']->toString()];
                     switch ($params['basis']) {
                         case 'tpBasis':
@@ -117,7 +117,7 @@ trait Common
                             break;
                         case 'ppBasis':
                             $temp = ASN1::decodeBER($params['parameters']->value);
-                            $temp = ASN1::map($temp, Maps\Pentanomial::MAP)->toArray();
+                            $temp = ASN1::map($temp, Maps\Pentanomial::MAP)->toArray(); // @phpstan-ignore method.notFound
                             $modulo[] = (int) $temp['k3']->toString();
                             $modulo[] = (int) $temp['k2']->toString();
                             $modulo[] = (int) $temp['k1']->toString();
@@ -162,7 +162,7 @@ trait Common
             if ($y->compare($curve->getModulo()) >= 0) {
                 throw new UnexpectedValueException('The Y coordinate should not be >= the modulo');
             }
-            $point = $curve->recoverX($y, $sign);
+            $point = $curve->recoverX($y, $sign); // @phpstan-ignore method.notFound (Concrete Ed25519/Ed448 curves provide recoverX().)
             if (!$curve->verifyPoint($point)) {
                 throw new UnexpectedValueException('Unable to verify that point exists on curve');
             }
@@ -182,7 +182,7 @@ trait Common
         $order = $curve->getLengthInBytes();
         // point compression is being used
         if ($keylen == $order + 1) {
-            return $curve->derivePoint($str);
+            return $curve->derivePoint($str); // @phpstan-ignore method.notFound (Earlier family checks leave Prime/Binary implementations, which provide derivePoint().)
         }
 
         // point compression is not being used
@@ -197,7 +197,7 @@ trait Common
                 $curve->convertInteger(new BigInteger($y, 256)),
             ];
 
-            if (!$curve->verifyPoint($point)) {
+            if (!$curve->verifyPoint($point)) { // @phpstan-ignore method.notFound (The guarded point-decoding path uses families implementing verifyPoint().)
                 throw new UnexpectedValueException('Unable to verify that point exists on curve');
             }
 
@@ -244,13 +244,13 @@ trait Common
                         if (!$candidate instanceof PrimeCurve) {
                             break;
                         }
-                        if (!$candidate->getModulo()->equals($curve->getModulo())) {
+                        if (!$candidate->getModulo()->equals($curve->getModulo())) { // @phpstan-ignore method.notFound (BI-014: internal specified-curve decoding supplies the built-in Prime class here, which defines getModulo().)
                             break;
                         }
-                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) {
+                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) { // @phpstan-ignore method.notFound (BI-014: internal specified-curve decoding supplies the built-in Prime class here, which defines getA().)
                             break;
                         }
-                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) {
+                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) { // @phpstan-ignore method.notFound (BI-014: internal specified-curve decoding supplies the built-in Prime class here, which defines getB().)
                             break;
                         }
 
@@ -270,13 +270,13 @@ trait Common
                         if (!$candidate instanceof BinaryCurve) {
                             break;
                         }
-                        if ($candidate->getModulo() != $curve->getModulo()) {
+                        if ($candidate->getModulo() != $curve->getModulo()) { // @phpstan-ignore method.notFound (BI-014: internal specified-curve decoding supplies the built-in Binary class here, which defines getModulo().)
                             break;
                         }
-                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) {
+                        if ($candidate->getA()->toBytes() != $curve->getA()->toBytes()) { // @phpstan-ignore method.notFound (BI-014: internal specified-curve decoding supplies the built-in Binary class here, which defines getA().)
                             break;
                         }
-                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) {
+                        if ($candidate->getB()->toBytes() != $curve->getB()->toBytes()) { // @phpstan-ignore method.notFound (BI-014: internal specified-curve decoding supplies the built-in Binary class here, which defines getB().)
                             break;
                         }
 
@@ -415,7 +415,7 @@ trait Common
             //$r = pack('H*', '0900000000000000000000000000000000000000000000000000000000000000');
             //$QA = sodium_crypto_scalarmult($dA->toBytes(), $r);
             $QA = sodium_crypto_box_publickey_from_secretkey(str_pad($dA->toBytes(), 32, chr(0), STR_PAD_LEFT));
-            return [$components['curve']->convertInteger(new BigInteger(strrev($QA), 256))];
+            return [$components['curve']->convertInteger(new BigInteger(strrev($QA), 256))]; // @phpstan-ignore return.type (fixed callers use Curve25519/Curve448; Base::convertInteger() exposes only the common integer type)
         }
 
         $useOpenSSL = !isset($forcedEngine) && function_exists('openssl_pkey_get_private');

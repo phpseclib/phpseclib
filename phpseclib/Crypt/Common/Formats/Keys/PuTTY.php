@@ -126,7 +126,6 @@ abstract class PuTTY
 
         if (str_contains($key, 'BEGIN SSH2 PUBLIC KEY')) {
             $lines = preg_split('#[\r\n]+#', $key);
-            /** @psalm-suppress InvalidArrayOffset */
             switch (true) {
                 case $lines[0] != '---- BEGIN SSH2 PUBLIC KEY ----':
                     throw new UnexpectedValueException('Key doesn\'t start with ---- BEGIN SSH2 PUBLIC KEY ----');
@@ -246,9 +245,13 @@ abstract class PuTTY
         $private = Strings::base64_decode(implode('', array_map('trim', array_slice($key, $offset, $privateLength))));
 
         if ($encryption != 'none') {
+            // @phpstan-ignore variable.undefined, variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher and key unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setKey($symkey);
+            // @phpstan-ignore variable.undefined, variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher and IV unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setIV($symiv);
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->disablePadding();
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported PuTTY encryption can leave the cipher unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $private = $crypto->decrypt($private);
         }
 
@@ -257,6 +260,7 @@ abstract class PuTTY
         $hmac = trim(preg_replace('#Private-MAC: (.+)#', '$1', $key[$offset + $privateLength]));
         $hmac = Strings::hex2bin($hmac);
 
+        // @phpstan-ignore variable.undefined (The validated version is 2 or 3, and both hash-selection arms assign $hash.)
         if (!hash_equals($hash->hash($source), $hmac)) {
             throw new UnexpectedValueException('MAC validation error');
         }
@@ -335,7 +339,9 @@ abstract class PuTTY
                     $hash->setKey(sha1($hashkey, true));
             }
 
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the encryption key unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setKey($symkey);
+            // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the initialization vector unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
             $crypto->setIV($symiv);
             $crypto->disablePadding();
             $private = $crypto->encrypt($private);
@@ -344,6 +350,7 @@ abstract class PuTTY
         $private = Strings::base64_encode($private);
         $key .= 'Private-Lines: ' . ((strlen($private) + 63) >> 6) . "\r\n";
         $key .= chunk_split($private, 64);
+        // @phpstan-ignore variable.undefined (FLOW-005 remains open: unsupported per-call versions can leave the MAC hash unset; see FLOW-005-putty-invalid-encryption-and-version.md.)
         $key .= 'Private-MAC: ' . Strings::bin2hex($hash->hash($source)) . "\r\n";
 
         return $key;

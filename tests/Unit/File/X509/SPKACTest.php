@@ -32,11 +32,9 @@ class SPKACTest extends PhpseclibTestCase
 
         $spkac = SPKAC::load($test)->toArray();
 
-        $this->assertIsArray($spkac);
-
         $spkac = SPKAC::load('SPKAC=' . $test);
 
-        $this->assertIsArray($spkac->toArray());
+        $this->assertNotEmpty($spkac->toArray());
 
         $this->assertTrue(
             $spkac->validateSignature(),
@@ -45,8 +43,7 @@ class SPKACTest extends PhpseclibTestCase
 
         $pubKey = $spkac->getPublicKey();
 
-        /** @psalm-suppress InvalidCast */
-        $this->assertIsString("$pubKey");
+        $this->assertIsString("$pubKey"); // @phpstan-ignore encapsedStringPart.nonString (This fixed, successfully verified SPKAC fixture loads a concrete public key that supports its existing string representation.)
     }
 
     public function testSaveSPKAC(): void
@@ -59,12 +56,14 @@ class SPKACTest extends PhpseclibTestCase
         $spkac->setChallenge('...');
         $privatekey->sign($spkac);
 
+        // @phpstan-ignore method.alreadyNarrowedType (Keep signed-SPKAC serialization coverage.)
         $this->assertIsString("$spkac");
 
         $spkac = new SPKAC();
         $spkac->setPublicKey($privatekey->getPublicKey());
         $privatekey->sign($spkac);
 
+        // @phpstan-ignore method.alreadyNarrowedType (Keep second SPKAC serialization check.)
         $this->assertIsString("$spkac");
     }
 

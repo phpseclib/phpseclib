@@ -66,7 +66,7 @@ final class PrivateKey extends DSA implements Common\PrivateKey
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
         $key->format = $this->format;
-        return $key;
+        return $key; // @phpstan-ignore return.type (This fixed PKCS8 public-key encoding reloads as DSA\PublicKey.)
     }
 
     /**

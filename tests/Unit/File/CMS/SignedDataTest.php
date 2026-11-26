@@ -13,9 +13,12 @@ namespace phpseclib4\Tests\Unit\File\CMS;
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\File\ASN1;
+use phpseclib4\File\ASN1\Element;
+use phpseclib4\File\ASN1\Types\{Choice, OID};
 use phpseclib4\File\CMS;
 use phpseclib4\File\CMS\SignedData;
 use phpseclib4\File\CMS\SignedData\Signer;
+use phpseclib4\File\CRL;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
 use phpseclib4\Exception\UnexpectedValueException;
@@ -58,7 +61,6 @@ M0OBYZe9ntgapIKsumKkfhOzo65F41fsyi2n6U8gLE0m6QYy+bMI0ElWXfjDA5eT
 2kPMf5mvGDoVHc4xL+HZrNfFCPxneRBsB6fhZHfhKBp5E3yhDKStGe2O1Vs=
 -----END CMS-----');
         $result = $cms->toArray();
-        $this->assertIsArray($result);
         //$cms = SignedData::load($result);
         $this->assertCount(8, $cms->getSigners()[0]->getSignedAttr('pkcs-9-at-smimeCapabilities')[0]);
     }
@@ -220,6 +222,7 @@ ybcPA9iklr0wAwYBAAMBAA==
         ]);
         $cms->addSigner($x509);
         $cms = CMS::load("$cms");
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the postal-address test assertion.)
         $this->assertIsArray($cms->toArray());
     }
 
@@ -250,6 +253,26 @@ ybcPA9iklr0wAwYBAAMBAA==
 
         $actual = (string) $cms['content']['signerInfos'][0]['signedAttrs'][0]['value'][0];
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testAddESSSigner(): void
+    {
+        $cms = new SignedData('hello, world!');
+        $x509 = new X509();
+        $x509->setDN('O=phpseclib test');
+        $signer = $cms->addESSSigner($x509);
+
+        $certHash = $signer->getSignedAttr('id-aa-signingCertificateV2')[0]['certs'][0]['certHash'];
+        $this->assertSame(hash('sha256', $x509->getEncoded(), true), (string) $certHash);
+    }
+
+    public function testCalculateVersionWithCRL(): void
+    {
+        $cms = new SignedData('hello, world!');
+        $cms->addCRL(new CRL());
+        $cms->addSigner(new X509());
+
+        $this->assertSame('v1', (string) $cms['content']['version']);
     }
 
     public function testOpenSSLEquivalncy(): void
@@ -359,6 +382,23 @@ ybcPA9iklr0wAwYBAAMBAA==
         $this->assertTrue($cms->validateSignature(false));
     }
 
+    public function testCopySigningX509AttributesPreservesOtherCertificateChoice(): void
+    {
+        $cms = CMS::load(file_get_contents(__DIR__ . '/FE.pdf.p7m'));
+        $signer = $cms->getSigners()[0];
+        $certificate = $signer->getCertificate();
+        $this->assertNotNull($certificate);
+
+        $cms['content']['certificates'][] = new Choice('other', [
+            'otherCertFormat' => new OID('1.2.3'),
+            'otherCert' => new Element("\x05\x00"),
+        ]);
+
+        $signer->copySigningX509Attributes($certificate);
+
+        $this->assertSame('other', $cms['content']['certificates'][1]->index);
+    }
+
     public function testDetachedSigCreation(): void
     {
         $private = EC::createKey('nistp256');
@@ -440,7 +480,7 @@ ybcPA9iklr0wAwYBAAMBAA==
         $private = EC::createKey('secp256k1');
         $cms = new CMS\SignedData('hello world!');
         $private->sign($cms);
-        $this->assertIsString("$cms");
+        $this->assertNotEmpty("$cms");
         $cert = $cms->getSigners()[0]->getCertificate();
         $this->assertTrue($cert->validateSignature(false));
     }

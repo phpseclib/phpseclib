@@ -357,7 +357,7 @@ abstract class DH extends AsymmetricKey
         #[\SensitiveParameter] ?string $password = null
     ): static {
         try {
-            return EC::load($key, $password);
+            return EC::load($key, $password); // @phpstan-ignore return.type (CRYPT-001: retain EC-first loading; the native return-contract mismatch remains unresolved; see CRYPT-001-dh-load-ec-return-typeerror.md.)
         } catch (NoKeyLoadedException $e) {
         }
 
@@ -417,6 +417,6 @@ abstract class DH extends AsymmetricKey
         $type = DH::validatePlugin('Keys', 'PKCS1', 'saveParameters');
 
         $key = $type::saveParameters($this->prime, $this->base);
-        return DH::load($key, 'PKCS1');
+        return DH::load($key, 'PKCS1'); // @phpstan-ignore return.type (The fixed PKCS1 parameter encoding reloads as DH\Parameters.)
     }
 }

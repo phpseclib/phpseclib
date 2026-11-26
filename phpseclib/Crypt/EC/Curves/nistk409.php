@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace phpseclib4\Crypt\EC\Curves;
 
-/** @psalm-api */
 final class nistk409 extends sect409k1
 {
 }

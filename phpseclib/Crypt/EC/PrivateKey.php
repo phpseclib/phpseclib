@@ -53,8 +53,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
      * Curve Order
      *
      * Used for deterministic ECDSA
-     *
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $q;
 
@@ -65,8 +63,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
      * with x you have x * the base point yielding an (x, y)-coordinate that is the
      * public key. But the x is different depending on which side of the equal sign
      * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     *
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $x;
 
@@ -114,7 +110,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $point = PKCS1::extractPoint($coordinates, $this->curve);
         $point = $this->curve->multiplyPoint($point, $this->dA);
         if ($this->curve instanceof TwistedEdwardsCurve) {
-            return $this->curve->encodePoint($point);
+            return $this->curve->encodePoint($point); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
         }
         if (empty($point)) {
             throw new UnexpectedValueException('The infinity point is invalid');
@@ -210,7 +206,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             // contexts (Ed25519ctx) are supported but prehashing (Ed25519ph) is not.
             // quoting https://tools.ietf.org/html/rfc8032#section-8.5 ,
             // "The Ed25519ph and Ed448ph variants ... SHOULD NOT be used"
-            $A = $this->curve->encodePoint($this->QA);
+            $A = $this->curve->encodePoint($this->QA); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
             $curve = $this->curve;
             $hash = new Hash($curve::HASH);
 
@@ -229,7 +225,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
             $r = new BigInteger($r, 256);
             [, $r] = $r->divide($order);
             $R = $curve->multiplyPoint($curve->getBasePoint(), $r);
-            $R = $curve->encodePoint($R);
+            $R = $curve->encodePoint($R); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
             $k = $hash->hash($dom . $R . $A . $message);
             $k = strrev($k);
             $k = new BigInteger($k, 256);
@@ -372,7 +368,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
         $key = EC::loadFormat($format, $key);
         $key->format = $this->format;
         if ($this->curve instanceof MontgomeryCurve) {
-            return $key;
+            return $key; // @phpstan-ignore return.type (MontgomeryPublic serializes and reloads an EC\PublicKey.)
         }
         $key = $key
             ->withHash($this->hash->getHash())
@@ -380,7 +376,7 @@ final class PrivateKey extends EC implements Common\PrivateKey
         if ($this->curve instanceof TwistedEdwardsCurve) {
             $key = $key->withContext($this->context);
         }
-        return $key;
+        return $key; // @phpstan-ignore return.type (PKCS8 public-key serialization reloads as EC\PublicKey.)
     }
 
     /**

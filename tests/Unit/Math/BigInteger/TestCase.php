@@ -10,10 +10,25 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\Math\BigInteger;
 
+use phpseclib4\Math\BigInteger;
+use phpseclib4\Math\BigInteger\Engines\BCMath;
+use phpseclib4\Math\BigInteger\Engines\GMP;
+use phpseclib4\Math\BigInteger\Engines\PHP32;
+use phpseclib4\Math\BigInteger\Engines\PHP64;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 abstract class TestCase extends PhpseclibTestCase
 {
+    /**
+     * @return BigInteger|GMP|BCMath|PHP32|PHP64
+     */
+    abstract public function getInstance($x = 0, $base = 10);
+
+    /**
+     * @return class-string<BigInteger|GMP|BCMath|PHP32|PHP64>
+     */
+    abstract public static function getStaticClass(): string;
+
     public function testConstructorBase2(): void
     {
         // 2**65 = 36893488147419103232

@@ -22,6 +22,28 @@ use phpseclib4\Exception\{BadConfigurationException, InvalidArgumentException, R
  * Base Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
+ *
+ * @method Engine add(Engine $y)
+ * @method Engine subtract(Engine $y)
+ * @method Engine multiply(Engine $x)
+ * @method array{Engine, Engine} divide(Engine $y)
+ * @method ?Engine modInverse(Engine $n)
+ * @method array{gcd: Engine, x: Engine, y: Engine} extendedGCD(Engine $n)
+ * @method Engine gcd(Engine $n)
+ * @method ?Engine modPow(Engine $e, Engine $n)
+ * @method ?Engine powMod(Engine $e, Engine $n)
+ * @method int compare(Engine $y)
+ * @method bool equals(Engine $x)
+ * @method Engine bitwise_and(Engine $x)
+ * @method Engine bitwise_or(Engine $x)
+ * @method Engine bitwise_xor(Engine $x)
+ * @method bool between(Engine $min, Engine $max)
+ * @method Engine pow(Engine $n)
+ * @method static Engine randomRange(Engine $min, Engine $max)
+ * @method static ?Engine randomRangePrime(Engine $min, Engine $max)
+ * @method static Engine min(Engine ...$nums)
+ * @method static Engine max(Engine ...$nums)
+ * @method static int scan1divide(Engine $r)
  */
 abstract class Engine implements \JsonSerializable
 {
@@ -102,7 +124,7 @@ abstract class Engine implements \JsonSerializable
      *
      * $base is ignored if $x is an int or an instance of \GMP
      *
-     * @param int|numeric-string|\GMP $x integer Base-10 number or base-$base number if $base set.
+     * @param int|string|\GMP $x integer Base-10 number or base-$base number if $base set.
      */
     public function __construct(int|string|\GMP $x = '0', int $base = 10)
     {
@@ -300,6 +322,7 @@ abstract class Engine implements \JsonSerializable
 
         $x = $x->compare(static::$zero[static::class]) < 0 ? $x->add($n) : $x;
 
+        // @phpstan-ignore smaller.alwaysFalse (BI-006: keep this post-extendedGCD guard rather than assume an overridable engine method cannot change receiver state.)
         return $this->compare(static::$zero[static::class]) < 0 ? $this->normalize($n->subtract($x)) : $this->normalize($x);
     }
 
@@ -344,7 +367,7 @@ abstract class Engine implements \JsonSerializable
      *
      * Will be called, automatically, when json_encode() is called on a BigInteger object.
      *
-     * @return array{hex: string, precision?: int]
+     * @return array{hex: string, precision?: int}
      */
     public function jsonSerialize(): mixed
     {
@@ -669,7 +692,6 @@ abstract class Engine implements \JsonSerializable
         }
 
         $temp = new $class();
-        /** @psalm-suppress UndefinedPropertyAssignment */
         $temp->value = static::reduce($result, $n_value, $class);
 
         return $temp;
@@ -1004,6 +1026,10 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
+     *
+     * @template T of Engine
+     * @param list<T> $nums
+     * @return T
      */
     protected static function minHelper(array $nums): Engine
     {
@@ -1019,6 +1045,10 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Return the minimum BigInteger between an arbitrary number of BigIntegers.
+     *
+     * @template T of Engine
+     * @param list<T> $nums
+     * @return T
      */
     protected static function maxHelper(array $nums): Engine
     {
@@ -1053,7 +1083,6 @@ abstract class Engine implements \JsonSerializable
                 return $r;
             };');
         }
-        /** @psalm-suppress UndefinedThisPropertyFetch */
         $n = $this->value;
         return eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
             $r = new $class();
@@ -1131,6 +1160,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical And
+     *
+     * @return static
      */
     protected function bitwiseAndHelper(Engine $x): Engine
     {
@@ -1147,6 +1178,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical Or
+     *
+     * @return static
      */
     protected function bitwiseOrHelper(Engine $x): Engine
     {
@@ -1163,6 +1196,8 @@ abstract class Engine implements \JsonSerializable
 
     /**
      * Logical Exclusive Or
+     *
+     * @return static
      */
     protected function bitwiseXorHelper(Engine $x): Engine
     {
@@ -1176,4 +1211,28 @@ abstract class Engine implements \JsonSerializable
         $right = str_pad($right, $length, chr(0), STR_PAD_LEFT);
         return $this->normalize(new static($left ^ $right, -256));
     }
+
+    abstract protected function initialize(int $base): void;
+
+    abstract protected function make_odd(): void;
+
+    abstract public static function isValidEngine(): bool;
+
+    abstract public function toString(): string;
+
+    abstract public function toBytes(bool $twos_compliment = false): string;
+
+    abstract public function isOdd(): bool;
+
+    abstract public function isNegative(): bool;
+
+    abstract public function testBit(int $x): bool;
+
+    abstract public function abs(): Engine;
+
+    abstract public function negate(): Engine;
+
+    abstract public function bitwise_leftShift(int $shift): Engine;
+
+    abstract public function bitwise_rightShift(int $shift): Engine;
 }

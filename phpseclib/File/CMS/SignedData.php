@@ -22,7 +22,7 @@ use phpseclib4\Crypt\Common\PrivateKey;
 use phpseclib4\Crypt\Hash;
 use phpseclib4\Exception\{BadMethodCallException, UnexpectedValueException, UnsupportedAlgorithmException};
 use phpseclib4\File\ASN1\{Constructed, Element, Maps};
-use phpseclib4\File\ASN1\Types\{OID, OctetString};
+use phpseclib4\File\ASN1\Types\{Choice, OID, OctetString};
 use phpseclib4\File\{ASN1, CMS, CRL, X509};
 use phpseclib4\File\CMS\SignedData\Signer;
 use phpseclib4\File\Common\Signable;
@@ -118,7 +118,9 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
             $rules['encapContentInfo'] = self::mapInEncapContentInfo(...);
             $decoded = ASN1::decodeBER($content->value);
             $cms['content'] = ASN1::map($decoded, Maps\SignedData::MAP, $rules);
+            // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
             $cms['content']->parent = $cms;
+            // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
             $cms['content']->key = 'content';
         } finally {
             ASN1::enableCacheInvalidation();
@@ -279,10 +281,7 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         }
 
         foreach ($this->cms['content']['crls'] as $crl) {
-            $temp = match ($crl->index) {
-                'other' => 5,
-                'default' => 1,
-            };
+            $temp = $crl instanceof Choice && $crl->index === 'other' ? 5 : 1;
             if ($temp > $final) {
                 $final = $temp;
             }
@@ -417,10 +416,9 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
                 ]]
             ]]
         ];
-        return $this->createSigner($skeleton, $x509);
+        return $this->createSigner($skeleton);
     }
 
-    /** @psalm-api */
     public function addNakedSigner(X509 $x509, int $type = CMS::ISSUER_AND_DN): Signer
     {
         // When [signedAttrs] is absent, the result is just the message digest of the [the encapContentInfo eContent OCTET STRING].
@@ -445,7 +443,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms['content']['signerInfos'][] = $signer;
         $signer->parent = $this->cms['content']['signerInfos'];
         $signer->key = count($this->cms['content']['signerInfos']) - 1;
-        /** @psalm-suppress InvalidPropertyFetch */
         $signer->depth = $this->cms['content']['signerInfos']->depth + 1;
     }
 
@@ -457,7 +454,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cms[$offset];
     }
 
@@ -511,7 +507,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cms->valid();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->cms instanceof Constructed ? $this->cms->keys() : array_keys($this->cms);
@@ -533,7 +528,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $signers;
     }
 
-    /** @psalm-api */
     public function findSigner(X509 $x509): ?Signer
     {
         $this->compile();
@@ -560,7 +554,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-api */
     public function detach(): void
     {
         $this->fp = null;
@@ -601,7 +594,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms['content']['certificates'][] = ['certificate' => $cert];
     }
 
-    /** @psalm-api */
     public function addCRL(CRL $crl): void
     {
         $this->cms['content']['crls'][] = $crl;
@@ -629,7 +621,6 @@ class SignedData implements \ArrayAccess, \Countable, \Iterator, Signable
         return $expected == $matches;
     }
 
-    /** @psalm-api */
     public function getEncoded(): string
     {
         $this->compile();

@@ -36,11 +36,8 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public Constructed|array $encryptedKey;
     public EncryptedData $cms;
     public KeyAgreeRecipient $recipient;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Constructed $parent;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array $key)
@@ -50,7 +47,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
 
     public static function load(string|array|Constructed $encoded): static
     {
-        $r = new \ReflectionClass(__CLASS__);
+        $r = new \ReflectionClass(static::class);
         $cms = $r->newInstanceWithoutConstructor();
         $cms->encryptedKey = is_string($encoded) ? static::loadString($encoded) : $encoded;
         return $cms;
@@ -62,10 +59,10 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         $decoded = ASN1::decodeBER($encoded);
         $temp = ASN1::map($decoded, Maps\RecipientEncryptedKey::MAP);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $temp;
     }
 
-    /** @psalm-api */
     public function withKey(#[\SensitiveParameter] EC\PrivateKey $key): self
     {
         $private = &$key;
@@ -130,7 +127,7 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
 
         $encryptedKey = (string) $this->encryptedKey['encryptedKey'];
         if ($cekAlgo == 'id-alg-CMS3DESwrap') {
-            $cek = self::unwrapDES($kek, $encryptedKey);
+            $cek = self::unwrap3DES($kek, $encryptedKey);
         } else {
             $iv = "\xa6\xa6\xa6\xa6\xa6\xa6\xa6\xa6";
             $cek = self::unwrapAES($kek, $iv, $encryptedKey);
@@ -143,7 +140,6 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $this;
     }
 
-    /** @psalm-api */
     public function matchesX509(X509 $x509): bool
     {
         return $x509->isIssuerOf($this->encryptedKey['rid'], ['keyAgreement']);
@@ -174,7 +170,6 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->encryptedKey[$offset];
     }
 
@@ -228,7 +223,6 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
         return $this->encryptedKey->valid();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->encryptedKey instanceof Constructed ? $this->encryptedKey->keys() : array_keys($this->encryptedKey);
@@ -237,6 +231,11 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public function __toString(): string
     {
         return $this->toString();
+    }
+
+    public function toString(): string
+    {
+        return ASN1::encodeDER($this->encryptedKey, Maps\RecipientEncryptedKey::MAP);
     }
 
     public function __debugInfo(): array

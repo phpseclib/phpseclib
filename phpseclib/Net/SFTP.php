@@ -560,7 +560,6 @@ class SFTP extends SSH2
     /**
      * Enable path canonicalization
      *
-     * @psalm-api
      */
     public function enablePathCanonicalization(): void
     {
@@ -571,8 +570,6 @@ class SFTP extends SSH2
      * Disable path canonicalization
      *
      * If this is enabled then $sftp->pwd() will not return the canonicalized absolute path
-     *
-     * @psalm-api
      */
     public function disablePathCanonicalization(): void
     {
@@ -581,8 +578,6 @@ class SFTP extends SSH2
 
     /**
      * Enable arbitrary length packets
-     *
-     * @psalm-api
      */
     public function enableArbitraryLengthPackets(): void
     {
@@ -591,8 +586,6 @@ class SFTP extends SSH2
 
     /**
      * Disable arbitrary length packets
-     *
-     * @psalm-api
      */
     public function disableArbitraryLengthPackets(): void
     {
@@ -601,8 +594,6 @@ class SFTP extends SSH2
 
     /**
      * Returns the current directory name
-     *
-     * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
     public function pwd(): string
     {
@@ -883,7 +874,6 @@ class SFTP extends SSH2
      *
      * @param null|\Closure(string, string, array):void $onFile Callback invoked for each file found. The parameters are: directory, filename, attributes.
      * @return ($raw is true ? array<array-key, array<array-key, mixed>> : list<string>)
-     * @psalm-suppress InvalidReturnType
      */
     private function readlist(string $dir, bool $raw = true, ?\Closure $onFile = null): array
     {
@@ -1136,7 +1126,7 @@ class SFTP extends SSH2
     /**
      * Returns general information about a file.
      *
-     * Returns an array on success and false otherwise.
+     * Returns an array on success; throws an exception on failure.
      */
     public function stat(string $filename): array
     {
@@ -1169,11 +1159,13 @@ class SFTP extends SSH2
         }
 
         $pwd = $this->pwd;
+        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         $stat['type'] = $this->chdir($filename) ?
             FileType::DIRECTORY :
             FileType::REGULAR;
         $this->pwd = $pwd;
 
+        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         if ($stat['type'] == FileType::DIRECTORY) {
             $filename .= '/.';
         }
@@ -1226,11 +1218,13 @@ class SFTP extends SSH2
         }
 
         $pwd = $this->pwd;
+        // @phpstan-ignore method.void, ternary.alwaysFalse (FLOW-007: reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         $lstat['type'] = $this->chdir($filename) ?
             FileType::DIRECTORY :
             FileType::REGULAR;
         $this->pwd = $pwd;
 
+        // @phpstan-ignore equal.alwaysFalse (FLOW-007: downstream of the reproduced chdir fallback defect; runtime classification policy remains open; see FLOW-007-sftp-stat-fallback-classification.md.)
         if ($lstat['type'] == FileType::DIRECTORY) {
             $filename .= '/.';
         }
@@ -1463,7 +1457,7 @@ class SFTP extends SSH2
             $attr;
         $this->send_sftp_packet(SFTPPacketType::SETSTAT, $packet);
 
-        $files[] = $filename;
+        $files[] = $path;
         if (count($files) >= $this->queueSize) {
             $this->read_put_responses_files($files);
         }
@@ -1712,6 +1706,7 @@ class SFTP extends SSH2
             case is_resource($data):
                 $mode = $mode & ~self::SOURCE_LOCAL_FILE;
                 $info = stream_get_meta_data($data);
+                // @phpstan-ignore isset.offset (Some stream wrappers omit wrapper_type; preserve the runtime guard.)
                 if (isset($info['wrapper_type']) && $info['wrapper_type'] == 'PHP' && $info['stream_type'] == 'Input') {
                     $fp = fopen('php://memory', 'w+');
                     stream_copy_to_stream($data, $fp);
@@ -1770,6 +1765,7 @@ class SFTP extends SSH2
                 $this->send_sftp_packet(SFTPPacketType::WRITE, $packet, $j);
             } catch (\Exception $e) {
                 if ($mode & self::SOURCE_LOCAL_FILE) {
+                    // @phpstan-ignore variable.undefined (SOURCE_CALLBACK and SOURCE_LOCAL_FILE select mutually exclusive input sources.)
                     fclose($fp);
                 }
                 throw $e;
@@ -1885,7 +1881,6 @@ class SFTP extends SSH2
         if (!isset($local_file)) {
             $content = '';
         } elseif (is_resource($local_file)) {
-            /** @psalm-suppress NoValue */
             $fp = $local_file;
         } elseif (is_string($local_file)) {
             $fp = Files::open($local_file, 'wb');
@@ -1908,6 +1903,7 @@ class SFTP extends SSH2
                     $this->send_sftp_packet(SFTPPacketType::READ, $packet, $i);
                 } catch (\Exception $e) {
                     if ($fclose_check) {
+                        // @phpstan-ignore variable.undefined ($fclose_check is only true for a string $local_file, whose setup branch assigns $fp via Files::open, which throws on failure.)
                         fclose($fp);
                     }
                     throw $e;
@@ -1950,6 +1946,7 @@ class SFTP extends SSH2
                         } elseif (is_callable($local_file)) {
                             $local_file($temp);
                         } else {
+                            // @phpstan-ignore variable.undefined (this else requires $local_file to be a string or resource per the documented domain, both of which assign $fp in the setup above.)
                             fwrite($fp, $temp);
                         }
                         if ($progressCallback) {
@@ -1964,6 +1961,7 @@ class SFTP extends SSH2
                         break;
                     default:
                         if ($fclose_check) {
+                            // @phpstan-ignore variable.undefined ($fclose_check is only true for a string $local_file, whose setup branch assigns $fp via Files::open, which throws on failure.)
                             fclose($fp);
                         }
                         if ($this->channel_close) {
@@ -1991,6 +1989,7 @@ class SFTP extends SSH2
         }
 
         if ($fclose_check) {
+            // @phpstan-ignore variable.undefined ($fclose_check is only true for a string $local_file, whose setup branch assigns $fp via Files::open, which throws on failure.)
             fclose($fp);
 
             if ($this->preserveTime) {
@@ -2205,9 +2204,6 @@ class SFTP extends SSH2
 
     /**
      * Gets last access time of file
-     *
-     * @psalm-api
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileatime(string $path): int|float
     {
@@ -2216,9 +2212,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file modification time
-     *
-     * @psalm-api
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filemtime(string $path): int|float
     {
@@ -2227,8 +2220,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file permissions
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileperms(string $path): int
     {
@@ -2237,9 +2228,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file owner
-     *
-     * @psalm-api
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileowner(string $path): int|string
     {
@@ -2250,9 +2238,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file group
-     *
-     * @psalm-api
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filegroup(string $path): int|string
     {
@@ -2280,8 +2265,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file size
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filesize(string $path, bool $recursive = false): int|float
     {
@@ -2332,7 +2315,7 @@ class SFTP extends SSH2
      *
      * Uses cache if appropriate.
      */
-    private function get_xstat_cache_prop(string $path, string $prop, string $type): int|string
+    private function get_xstat_cache_prop(string $path, string $prop, string $type): int|float|string
     {
         $this->precheck();
 
@@ -2357,8 +2340,6 @@ class SFTP extends SSH2
 
     /**
      * Renames a file or a directory on the SFTP server.
-     *
-     * @psalm-api
      */
     public function rename(string $oldname, string $newname): void
     {
@@ -2410,8 +2391,6 @@ class SFTP extends SSH2
      * Parse Attributes
      *
      * See '7.  File Attributes' of draft-ietf-secsh-filexfer-13 for more info.
-     *
-     * @psalm-suppress UndefinedConstant
      */
     protected static function parseAttributes(int $version, string &$response): array
     {
@@ -2710,12 +2689,16 @@ class SFTP extends SSH2
             }
             $this->packet_buffer .= $temp;
         }
-        if (strlen($this->packet_buffer) < 4) {
-            throw new UnexpectedValueException('Packet is too small');
-        }
         // what's been read of a packet stays in the buffer until all of it has been, so if reading it times out, the
         // next call finishes reading it instead of taking the rest of it as the start of another packet
         ['length' => $length] = unpack('Nlength', substr($this->packet_buffer, 0, 4));
+
+        if ($this->use_request_id && $length < 5) {
+            $this->packet_type = -1;
+            $this->packet_buffer = '';
+            $this->pending_replies--;
+            throw new UnexpectedValueException('Packet is too small');
+        }
 
         $tempLength = $length;
         $tempLength -= strlen($this->packet_buffer) - 4;
@@ -2763,7 +2746,9 @@ class SFTP extends SSH2
             $this->append_log($packet_type, $packet);
         }
 
+        // @phpstan-ignore variable.undefined (FLOW-009: a non-null request ID reaches this only when request-id mode unpacked the validated packet above.)
         if (isset($request_id) && $this->use_request_id && $packet_id != $request_id) {
+            // @phpstan-ignore variable.undefined (FLOW-009: the guarded packet ID above is defined whenever request-id mode is enabled.)
             $this->requestBuffer[$packet_id] = [
                 'packet_type' => $this->packet_type,
                 'packet' => $packet,
@@ -2801,8 +2786,6 @@ class SFTP extends SSH2
      * Returns a log of the packets that have been sent and received.
      *
      * Returns a string if PacketType::LOGGING == self::LOG_COMPLEX, an array if PacketType::LOGGING == self::LOG_SIMPLE and false if !defined('NET_SFTP_LOGGING')
-     *
-     * @psalm-api
      */
     public function getSFTPLog(): array|string|null
     {
@@ -2818,8 +2801,6 @@ class SFTP extends SSH2
 
     /**
      * Returns all errors on the SFTP layer and resets internal error array
-     *
-     * @psalm-api
      */
     public function getErrors(): array
     {
@@ -2830,8 +2811,6 @@ class SFTP extends SSH2
 
     /**
      * Get supported SFTP versions
-     *
-     * @psalm-api
      */
     public function getSupportedVersions(): array
     {
@@ -2852,8 +2831,6 @@ class SFTP extends SSH2
 
     /**
      * Get supported SFTP extensions
-     *
-     * @psalm-api
      */
     public function getSupportedExtensions(): array
     {
@@ -2870,8 +2847,6 @@ class SFTP extends SSH2
 
     /**
      * Get supported SFTP versions
-     *
-     * @psalm-api
      */
     public function getNegotiatedVersion(): int
     {
@@ -2886,8 +2861,6 @@ class SFTP extends SSH2
      * If you're preferred version isn't supported then the highest supported
      * version of SFTP will be utilized. Set to null or false or int(0) to
      * unset the preferred version
-     *
-     * @psalm-api
      */
     public function setPreferredVersion(int $version): void
     {
@@ -2907,8 +2880,6 @@ class SFTP extends SSH2
 
     /**
      * Enable Date Preservation
-     *
-     * @psalm-api
      */
     public function enableDatePreservation(): void
     {
@@ -2917,8 +2888,6 @@ class SFTP extends SSH2
 
     /**
      * Disable Date Preservation
-     *
-     * @psalm-api
      */
     public function disableDatePreservation(): void
     {
@@ -2929,8 +2898,6 @@ class SFTP extends SSH2
      * Copy
      *
      * This method (currently) only works if the copy-data extension is available
-     *
-     * @psalm-api
      */
     public function copy(string $oldname, string $newname): void
     {
@@ -3092,7 +3059,6 @@ class SFTP extends SSH2
         ];
     }
 
-    /** @psalm-api */
     public function hardlink(string $oldpath, string $newpath): void
     {
         $this->precheck();

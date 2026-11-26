@@ -112,7 +112,7 @@ final class PublicKey extends EC implements Common\PublicKey
                 }
                 if (defined($keyTypeConstant) && !isset($this->context)) {
                     // algorithm 0 is used because EdDSA has a built-in hash
-                    $result = openssl_verify($message, $signature, $this->toString('PKCS8'), 0) === 1;
+                    $result = openssl_verify($message, $signature, $this->toString('PKCS8'), 0);
                     if ($result !== -1 && $result !== false) {
                         return (bool) $result;
                     }
@@ -146,7 +146,7 @@ final class PublicKey extends EC implements Common\PublicKey
                 return false;
             }
 
-            $A = $curve->encodePoint($this->QA);
+            $A = $curve->encodePoint($this->QA); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
 
             if ($curve instanceof Ed25519) {
                 $dom2 = !isset($this->context) ? '' :
@@ -166,7 +166,7 @@ final class PublicKey extends EC implements Common\PublicKey
 
             $lhs = $curve->multiplyPoint($curve->getBasePoint(), $S);
             $rhs = $curve->multiplyPoint($qa, $k);
-            $rhs = $curve->addPoint($rhs, $R);
+            $rhs = $curve->addPoint($rhs, $R); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide addPoint().)
             $rhs = $curve->convertToAffine($rhs);
 
             return $lhs[0]->equals($rhs[0]) && $lhs[1]->equals($rhs[1]);

@@ -21,15 +21,15 @@ use phpseclib4\Exception\UnsupportedAlgorithmException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\ASN1\{Constructed, Maps};
 
-class KEKRecipient extends Recipient implements DerivableKey
+class KEKRecipient extends Recipient implements DerivableKey, SearchableKey
 {
-    /** @psalm-api */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
         $decoded = ASN1::decodeBER($encoded);
         $recipient = ASN1::map($decoded, Maps\KEKRecipientInfo::MAP);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $recipient;
     }
 
@@ -59,7 +59,6 @@ class KEKRecipient extends Recipient implements DerivableKey
         return $this;
     }
 
-    /** @psalm-api */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\KEKRecipientInfo::MAP);

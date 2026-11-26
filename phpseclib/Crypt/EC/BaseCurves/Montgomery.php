@@ -28,6 +28,7 @@ namespace phpseclib4\Crypt\EC\BaseCurves;
 
 use phpseclib4\Crypt\EC\Curves\Curve25519;
 use phpseclib4\Exception\{InvalidStateException, UnsupportedValueException};
+use phpseclib4\Math\Common\FiniteField\Integer as FiniteFieldInteger;
 use phpseclib4\Math\{BigInteger, PrimeField};
 use phpseclib4\Math\PrimeField\Integer as PrimeInteger;
 
@@ -72,8 +73,6 @@ class Montgomery extends Base
 
     /**
      * The modulo
-     *
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $modulo;
 
@@ -81,6 +80,16 @@ class Montgomery extends Base
      * The Order
      */
     protected BigInteger $order;
+
+    /**
+     * Returns a random integer from the curve's prime field
+     *
+     * @return PrimeInteger
+     */
+    public function randomInteger(): FiniteFieldInteger
+    {
+        return $this->factory->randomInteger();
+    }
 
     /**
      * Sets the modulo
@@ -95,8 +104,6 @@ class Montgomery extends Base
 
     /**
      * Set coefficients a
-     *
-     * @psalm-api
      */
     public function setCoefficients(BigInteger $a): void
     {
@@ -111,8 +118,6 @@ class Montgomery extends Base
 
     /**
      * Set x and y coordinates for the base point
-     *
-     * @psalm-api
      */
     public function setBasePoint(BigInteger|PrimeInteger $x, BigInteger|PrimeInteger $y): void
     {
@@ -129,7 +134,6 @@ class Montgomery extends Base
      * Retrieve the base point as an array
      *
      * @return PrimeInteger[]
-     * @psalm-api
      */
     public function getBasePoint(): array
     {

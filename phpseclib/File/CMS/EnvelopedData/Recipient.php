@@ -32,11 +32,8 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
 
     public Constructed|array|null $recipient;
     public ?EncryptedData $cms = null;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Choice $parent;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $recipient = null)
@@ -47,6 +44,7 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
     public static function load(string|array|Constructed $encoded): static
     {
         $recipient = new static();
+        // @phpstan-ignore staticMethod.notFound (CMS-004: built-in recipients implement loadString(); downstream subclass contract remains open; see CMS-004-recipient-loadstring-subclass-contract.md.)
         $recipient->recipient = is_string($encoded) ? static::loadString($encoded) : $encoded;
         return $recipient;
     }
@@ -76,7 +74,6 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->recipient[$offset];
     }
 
@@ -130,7 +127,6 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
         return $this->recipient->valid();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->recipient instanceof Constructed ? $this->recipient->keys() : array_keys($this->recipient);
@@ -138,6 +134,7 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
 
     public function __toString(): string
     {
+        // @phpstan-ignore method.notFound (BI-032: all internal concrete Recipient subclasses implement toString())
         return $this->toString();
     }
 

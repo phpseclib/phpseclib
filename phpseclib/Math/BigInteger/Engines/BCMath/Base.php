@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\BCMath;
  * Sliding Window Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Base extends BCMath
 {
@@ -46,6 +45,11 @@ abstract class Base extends BCMath
 
     /**
      * Performs modular exponentiation.
+     *
+     * @template T of BCMath
+     * @param T $x
+     * @param class-string<T> $class
+     * @return T
      */
     protected static function powModHelper(BCMath $x, BCMath $e, BCMath $n, string $class): BCMath
     {

@@ -32,7 +32,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * Montgomery Curve Private Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class MontgomeryPrivate
 {
@@ -45,8 +44,6 @@ abstract class MontgomeryPrivate
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -71,7 +68,6 @@ abstract class MontgomeryPrivate
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(MontgomeryCurve $curve, array $publicKey, array $options = []): string
     {
@@ -82,7 +78,6 @@ abstract class MontgomeryPrivate
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         #[\SensitiveParameter] BigInteger $privateKey,

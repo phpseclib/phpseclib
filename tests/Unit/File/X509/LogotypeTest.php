@@ -33,7 +33,6 @@ class LogotypeTest extends PhpseclibTestCase
         'logotypeURI' => ['https://example.com/logo.svg'],
     ];
 
-    /** @psalm-suppress InvalidReturnType, InvalidReturnStatement */
     private static function roundtrip(array $value): \phpseclib4\File\ASN1\Types\BaseType
     {
         $der = ASN1::encodeDER($value, LogotypeExtn::MAP);
@@ -217,7 +216,7 @@ class LogotypeTest extends PhpseclibTestCase
 
         $this->assertSame(
             ['communityLogos', 'issuerLogo', 'subjectLogo', 'otherLogos'],
-            $result->keys()
+            $result->keys() // @phpstan-ignore method.notFound (The fixed LogotypeExtn map and valid roundtrip produce a Constructed result.)
         );
     }
 
@@ -238,11 +237,11 @@ class LogotypeTest extends PhpseclibTestCase
 
         $this->assertSame(
             ['subjectLogo'],
-            ASN1::map(ASN1::decodeBER($subject), LogotypeExtn::MAP)->keys()
+            ASN1::map(ASN1::decodeBER($subject), LogotypeExtn::MAP)->keys() // @phpstan-ignore method.notFound (The fixed LogotypeExtn map decodes this valid subjectLogo fixture to Constructed.)
         );
         $this->assertSame(
             ['issuerLogo'],
-            ASN1::map(ASN1::decodeBER($issuer), LogotypeExtn::MAP)->keys()
+            ASN1::map(ASN1::decodeBER($issuer), LogotypeExtn::MAP)->keys() // @phpstan-ignore method.notFound (The fixed LogotypeExtn map decodes this valid issuerLogo fixture to Constructed.)
         );
     }
 
@@ -328,7 +327,7 @@ class LogotypeTest extends PhpseclibTestCase
                 $file
             );
 
-            $this->assertNotEmpty("$details[logotypeHash][0][hashValue]", $file);
+            $this->assertNotSame('', (string) $details['logotypeHash'][0]['hashValue'], $file);
 
             // and the whole certificate survives a round trip untouched
             $this->assertSame(

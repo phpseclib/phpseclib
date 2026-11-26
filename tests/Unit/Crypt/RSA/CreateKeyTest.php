@@ -27,8 +27,6 @@ class CreateKeyTest extends PhpseclibTestCase
     {
         $privatekey = RSA::createKey(768);
         $publickey = $privatekey->getPublicKey();
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $publickey);
         $this->assertNotEmpty("$privatekey");
         $this->assertNotEmpty("$publickey");
         $this->assertSame($privatekey->getLength(), 768);
@@ -53,8 +51,6 @@ class CreateKeyTest extends PhpseclibTestCase
         RSA::setSmallestPrime(256);
         $privatekey = RSA::createKey(1024);
         $publickey = $privatekey->getPublicKey();
-        $this->assertInstanceOf(PrivateKey::class, $privatekey);
-        $this->assertInstanceOf(PublicKey::class, $publickey);
         $this->assertNotEmpty($privatekey->toString('PKCS1'));
         $this->assertNotEmpty($publickey->toString('PKCS1'));
         $this->assertSame($privatekey->getLength(), 1024);
@@ -68,8 +64,10 @@ class CreateKeyTest extends PhpseclibTestCase
         }
 
         $rsa = RSA::load($privatekey->toString('PKCS1'));
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
         $signature = $rsa->sign('zzz');
         $rsa = RSA::load($rsa->getPublicKey()->toString('PKCS1'));
+        $this->assertInstanceOf(PublicKey::class, $rsa);
         $this->assertTrue($rsa->verify('zzz', $signature));
 
         RSA::setSmallestPrime(4096);
@@ -128,6 +126,7 @@ class CreateKeyTest extends PhpseclibTestCase
             $this->fail('The public keys of generated keys should not have a loaded format');
         } catch (NoKeyLoadedException) {
         }
+        // @phpstan-ignore method.alreadyNarrowedType (Retain the successful test marker.)
         $this->assertTrue(true);
     }
 }

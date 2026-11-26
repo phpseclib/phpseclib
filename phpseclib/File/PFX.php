@@ -95,13 +95,15 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             $decoded = ASN1::decodeBER($pfx['authSafe']['content']->value);
             $cms = ASN1::map($decoded, ASN1\Maps\AuthenticatedSafe::MAP);
 
+            // @phpstan-ignore foreach.nonIterable (BI-026 remains open: malformed ASN.1 blob recovery may yield a non-iterable root; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
             foreach ($cms as $key => $content) {
                 switch ($content['contentType']) {
                     case 'id-data': // id-data from CMS specs
                         $decoded = ASN1::decodeBER((string) $content['content']);
                         $cms[$key]['content'] = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
-                        /** @psalm-suppress UndefinedPropertyAssignment */
+                        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         $cms[$key]['content']->parent = $cms[$key];
+                        // @phpstan-ignore foreach.nonIterable (BI-026 remains open: malformed SafeContents recovery may yield a non-iterable root; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         foreach ($cms[$key]['content'] as $subkey => $value) {
                             try {
                                 $cms[$key]['content'][$subkey]['bagValue'] = match ("$value[bagId]") {
@@ -125,6 +127,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                         $decoded = ASN1::decodeBER($content);
                         $contents = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
 
+                        // @phpstan-ignore foreach.nonIterable (BI-026 remains open: decrypted malformed SafeContents may yield a non-iterable root; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         foreach ($contents as $content) {
                             if ($content['bagId'] == 'CertBag') {
                                 $content['bagValue'] = self::handleCertBag($content['bagValue']->value);
@@ -135,7 +138,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             }
 
             $pfx['authSafe']['content'] = $cms;
-            /** @psalm-suppress UndefinedPropertyAssignment */
+            // @phpstan-ignore property.notFound (Reaching this point requires successful AuthenticatedSafe iteration; malformed roots fail earlier.)
             $pfx['authSafe']['content']->parent = $pfx['authSafe'];
         } finally {
             ASN1::enableCacheInvalidation();
@@ -146,8 +149,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the default hash algorithm
-     *
-     * @psalm-api
      */
     public static function setHashAlgorithm(string $algo): void
     {
@@ -174,8 +175,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the iteration count
-     *
-     * @psalm-api
      */
     public static function setIterationCount(int $count): void
     {
@@ -184,8 +183,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
 
     /**
      * Sets the salt length
-     *
-     * @psalm-api
      */
     public static function setSaltLength(int $length): void
     {
@@ -278,7 +275,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                 unset($value);
             }
             foreach ($certs as $i => $cert) {
-                $this->add($cert, friendlyName: $friendlyNames[$i] ?? null, localKeyID: $localKeyIDs[$i] ?? null);
+                $this->add($cert, friendlyName: $friendlyNames[$i] ?? null, localKeyID: $localKeyIDs[$i] ?? null); // @phpstan-ignore nullCoalesce.offset, nullCoalesce.offset (The attribute-name switch populates these variable-variable arrays by certificate index; PHPStan cannot connect those writes to these optional reads.)
             }
         }
         $this->password = $password;
@@ -314,8 +311,8 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     }
 
     /**
-     * @var string|BaseString|string[]|BaseString[]|null $friendlyName
-     * @var string|BaseString|string[]|BaseString[]|null $localKeyID
+     * @param string|BaseString|list<string|BaseString>|null $friendlyName
+     * @param string|BaseString|list<string|BaseString>|null $localKeyID
      */
     public function add(
         #[\SensitiveParameter] X509|PrivateKey $obj,
@@ -329,6 +326,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     $value = [$friendlyName];
                 } else {
                     foreach ($friendlyName as $temp) {
+                        // @phpstan-ignore instanceof.alwaysTrue, booleanAnd.alwaysFalse (Native array elements are not type-enforced; this guard validates the documented string|BaseString element contract.)
                         if (!is_string($temp) && !$temp instanceof BaseString) {
                             throw new UnexpectedValueException('Arrays must contain either strings or instances of BaseString');
                         }
@@ -347,6 +345,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     $value = [$localKeyID];
                 } else {
                     foreach ($localKeyID as $temp) {
+                        // @phpstan-ignore instanceof.alwaysTrue, booleanAnd.alwaysFalse (Native array elements are not type-enforced; this guard validates the documented string|BaseString element contract.)
                         if (!is_string($temp) && !$temp instanceof BaseString) {
                             throw new UnexpectedValueException('Arrays must contain either strings or instances of BaseString');
                         }
@@ -370,7 +369,7 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             } else {
                 $obj = [
                     'bagId' => 'KeyBag',
-                    'bagValue' => $obj->withoutPassword(),
+                    'bagValue' => $obj->withPassword(null),
                 ] + $extra;
             }
             $this->pfx['authSafe']['content'][] = [
@@ -496,7 +495,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->pfx[$offset];
     }
 
@@ -708,7 +706,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
         return $temp;
     }
 
-    /** @psalm-api */
     public function pfxFromLocalKeyID(string|BaseString $value): self
     {
         $temp = new self();

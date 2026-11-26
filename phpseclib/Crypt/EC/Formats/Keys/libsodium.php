@@ -33,7 +33,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * libsodium Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class libsodium
 {
@@ -46,8 +45,6 @@ abstract class libsodium
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -79,9 +76,7 @@ abstract class libsodium
             $components['dA'] = $arr['dA'];
             $components['secret'] = $arr['secret'];
         }
-        $components['QA'] = isset($public) ?
-            self::extractPoint($public, $curve) :
-            $curve->multiplyPoint($curve->getBasePoint(), $components['dA']);
+        $components['QA'] = self::extractPoint($public, $curve);
 
         return $components;
     }
@@ -90,7 +85,6 @@ abstract class libsodium
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(Ed25519 $curve, array $publicKey, array $options = []): string
     {
@@ -101,7 +95,6 @@ abstract class libsodium
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         #[\SensitiveParameter] BigInteger $privateKey,

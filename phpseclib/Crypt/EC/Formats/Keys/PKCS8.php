@@ -42,7 +42,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * PKCS#8 Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS8 extends Progenitor
 {
@@ -51,14 +50,14 @@ abstract class PKCS8 extends Progenitor
     /**
      * OID Name
      *
-     * @var array
+     * @var list<string>
      */
     public const OID_NAME = ['id-ecPublicKey', 'id-Ed25519', 'id-Ed448', 'id-X25519', 'id-X448'];
 
     /**
      * OID Value
      *
-     * @var array
+     * @var list<string>
      */
     public const OID_VALUE = ['1.2.840.10045.2.1', '1.3.101.112', '1.3.101.113', '1.3.101.110', '1.3.101.111'];
 
@@ -119,7 +118,7 @@ abstract class PKCS8 extends Progenitor
         }
 
         $decoded = ASN1::decodeBER((string) $key['privateKey']);
-        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray(); // @phpstan-ignore method.notFound
 
         if (isset($key['parameters']) && $params != $key['parameters']) {
             throw new UnexpectedValueException('The PKCS8 parameter field does not match the private key parameter field');
@@ -199,7 +198,6 @@ abstract class PKCS8 extends Progenitor
         }
 
         if (isset($key['privateKey']) && !isset($components['QA'])) {
-            /** @psalm-suppress InvalidArgument */
             $components['QA'] = self::deriveMontgomeryPublicKey($components);
         }
 
@@ -224,7 +222,7 @@ abstract class PKCS8 extends Progenitor
 
         if ($curve instanceof TwistedEdwardsCurve) {
             return self::wrapPublicKey(
-                key: $curve->encodePoint($publicKey),
+                key: $curve->encodePoint($publicKey), // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
                 oid: $curve instanceof Ed25519 ? 'id-Ed25519' : 'id-Ed448',
                 options: $options
             );

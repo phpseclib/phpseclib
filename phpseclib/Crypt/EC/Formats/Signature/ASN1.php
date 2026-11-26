@@ -26,7 +26,6 @@ use phpseclib4\Math\BigInteger;
  * ASN1 Signature Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class ASN1
 {
@@ -40,7 +39,7 @@ abstract class ASN1
         $decoded = Encoder::decodeBER($sig);
         $components = Encoder::map($decoded, EcdsaSigValue::MAP);
 
-        return $components->toArray();
+        return $components->toArray(); // @phpstan-ignore method.notFound
     }
 
     /**

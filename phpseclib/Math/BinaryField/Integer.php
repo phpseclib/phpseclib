@@ -31,7 +31,6 @@ use phpseclib4\Math\Common\FiniteField\Integer as Base;
  * Binary Finite Fields
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class Integer extends Base
 {
@@ -106,7 +105,7 @@ class Integer extends Base
      */
     public function equals(self $x): bool
     {
-        static::checkInstance($this, $x);
+        self::checkInstance($this, $x);
 
         return $this->value == $x->value;
     }
@@ -116,7 +115,7 @@ class Integer extends Base
      */
     public function compare(self $x): int
     {
-        static::checkInstance($this, $x);
+        self::checkInstance($this, $x);
 
         $a = $this->value;
         $b = $x->value;
@@ -156,16 +155,16 @@ class Integer extends Base
         // always going to be 1.
 
         $q = chr(0);
-        $d = static::deg($y);
+        $d = self::deg($y);
         $r = $x;
-        while (($degr = static::deg($r)) >= $d) {
+        while (($degr = self::deg($r)) >= $d) {
             $s = '1' . str_repeat('0', $degr - $d);
             $s = BinaryField::base2ToBase256($s);
             $length = max(strlen($s), strlen($q));
-            $q = !isset($q) ? $s :
+            $q =
                 str_pad($q, $length, "\0", STR_PAD_LEFT) ^
                 str_pad($s, $length, "\0", STR_PAD_LEFT);
-            $s = static::polynomialMultiply($s, $y);
+            $s = self::polynomialMultiply($s, $y);
             $length = max(strlen($r), strlen($s));
             $r = str_pad($r, $length, "\0", STR_PAD_LEFT) ^
                  str_pad($s, $length, "\0", STR_PAD_LEFT);
@@ -325,7 +324,7 @@ class Integer extends Base
      */
     public function add(self $y): self
     {
-        static::checkInstance($this, $y);
+        self::checkInstance($this, $y);
 
         $length = strlen(static::$modulo[$this->instanceID]);
 
@@ -348,9 +347,9 @@ class Integer extends Base
      */
     public function multiply(self $y): self
     {
-        static::checkInstance($this, $y);
+        self::checkInstance($this, $y);
 
-        return new static($this->instanceID, static::polynomialMultiply($this->value, $y->value));
+        return new static($this->instanceID, self::polynomialMultiply($this->value, $y->value));
     }
 
     /**
@@ -368,13 +367,13 @@ class Integer extends Base
         $aux0 = "\0";
         $aux1 = "\1";
         while ($remainder1 != "\1") {
-            [$q, $r] = static::polynomialDivide($remainder0, $remainder1);
+            [$q, $r] = self::polynomialDivide($remainder0, $remainder1);
             $remainder0 = $remainder1;
             $remainder1 = $r;
             // the auxiliary in row n is given by the sum of the auxiliary in
             // row n-2 and the product of the quotient and the auxiliary in row
             // n-1
-            $temp = static::polynomialMultiply($aux1, $q);
+            $temp = self::polynomialMultiply($aux1, $q);
             $aux = str_pad($aux0, strlen($temp), "\0", STR_PAD_LEFT) ^
                    str_pad($temp, strlen($aux0), "\0", STR_PAD_LEFT);
             $aux0 = $aux1;
@@ -391,7 +390,7 @@ class Integer extends Base
      */
     public function divide(self $x): self
     {
-        static::checkInstance($this, $x);
+        self::checkInstance($this, $x);
 
         $x = $x->modInverse();
         return $this->multiply($x);
@@ -446,7 +445,7 @@ class Integer extends Base
     /**
      * Converts an Integer to a BigInteger
      *
-     * @return string
+     * @return BigInteger
      */
     public function toBigInteger(): BigInteger
     {

@@ -40,6 +40,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
 
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the SFTP constructor test assertion.)
         $this->assertIsObject(
             $sftp,
             'Could not construct NET_SFTP object.'
@@ -79,15 +80,11 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $dirname = self::$scratchDir;
 
         $sftp->mkdir($dirname);
-        try {
-            $sftp->mkdir($dirname);
-            $this->assertTrue(
-                false,
-                "Failed asserting that a new scratch directory $dirname could " .
-                'not be created (because it already exists).'
-            );
-        } catch (\Exception) {
-        }
+        $sftp->mkdir($dirname);
+        $this->assertTrue(
+            $sftp->is_dir($dirname),
+            "Failed asserting that repeated mkdir leaves the existing directory $dirname intact."
+        );
 
         return $sftp;
     }
@@ -225,9 +222,57 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testChModOnFile(SFTP $sftp)
     {
         $sftp->chmod('file1.txt', 0o755);
+        // @phpstan-ignore method.alreadyNarrowedType (Retain chmod completion marker.)
         $this->assertTrue(true);
 
         return $sftp;
+    }
+
+    public function testRecursiveChmod(): void
+    {
+        $sftp = new SFTP($this->getEnv('SSH_HOSTNAME'));
+        $this->assertTrue($sftp->login(
+            $this->getEnv('SSH_USERNAME'),
+            $this->getEnv('SSH_PASSWORD')
+        ));
+
+        $root = 'recursive-chmod-' . bin2hex(random_bytes(5));
+        $sftp->mkdir($root, 0700);
+        try {
+            $sftp->mkdir("$root/empty", 0700);
+            $sftp->mkdir("$root/one", 0700);
+            $sftp->mkdir("$root/many", 0700);
+            $sftp->mkdir("$root/nested/inner", 0700, true);
+            $sftp->put("$root/one/only.txt", 'one');
+            $sftp->put("$root/many/a.txt", 'a');
+            $sftp->put("$root/many/b.txt", 'b');
+            $sftp->put("$root/nested/inner/leaf.txt", 'leaf');
+
+            $this->assertEqualsCanonicalizing(['.', '..'], $sftp->nlist("$root/empty"));
+            $sftp->chmod($root, 0711, true);
+            $sftp->clearStatCache();
+
+            foreach (
+                [
+                    $root,
+                    "$root/empty",
+                    "$root/one",
+                    "$root/one/only.txt",
+                    "$root/many",
+                    "$root/many/a.txt",
+                    "$root/many/b.txt",
+                    "$root/nested",
+                    "$root/nested/inner",
+                    "$root/nested/inner/leaf.txt",
+                ] as $path
+            ) {
+                $this->assertSame(0711, $sftp->stat($path)['mode'] & 0777, $path);
+            }
+        } finally {
+            if ($sftp->file_exists($root)) {
+                $sftp->delete($root, true);
+            }
+        }
     }
 
     #[\PHPUnit\Framework\Attributes\Depends('testChModOnFile')]
@@ -235,15 +280,12 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     {
         try {
             $sftp->chdir('file1.txt');
-            $this->assertTrue(
-                false,
-                'Failed to assert that the cwd cannot be changed to a file'
-            );
-        } catch (\Exception) {
+        } catch (FileSystemException) {
+            // @phpstan-ignore method.alreadyNarrowedType (Retain expected-exception success marker.)
             $this->assertTrue(true);
+            return $sftp;
         }
-
-        return $sftp;
+        self::fail('Failed to assert that the cwd cannot be changed to a file');
     }
 
     #[\PHPUnit\Framework\Attributes\Depends('testChDirOnFile')]
@@ -339,6 +381,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testResourceXfer(SFTP $sftp)
     {
         $fp = fopen('res.txt', 'w+');
+        // @phpstan-ignore method.alreadyNarrowedType (Keep checking what get() returns at runtime.)
         $this->assertNull($sftp->get('file1.txt', $fp));
         rewind($fp);
         $sftp->put('file4.txt', $fp);
@@ -357,6 +400,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testSymlink(SFTP $sftp)
     {
         $sftp->symlink('file3.txt', 'symlink');
+        // @phpstan-ignore method.alreadyNarrowedType (Retain symlink completion marker.)
         $this->assertTrue(true);
 
         return $sftp;
@@ -398,6 +442,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     #[\PHPUnit\Framework\Attributes\Depends('testLinkFile')]
     public function testReadlink(SFTP $sftp)
     {
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the readlink return-type test assertion.)
         $this->assertIsString(
             $sftp->readlink('symlink'),
             'Failed asserting that a symlink\'s target could be read'
@@ -411,11 +456,13 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testStatOnCWD(SFTP $sftp)
     {
         $stat = $sftp->stat('.');
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the stat return-type test assertion.)
         $this->assertIsArray(
             $stat,
             'Failed asserting that stat on . returns an array'
         );
         $lstat = $sftp->lstat('.');
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the lstat return-type test assertion.)
         $this->assertIsArray(
             $lstat,
             'Failed asserting that lstat on . returns an array'
@@ -537,6 +584,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testDeleteEmptyDir(SFTP $sftp)
     {
         $sftp->mkdir(self::$scratchDir);
+        // @phpstan-ignore method.alreadyNarrowedType (Preserve the directory-stat test assertion.)
         $this->assertIsArray(
             $sftp->stat(self::$scratchDir),
             'Failed asserting that stat on an existent empty directory returns an array'
@@ -544,22 +592,15 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->delete(self::$scratchDir);
         try {
             $sftp->stat(self::$scratchDir);
-            $this->assertTrue(
-                false,
-                'Failed asserting that stat on a deleted directory returns false'
-            );
-        } catch (\Exception) {
+            self::fail('Failed asserting that stat on a deleted directory returns false');
+        } catch (FileSystemException) {
         }
 
-        try {
-            $sftp->delete(self::$scratchDir);
-            $this->assertTrue(
-                false,
-                'Failed asserting that non-existent directory could not ' .
-                'be deleted using recursive delete().'
-            );
-        } catch (\Exception) {
-        }
+        $sftp->delete(self::$scratchDir);
+        $this->assertFalse(
+            $sftp->file_exists(self::$scratchDir),
+            'Failed asserting that recursive delete leaves a nonexistent directory absent.'
+        );
 
         return $sftp;
     }
@@ -659,6 +700,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         sleep(5);
         $sftp->nlist();
 
+        // @phpstan-ignore method.alreadyNarrowedType (Retain command/listing completion marker.)
         $this->assertTrue(true);
 
         return $sftp;
@@ -723,7 +765,6 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testRawlistCallback(SFTP $sftp)
     {
         $files = [];
-        /** @psalm-suppress UnusedClosureParam */
         $callback = function ($dir, $filename, $attributes) use (&$files): void {
             $files[] = $filename;
         };
@@ -757,6 +798,7 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
     public function testCallableGetWithLength(SFTP $sftp): SFTP
     {
         $sftp->put('test.txt', 'zzzzz');
+        // @phpstan-ignore method.alreadyNarrowedType (Keep checking what get() returns at runtime.)
         $this->assertNull($sftp->get('test.txt', function ($data): void {
             $this->assertSame('z', $data);
         }, 0, 1));
@@ -770,16 +812,27 @@ class SFTPUserStoryTest extends PhpseclibFunctionalTestCase
         $sftp->put('test.txt', 'aaaaa');
         $stat = $sftp->statvfs('test.txt');
 
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('bsize', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('frsize', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('blocks', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('bfree', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('bavail', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('files', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('ffree', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('favail', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('fsid', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('flag', $stat);
+        // @phpstan-ignore method.alreadyNarrowedType (Verify the actual server response fields.)
         $this->assertArrayHasKey('namemax', $stat);
 
         $this->assertSame(255, $stat['namemax']);

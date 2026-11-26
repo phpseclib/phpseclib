@@ -41,10 +41,6 @@ abstract class Arrays
         }
 
         foreach (explode('/', $path) as $i) {
-            if (!isset($root)) {
-                return $false;
-            }
-
             if (!is_array($root) && !$root instanceof \ArrayAccess) {
                 return $false;
             }
@@ -67,6 +63,7 @@ abstract class Arrays
     {
         $parts = explode('/', $path);
         foreach ($parts as $k => $i) {
+            // @phpstan-ignore isset.variable (ArrayAccess::offsetExists() may be true while its referenced child is null; preserve the path-specific exception.)
             if (!isset($root)) {
                 $loc = implode('/', array_slice($parts, 0, $k));
                 throw new UnexpectedValueException("Unable to find node for $loc");

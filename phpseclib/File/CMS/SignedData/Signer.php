@@ -77,11 +77,8 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public Constructed|array|null $signer;
     public ?SignedData $cms = null;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public Constructed|null $parent;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $signer = null)
@@ -106,6 +103,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $decoded = ASN1::decodeBER($encoded);
         $signer = ASN1::map($decoded, Maps\SignerInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $signer;
     }
 
@@ -199,7 +197,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-suppress UndefinedPropertyAssignment */
     public static function mapInAttrs(Constructed $attr): void
     {
         if (self::extensionMatch('id-aa-timeStampToken', $attr['type'])) {
@@ -235,9 +232,11 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         try {
             for ($i = 0; $i < count($attr['value']); $i++) {
                 $attr['value'][$i] = ASN1::map(ASN1::decodeBER($attr['value'][$i]->value), $map, $rules);
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->parent = $attr['value'];
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->key = $i;
-                /** @psalm-suppress InvalidPropertyFetch */
+                // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->depth = $attr['value']->depth + 1;
             }
         } finally {
@@ -245,7 +244,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-api */
     public function listSignedAttrs(): array
     {
         $names = [];
@@ -255,7 +253,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $names;
     }
 
-    /** @psalm-api */
     public function hasSignedAttr(string $type): bool
     {
         return $this->getSignedAttr($type) !== null;
@@ -285,7 +282,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->signer['signedAttrs'][] = ['type' => $type, 'value' => [$value]];
     }
 
-    /** @psalm-api */
     public function listUnsignedAttrs(): array
     {
         $names = [];
@@ -295,7 +291,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $names;
     }
 
-    /** @psalm-api */
     public function hasUnsignedAttr(string $type): bool
     {
         return $this->getUnsignedAttr($type) !== null;
@@ -312,7 +307,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return null;
     }
 
-    /** @psalm-api */
     public function setUnsignedAttr(string $type, mixed $value): void
     {
         $this->compile();
@@ -357,7 +351,9 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             $hash = new Hash($hash);
         }
         if (isset($expected)) {
+            // @phpstan-ignore variable.undefined (isset($expected) is only possible if the ESS block above completed, which assigned $hash; a failing new Hash() throws before any read)
             $certHash = $hash->hash($x509->getEncoded());
+            // @phpstan-ignore variable.undefined (isset($expected) is only possible if the ESS block above completed, which assigned $expectedHash)
             if (!hash_equals($expectedHash, $certHash)) {
                 return false;
             }
@@ -465,7 +461,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cms->recalculateHashAlgorithms();
     }
 
-    /** @psalm-api */
     public function validateSignature(bool $caonly = true): bool
     {
         if (count($this->signer['signedAttrs'])) {
@@ -550,6 +545,7 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     {
         $algorithm = self::identifySignatureAlgorithmHelper($key);
         $this->signer['signatureAlgorithm'] = $algorithm;
+        // @phpstan-ignore method.notFound (BI-021 runtime defect remains open: Common\PrivateKey includes SSH-agent Identity, whose effective hash is tied to agent flags; see BI-021-cms-signer-privatekey-hash-capability.md.)
         $this->setHash((string) $key->getHash());
     }
 
@@ -570,13 +566,10 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
             if ($total === 1) {
                 $addCert = false;
                 for ($i = 0; $i < count($this->cms['content']['certificates']); $i++) {
-                    switch (true) {
-                        case isset($this->cms['content']['certificates'][$i]['certificate']):
-                            $found = (string) $this->cms['content']['certificates'][$i]['certificate'];
-                        //    break;
-                        //case isset($this->cms['content']['certificates'][$i]['extendedCertificate']['certificate']):
-                        //    $found = (string) $this->cms['content']['certificates'][$i]['extendedCertificate']['certificate'];
+                    if (!isset($this->cms['content']['certificates'][$i]['certificate'])) {
+                        continue;
                     }
+                    $found = (string) $this->cms['content']['certificates'][$i]['certificate'];
                     if ($found === $expected) {
                         $this->cms['content']['certificates'][$i]['certificate'] = $x509;
                     }
@@ -603,7 +596,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 // the following errors out and idk why
                 //$attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0]['directoryName'] = $x509['tbsCertificate']['issuer'];
                 // consequently we do this:
-                /** @psalm-suppress InvalidArrayOffset */
                 $attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0] = ['directoryName' => $x509['tbsCertificate']['issuer']];
                 $attr['value'][0]['certs'][0]['issuerSerial']['serialNumber'] = $x509['tbsCertificate']['serialNumber'];
                 break;
@@ -636,7 +628,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->signer[$offset];
     }
 
@@ -690,7 +681,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->signer->valid();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->signer instanceof Constructed ? $this->signer->keys() : array_keys($this->signer);

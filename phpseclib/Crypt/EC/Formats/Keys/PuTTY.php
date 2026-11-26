@@ -26,7 +26,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * PuTTY Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PuTTY extends Progenitor
 {
@@ -70,7 +69,7 @@ abstract class PuTTY extends Progenitor
             if (Strings::shift($private, 4) != "\0\0\0\x20") {
                 throw new UnexpectedValueException('Length of ssh-ed25519 key should be 32');
             }
-            $arr = $components['curve']->extractSecret($private);
+            $arr = $components['curve']->extractSecret($private); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide extractSecret().)
             $components['dA'] = $arr['dA'];
             $components['secret'] = $arr['secret'];
         } else {
@@ -122,7 +121,6 @@ abstract class PuTTY extends Progenitor
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
     {

@@ -23,7 +23,6 @@ use phpseclib4\File\ASN1\{Constructed, Maps};
 
 class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
 {
-    /** @psalm-api */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
@@ -32,6 +31,7 @@ class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
         $decoded = ASN1::decodeBER($encoded);
         $recipient = ASN1::map($decoded, Maps\PasswordRecipientInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $recipient;
     }
 
@@ -94,7 +94,6 @@ class PasswordRecipient extends Recipient implements DerivableKey, SearchableKey
         return $this;
     }
 
-    /** @psalm-api */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\PasswordRecipientInfo::MAP);

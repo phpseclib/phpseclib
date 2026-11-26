@@ -24,14 +24,11 @@ use phpseclib4\Math\BigInteger;
  * Raw DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Raw
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] array $key,

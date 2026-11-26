@@ -99,7 +99,6 @@ abstract class CMS
     }
 
     // this NEEDS to be public so that Constructed.php can call it
-    /** @psalm-api */
     public static function mapInCerts(Constructed $certs): void
     {
         ASN1::disableCacheInvalidation();
@@ -115,7 +114,6 @@ abstract class CMS
         }
     }
 
-    /** @psalm-api */
     public static function mapInCRLs(Constructed $crls): void
     {
         ASN1::disableCacheInvalidation();
@@ -133,8 +131,6 @@ abstract class CMS
 
     /**
      * Enable binary output (DER)
-     *
-     * @psalm-api
      */
     public static function enableBinaryOutput(): void
     {
@@ -143,8 +139,6 @@ abstract class CMS
 
     /**
      * Disable binary output (ie. enable PEM)
-     *
-     * @psalm-api
      */
     public static function disableBinaryOutput(): void
     {

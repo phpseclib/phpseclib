@@ -88,6 +88,8 @@ class Rijndael extends BlockCipher
      *    of that, we'll just precompute it once.}
      *
      * @see self::setBlockLength()
+     *
+     * @var 4|5|6|7|8
      */
     private int $Nb = 4;
 
@@ -436,6 +438,8 @@ class Rijndael extends BlockCipher
         parent::setup();
 
         if (is_string($this->iv) && strlen($this->iv) != $this->block_size) {
+            // parent::setup() completed before this subclass-specific validation.
+            $this->changed = true;
             throw new LengthException('The IV length (' . strlen($this->iv) . ') does not match the block size (' . $this->block_size . ')');
         }
     }
@@ -530,7 +534,6 @@ class Rijndael extends BlockCipher
                     $this->dw[$row] = $temp;
                 }
 
-                /** @psalm-suppress LoopInvalidation */
                 $col = 0;
                 $row++;
             }
@@ -751,7 +754,6 @@ class Rijndael extends BlockCipher
      * Setup the performance-optimized function for de/encrypt()
      *
      * @see Common\SymmetricKey::setup()
-     * @psalm-api
      */
     protected function setupInlineCrypt(): void
     {

@@ -127,7 +127,6 @@ class Binary extends Base
      * Adds two points on the curve
      *
      * @return BinaryInteger[]
-     * @psalm-api
      */
     public function addPoint(array $p, array $q): array
     {
@@ -253,9 +252,6 @@ class Binary extends Base
      * "Due to patent issues the compressed option is disabled by default for binary curves
      *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
      *  compile time."
-     *
-     * @psalm-suppress PossiblyUnusedParam
-     * @psalm-api
      */
     public function derivePoint(string $m): array
     {
@@ -264,8 +260,6 @@ class Binary extends Base
 
     /**
      * Tests whether or not the x / y values satisfy the equation
-     *
-     * @psalm-api
      */
     public function verifyPoint(array $p): bool
     {
@@ -329,7 +323,8 @@ class Binary extends Base
     /**
      * Converts an affine point to a jacobian coordinate
      *
-     * @return BinaryInteger[]
+     * Preserves input coordinates and metadata, adding Z and a boolean 'fresh'
+     * marker for affine input; the returned array is not field-integer-only.
      */
     public function convertToInternal(array $p): array
     {

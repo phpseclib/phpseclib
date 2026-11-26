@@ -8,6 +8,7 @@
 
 namespace phpseclib4\Tests\Functional\Net;
 
+use phpseclib4\Exception\FileSystemException;
 use phpseclib4\Net\SCP;
 use phpseclib4\Tests\PhpseclibFunctionalTestCase;
 
@@ -33,10 +34,6 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
                 $this->getEnv('SSH_USERNAME'),
                 $this->getEnv('SSH_PASSWORD')
             )
-        );
-        $this->assertTrue(
-            is_object($scp),
-            'Could not construct \phpseclib\Net\SCP object.'
         );
         return $scp;
     }
@@ -78,17 +75,27 @@ class SCPSSH2UserStoryTest extends PhpseclibFunctionalTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Depends('testGetFile')]
+    public function testGetResource(SCP $scp): SCP
+    {
+        $fp = fopen('php://temp', 'w+');
+        $this->assertNull($scp->get(self::$remoteFile, $fp));
+        $this->assertTrue(is_resource($fp));
+        rewind($fp);
+        $this->assertSame(self::$exampleData, stream_get_contents($fp));
+        fclose($fp);
+
+        return $scp;
+    }
+
+    #[\PHPUnit\Framework\Attributes\Depends('testGetResource')]
     #[\PHPUnit\Framework\Attributes\Group('github873')]
     public function testGetBadFilePutGet($scp)
     {
         $scp->exec('rm ' . self::$remoteFile);
         try {
             $scp->get(self::$remoteFile);
-            $this->assertTrue(
-                false,
-                'Failed asserting that get() on a non-existant file failed'
-            );
-        } catch (\Exception) {
+            self::fail('Failed asserting that get() on a non-existant file failed');
+        } catch (FileSystemException) {
         }
         $scp->put(self::$remoteFile, self::$exampleData);
         $content = $scp->get(self::$remoteFile);

@@ -23,7 +23,6 @@ use phpseclib4\Math\BigInteger;
  * OpenSSL Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class OpenSSL
 {

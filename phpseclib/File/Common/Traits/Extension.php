@@ -31,7 +31,7 @@ trait Extension
 {
     private static function getMapping(string $extnId): array|bool|null
     {
-        if (isset(self::$extensions[$extnId])) {
+        if (isset(self::$extensions[$extnId])) { // @phpstan-ignore staticProperty.notFound (The extension registry is optional on trait consumers; isset treats an absent registry as unregistered.)
             return self::$extensions[$extnId];
         }
 
@@ -95,6 +95,9 @@ trait Extension
         };
     }
 
+    /**
+     * @param 'id-ce-subjectAltName'|'id-ce-issuerAltName'|'id-ce-authorityKeyIdentifier'|'id-pe-authorityInfoAccess'|'id-ce-cRLDistributionPoints' $id
+     */
     private static function getPathToIPAddress(string $id): string
     {
         return match ($id) {
@@ -179,7 +182,7 @@ trait Extension
                     }
                 } else {
                     $temp = ASN1::decodeBER((string) $ext['extnValue']);
-                    $ext['extnValue'] = is_array($temp) && $temp['content'] instanceof Constructed ?
+                    $ext['extnValue'] = $temp['content'] instanceof Constructed ?
                         new Element($ext['extnValue']->value) :
                         $temp;
                 }
@@ -265,10 +268,8 @@ trait Extension
                 case 'id-pe-qcStatements':
                     $oldValue = $value instanceof Constructed ? $value->toArray() : $value;
                     $path = '*';
-                    /** @psalm-suppress InvalidReturnType */
-                    Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Constructed|Element|array {
+                    Arrays::subArrayMapWithWildcards($value, $path, function (Choice|Element|array $val): Choice|Element|array {
                         if ($val instanceof Element || "$val[statementId]" != 'id-etsi-qcs-QcLimitValue') {
-                            /** @psalm-suppress InvalidReturnStatement */
                             return $val;
                         }
                         if ($val instanceof BaseType) {
@@ -278,7 +279,6 @@ trait Extension
                             $val['statementInfo'] = ASN1::map(ASN1::decodeBER($temp), Maps\QcEuLimitValue::MAP);
                         }
                         $val['statementInfo']->enableForcedCache();
-                        /** @psalm-suppress InvalidReturnStatement */
                         return $val;
                     });
             }

@@ -22,7 +22,6 @@ use phpseclib4\Math\BigInteger\Engines\BCMath\Base;
  * PHP Barrett Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class EvalBarrett extends Base
 {
@@ -56,7 +55,9 @@ abstract class EvalBarrett extends Base
         if ($m_length < 5) {
             $code = 'return bcmod($x, $n, 0);';
             eval('$func = function ($n) { ' . $code . '};');
+            // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
             self::$custom_reduction = $func;
+            // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
             return $func;
         }
 
@@ -97,8 +98,10 @@ abstract class EvalBarrett extends Base
 
         eval('$func = function ($n) { ' . $code . '};');
 
+        // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
         self::$custom_reduction = $func;
 
+        // @phpstan-ignore variable.undefined (The eval's only statement assigns $func; a parse error throws before this line.)
         return $func;
     }
 }

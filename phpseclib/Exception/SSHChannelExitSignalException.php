@@ -19,7 +19,6 @@ namespace phpseclib4\Exception;
  * SSHChannelExitSignalException
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-suppress PossiblyUnusedProperty
  */
 class SSHChannelExitSignalException extends UnexpectedValueException
 {

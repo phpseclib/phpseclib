@@ -21,7 +21,6 @@ use phpseclib4\Exception\{BadMethodCallException, CharacterConversionException};
  * ASN.1 Base String
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class BaseString implements BaseType
 {
@@ -43,6 +42,10 @@ abstract class BaseString implements BaseType
      *
      * This is a lazy conversion, dealing only with character size.
      * No real conversion table is used.
+     *
+     * @template T of BaseString
+     * @param class-string<T> $class
+     * @return T
      */
     private function convert(string $class): self
     {

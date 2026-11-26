@@ -21,7 +21,6 @@ namespace phpseclib4\File\ASN1\OIDs;
  * From https://tools.ietf.org/html/rfc2898
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS8
 {

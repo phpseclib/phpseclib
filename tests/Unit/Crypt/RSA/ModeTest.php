@@ -13,7 +13,10 @@ namespace phpseclib4\Tests\Unit\Crypt\RSA;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\RSA\Formats\Keys\PKCS8;
+use phpseclib4\Crypt\RSA\PrivateKey;
+use phpseclib4\Crypt\RSA\PublicKey;
 use phpseclib4\Exception\BadConfigurationException;
+use phpseclib4\Exception\BadDecryptionException;
 use phpseclib4\Exception\KeyConstraintException;
 use phpseclib4\Math\BigInteger;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -39,11 +42,12 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 -----END RSA PRIVATE KEY-----';
 
         // libsodium doesn't support RSA but it still ought not result in any errors outside of the BadConfigurationException being thrown
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
+        $engines = ['libsodium', 'OpenSSL', 'PHP', null];
         foreach ($engines as $engine) {
             try {
                 RSA::forceEngine($engine);
                 $rsa = PublicKeyLoader::load($privatekey);
+                $this->assertInstanceOf(PrivateKey::class, $rsa);
                 $rsa = $rsa->getPublicKey()
                     ->withPadding(RSA::ENCRYPTION_NONE);
 
@@ -55,8 +59,9 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 
                 $this->assertEquals($result, $expected);
 
-                $rsa = PublicKeyLoader::load($privatekey)
-                    ->withPadding(RSA::ENCRYPTION_NONE);
+                $rsa = PublicKeyLoader::load($privatekey);
+                $this->assertInstanceOf(PrivateKey::class, $rsa);
+                $rsa = $rsa->withPadding(RSA::ENCRYPTION_NONE);
                 $this->assertEquals(trim($rsa->decrypt($result), "\0"), $plaintext);
             } catch (BadConfigurationException $e) {
             }
@@ -97,8 +102,9 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
         }
 
         $privatekey = RSA::createKey(1024)->withPassword('password');
-        $privatekey = PublicKeyLoader::load($privatekey->toString('PKCS8'), 'password')
-            ->withPadding(RSA::ENCRYPTION_NONE);
+        $privatekey = PublicKeyLoader::load($privatekey->toString('PKCS8'), 'password');
+        $this->assertInstanceOf(PrivateKey::class, $privatekey);
+        $privatekey = $privatekey->withPadding(RSA::ENCRYPTION_NONE);
         $publickey = $privatekey->getPublicKey()
             ->withPadding(RSA::ENCRYPTION_NONE);
 
@@ -126,7 +132,9 @@ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCqGKukO1De7zhZj6+H0qtjTkVx
 wTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFnc
 CzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0T
 p0GbMJDyR4e9T04ZZwIDAQAB
------END PUBLIC KEY-----')
+-----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $rsa);
+        $rsa = $rsa
             ->withHash('sha1')
             ->withMGFHash('sha1');
 
@@ -219,6 +227,7 @@ p0GbMJDyR4e9T04ZZwIDAQAB
             new BigInteger(base64_decode('158753FF2AF4D1E5BBAB574D5AE6B54D'), 256)  // e
         );
         $rsa = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
 
         $engines = ['libsodium', 'OpenSSL', 'PHP'];
         foreach ($engines as $engine) {
@@ -250,7 +259,9 @@ L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
 X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
 U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
 37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
------END RSA PRIVATE KEY-----')
+-----END RSA PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $rsa);
+        $rsa = $rsa
             ->withSaltLength(0)
             ->withHash('sha1')
             ->withMGFHash('sha1');
@@ -285,7 +296,9 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
             -----END PUBLIC KEY-----
             HERE;
 
-        $rsa = PublicKeyLoader::load($pub)
+        $rsa = PublicKeyLoader::load($pub);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
+        $rsa = $rsa
             ->withHash('sha256')
             ->withSaltLength(32)
             ->withMGFHash('sha256');
@@ -314,7 +327,9 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
             -----END PUBLIC KEY-----
             HERE;
 
-        $rsa = PublicKeyLoader::load($pub)
+        $rsa = PublicKeyLoader::load($pub);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
+        $rsa = $rsa
             ->withHash('sha1')
             ->withSaltLength(5)
             ->withMGFHash('sha512');
@@ -348,6 +363,7 @@ U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
             ),
             'e' => new BigInteger('3'),
         ]);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
 
         $message = 'hello world!';
         $signature = pack('H*', 'a0073057133ff3758e7e111b4d7441f1d8cbe4b2dd5ee4316a14264290dee5ed7f175716639bd9bb43a14e4f9fcb9e84dedd35e2205caac04828b2c053f68176d971ea88534dd2eeec903043c3469fc69c206b2a8694fd262488441ed8852280c3d4994e9d42bd1d575c7024095f1a20665925c2175e089c0d731471f6cc145404edf5559fd2276e45e448086f71c78d0cc6628fad394a34e51e8c10bc39bfe09ed2f5f742cc68bee899d0a41e4c75b7b80afd1c321d89ccd9fe8197c44624d91cc935dfa48de3c201099b5b417be748aef29248527e8bbb173cab76b48478d4177b338fe1f1244e64d7d23f07add560d5ad50b68d6649a49d7bc3db686daaa7');
@@ -376,6 +392,7 @@ XdsbLEziLul3MwwckBDHwW6UDvYjN7vzJ/OM2RTxTbzilDcXJ37Zqz4qlDvXwSNm
 gIe+3dpuuRQRrJuJP6FD8zDTkRmg3QWOIIPBTzCqOtJKgWjFwMMxfCOBFEv6Ldn5
 Ac0i9ARl0/aNTWjvGwIDAQAB
 -----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $publicKey);
 
         $privateKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKeQUdBu3zTX6Qyf
@@ -393,6 +410,7 @@ O4+hdzCqOyanBfwNiSF0Encslze4ci8f+NTjRwWlo2hGomzRzFk7OQJAPPd/o0az
 kg9nF+JxLiz7hF+/6MLVZgIfw04u05ANtOSVVQP4UTmJ/tNAe3OBUQVlRQAJ1m3j
 zUlir0ACPypC1Q==
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $privateKey);
 
         $data = 'The quick brown fox jumps over the lazy dog';
 
@@ -404,9 +422,9 @@ zUlir0ACPypC1Q==
                 $ciphertext = $publicKey->withLabel('whatever')->encrypt($data);
 
                 try {
-                    $this->assertFalse($privateKey->decrypt($ciphertext));
-                    $this->fail('Ciphertext should not have decrypted');
-                } catch (\Exception $e) {
+                    $privateKey->decrypt($ciphertext);
+                    self::fail('Ciphertext should not have decrypted with a different label');
+                } catch (BadDecryptionException) {
                 }
 
                 $decrypted = $privateKey->withLabel('whatever')->decrypt($ciphertext);
@@ -427,6 +445,7 @@ k12yS6pCS3c+1wZ9cYFVtgfpSL4XpylLe9EnRT2GRVYCqUkR4AUeTuvnAgMBAAE=
 -----END PUBLIC KEY-----';
 
         $rsa = PublicKeyLoader::load($pub);
+        $this->assertInstanceOf(PublicKey::class, $rsa);
         $this->assertTrue((bool) ($rsa->getPadding() & RSA::SIGNATURE_PSS));
         $rsa = $rsa->withPadding(RSA::ENCRYPTION_NONE);
         $this->assertTrue((bool) ($rsa->getPadding() & RSA::SIGNATURE_PSS));
@@ -454,6 +473,7 @@ ZJzqzE35adlcNcWyTeK9Aku9XuFPa4N1go46xkBnrK1LwE3XCDOr3ncbm3PCsic1
 1U7AoljKI1EL4jvEa3P5y2UQlVBy+V5nL6QSmo88XeB30wKVcSLZfopjUUmIxrTx
 dMHAqhC117qQfr2KEJPJnTnJjkuWpiW2gRuBSdVE20oNAgMBAAE=
 -----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $key);
         $sig = 'XPvvcjPAuUq1Ev7BAG63nh+KmXXbY6j0kzBKV2eYgzmuHHL5DmQJDKaHzg3qPkKznxokpQ1c5YG8p1X13vXfGzMFHQ2EHKGrfz8cGRFv8rxU9O8PH1liIqzOQQltcwBdZGdkHC/BY1v0AV9YT6zKZcGgkYgJG5gFLhGdTEr9c5+V98QeP1E27CUYFrhbN13xvkdMt67pIOrVdL4nVSC1XpMOrtDSydsVIR86xITWPbPngjzLwMXuBQ463rdCR0avcYTHUtxego9jVMAn2uAEWTZTMuearQZ/3rdtZejY0SDQbdmBdelGQkWMEOloIne3U5FfS+PPzVu+m64m1joYPbXDel/aZN+vrgkgB+lI2XxT100uji0TDHQ50HmOIxMELGeCXNo93vggMcTC5pmAgCBCIQPXlJFftNUHCqZ2v1set+QJpXsnaeRkRVElPthbuEupUW7Kq0VDqbFOam5M3yD4UAmDoLKkJGJ0uG1YVsqjrRM2EHx/yACmd92/kJcVWBPD4esBqKKkOylbEA1ljE+5EOSq95V1Z09w030WV2p8xh4lBHQHtbuUFLbq1YkZmn6jj7LrBOXEWzspARPNUyaI2xRs3E+Nik2N+Czg1uESsLlo/n+mP+A7Ygtt4bjuL80GT2T6yl8YM/jMmlF78nosWKbDrQI2LPjS/YaZOBI23D2DJJvXex/V9C5+/RgWzX5rl1zFYrPxKP2BKl53HMfR7NP5Rg20hOtdZedRYJtQTNWLfVUYSrXiggHBAgW+EnbxtqWjhtyUFZoIkaupI5DXvy/aJYBKLZaJ19MWeXmJkKMl5O6ADHi8q/Ca5sPah/bH3pn2UsDT0AqEWpTGVzktPhpDEPACqjiHz8mEnU/DNtPHigLytpJFFECkYa4FnC2eCOc8b4AfFl7F/qgCg+lMVLE3fMZ1NWT52w7TYb1DwaqMKWirTfwBF/368/eOCuIdVma3xmD3IMK+y43qZS3qTCR8YfOaIwxrS6T855kH0Cas73fx3eHq2ekwm18s';
         $sig = base64_decode($sig);
         $this->assertTrue($key->withHash('sha3/512')->withMGFHash('sha3/512')->verify('hello world', $sig));
@@ -477,7 +497,9 @@ tAHfbOgzA3yY9SrxunJ690ufb3d8MgwKyZ21Q93U8G+hTV9tFwFMiy3zFQ7a2iOf
 xE3CINfwaMkEWi39vYPFIhieFwxvZmOWi1Jlud9rYe/9PzftgDDoIwJAcnAHdO6c
 txAvarWoANzLXQ5iKxQ1I+FGaY2LI/wIVHC9pSof6kPbSsdsOOWLs85Tjuu0J345
 bINnZJfGe2e4Lw==
------END PRIVATE KEY-----')->withPadding(RSA::SIGNATURE_PKCS1);
+-----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $private);
+        $private = $private->withPadding(RSA::SIGNATURE_PKCS1);
         $public = $private->getPublicKey();
 
         // OpenSSL's signatures of 'abc', the second one without the NULL parameters
@@ -531,6 +553,7 @@ bINnZJfGe2e4Lw==
 
             $this->assertTrue($key->getPublicKey()->verify('zzzz', $signature), $hash);
             $public = PublicKeyLoader::load($key->getPublicKey()->toString('PSS'));
+            $this->assertInstanceOf(PublicKey::class, $public);
             $this->assertTrue($public->verify('zzzz', $signature), $hash);
         }
     }
@@ -538,12 +561,15 @@ bINnZJfGe2e4Lw==
     #[\PHPUnit\Framework\Attributes\Group('github2136')]
     public function testEncryptOneKeyDecryptAnotherKey()
     {
-        $keyA = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
+        $forcedEngine = RSA::getForcedEngine();
+        try {
+            $keyA = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIl4g4CJxwv1jycznIBvWKqAZ5kMPMMw
 VGcFdSNBW9LUERIv+wyQH8gJjmf2LN17KyefbSm5LBIyuyD37nIJWRUCAwEAAQ==
 -----END PUBLIC KEY-----');
+            $this->assertInstanceOf(PublicKey::class, $keyA);
 
-        $keyB = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
+            $keyB = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEA/GaZqSpvCYsgZ4lB
 x640dFZEiMgVK0jyvwtY79NPsV44TI2H/Z8ONWBoSw+ZJB1t2dPMKyPUVKwC8wA/
 ZGV/0wIDAQABAkA60oiGMcL99OQg7Q6dBD7qS/6d6A9y7oXQO0tHXTZp7cJDfRah
@@ -553,25 +579,29 @@ rtx3RFgdiO/lApitgQcCIQFLUhAgMDcLmru1Z0a+bUG/MY81Ahdr0t+pkIqOnpVz
 zLs2Y9VRiTbIZeve61A6rsFD5jAXeQIhAIEBdMO36Skglaotpfi+Jjm5mNhH2B6z
 B78AVyeOXhlI
 -----END PRIVATE KEY-----');
+            $this->assertInstanceOf(PrivateKey::class, $keyB);
 
-        $ct = $keyA->withPadding(RSA::ENCRYPTION_PKCS1)->encrypt('helloworld');
+            $ct = $keyA->withPadding(RSA::ENCRYPTION_PKCS1)->encrypt('helloworld');
 
-        $engines = ['libsodium', 'OpenSSL', 'PHP'];
-        foreach ($engines as $engine) {
-            try {
+            $engines = ['libsodium', 'OpenSSL', 'PHP'];
+            foreach ($engines as $engine) {
                 RSA::forceEngine($engine);
 
+                $rejected = false;
                 try {
                     $keyB->withPadding(RSA::ENCRYPTION_PKCS1)->decrypt($ct);
-                    $this->fail('Ciphertext should not have decrypted');
-                } catch (\Exception $e) {
-                    $this->assertTrue(true);
+                } catch (BadDecryptionException) {
+                    $rejected = true;
+                } catch (BadConfigurationException) {
+                    // This engine cannot perform this operation in the current configuration.
+                    continue;
                 }
-            } catch (BadConfigurationException $e) {
+
+                $this->assertTrue($rejected, "Engine $engine must reject ciphertext encrypted for another key.");
             }
+        } finally {
+            RSA::forceEngine($forcedEngine);
         }
-        // reset
-        RSA::forceEngine();
     }
 
     public function testBlinding()
@@ -582,6 +612,7 @@ XdsbLEziLul3MwwckBDHwW6UDvYjN7vzJ/OM2RTxTbzilDcXJ37Zqz4qlDvXwSNm
 gIe+3dpuuRQRrJuJP6FD8zDTkRmg3QWOIIPBTzCqOtJKgWjFwMMxfCOBFEv6Ldn5
 Ac0i9ARl0/aNTWjvGwIDAQAB
 -----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $publicKey);
 
         $privateKey = PublicKeyLoader::load('-----BEGIN PRIVATE KEY-----
 MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKeQUdBu3zTX6Qyf
@@ -599,6 +630,7 @@ O4+hdzCqOyanBfwNiSF0Encslze4ci8f+NTjRwWlo2hGomzRzFk7OQJAPPd/o0az
 kg9nF+JxLiz7hF+/6MLVZgIfw04u05ANtOSVVQP4UTmJ/tNAe3OBUQVlRQAJ1m3j
 zUlir0ACPypC1Q==
 -----END PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $privateKey);
 
         $data = 'The quick brown fox jumps over the lazy dog';
 
@@ -624,8 +656,9 @@ MIIBCgKCAQEA4f5wg5l2hKsTeNem/V41fGnJm6gOdrj8ym3rFkEU/wT8RDtnSgFEZOQpHEgQ
 7JL38xUfU0Y3g6aYw9QT0hJ7mCpz9Er5qLaMXJwZxzHzAahlfA0icqabvJOMvQtzD6uQv6wP
 EyZtDTWiQi9AXwBpHssPnpYGIn20ZZuNlX2BrClciHhCPUIIZOQn/MmqTD31jSyjoQoV7Mhh
 MTATKJx2XrHhR+1DcKJzQBSTAGnpYVaqpsARap+nwRipr3nUTuxyGohBTSmjJ2usSeQXHI3b
-ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
------END PUBLIC KEY-----');
+ ODIRe1AuTyHceAbewn8b462yEWKARdpd9AjQW5SIVPfdsz5B6GlYQ5LdYKtznTuy7wIDAQAB
+ -----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $public);
         $msg = 'eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ';
         $sig = base64_decode('PPG4xyDVY8ffp4CcxofNmsTDXsrVG2npdQuibLhJbv4ClyPTUtR5giNSvuxo03kB6I8VXVr0Y9X7UxhJVEoJOmULAwRWaUsDnIewQa101cVhMa6iR8X37kfFoiZ6NkS+c7henVkkQWu2HtotkEtQvN5hFlk8IevXXPmvZlhQhwzB1sGzGYnoi1zOfuL98d3BIjUjtlwii5w6gYG2AEEzp7HnHCsb3jIwUPdq86Oe6hIFjtBwduIK90ca4UqzARpcfwxHwVLMpatKask00AgGVI0ysdk0BLMjmLutquD03XbThHScC2C2/Pp4cHWgMzvbgLU2RYYZcZRKr46QeNgz9w==');
 

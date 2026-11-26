@@ -91,6 +91,11 @@ trait DN
         }
     }
 
+    /**
+     * @template TValue of BaseType|array|string
+     * @param TValue $value
+     * @param-out TValue|BaseType|Element $value
+     */
     private static function encodeDNS(OID|string $type, BaseType|array|string &$value): void
     {
         if ($type == 'id-at-postalAddress') {
@@ -297,6 +302,7 @@ trait DN
         }
     }
 
+    /** @param-out ($props is Element ? Element : array|Choice) $dn */
     private static function setDNInternal(array|Choice &$dn, array|string|Element $props): void
     {
         $dn['rdnSequence'] = [];

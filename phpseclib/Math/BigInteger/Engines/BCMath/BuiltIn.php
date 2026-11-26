@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\BCMath;
  * Built-In BCMath Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class BuiltIn extends BCMath
 {

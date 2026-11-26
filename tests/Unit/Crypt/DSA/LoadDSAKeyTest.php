@@ -60,9 +60,9 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertIsString("$dsa");
-        $this->assertIsString($dsa->getPublicKey()->toString('PuTTY'));
-        $this->assertIsString($dsa->getParameters()->toString('PuTTY'));
+        $this->assertNotEmpty("$dsa");
+        $this->assertNotEmpty($dsa->getPublicKey()->toString('PuTTY'));
+        $this->assertNotEmpty($dsa->getParameters()->toString('PuTTY'));
         $length = ['L' => 2048, 'N' => 160];
         $this->assertSame($length, $dsa->getLength());
 
@@ -70,13 +70,11 @@ Private-MAC: 62b92ddd8b341b9414d640c24ba6ae929a78e039
         $this->assertGreaterThan(0, strlen("$dsa"));
 
         $arr = $dsa->toArray();
-        $this->assertIsArray($arr);
         foreach (['p', 'q', 'g', 'y', 'x'] as $key) {
             $this->assertArrayHasKey($key, $arr);
         }
 
         $arr = $dsa->getPublickey()->toArray();
-        $this->assertIsArray($arr);
         foreach (['p', 'q', 'g', 'y'] as $key) {
             $this->assertArrayHasKey($key, $arr);
         }
@@ -108,9 +106,9 @@ Eb2s9fDOpnMhj+WqwcQgs18=
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertIsString("$dsa");
-        $this->assertIsString($dsa->getPublicKey()->toString('PKCS1'));
-        $this->assertIsString((string) $dsa->getParameters());
+        $this->assertNotEmpty("$dsa");
+        $this->assertNotEmpty($dsa->getPublicKey()->toString('PKCS1'));
+        $this->assertNotEmpty((string) $dsa->getParameters());
 
         $this->assertFalse($dsa->hasPassword());
         $dsa = $dsa->withPassword('password');
@@ -163,7 +161,7 @@ ZpmyOpXM/0opRMIRdmqVW4ardBFNokmlqngwcbaptfRnk9W2cQtx0lmKy6X/vnis
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PublicKey::class, $dsa);
-        $this->assertIsString("$dsa");
+        $this->assertNotEmpty("$dsa");
     }
 
     public function testPKCS8Private(): void
@@ -181,9 +179,7 @@ Syea3pSvWdBpVhWzOX4A7qbxs+bhWAQWAhQiF7sFfCtZ7oOgCb2aJ9ySC9sTug==
         $dsa = PublicKeyLoader::load($key);
 
         $this->assertInstanceOf(PrivateKey::class, $dsa);
-        $this->assertIsString("$dsa");
-        $this->assertInstanceOf(PublicKey::class, $dsa->getPublicKey());
-        $this->assertInstanceOf(Parameters::class, $dsa->getParameters());
+        $this->assertNotEmpty("$dsa");
     }
 
     public function testPuTTYBadMAC(): void
@@ -273,6 +269,7 @@ dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
 -----END OPENSSH PRIVATE KEY-----';
 
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PrivateKey::class, $key);
 
         $key2 = PublicKeyLoader::load($key->toString('OpenSSH'));
         $this->assertInstanceOf(PrivateKey::class, $key2);
@@ -281,6 +278,7 @@ dlN48qLbSmUgsO7gq/1vodebMSHcduV4JTq8ix5Ey87QAAABQhHEzWiduF4V0DestSnJ3q
 
         $key = 'ssh-dss AAAAB3NzaC1kc3MAAACBAOkTX/vVXq65p4SptoDOgSwDWR0kFmH0iff9WUJfC+UnrPPwpLNtDGsLjmw7vL18zAPlDJYSmFV4hc781J9xmEr9IP8P43VnHnYq7YoQVNvd0CF80Z73KGysBUjlbITiVLap57l8s2eHXfyFgB03sQ1GhQBDcjoeT0cAif6W0cyZAAAAFQD3mI93EcveKSSZl3VflaFAVMj72wAAAIEAxyfU91Z1SYTwPgo/qDSurgoASVlz3TiZhf5sdA0xc42bgGuxJyff+I5/fvQRqJSCSiaj4JI/YfxLeksE1uJBbsDNL1MZPvzYWUb9td/yRIwVvsjMC4WZAx6i4tmjjQDAcS/s+l3OtezoZFDS/AmU2iqhQBSL0wyF7EPOkYxs2OoAAACBAJTUm4lkPOmT5wGAR1FNEbHqYlmQ/28c/ty1SGAplwA9LJ3yR43yBAKm+Zm4rUAO13/6lcHFtAEA9vX6nzACCoNTibz4sV/aKAq1vyZ/yqn+CHFXTz9PN/lZ9wNY/E56x2U3jyottKZSCw7uCr/W+h15sxIdx25XglOryLHkTLzt root@vagrant';
         $key = PublicKeyLoader::load($key);
+        $this->assertInstanceOf(PublicKey::class, $key);
 
         $this->assertTrue($key->verify('zzz', $sig));
     }

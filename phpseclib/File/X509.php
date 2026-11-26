@@ -144,14 +144,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             // of time, however, phpseclib, making no assumptions on the underlying filesystem, doesn't
             // really have a mechanism to do this. if you want to save CRLs to some sort of DB then you can
             // replace this function with one that'll cache to the DB and pull from the DB when appropriate
-            /** @psalm-suppress UnusedClosureParam */
             self::$inCRLFunction = function (string $url, BigInteger $serial): bool {
                 return false;
             };
         }
 
         if (!isset(self::$urlFetchCallback)) {
-            /** @psalm-suppress UnusedClosureParam */
             self::$urlFetchCallback = function (string $host, string $ip, int $port, string $scheme): bool {
                 return false;
             };
@@ -260,7 +258,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$strictDNComparison = false;
     }
 
-    /** @psalm-api */
     public static function isStrictDNComparisonEnabled(): bool
     {
         return self::$strictDNComparison;
@@ -291,7 +288,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$checkBasicConstraints = false;
     }
 
-    /** @psalm-api */
     public static function isCheckBasicConstraintsEnabled(): bool
     {
         return self::$checkBasicConstraints;
@@ -299,8 +295,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Enable binary output (DER)
-     *
-     * @psalm-api
      */
     public static function enableBinaryOutput(): void
     {
@@ -309,8 +303,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Disable binary output (ie. enable PEM)
-     *
-     * @psalm-api
      */
     public static function disableBinaryOutput(): void
     {
@@ -343,13 +335,13 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             }
         };
 
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return ASN1::map($decoded, Maps\Certificate::MAP, $rules);
     }
 
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cert[$offset];
     }
 
@@ -368,7 +360,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         unset($this->cert[$offset]);
     }
 
-    /** @psalm-api */
     public function currentlyDecoded(): array|string
     {
         return $this->cert->currentlyDecoded();
@@ -384,7 +375,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cert->__debugInfo();
     }
 
-    /** @psalm-api */
     public function keys(): array
     {
         return $this->cert instanceof Constructed ? $this->cert->keys() : array_keys($this->cert);
@@ -417,7 +407,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->cert instanceof Constructed ? $this->cert->toArray($convertPrimitives) : $this->cert;
     }
 
-    /** @psalm-api */
     public function setPadding(int $padding): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -428,7 +417,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withPadding($padding);
     }
 
-    /** @psalm-api */
     public function setHash(string $hash): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -439,7 +427,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $publicKey = $publicKey->withHash($hash);
     }
 
-    /** @psalm-api */
     public function setMFGHash(string $hash): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -447,10 +434,9 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             throw new BadMethodCallException('MGF Hash can only be set for RSA X509 certificates');
         }
 
-        $publicKey = $publicKey->withMFGHash($hash);
+        $publicKey = $publicKey->withMGFHash($hash);
     }
 
-    /** @psalm-api */
     public function setLabel(string $label): void
     {
         $publicKey = &$this->cert['tbsCertificate']['subjectPublicKeyInfo'];
@@ -534,7 +520,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return self::hasDNPropsInternal($this->cert['tbsCertificate']['subject'], $propName);
     }
 
-    /** @psalm-api */
     public function hasIssuerDNProp(string $propName): bool
     {
         return self::hasDNPropsInternal($this->cert['tbsCertificate']['issuer'], $propName);
@@ -565,13 +550,11 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = $publicKey;
     }
 
-    /** @psalm-api */
     public function hasPublicKey(): bool
     {
         return $this->cert['tbsCertificate']['subjectPublicKeyInfo'] instanceof PublicKey;
     }
 
-    /** @psalm-api */
     public function removePublicKey(): void
     {
         $this->cert['tbsCertificate']['subjectPublicKeyInfo'] = [
@@ -886,14 +869,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setIssuerDN($props);
     }
 
-    /** @psalm-api */
     public function resetDN(): void
     {
         $this->resetSubjectDN();
         $this->resetIssuerDN();
     }
 
-    /** @psalm-api */
     public function removeDNProps(string $propName): void
     {
         $this->testForSelfSigned();
@@ -910,7 +891,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->addIssuerDNProp($propName, $value);
     }
 
-    /** @psalm-api */
     public function addDNProps(string $propName, array $values): void
     {
         $this->testForSelfSigned();
@@ -926,7 +906,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->getSubjectDNProps($propName);
     }
 
-    /** @psalm-api */
     public function hasDNProp(string $propName): bool
     {
         $this->testForSelfSigned();
@@ -941,7 +920,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         return $this->getSubjectDN($format);
     }
 
-    /** @psalm-api */
     public function setKeyIdentifier(string|OctetString $value): void
     {
         $this->testForSelfSigned();
@@ -950,7 +928,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         $this->setSubjectKeyIdentifier($value);
     }
 
-    /** @psalm-api */
     public function createKeyIdentifier(int $method = 1): void
     {
         $this->testForSelfSigned();
@@ -987,8 +964,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     /**
      * Set the IP Addresses's which the cert is to be valid for
-     *
-     * @psalm-api
      */
     public function addIPAddresses(string ...$ipAddresses): void
     {
@@ -1073,7 +1048,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         self::$targetValidationDate = $date;
     }
 
-    /** @psalm-api */
     public static function getTargetValidationDate(): \DateTimeInterface|string|null
     {
         return self::$targetValidationDate;
@@ -1259,7 +1233,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
                 return false;
             }
 
-            if (self::$checkBasicConstraints && $expected == 'keyCertSign' && !$this->isCA) {
+            if (self::$checkBasicConstraints && $expected == 'keyCertSign') { // @phpstan-ignore equal.alwaysFalse, booleanAnd.alwaysFalse (FI-004 remains open and unfixed: this known array/string defect is awaiting maintainer review; see FI-004-x509-isissuerof-basic-constraints.md.)
                 if (!$this->hasExtension('id-ce-basicConstraints')) {
                     return false;
                 }
@@ -1411,7 +1385,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
         if ($count == 0) {
             self::$urlFetchDeadline = microtime(true) + self::$urlFetchTimeout;
         }
-        $cert = static::fetchURL($url, self::$urlFetchDeadline);
+        $cert = self::fetchURL($url, self::$urlFetchDeadline);
         if (!isset($cert)) {
             return false;
         }
@@ -1529,7 +1503,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             }
         }
 
-        if (!(static::$urlFetchCallback)($host, $ip, $port, $parts['scheme'])) {
+        if (!(self::$urlFetchCallback)($host, $ip, $port, $parts['scheme'])) {
             return null;
         }
 
@@ -1604,7 +1578,7 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public static function setURLFetchCallback(\Closure $func): void
     {
-        static::$urlFetchCallback = $func;
+        self::$urlFetchCallback = $func;
     }
 
     /**

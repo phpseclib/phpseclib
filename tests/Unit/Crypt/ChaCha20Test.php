@@ -245,13 +245,16 @@ class ChaCha20Test extends PhpseclibTestCase
                         continue;
                     }
                     $ciphertext = $c->encrypt($plaintext);
+                    // @phpstan-ignore isset.expr (The dynamic variable is initialized by the first engine iteration; keep the runtime guard for test sequencing.)
                     if (isset($$var)) {
                         $message = "Failed asserting that $engine (with a nonce size of $nonceSize) ";
                         if ($calculatePoly) {
                             $message .= "an auto-calculated Poly1305 key ";
                             $tag = $c->getTag();
                         }
+                        // @phpstan-ignore variable.undefined, variable.undefined (The enclosing isset($$var) guard makes the read safe; the two readings are the two possible values of $var.)
                         $message .= "yielded the expected result of " . bin2hex($$var);
+                        // @phpstan-ignore variable.undefined, variable.undefined (The enclosing isset($$var) guard makes the read safe; the two readings are the two possible values of $var.)
                         $this->assertSame(bin2hex($$var), bin2hex($ciphertext), $message);
                     } else {
                         $$var = $ciphertext;

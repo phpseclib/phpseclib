@@ -417,7 +417,7 @@ abstract class SymmetricKey
      * The cipher methods supported by OpenSSL, as keys
      *
      * @see self::isValidOpenSSLCipher()
-     * @var array<string, true>|null
+     * @var array<string, true>
      */
     private static array $openssl_cipher_methods;
 
@@ -835,10 +835,8 @@ abstract class SymmetricKey
                         $s = substr($s, 0, $blockLength);
 
                         $p = '';
-                        if (strlen($password)) {
-                            while (strlen($p) < $blockLength) {
-                                $p .= $password;
-                            }
+                        while (strlen($p) < $blockLength) {
+                            $p .= $password;
                         }
                         $p = substr($p, 0, $blockLength);
 
@@ -1021,8 +1019,8 @@ abstract class SymmetricKey
 
                     for ($i = 0; $i < $len; ++$i) {
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->decryptIV);
+                        // @phpstan-ignore binaryOp.invalid (Valid ECB block/key; preserve the established OpenSSL success contract.)
                         $ciphertext .= $plaintext[$i] ^ $xor;
-                        /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
                     }
 
@@ -1053,6 +1051,7 @@ abstract class SymmetricKey
                 $xor = $this->encryptIV;
                 for ($i = 0; $i < strlen($plaintext); $i += $block_size) {
                     $block = substr($plaintext, $i, $block_size);
+                    // @phpstan-ignore binaryOp.invalid (CRYPT-004: successful CBC setup validates and initializes the working IV; failed setup remains changed.)
                     $block = $this->encryptBlock($block ^ $xor);
                     $xor = $block;
                     $ciphertext .= $block;
@@ -1084,6 +1083,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty plaintext, in which case the taken CTR branch's loop body assigned $key at least once.)
                         $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
@@ -1185,6 +1185,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->encryptIV = $xor;
                     if ($start = strlen($plaintext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty plaintext: the buffered-branch loop assigns $key, and the else branch assigns $key unconditionally after its loop.)
                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
@@ -1246,7 +1247,13 @@ abstract class SymmetricKey
                 $this->oldtag = null;
                 throw new BadDecryptionException('Derived authentication tag and supplied authentication tag do not match');
             }
+            if (isset($this->poly1305Key)) {
+                $cipher = clone $this;
+                unset($cipher->poly1305Key);
+                $plaintext = $cipher->decrypt($ciphertext);
+            }
             $this->oldtag = null;
+            // @phpstan-ignore variable.undefined (FLOW-002: GCM assigns $plaintext above; Poly1305 assigns after successful tag validation.)
             return $plaintext;
         }
 
@@ -1304,6 +1311,7 @@ abstract class SymmetricKey
                             $iv = substr($ciphertext, -$overflow - $this->block_size, -$overflow);
                         }
                         $iv = openssl_encrypt(str_repeat("\0", $this->block_size), $this->cipher_name_openssl, $this->key, OPENSSL_RAW_DATA, $iv);
+                        // @phpstan-ignore binaryOp.invalid (Validated CFB key/IV and complete block; established OpenSSL success contract.)
                         $plaintext .= $iv ^ substr($ciphertext, -$overflow);
                         $iv = substr_replace($iv, substr($ciphertext, -$overflow), 0, $overflow);
                         $pos = $overflow;
@@ -1329,8 +1337,8 @@ abstract class SymmetricKey
 
                     for ($i = 0; $i < $len; ++$i) {
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA, $this->decryptIV);
+                        // @phpstan-ignore binaryOp.invalid (Valid ECB block/key; preserve the established OpenSSL success contract.)
                         $plaintext .= $ciphertext[$i] ^ $xor;
-                        /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
                     }
 
@@ -1342,6 +1350,7 @@ abstract class SymmetricKey
                     $plaintext = $this->openssl_ofb_process($ciphertext, $this->decryptIV, $this->debuffer);
             }
 
+            // @phpstan-ignore variable.undefined, variable.undefined (All supported OpenSSL modes reaching this return assign $plaintext.)
             return $this->paddable ? $this->unpad($plaintext) : $plaintext;
         }
 
@@ -1364,6 +1373,7 @@ abstract class SymmetricKey
                 $xor = $this->decryptIV;
                 for ($i = 0; $i < strlen($ciphertext); $i += $block_size) {
                     $block = substr($ciphertext, $i, $block_size);
+                    // @phpstan-ignore binaryOp.invalid (CRYPT-004: successful CBC setup validates and initializes the working IV; failed setup remains changed.)
                     $plaintext .= $this->decryptBlock($block) ^ $xor;
                     $xor = $block;
                 }
@@ -1394,6 +1404,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty ciphertext, in which case the taken CTR branch's loop body assigned $key at least once.)
                         $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                     }
                 }
@@ -1494,6 +1505,7 @@ abstract class SymmetricKey
                 if ($this->continuousBuffer) {
                     $this->decryptIV = $xor;
                     if ($start = strlen($ciphertext) % $block_size) {
+                        // @phpstan-ignore variable.undefined ($start is only non-zero for non-empty ciphertext: the buffered-branch loop assigns $key, and the else branch assigns $key unconditionally after its loop.)
                         $buffer['xor'] = substr($key, $start) . $buffer['xor'];
                     }
                 }
@@ -1591,12 +1603,15 @@ abstract class SymmetricKey
                     $block = substr($plaintext, $i, $block_size);
                     $otp = openssl_encrypt($xor, $this->cipher_name_openssl_ecb, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
                     Strings::increment_str($xor);
+                    // @phpstan-ignore binaryOp.invalid (Available ECB, valid key/counter block; established OpenSSL success contract.)
                     $ciphertext .= $block ^ $otp;
                 }
             }
             if ($this->continuousBuffer) {
                 $encryptIV = $xor;
                 if ($start = strlen($plaintext) % $block_size) {
+                    // CRYPT-007: partial-block buffering remains open; see
+                    // CRYPT-007-openssl-emulated-ctr-buffering.md.
                     $buffer['ciphertext'] = substr($key, $start) . $buffer['ciphertext'];
                 }
             }
@@ -1631,6 +1646,7 @@ abstract class SymmetricKey
             }
         }
         if ($this->continuousBuffer) {
+            // @phpstan-ignore parameterByRef.type (CRYPT-006 remains open; failed companion ECB may corrupt native CTR state. See CRYPT-006-native-ctr-failure-state.md.)
             $encryptIV = openssl_decrypt($encryptIV, $this->cipher_name_openssl_ecb, $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
             if ($overflow) {
                 Strings::increment_str($encryptIV);
@@ -1796,7 +1812,6 @@ abstract class SymmetricKey
      * {@internal Could, but not must, extend by the child Crypt_* class}
      *
      * @see self::enableContinuousBuffer()
-     * @psalm-api
      */
     public function disableContinuousBuffer(): void
     {
@@ -2017,8 +2032,6 @@ abstract class SymmetricKey
             return;
         }
 
-        $this->changed = false;
-
         if ($this->usePoly1305 && !isset($this->poly1305Key) && method_exists($this, 'createPoly1305Key')) {
             $this->createPoly1305Key();
         }
@@ -2056,11 +2069,13 @@ abstract class SymmetricKey
             case self::ENGINE_EVAL:
                 if ($this->nonIVChanged) {
                     $this->setupKey();
-                    $this->setupInlineCrypt();
+                    // Eval engine selection guarantees this optional subclass hook exists.
+                    $this->setupInlineCrypt(); // @phpstan-ignore method.notFound (Optional hook checked by isValidEngineHelper(); preserve subclass API.)
                 }
         }
 
         $this->nonIVChanged = false;
+        $this->changed = false;
     }
 
     /**

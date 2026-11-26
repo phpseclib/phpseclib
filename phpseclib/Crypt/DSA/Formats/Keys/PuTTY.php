@@ -29,7 +29,6 @@ use phpseclib4\Math\BigInteger;
  * PuTTY Formatted DSA Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PuTTY extends Progenitor
 {

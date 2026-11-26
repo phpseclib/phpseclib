@@ -10,9 +10,11 @@ declare(strict_types=1);
 
 namespace phpseclib4\Tests\Unit\File\CMS;
 
-use phpseclib4\Exception\LengthException;
-use phpseclib4\File\CMS;
+use phpseclib4\Crypt\EC;
+use phpseclib4\Exception\{InvalidStateException, LengthException};
 use phpseclib4\File\ASN1\Types\OID;
+use phpseclib4\File\CMS;
+use phpseclib4\File\X509;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class EncryptedDataTest extends PhpseclibTestCase
@@ -55,5 +57,27 @@ lHt+YbD7A18NJVeJgx0R9IAQKnjC5UnRa0hP1rdkZs+Y5Q==
         $this->expectException(LengthException::class);
         $cms = new CMS\EncryptedData('hello, world!', 'aes256-CBC-PAD');
         $cms->createNewRecipientFromPassword('correct horse battery staple', 'aes128-CBC-PAD');
+    }
+
+    public function testPasswordRecipientRequiresLoadedContentEncryptionKey(): void
+    {
+        $this->expectException(InvalidStateException::class);
+
+        CMS\EncryptedData::load([])->createNewRecipientFromPassword('password');
+    }
+
+    public function testKEKRecipientRequiresLoadedContentEncryptionKey(): void
+    {
+        $this->expectException(InvalidStateException::class);
+
+        CMS\EncryptedData::load([])->createNewRecipientFromKeyWithIdentifier(str_repeat('a', 16), 'id');
+    }
+
+    public function testX509RecipientRequiresLoadedContentEncryptionKey(): void
+    {
+        $this->expectException(InvalidStateException::class);
+
+        $x509 = new X509(EC::createKey('nistp256')->getPublicKey());
+        CMS\EncryptedData::load([])->createNewRecipientFromX509($x509);
     }
 }

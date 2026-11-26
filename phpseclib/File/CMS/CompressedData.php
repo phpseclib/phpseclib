@@ -32,7 +32,8 @@ use phpseclib4\File\{ASN1, CMS};
 class CompressedData implements \ArrayAccess, \Countable, \Iterator
 {
     private Constructed|array $cms;
-    private string $decompressed;
+    private ?string $decompressed = null;
+    private ?string $compressed = null;
 
     /**
      * @param string $data
@@ -43,6 +44,8 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
             throw new BadConfigurationException('zlib_encode() is not available');
         }
         $this->decompressed = $data;
+        $compressed = zlib_encode($data, ZLIB_ENCODING_DEFLATE);
+        $this->compressed = (string) $compressed;
         $this->cms = [
             'contentType' => 'id-ct-compressedData',
             'content' => [
@@ -50,7 +53,7 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
                 'compressionAlgorithm' => ['algorithm' => 'id-alg-zlibCompress'],
                 'encapContentInfo' => [
                     'eContentType' => 'id-data',
-                    'eContent' => zlib_encode($data, ZLIB_ENCODING_DEFLATE),
+                    'eContent' => $compressed,
                 ],
             ]
         ];
@@ -78,7 +81,9 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
         }
         $decoded = ASN1::decodeBER($content->value);
         $cms['content'] = ASN1::map($decoded, Maps\CompressedData::MAP);
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->parent = $cms;
+        // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         $cms['content']->key = 'content';
         return $cms;
     }
@@ -86,7 +91,6 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cms[$offset];
     }
 
@@ -182,15 +186,17 @@ class CompressedData implements \ArrayAccess, \Countable, \Iterator
 
     public function getContent(): string
     {
-        if (!isset($this->decompressed)) {
+        $compressed = (string) $this->cms['content']['encapContentInfo']['eContent'];
+        if ($this->decompressed === null || $this->compressed !== $compressed) {
             if (!function_exists('zlib_decode')) {
                 throw new BadConfigurationException('zlib_decode() is not available');
             }
-            $result = zlib_decode((string) $this->cms['content']['encapContentInfo']['eContent']);
+            $result = zlib_decode($compressed);
             if ($result === false) {
                 throw new UnsupportedValueException('zlib_decode() returned false');
             }
             $this->decompressed = $result;
+            $this->compressed = $compressed;
         }
         return $this->decompressed;
     }

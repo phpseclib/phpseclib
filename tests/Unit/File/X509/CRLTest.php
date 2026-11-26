@@ -28,6 +28,21 @@ class CRLTest extends PhpseclibTestCase
         $this->assertEquals('unspecified', $reason);
     }
 
+    public function testHasDNProp(): void
+    {
+        $crl = new CRL();
+
+        $this->assertFalse($crl->hasDNProp('commonName'));
+
+        $crl->setDN([
+            'rdnSequence' => [[
+                ['type' => 'id-at-commonName', 'value' => 'phpseclib CA'],
+            ]],
+        ]);
+
+        $this->assertTrue($crl->hasDNProp('commonName'));
+    }
+
     public function testCreateCRL(): void
     {
         // create private key / x.509 cert for signing

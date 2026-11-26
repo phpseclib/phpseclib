@@ -35,6 +35,7 @@ while (($line = fgets($conn)) !== false && $line != "\r\n") {
 }
 
 // the client may hang up part way through
+// @phpstan-ignore variable.undefined (This script only runs from the command line, where PHP defines $argv.)
 switch ($argv[1]) {
     case 'trickle':
         fwrite($conn, "HTTP/1.0 200 OK\r\n");

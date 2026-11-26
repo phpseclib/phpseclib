@@ -12,6 +12,8 @@ namespace phpseclib4\Tests\Unit\Crypt\EC;
 
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\EC\Curves\Ed448;
+use phpseclib4\Crypt\EC\PrivateKey;
+use phpseclib4\Crypt\EC\PublicKey;
 use phpseclib4\Crypt\DH;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\BadConfigurationException;
@@ -196,6 +198,7 @@ final class CurveTest extends PhpseclibTestCase
         }
 
         EC::forceEngine('PHP');
+        // @phpstan-ignore variable.undefined, variable.undefined (The current curves provider and engine loop produce both values on a supported engine before this assertion.)
         $this->assertTrue($publickey->verify($plaintext, $sig));
 
         // reset engine
@@ -220,7 +223,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '5fd7449b59b461fd2ce787ec616ad46a1da1342485a70e1f8a0ea75d80e96778edf124769b46c7061bd6783df1e50f6cd1fa1abeafe8256180');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $expected = '533a37f6bbe457251f023c0d88f976ae2dfb504a843e34d2074fd823d41a591f2b233f034f628281f2fd7a22ddd47d7828c59bd0a21bfd3980' .
                             'ff0d2028d4b18a9df63e006c5d1c2d345b925d8dc00b4104852db99ac5c7cdda8530a113a0f4dbb61149f05a7363268c71d95808ff2e652600';
@@ -231,7 +236,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '43ba28f430cdff456ae531545f7ecd0ac834a55d9358c0372bfa0c6c6798c0866aea01eb00742802b8438ea4cb82169c235160627b4c3a9480');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $expected = '26b8f91727bd62897af15e41eb43c377efb9c610d48f2335cb0bd0087810f4352541b143c4b981b7e18f62de8ccdf633fc1bf037ab7cd77980' .
                             '5e0dbcc0aae1cbcee1afb2e027df36bc04dcecbf154336c19f0af7e0a6472905e799f1953d2a0ff3348ab21aa4adafd1d234441cf807c03a00';
@@ -250,7 +257,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '3ba16da0c6f2cc1f30187740756f5e798d6bc5fc015d7c63cc9510ee3fd44adc24d8e968b6e46e6f94d19b945361726bd75e149ef09817f580');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = pack('H*', '64a65f3cdedcdd66811e2915');
 
@@ -263,7 +272,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'b3da079b0aa493a5772029f0467baebee5a8112d9d3a22532361da294f7bb3815c5dc59e176b4d9f381ca0938e13c6c07b174be65dfa578e80');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = pack('H*', '64a65f3cdedcdd66811e2915e7');
 
@@ -276,7 +287,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'df9705f58edbab802c7f8363cfe5560ab1c6132c20a9f1dd163483a26f8ac53a39d6808bf4a1dfbd261b099bb03b3fb50906cb28bd8a081f00');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = 'bd0f6a3747cd561bdddf4640a332461a4a30a12a434cd0bf40d766d9c6d458e5512204a30c17d1f50b5079631f64eb3112182da3005835461113718d1a5ef944';
                 $message = pack('H*', $message);
@@ -290,7 +303,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '79756f014dcfe2079f5dd9e718be4171e2ef2486a08f25186f6bff43a9936b9bfe12402b08ae65798a3d81e22e9ec80e7690862ef3d4ed3a00');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = '15777532b0bdd0d1389f636c5f6b9ba734c90af572877e2d272dd078aa1e567cfa80e12928bb542330e8409f3174504107ecd5efac61ae7504dabe2a602ede89e5cca6257a7c77e27a702b3ae39fc769fc54f2395ae6a1178cab4738e543072fc1c177fe71e92e25bf03e4ecb72f47b64d0465aaea4c7fad372536c8ba516a60' .
                         '39c3c2a39f0e4d832be432dfa9a706a6e5c7e19f397964ca4258002f7c0541b590316dbc5622b6b2a6fe7a4abffd96105eca76ea7b98816af0748c10df048ce012d901015a51f189f3888145c03650aa23ce894c3bd889e030d565071c59f409a9981b51878fd6fc110624dcbcde0bf7a69ccce38fabdf86f3bef6044819de11';
@@ -305,7 +320,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'a81b2e8a70a5ac94ffdbcc9badfc3feb0801f258578bb114ad44ece1ec0e799da08effb81c5d685c0c56f64eecaef8cdf11cc38737838cf400');
 
                 $privateKey = PublicKeyLoader::load($private);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = PublicKeyLoader::load($public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = '6ddf802e1aae4986935f7f981ba3f0351d6273c0a0c22c9c0e8339168e675412a3debfaf435ed651558007db4384b650fcc07e3b586a27a4f7a00ac8a6fec2cd86ae4bf1570c41e6a40c931db27b2faa15a8cedd52cff7362c4e6e23daec0fbc3a79b6806e316efcc7b68119bf46bc76a26067a53f296dafdbdc11c77f7777e9' .
                         '72660cf4b6a9b369a6665f02e0cc9b6edfad136b4fabe723d2813db3136cfde9b6d044322fee2947952e031b73ab5c603349b307bdc27bc6cb8b8bbd7bd323219b8033a581b59eadebb09b3c4f3d2277d4f0343624acc817804728b25ab797172b4c5c21a22f9c7839d64300232eb66e53f31c723fa37fe387c7d3e50bdf9813' .
@@ -343,7 +360,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'd75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public); // libsodium format
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $expected = 'e5564300c360ac729086e2cc806e828a84877f1eb8e5d974d873e06522490155' .
                             '5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b';
@@ -354,7 +373,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $expected = '92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da' .
                             '085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00';
@@ -365,7 +386,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'fc51cd8e6218a1a38da47ed00230f0580816ed13ba3303ac5deb911548908025');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public); // libsodium format
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $expected = '6291d657deec24024827e69c3abe01a30ce548a284743a445e3680d7db5ac3ac' .
                             '18ff9b538d16f290ae67f760984dc6594a7c15e9716ed28dc027beceea1ec40a';
@@ -376,7 +399,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '278117fc144c72340f67d0f2316e8386ceffbf2b2428c9c51fef7c597f1d426e');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public); // libsodium format
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = '08b8b2b733424243760fe426a4b54908632110a66c2f6591eabd3345e3e4eb98' .
                         'fa6e264bf09efe12ee50f8f54e9f77b1e355f6c50544e23fb1433ddf73be84d8' .
@@ -421,7 +446,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'ec172b93ad5e563bf4932c70e1245034c35467ef2efd4d64ebf819683467e2bf');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $message = 'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a' .
                         '2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f';
@@ -436,7 +463,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $privateKey = $privateKey->withContext("\x62\x61\x72");
                 $publicKey = $publicKey->withContext("\x62\x61\x72");
@@ -453,7 +482,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', 'dfc9425e4f968f7f0c29f0259cf5f9aed6851c2bb4ad8bfb860cfee0ab248292');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $privateKey = $privateKey->withContext("\x66\x6f\x6f");
                 $publicKey = $publicKey->withContext("\x66\x6f\x6f");
@@ -470,7 +501,9 @@ final class CurveTest extends PhpseclibTestCase
                 $public = pack('H*', '0f1d1274943b91415889152e893d80e93275a1fc0b65fd71b4b0dda10ad7d772');
 
                 $privateKey = EC::loadFormat('libsodium', $private . $public);
+                $this->assertInstanceOf(PrivateKey::class, $privateKey);
                 $publicKey = EC::loadFormat('libsodium', $public);
+                $this->assertInstanceOf(PublicKey::class, $publicKey);
 
                 $privateKey = $privateKey->withContext("\x66\x6f\x6f");
                 $publicKey = $publicKey->withContext("\x66\x6f\x6f");
@@ -504,10 +537,12 @@ CJ1+UnaPfk0=
 Private-Lines: 1
 AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
 Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
+        $this->assertInstanceOf(PrivateKey::class, $private);
+        $private = $private->withSignatureFormat('ASN1');
         $public = $private->getPublicKey();
 
-        $signature1 = $private->sign($message, 'ASN1');
-        $signature2 = $private->sign($message, 'ASN1');
+        $signature1 = $private->sign($message);
+        $signature2 = $private->sign($message);
         // phpseclib's EC implementation uses a CSPRNG to generate the k parameter.
         // used correctly this should result in different signatures every time.
         // RFC6979 describes a deterministic EC scheme wherein two signatures for the same
@@ -515,20 +550,51 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
         // unit test would need to be updated
         $this->assertNotEquals($signature1, $signature2);
 
-        $this->assertTrue($public->verify($message, $signature1, 'ASN1'));
-        $this->assertTrue($public->verify($message, $signature2, 'ASN1'));
+        $this->assertTrue($public->verify($message, $signature1));
+        $this->assertTrue($public->verify($message, $signature2));
 
-        $signature1 = $private->sign($message, 'SSH2');
-        $signature2 = $private->sign($message, 'SSH2');
+        $private = $private->withSignatureFormat('SSH2');
+        $public = $private->getPublicKey();
+        $signature1 = $private->sign($message);
+        $signature2 = $private->sign($message);
         $this->assertNotEquals($signature1, $signature2);
-        $this->assertTrue($public->verify($message, $signature1, 'SSH2'));
-        $this->assertTrue($public->verify($message, $signature2, 'SSH2'));
+        $this->assertTrue($public->verify($message, $signature1));
+        $this->assertTrue($public->verify($message, $signature2));
 
-        $signature = $private->sign($message, 'Raw');
-        $this->assertTrue($public->verify($message, $signature, 'Raw'));
+        $private = $private->withSignatureFormat('Raw');
+        $public = $private->getPublicKey();
+        $signature = $private->sign($message);
+        $this->assertTrue($public->verify($message, $signature));
 
         // reset engine
         EC::forceEngine();
+    }
+
+    public function testOpenSSLEd25519InvalidSignatureReturnsFalse(): void
+    {
+        if (!defined('OPENSSL_KEYTYPE_ED25519')) {
+            self::markTestSkipped('OpenSSL Ed25519 support requires PHP 8.4 or later');
+        }
+
+        try {
+            EC::forceEngine('PHP');
+            $privateKey = EC::createKey('Ed25519');
+            $publicKey = $privateKey->getPublicKey();
+            $message = 'Package 70 OpenSSL verification';
+            $signature = $privateKey->sign($message);
+
+            EC::forceEngine('OpenSSL');
+            try {
+                $this->assertTrue($publicKey->verify($message, $signature));
+            } catch (BadConfigurationException $e) {
+                self::markTestSkipped('OpenSSL Ed25519 verification is unavailable: ' . $e->getMessage());
+            }
+
+            $signature[0] = chr(ord($signature[0]) ^ 1);
+            $this->assertFalse($publicKey->verify($message, $signature));
+        } finally {
+            EC::forceEngine();
+        }
     }
 
     public function testBadRSEd25519(): void
@@ -540,6 +606,7 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE1zY+JIBlt8l+1I2f0ItA6oauDx9bFsm6
 hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
 -----END PUBLIC KEY-----');
+        $this->assertInstanceOf(PublicKey::class, $public);
 
         $signature = base64_decode('MAYCAQACAQA=');
         $message = 'hello, world!';
@@ -563,7 +630,7 @@ hk6TVQ4mP3lH+96p9keQBMRAY1D5znOyPk9107PceO+3kwoat1zKzw==
         foreach ($engines as $engine) {
             try {
                 EC::forceEngine($engine);
-                $secret = DH::computeSecret($private, $public);
+                $secret = DH::computeSecret($private, $public); // @phpstan-ignore argument.type (The fixed MontgomeryPrivate format and scalar fixture load as EC\PrivateKey; the EC facade type loses that role.)
                 $this->assertSame($expected, $secret);
             } catch (BadConfigurationException $e) {
             }
@@ -595,6 +662,7 @@ CJ1+UnaPfk0=
 Private-Lines: 1
 AAAAIQDwaPlajbXY1SxhuwsUqN1CEZ5g4adsbmJsKm+ZbUVm4g==
 Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
+        $this->assertInstanceOf(PrivateKey::class, $private);
         $private = $private->withSignatureFormat('Raw');
         $public = $private->getPublicKey();
 
@@ -617,6 +685,7 @@ Private-MAC: b85ca0eb7c612df5d18af85128821bd53faaa3ef');
             $this->fail('The public keys of generated keys should not have a loaded format');
         } catch (NoKeyLoadedException) {
         }
+        // @phpstan-ignore method.alreadyNarrowedType (Retain the successful test marker.)
         $this->assertTrue(true);
     }
 }

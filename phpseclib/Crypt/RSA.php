@@ -147,6 +147,8 @@ abstract class RSA extends AsymmetricKey
 
     /**
      * Signature padding mode
+     *
+     * @var self::SIGNATURE_PSS|self::SIGNATURE_PKCS1
      */
     protected int $signaturePadding = self::SIGNATURE_PSS;
 
@@ -232,6 +234,13 @@ abstract class RSA extends AsymmetricKey
     protected static ?string $forcedEngine = null;
 
     /**
+     * Whether OpenSSL returns a random message instead of an error when PKCS#1 v1.5 decryption fails
+     *
+     * @see self::opensslRejectsImplicitly()
+     */
+    private static ?bool $opensslImplicitRejection = null;
+
+    /**
      * Sets the public exponent for key generation
      *
      * This will be 65537 unless changed.
@@ -299,7 +308,7 @@ abstract class RSA extends AsymmetricKey
 
                     $key = RSA::load($privatekeystr);
                     $key->format = null;
-                    return $key;
+                    return $key; // @phpstan-ignore return.type (OpenSSL exported private-key data loads as the concrete RSA private key.)
                 }
             }
         }
@@ -372,11 +381,8 @@ abstract class RSA extends AsymmetricKey
         $privatekey->k = $bits >> 3;
         $privatekey->publicExponent = $e;
         $privatekey->exponent = $d;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->primes = $primes;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->exponents = $exponents;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->coefficients = $coefficients;
 
         /*
@@ -434,7 +440,7 @@ abstract class RSA extends AsymmetricKey
             }
         }
 
-        return $key;
+        return $key; // @phpstan-ignore return.type (CRYPT-002: built-in RSA key children are valid; further user-defined facade subclasses are outside the supported loader contract.)
     }
 
     /**
@@ -485,7 +491,7 @@ abstract class RSA extends AsymmetricKey
         $h = $this->hash->hash($m);
 
         // see http://tools.ietf.org/html/rfc3447#page-43
-        $t = match (str_replace('-', '/', $this->hash->getHash())) {
+        $t = match (str_replace('-', '/', $this->hash->getHash())) { // @phpstan-ignore match.unhandled (FLOW-001; preserve existing handling of names outside the enumerated hash arms; see FLOW-001-rsa-pkcs1-hash-name-mismatch.md)
             'md2' => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x02\x05\x00\x04\x10",
             'md5' => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10",
             'sha1' => "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14",
@@ -540,7 +546,7 @@ abstract class RSA extends AsymmetricKey
         }
 
         // see http://tools.ietf.org/html/rfc3447#page-43
-        $t = match (str_replace('-', '/', $hashName)) {
+        $t = match (str_replace('-', '/', $hashName)) { // @phpstan-ignore match.unhandled (FLOW-001; preserve existing handling of names outside the enumerated hash arms; see FLOW-001-rsa-pkcs1-hash-name-mismatch.md)
             'sha1' => "\x30\x1f\x30\x07\x06\x05\x2b\x0e\x03\x02\x1a\x04\x14",
             'sha256' => "\x30\x2f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x04\x20",
             'sha384' => "\x30\x3f\x30\x0b\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x02\x04\x30",
@@ -910,7 +916,7 @@ abstract class RSA extends AsymmetricKey
                         'Engine OpenSSL is forced but can\'t be used because the Hash and MGF Hash do not match',
                     $this->hash->getHash() !== 'sha1' && PHP_VERSION_ID < 80500 =>
                         'Engine OpenSSL is forced but non-sha1 hashes are only supported on PHP 8.5.0+',
-                    strlen($this->label) =>
+                    $this->label !== '' =>
                         'Engine OpenSSL is forced but can\'t be used because the label is not the empty string',
                     default => null
                 };
@@ -935,7 +941,7 @@ abstract class RSA extends AsymmetricKey
                         $hash = $this->hash->getHash();
 
                         $result = $this->signaturePadding === self::SIGNATURE_PSS ?
-                            $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) :
+                            $func($message, $signature, $key, $hash, OPENSSL_PKCS1_PSS_PADDING) : // @phpstan-ignore arguments.count (PHPStan targets PHP 8.1; the PHP 8.5-only PSS constant gates the added padding argument.)
                             $func($message, $signature, $key, $hash);
 
                         if ($func === 'openssl_verify') {
@@ -965,11 +971,17 @@ abstract class RSA extends AsymmetricKey
                         }
                         $func = 'openssl_public_decrypt';
                     }
-                    if ($this->encryptionPadding === self::ENCRYPTION_PKCS1 && OPENSSL_VERSION_NUMBER >= 0x30200000) {
+                    if (
+                        $this->encryptionPadding === self::ENCRYPTION_PKCS1 &&
+                        (OPENSSL_VERSION_NUMBER >= 0x30200000 || ($func === 'openssl_private_decrypt' && $this->opensslRejectsImplicitly($key)))
+                    ) {
                         // quoting https://docs.openssl.org/3.4/man3/RSA_public_encrypt/#return-values :
                         //
                         // "Since version 3.2.0, the default provider in OpenSSL does not return an error when padding checks fail.
                         //  Instead it generates a random message"
+                        //
+                        // the OpenSSL 3.0 and 1.1.1 builds that come with the Windows builds of PHP 8.1 to 8.4 do this as well,
+                        // which is why opensslRejectsImplicitly() checks for it instead of going by the version.
                         //
                         // the idea is that even a perfect implementation of PKCS1 padding can be used to conduct a Bleichenbacher
                         // padding oracle attack.
@@ -985,7 +997,7 @@ abstract class RSA extends AsymmetricKey
                         // shouldn't use DES encryption but if you need to you need to and phpseclib isn't here to judge. that's a big
                         // difference between phpseclib and stuff like libsodium.
                         if (self::$forcedEngine === 'OpenSSL') {
-                            throw new BadConfigurationException('Engine OpenSSL is forced but cannot be used to decrypt PKCS1 encrypted strings with OpenSSL 3.2.0+');
+                            throw new BadConfigurationException('Engine OpenSSL is forced but cannot be used to decrypt PKCS1 encrypted strings because it returns a random message when the padding is invalid (eg. OpenSSL 3.2.0+)');
                         }
                         return null;
                     }
@@ -999,7 +1011,7 @@ abstract class RSA extends AsymmetricKey
                             break;
                         //case self::ENCRYPTION_OAEP:
                         default:
-                            $result = $func($message, $output, $key, OPENSSL_PKCS1_OAEP_PADDING, $hash);
+                            $result = $func($message, $output, $key, OPENSSL_PKCS1_OAEP_PADDING, $hash); // @phpstan-ignore arguments.count (PHPStan targets PHP 8.1; this call is gated to PHP 8.5+, when digest_algo was added to public_encrypt/private_decrypt.)
                     }
                     if ($result) {
                         return $output;
@@ -1010,6 +1022,28 @@ abstract class RSA extends AsymmetricKey
         }
 
         return null;
+    }
+
+    /**
+     * Checks whether OpenSSL returns a random message instead of an error when PKCS#1 v1.5 decryption fails
+     */
+    private function opensslRejectsImplicitly(#[\SensitiveParameter] string $key): bool
+    {
+        if (isset(self::$opensslImplicitRejection)) {
+            return self::$opensslImplicitRejection;
+        }
+        // a key OpenSSL can't use says nothing about the padding checks, so it isn't remembered
+        if (openssl_pkey_get_private($key) === false) {
+            while (openssl_error_string() !== false) {
+            }
+            return false;
+        }
+        // 1 decrypts to 1, which is never valid PKCS#1 v1.5 padding
+        $output = '';
+        $result = openssl_private_decrypt(str_pad("\1", $this->k, "\0", STR_PAD_LEFT), $output, $key, OPENSSL_PKCS1_PADDING);
+        while (openssl_error_string() !== false) {
+        }
+        return self::$opensslImplicitRejection = $result;
     }
 
     /**

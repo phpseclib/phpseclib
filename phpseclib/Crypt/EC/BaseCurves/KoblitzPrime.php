@@ -302,10 +302,13 @@ class KoblitzPrime extends Prime
             }
 
             if ($postGreatestIndex == 2) {
+                // @phpstan-ignore variable.undefined, variable.undefined, variable.undefined, variable.undefined (The bundled Koblitz curves precompute basis; their supported path bypasses this lazy helper.)
                 $rhs = $a0->multiply($a0)->add($b0->multiply($b0));
                 $lhs = $v->multiply($v)->add($b->multiply($b));
                 if ($lhs->compare($rhs) <= 0) {
+                    // @phpstan-ignore variable.undefined (The bundled Koblitz curves precompute basis; their supported path bypasses this lazy helper.)
                     $a2 = $a0;
+                    // @phpstan-ignore variable.undefined (The bundled Koblitz curves precompute basis; their supported path bypasses this lazy helper.)
                     $b2 = $b0->negate();
                 } else {
                     $a2 = $v;

@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\BCMath\Base;
  * PHP Barrett Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Barrett extends Base
 {

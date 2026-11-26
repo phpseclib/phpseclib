@@ -87,7 +87,7 @@ abstract class AsymmetricKey
      * Algorithm Name
      *
      * This really shouldn't be needed. The child classes that extend AsymmetricKey define it so
-     * there's no need for this class to do so, however, if this class doesn't define it then psalm
+     * there's no need for this class to do so, however, if this class doesn't define it then phpstan
      * will complain
      *
      * @see self::load()
@@ -160,6 +160,7 @@ abstract class AsymmetricKey
             throw new NoKeyLoadedException('Unable to read key');
         }
 
+        // @phpstan-ignore variable.undefined ($format is the loop variable of the successful load iteration; the !isset($components) throw above is only passed after that iteration ran.)
         $components['format'] = $format;
         $components['secret'] ??= '';
         $comment = $components['comment'] ?? null;
@@ -168,6 +169,7 @@ abstract class AsymmetricKey
         } catch (\Throwable $e) {
             throw new NoKeyLoadedException('Unable to read key');
         }
+        // @phpstan-ignore variable.undefined ($format is the loop variable of the successful load iteration; the !isset($components) throw above is only passed after that iteration ran.)
         $new->format = $format;
         $new->comment = $comment;
         return $new instanceof PrivateKey ?
@@ -346,8 +348,6 @@ abstract class AsymmetricKey
      * Sets the OpenSSL config file path
      *
      * Set to the empty string to use the default config file
-     *
-     * @psalm-api
      */
     public static function setOpenSSLConfigPath(string $path): void
     {
@@ -473,15 +473,15 @@ abstract class AsymmetricKey
      * Not currently used but the method exists in case we do
      * want to use it at some point
      *
-     * @psalm-api
-     * @psalm-suppress UndefinedThisPropertyFetch
+     * @return BigInteger
      */
-    protected function computek(string $h1): string
+    protected function computek(string $h1): BigInteger
     {
         $v = str_repeat("\1", strlen($h1));
 
         $k = str_repeat("\0", strlen($h1));
 
+        // @phpstan-ignore property.notFound (Private scalar belongs to the signing subclass, not every asymmetric key.)
         $x = $this->int2octets($this->x);
         $h1 = $this->bits2octets($h1);
 
@@ -493,6 +493,7 @@ abstract class AsymmetricKey
         $this->hmac->setKey($k);
         $v = $this->hmac->hash($v);
 
+        // @phpstan-ignore property.notFound (Subgroup order belongs to the signing subclass.)
         $qlen = $this->q->getLengthInBytes();
 
         while (true) {
@@ -503,6 +504,7 @@ abstract class AsymmetricKey
             }
             $k = $this->bits2int($t);
 
+            // @phpstan-ignore property.notFound (Subgroup order belongs to the signing subclass.)
             if (!$k->equals(self::$zero) && $k->compare($this->q) < 0) {
                 break;
             }
@@ -516,12 +518,11 @@ abstract class AsymmetricKey
 
     /**
      * Integer to Octet String
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     private function int2octets(BigInteger $v): string
     {
         $out = $v->toBytes();
+        // @phpstan-ignore property.notFound (Subgroup order belongs to the signing subclass.)
         $rolen = $this->q->getLengthInBytes();
         if (strlen($out) < $rolen) {
             return str_pad($out, $rolen, "\0", STR_PAD_LEFT);
@@ -534,13 +535,12 @@ abstract class AsymmetricKey
 
     /**
      * Bit String to Integer
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function bits2int(string $in): BigInteger
     {
         $v = new BigInteger($in, 256);
         $vlen = strlen($in) << 3;
+        // @phpstan-ignore property.notFound (Subgroup order belongs to the signing subclass.)
         $qlen = $this->q->getLength();
         if ($vlen > $qlen) {
             return $v->bitwise_rightShift($vlen - $qlen);
@@ -550,12 +550,11 @@ abstract class AsymmetricKey
 
     /**
      * Bit String to Octet String
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     private function bits2octets(string $in): string
     {
         $z1 = $this->bits2int($in);
+        // @phpstan-ignore property.notFound (Subgroup order belongs to the signing subclass.)
         $z2 = $z1->subtract($this->q);
         return $z2->compare(self::$zero) < 0 ?
             $this->int2octets($z1) :

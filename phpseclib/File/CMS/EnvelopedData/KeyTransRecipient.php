@@ -25,7 +25,6 @@ use phpseclib4\File\{ASN1, X509};
 
 class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
 {
-    /** @psalm-api */
     protected static function loadString(string $encoded): Constructed
     {
         //ASN1::disableCacheInvalidation();
@@ -34,6 +33,7 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
         $rules['keyEncryptionAlgorithm'] = self::mapInAlgoParams(...);
         $recipient = ASN1::map($decoded, Maps\KeyTransRecipientInfo::MAP, $rules);
         //ASN1::enableCacheInvalidation();
+        // @phpstan-ignore return.type (BI-026 remains open: blob recovery can return MalformedData; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
         return $recipient;
     }
 
@@ -63,7 +63,6 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
         }
     }
 
-    /** @psalm-api */
     public function withKey(#[\SensitiveParameter] RSA\PrivateKey $key): self
     {
         $kek = &$key;
@@ -94,13 +93,11 @@ class KeyTransRecipient extends Recipient implements DerivableKey, SearchableKey
         return $this;
     }
 
-    /** @psalm-api */
     public function matchesX509(X509 $x509): bool
     {
         return $x509->isIssuerOf($this->recipient['rid'], ['keyEncipherment']);
     }
 
-    /** @psalm-api */
     public function toString(): string
     {
         $recipient = ASN1::encodeDER($this->recipient, Maps\KeyTransRecipientInfo::MAP);

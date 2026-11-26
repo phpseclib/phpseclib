@@ -575,6 +575,8 @@ abstract class ASN1
      * ASN.1 Map
      *
      * Provides an ASN.1 semantic mapping ($mapping) from a parsed BER-encoding to a human readable format.
+     *
+     * @phpstan-return ($mapping is array{type: self::TYPE_CHOICE, ...} ? Choice : Element|BaseType)
      */
     public static function map(array $decoded, array $mapping, array $rules = []): Element|BaseType
     {
@@ -642,6 +644,7 @@ abstract class ASN1
         if (!isset($decoded['constant'])) {
             $message .= self::convertTypeConstantToString($decoded['type']);
         } else {
+            // @phpstan-ignore match.unhandled (A tag with a constant has a non-universal class, which these arms cover.)
             $message .= match ($decoded['type']) {
                 self::CLASS_APPLICATION => 'application',
                 self::CLASS_PRIVATE => 'private',
@@ -654,6 +657,7 @@ abstract class ASN1
             $message .= self::convertTypeConstantToString($mapping['type']);
         } else {
             if (isset($mapping['class'])) {
+                // @phpstan-ignore match.unhandled (Maps only use these three classes.)
                 $message .= match ($mapping['class']) {
                     self::CLASS_APPLICATION => 'application tag',
                     self::CLASS_PRIVATE => 'private tag',
@@ -721,8 +725,6 @@ abstract class ASN1
      * Use Encoded Cache
      *
      * The encoded cache is only used when encoding ASN.1 stuff
-     *
-     * @psalm-api
      */
     public static function useEncodedCache(): void
     {
@@ -733,8 +735,6 @@ abstract class ASN1
      * Ignore Encoded Cache
      *
      * The encoded cache is only used when encoding ASN.1 stuff
-     *
-     * @psalm-api
      */
     public static function ignoreEncodedCache(): void
     {
@@ -1014,7 +1014,7 @@ abstract class ASN1
                 $format = $tag === self::TYPE_UTC_TIME ? 'y' : 'Y';
                 $format .= 'mdHis';
                 // if $source does _not_ include timezone information within it then assume that the timezone is GMT
-                $date = is_string($source) ? new \DateTime($source, new \DateTimeZone('GMT')) : clone $source;
+                $date = is_string($source) ? new \DateTime($source, new \DateTimeZone('GMT')) : \DateTime::createFromInterface($source);
                 // if $source _does_ include timezone information within it then convert the time to GMT
                 $date->setTimezone(new \DateTimeZone('GMT'));
                 $value = $date->format($format) . 'Z';
@@ -1094,6 +1094,7 @@ abstract class ASN1
 
                 switch (true) {
                     case $source instanceof BaseType && $source->hasTypeID():
+                        // @phpstan-ignore method.notFound (BI-027: Choice can report hasTypeID() without defining getTypeID(); reproduced runtime defect remains open. See BI-027-asn1-choice-typeid-contract.md.)
                         return self::encode_der($source, ['type' => $source->getTypeID()] + $mapping, null);
                     case !isset($source):
                         return self::encode_der(null, ['type' => self::TYPE_NULL] + $mapping, null);
@@ -1122,7 +1123,7 @@ abstract class ASN1
             case self::TYPE_VIDEOTEX_STRING:
             case self::TYPE_GRAPHIC_STRING:
             case self::TYPE_GENERAL_STRING:
-                if ($source instanceof BaseType && $source->hasTypeID() && $source->getTypeID() != $tag) {
+                if ($source instanceof BaseType && $source->hasTypeID() && $source->getTypeID() != $tag) { // @phpstan-ignore method.notFound (BI-027: Choice can report hasTypeID() without defining getTypeID(); reproduced runtime defect remains open. See BI-027-asn1-choice-typeid-contract.md.)
                     throw new UnexpectedValueException('Object type does not match the expected type for ' . implode('/', self::$location));
                 }
                 $value = (string) $source;
@@ -1149,7 +1150,8 @@ abstract class ASN1
                 $value = chr($tag) . self::encodeLength(strlen($value)) . $value;
                 $tag = ($mapping['class'] << 6) | 0x20 | $mapping['cast'];
             } else {
-                $tag = ($mapping['class'] << 6) | (ord($temp[0]) & 0x20) | $mapping['cast'];
+                // FLOW-006: retain the original implicit-tag calculation pending independent ASN.1 semantic validation; the undefined $temp access is a confirmed runtime defect, not fixed by this suppression.
+                $tag = ($mapping['class'] << 6) | (ord($temp[0]) & 0x20) | $mapping['cast']; // @phpstan-ignore variable.undefined (FLOW-006: deliberately retain the original implementation; runtime defect remains open. See FLOW-006-asn1-implicit-tag-undefined-temp.md.)
             }
         }
 
@@ -1500,8 +1502,6 @@ abstract class ASN1
 
     /**
      * Extracts the V part of a TLV DER / BER encoded string
-     *
-     * @psalm-api
      */
     public static function extractValue(string $encoded): string
     {

@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace phpseclib4\Tests\Unit\Crypt\DSA;
 
 use phpseclib4\Crypt\DSA;
+use phpseclib4\Crypt\DSA\PrivateKey;
+use phpseclib4\Crypt\DSA\PublicKey;
 use phpseclib4\Crypt\PublicKeyLoader;
 use phpseclib4\Exception\BadConfigurationException;
 use phpseclib4\Tests\PhpseclibTestCase;
@@ -38,8 +40,9 @@ CCBGBQJRAoGBALnHTAZlpoLJZuSBVtnMuRM3cSX43IkE9w9FveDV1jX5mmfK7yBV
 pQFV8eVJfk91ERQ4Dn6ePLUv2dRIt4a0S0qHqadgzyoFyqkmmUi1kNLyixtRqh+m
 2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9MTzUkQjFI9UY7kZeKAhQXiJgI
 kBniZHdFBAZBTE14YJUBkw==
------END DSA PRIVATE KEY-----')
-                    ->withSignatureFormat('ASN1');
+-----END DSA PRIVATE KEY-----');
+                $this->assertInstanceOf(PrivateKey::class, $dsa);
+                $dsa = $dsa->withSignatureFormat('ASN1');
                 $signature = $dsa->sign($message);
 
                 $dsa = PublicKeyLoader::load('-----BEGIN PUBLIC KEY-----
@@ -53,8 +56,9 @@ jhGOrO+kJcZBxUSxINgIIEYFAlEDgYUAAoGBALnHTAZlpoLJZuSBVtnMuRM3cSX4
 3IkE9w9FveDV1jX5mmfK7yBVpQFV8eVJfk91ERQ4Dn6ePLUv2dRIt4a0S0qHqadg
 zyoFyqkmmUi1kNLyixtRqh+m2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9M
 TzUkQjFI9UY7kZeK
------END PUBLIC KEY-----')
-                    ->withSignatureFormat('ASN1');
+-----END PUBLIC KEY-----');
+                $this->assertInstanceOf(PublicKey::class, $dsa);
+                $dsa = $dsa->withSignatureFormat('ASN1');
 
                 $this->assertTrue($dsa->verify($message, $signature));
                 $this->assertFalse($dsa->verify('foozbar', $signature));
@@ -100,8 +104,9 @@ CCBGBQJRAoGBALnHTAZlpoLJZuSBVtnMuRM3cSX43IkE9w9FveDV1jX5mmfK7yBV
 pQFV8eVJfk91ERQ4Dn6ePLUv2dRIt4a0S0qHqadgzyoFyqkmmUi1kNLyixtRqh+m
 2gXx0t63HEpZDbEPppdpnlppZquVQh7TyrKSXW9MTzUkQjFI9UY7kZeKAhQXiJgI
 kBniZHdFBAZBTE14YJUBkw==
------END DSA PRIVATE KEY-----')
-            ->withSignatureFormat('ASN1');
+-----END DSA PRIVATE KEY-----');
+        $this->assertInstanceOf(PrivateKey::class, $dsa);
+        $dsa = $dsa->withSignatureFormat('ASN1');
         $public = $dsa->getPublicKey();
         $signature1 = $dsa->sign($message);
         $signature2 = $dsa->sign($message);
@@ -133,8 +138,9 @@ kBniZHdFBAZBTE14YJUBkw==
                    'JF2IwDpwCi7YpIv79uwT3RtA0chQDS4vx8qi8BWBzy7PZC9hmqY62+mgfj8ooga1sr+JpMh+8r4j3KjPM+wE37khkgkvAAAAFQDn' .
                    '19pBng6TajI/vdg7GPnxsitCqQAAAIEA6Pl1Z/TVdkc+HpfkAvcg2Q+yNtnVq7+26RCbRDO3b9Ocr+tZA9u23qnO3KDYeygzaLnI' .
                    'gpErp61Bj70iIUldhXy2LFGZFEC9XiKmt/tQxSDKiBbj3bS3wKfHrAlElgjhqxiRh+GixgSsmCj96eJFXcsxPjQU81HR+WJ0ALV1' .
-                   'UnMAAACABRdNuqqe1Y68es8TIflV71P0J7Ci2BbbqAXRwYYKc9/7DrygwaN2UIbMXyOLuojeZgQPPoM9nkzd6QZo8M9apawVKKwD' .
-                   'GAUj2of+F9WVRxhE0ohTQBzD/3HqT80pQsX+rYcxuSx1cCtdMp4oLrrfKO2J4EiWUkaoSB7SdCaj+vU=');
+                    'UnMAAACABRdNuqqe1Y68es8TIflV71P0J7Ci2BbbqAXRwYYKc9/7DrygwaN2UIbMXyOLuojeZgQPPoM9nkzd6QZo8M9apawVKKwD' .
+                    'GAUj2of+F9WVRxhE0ohTQBzD/3HqT80pQsX+rYcxuSx1cCtdMp4oLrrfKO2J4EiWUkaoSB7SdCaj+vU=');
+        $this->assertInstanceOf(PublicKey::class, $dsa);
         $dsa = $dsa
             ->withHash('sha1')
             ->withSignatureFormat('SSH2');

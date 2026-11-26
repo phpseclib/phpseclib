@@ -33,11 +33,13 @@ abstract class Integer implements \JsonSerializable
      */
     public function jsonSerialize(): mixed
     {
-        return ['hex' => $this->toHex(true)];
+        return ['hex' => $this->toHex()];
     }
 
     /**
      * Converts an Integer to a hex string (eg. base-16).
      */
     abstract public function toHex(): string;
+
+    abstract public function toBytes(): string;
 }

@@ -14,13 +14,27 @@ use phpseclib4\Crypt\RSA;
 use phpseclib4\Crypt\RSA\PrivateKey as RSAPrivateKey;
 use phpseclib4\Crypt\EC;
 use phpseclib4\Crypt\EC\PrivateKey as ECPrivateKey;
+use phpseclib4\Exception\BadMethodCallException;
 use phpseclib4\File\ASN1;
 use phpseclib4\File\PFX;
 use phpseclib4\File\X509;
+use phpseclib4\System\SSH\Agent\Identity;
 use phpseclib4\Tests\PhpseclibTestCase;
 
 class PFXTest extends PhpseclibTestCase
 {
+    public function testAddingNonExportableAgentKeyWithoutPasswordIsRejected(): void
+    {
+        $socket = fopen('php://memory', 'r+');
+        $this->assertIsResource($socket);
+
+        $pfx = new PFX();
+        $pfx->removePassword();
+
+        $this->expectException(BadMethodCallException::class);
+        $pfx->add(new Identity($socket));
+    }
+
     public function testEncryptedComplicated(): void
     {
         // pfx1.der contains 2x key pairs (ie. 2x X509 certs and 2x private keys)
@@ -40,8 +54,8 @@ class PFXTest extends PhpseclibTestCase
         $privateKeys = $r->getPrivateKeys();
         $this->assertCount(2, $privateKeys);
 
-        $this->assertIsArray($r->toArray());
-        $this->assertIsArray($r->keys());
+        $this->assertNotEmpty($r->toArray());
+        $this->assertNotEmpty($r->keys());
 
         $friendly = $r->getFriendlyNames();
         $this->assertCount(3, $friendly);
@@ -120,18 +134,14 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx2.der');
         $pfx = PFX::load($temp);
         $old = "$pfx";
-        $this->assertIsString($old);
         $pfx->setPassword('password');
         $new = "$pfx";
-        $this->assertIsString($new);
         $this->assertNotEquals($old, $new);
 
         $x509 = new X509(EC::createKey('nistp256')->getPublicKey());
         $old = "$x509";
         $result = $pfx->sign($x509);
-        $this->assertIsString($result);
         $new = "$x509";
-        $this->assertIsString($new);
         $this->assertNotEquals($old, $new);
     }
 
@@ -140,6 +150,7 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx3.der');
         $pfx = PFX::load($temp, 'password');
         $old = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($old);
     }
 
@@ -148,6 +159,7 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx4.der');
         $pfx = PFX::load($temp);
         $old = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($old);
     }
 
@@ -156,6 +168,7 @@ class PFXTest extends PhpseclibTestCase
         $temp = file_get_contents(__DIR__ . '/pfx5.der');
         $pfx = PFX::load($temp, 'password');
         $old = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($old);
     }
 
@@ -177,7 +190,6 @@ class PFXTest extends PhpseclibTestCase
         $pfx->removePassword();
 
         $str = "$pfx";
-        $this->assertIsString($str);
         // these will almost always be different for encrypted PFXs because, among other things, the salt
         // for the MAC, is generated using random_bytes()
         $this->assertSame($pfx->getEncoded(), $str);
@@ -200,6 +212,7 @@ class PFXTest extends PhpseclibTestCase
         $pfx->add($x509);
         $pfx->setPassword('password');
         $str = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($str);
     }
 
@@ -216,6 +229,7 @@ class PFXTest extends PhpseclibTestCase
         $pfx->add($x509);
         $pfx->setPassword('password');
         $str = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($str);
     }
 
@@ -248,6 +262,7 @@ class PFXTest extends PhpseclibTestCase
         */
         $pfx->setPassword('password');
         $str = "$pfx";
+        // @phpstan-ignore method.alreadyNarrowedType (Sole PFX serialization assertion.)
         $this->assertIsString($str);
     }
 
@@ -267,6 +282,7 @@ class PFXTest extends PhpseclibTestCase
         $pfx->add($x509);
 
         $pfx = PFX::load("$pfx", '')->toArray();
+        // @phpstan-ignore method.alreadyNarrowedType (Sole loaded-PFX assertion.)
         $this->assertIsArray($pfx);
     }
 
@@ -294,7 +310,9 @@ RBZnM468Wz7p3k9dHdpwGinjK1UrpjFHQvPRjUEKui37Wy0Gw5aTAvhZl60CQDXD
 fuNQzBuwdy+u8UUhD9DSIYkAVau7KIhSt6O50pO6FqLFjz4XGporzMFzCU4pvTrd
 neIjrM9KA2z+glGqoA0CPw+lyCd8t0pkaJdDVNFb5SRckBJ+ZpyJ3p9XK9Gk9/Ay
 56on1VNqFT+mX0WXmu5h/ALUkQ21/kE+3E6TClBm1A==
------END RSA PRIVATE KEY-----')->withPadding(RSA::SIGNATURE_PKCS1);
+-----END RSA PRIVATE KEY-----');
+        self::assertInstanceOf(RSAPrivateKey::class, $key);
+        $key = $key->withPadding(RSA::SIGNATURE_PKCS1);
 
         $x509 = new X509($key->getPublicKey());
         $x509->setDN(['id-at-commonName' => "phpseclib\n-test"]);

@@ -43,7 +43,7 @@ final class PrivateKey extends DH
 
         $key = DH::loadFormat('PKCS8', $key);
         $key->format = $this->format;
-        return $key;
+        return $key; // @phpstan-ignore return.type (This fixed PKCS8 public-key encoding reloads as DH\PublicKey.)
     }
 
     /**

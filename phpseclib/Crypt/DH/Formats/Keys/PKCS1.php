@@ -32,7 +32,6 @@ use phpseclib4\Math\BigInteger;
  * "PKCS1" Formatted DH Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -47,7 +46,7 @@ abstract class PKCS1 extends Progenitor
 
         $decoded = ASN1::decodeBER($key);
 
-        return ASN1::map($decoded, Maps\DHParameter::MAP)->toArray();
+        return ASN1::map($decoded, Maps\DHParameter::MAP)->toArray(); // @phpstan-ignore method.notFound
     }
 
     /**

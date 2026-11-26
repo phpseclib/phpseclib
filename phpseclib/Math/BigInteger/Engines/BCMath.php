@@ -22,7 +22,6 @@ use phpseclib4\Exception\BadConfigurationException;
  * BCMath Engine.
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 class BCMath extends Engine
 {
@@ -59,7 +58,7 @@ class BCMath extends Engine
     /**
      * Default constructor
      *
-     * @param mixed $x integer Base-10 number or base-$base number if $base set.
+     * @param int|string|\GMP $x integer Base-10 number or base-$base number if $base set.
      * @see parent::__construct()
      */
     public function __construct(int|string|\GMP $x = 0, int $base = 10)
@@ -225,6 +224,7 @@ class BCMath extends Engine
      */
     public function modInverse(BCMath $n): ?BCMath
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the BCMath operand/result family; null is preserved.)
         return $this->modInverseHelper($n);
     }
 
@@ -386,6 +386,7 @@ class BCMath extends Engine
      */
     public function modPow(BCMath $e, BCMath $n): ?BCMath
     {
+        // @phpstan-ignore return.type (Shared preprocessing loses the BCMath operand/provider family; null is preserved.)
         return $this->powModOuter($e, $n);
     }
 
@@ -396,6 +397,7 @@ class BCMath extends Engine
      */
     public function powMod(BCMath $e, BCMath $n): ?BCMath
     {
+        // @phpstan-ignore return.type (Shared preprocessing loses the BCMath operand/provider family; null is preserved.)
         return $this->powModOuter($e, $n);
     }
 
@@ -426,6 +428,7 @@ class BCMath extends Engine
             $result->value = bcmod($result->value, $result->bitmask->value, 0);
         }
 
+        // @phpstan-ignore return.type (BI-004: confirmed runtime static return defect remains open; see BI-004-bcmath64-negative-inverse-normalize-return.md)
         return $result;
     }
 
@@ -436,6 +439,7 @@ class BCMath extends Engine
      */
     public static function randomRangePrime(BCMath $min, BCMath $max): ?BCMath
     {
+        // @phpstan-ignore return.type (The shared Engine helper loses the BCMath bounds/candidate family; null is preserved.)
         return self::randomRangePrimeOuter($min, $max);
     }
 
@@ -450,6 +454,7 @@ class BCMath extends Engine
      */
     public static function randomRange(BCMath $min, BCMath $max): static
     {
+        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see BI-003-bcmath64-operand-selected-static-returns.md)
         return self::randomRangeHelper($min, $max);
     }
 
@@ -480,6 +485,7 @@ class BCMath extends Engine
         if ($this->value === '2') {
             return true;
         }
+        // @phpstan-ignore binaryOp.invalid (The last character of the normalized decimal integer is one digit, 0-9; its modulo is safe on 32-bit and 64-bit PHP.)
         if ($this->value[-1] % 2 == 0) {
             return false;
         }
@@ -506,6 +512,7 @@ class BCMath extends Engine
         $r_value = &$r->value;
         $s = 0;
         // if $n was 1, $r would be 0 and this would be an infinite loop, hence our $this->equals(static::$one[static::class]) check earlier
+        // @phpstan-ignore binaryOp.invalid (The last character of the normalized decimal integer is one digit, 0-9; its modulo is safe on 32-bit and 64-bit PHP.)
         while ($r_value[-1] % 2 == 0) {
             $r_value = bcdiv($r_value, '2', 0);
             ++$s;
@@ -530,6 +537,7 @@ class BCMath extends Engine
      */
     public static function min(BCMath ...$nums): static
     {
+        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see BI-003-bcmath64-operand-selected-static-returns.md)
         return self::minHelper($nums);
     }
 
@@ -538,6 +546,7 @@ class BCMath extends Engine
      */
     public static function max(BCMath ...$nums): static
     {
+        // @phpstan-ignore return.type (BI-003: confirmed runtime static return defect remains open; see BI-003-bcmath64-operand-selected-static-returns.md)
         return self::maxHelper($nums);
     }
 
@@ -565,6 +574,7 @@ class BCMath extends Engine
      */
     public function isOdd(): bool
     {
+        // @phpstan-ignore binaryOp.invalid (The last character of the normalized decimal integer is one digit, 0-9; its modulo is safe on 32-bit and 64-bit PHP.)
         return $this->value[-1] % 2 == 1;
     }
 

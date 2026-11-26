@@ -168,7 +168,7 @@ abstract class EC extends AsymmetricKey
 
         $curve = new $curve();
         if ($curve instanceof TwistedEdwardsCurve) {
-            $arr = $curve->extractSecret(random_bytes($curve instanceof Ed448 ? 57 : 32));
+            $arr = $curve->extractSecret(random_bytes($curve instanceof Ed448 ? 57 : 32)); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide extractSecret().)
             $privatekey->dA = $dA = $arr['dA'];
             $privatekey->secret = $arr['secret'];
         } else {
@@ -232,6 +232,7 @@ abstract class EC extends AsymmetricKey
                 $privatekey = EC::loadPrivateKeyFormat('libsodium', sodium_crypto_sign_secretkey($kp));
                 //$publickey = EC::loadFormat('libsodium', sodium_crypto_sign_publickey($kp));
 
+                /** @var PrivateKey $privatekey */
                 $privatekey->format = null;
 
                 $privatekey->curveName = 'Ed25519';
@@ -285,6 +286,7 @@ abstract class EC extends AsymmetricKey
         }
         // some versions of OpenSSL / PHP return PKCS1 keys, others return PKCS8 keys
         $privatekey = EC::loadPrivateKey($privateKeyStr);
+        /** @var PrivateKey $privatekey */
         $privatekey->format = null;
         $privatekey->curveName = match ($curveName) {
             'prime256v1' => 'secp256r1',
@@ -302,7 +304,7 @@ abstract class EC extends AsymmetricKey
         if (!isset($components['dA']) && !isset($components['QA'])) {
             $new = new Parameters();
             $new->curve = $components['curve'];
-            return $new;
+            return $new; // @phpstan-ignore return.type (CRYPT-002: the built-in parameter child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
         }
 
         // SEC1 3.2.2: a public key is not the point at infinity, which the encoding 00 stands for
@@ -322,10 +324,10 @@ abstract class EC extends AsymmetricKey
         $new->QA = $components['QA'];
 
         if ($new->curve instanceof TwistedEdwardsCurve) {
-            return $new->withHash($components['curve']::HASH);
+            return $new->withHash($components['curve']::HASH); // @phpstan-ignore return.type (CRYPT-002: the built-in key child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
         }
 
-        return $new;
+        return $new; // @phpstan-ignore return.type (CRYPT-002: the built-in key child is valid for EC; further user-defined facade subclasses are outside the supported loader contract.)
     }
 
     /**
@@ -407,7 +409,7 @@ abstract class EC extends AsymmetricKey
             return strrev($this->QA[0]->toBytes(true));
         }
         if ($this->curve instanceof TwistedEdwardsCurve) {
-            return $this->curve->encodePoint($this->QA);
+            return $this->curve->encodePoint($this->QA); // @phpstan-ignore method.notFound (Built-in Ed25519 and Ed448 curves provide encodePoint().)
         }
         return "\4" . $this->QA[0]->toBytes(true) . $this->QA[1]->toBytes(true);
     }
@@ -443,7 +445,7 @@ abstract class EC extends AsymmetricKey
         }
         $QA = PKCS8::extractPoint($secret, $curve);
         $key = PKCS8::savePublicKey($curve, $QA);
-        return EC::loadFormat('PKCS8', $key);
+        return EC::loadFormat('PKCS8', $key); // @phpstan-ignore return.type (The fixed PKCS8 public-key encoding reloads as EC\PublicKey.)
     }
 
     /**
@@ -457,7 +459,7 @@ abstract class EC extends AsymmetricKey
 
         $key = $type::saveParameters($this->curve);
 
-        return EC::load($key, 'PKCS1')
+        return EC::load($key, 'PKCS1') // @phpstan-ignore return.type (The fixed PKCS1 parameter encoding reloads as EC\Parameters.)
             ->withHash($this->hash->getHash())
             ->withSignatureFormat($this->shortFormat);
     }
@@ -481,8 +483,6 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the signature format currently being used
-     *
-     * @psalm-api
      */
     public function getSignatureFormat(): string
     {
@@ -518,8 +518,6 @@ abstract class EC extends AsymmetricKey
 
     /**
      * Returns the context
-     *
-     * @psalm-api
      */
     public function getContext(): string
     {

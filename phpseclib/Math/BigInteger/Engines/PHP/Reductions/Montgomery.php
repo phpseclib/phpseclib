@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\PHP\Montgomery as Progenitor;
  * PHP Montgomery Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Montgomery extends Progenitor
 {

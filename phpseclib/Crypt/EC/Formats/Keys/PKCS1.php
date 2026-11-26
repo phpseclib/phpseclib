@@ -44,7 +44,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * "PKCS1" (RFC5915) Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class PKCS1 extends Progenitor
 {
@@ -65,7 +64,7 @@ abstract class PKCS1 extends Progenitor
             preg_match('#-*BEGIN EC PRIVATE KEY-*[^-]*-*END EC PRIVATE KEY-*#s', $key, $matches);
             $decoded = parent::loadHelper($matches[0], $password);
             $decoded = ASN1::decodeBER($decoded);
-            $ecPrivate = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+            $ecPrivate = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray(); // @phpstan-ignore method.notFound
 
             if (isset($ecPrivate['parameters'])) {
                 $components['curve'] = self::loadCurveByParam($ecPrivate['parameters']);
@@ -109,7 +108,7 @@ abstract class PKCS1 extends Progenitor
             return ['curve' => self::loadCurveByParam($key)];
         }
 
-        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray();
+        $key = ASN1::map($decoded, Maps\ECPrivateKey::MAP)->toArray(); // @phpstan-ignore method.notFound
         if (!isset($key['parameters'])) {
             throw new UnexpectedValueException('Key cannot be loaded without parameters');
         }
@@ -147,7 +146,6 @@ abstract class PKCS1 extends Progenitor
      * Convert a private key to the appropriate format.
 ?     *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         #[\SensitiveParameter] BigInteger $privateKey,

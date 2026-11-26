@@ -88,6 +88,7 @@ use phpseclib4\Net\SSH2\{
     TerminalMode
 };
 use phpseclib4\System\SSH\Agent;
+use phpseclib4\System\SSH\Agent\Identity;
 
 /**
  * Pure-PHP implementation of SSHv2.
@@ -716,7 +717,7 @@ class SSH2
      * Real-time log file pointer
      *
      * @see self::_append_log()
-     * @var resource|closed-resource
+     * @var resource|false|closed-resource|null
      */
     private $realtime_log_file;
 
@@ -1046,8 +1047,6 @@ class SSH2
      *
      * Possible $engine values:
      * OpenSSL, Eval, PHP
-     *
-     * @psalm-api
      */
     public static function setCryptoEngine(string $engine): void
     {
@@ -1060,8 +1059,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendIdentificationStringFirst(): void
     {
@@ -1074,8 +1071,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-4.2 says "when the connection has been established,
      * both sides MUST send an identification string". It does not say which side sends it first. In
      * theory it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendIdentificationStringLast(): void
     {
@@ -1088,8 +1083,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendKEXINITFirst(): void
     {
@@ -1102,8 +1095,6 @@ class SSH2
      * https://tools.ietf.org/html/rfc4253#section-7.1 says "key exchange begins by each sending
      * sending the [SSH_MSG_KEXINIT] packet". It does not say which side sends it first. In theory
      * it shouldn't matter but it is a fact of life that some SSH servers are simply buggy
-     *
-     * @psalm-api
      */
     public function sendKEXINITLast(): void
     {
@@ -1205,7 +1196,7 @@ class SSH2
                     $start = microtime(true);
                     $sec = (int) floor($this->curTimeout);
                     $usec = (int) (1000000 * ($this->curTimeout - $sec));
-                    if (static::stream_select($read, $write, $except, $sec, $usec) === false) {
+                    if (self::stream_select($read, $write, $except, $sec, $usec) === false) {
                         throw new TimeoutException('Connection timed out whilst receiving server identification string');
                     }
                     $elapsed = microtime(true) - $start;
@@ -1249,8 +1240,10 @@ class SSH2
         $data = explode("\r\n", trim($data, "\r\n"));
         $this->server_identifier = $data[count($data) - 1];
 
+        // @phpstan-ignore variable.undefined (the loop only exits without a match on feof, which throws above; otherwise $matches was set by its preg_match)
         if (version_compare($matches[3], '1.99', '<')) {
             $this->bitmap = 0;
+            // @phpstan-ignore variable.undefined (the loop only exits without a match on feof, which throws above; otherwise $matches was set by its preg_match)
             throw new UnsupportedValueException("Cannot connect to SSH $matches[3] servers");
         }
 
@@ -1460,16 +1453,18 @@ class SSH2
         // we don't initialize any crypto-objects, yet - we do that, later. for now, we need the lengths to make the
         // diffie-hellman key exchange as fast as possible
         $decrypt = self::array_intersect_first($s2c_encryption_algorithms, $this->encryption_algorithms_server_to_client);
-        if (!$decrypt || ($decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt)) === null) {
+        if (!$decrypt) {
             $this->disconnect_helper(DisconnectReason::KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible server to client encryption algorithms found');
         }
+        $decryptKeyLength = $this->encryption_algorithm_to_key_size($decrypt);
 
         $encrypt = self::array_intersect_first($c2s_encryption_algorithms, $this->encryption_algorithms_client_to_server);
-        if (!$encrypt || ($encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt)) === null) {
+        if (!$encrypt) {
             $this->disconnect_helper(DisconnectReason::KEY_EXCHANGE_FAILED);
             throw new NoSupportedAlgorithmsException('No compatible client to server encryption algorithms found');
         }
+        $encryptKeyLength = $this->encryption_algorithm_to_key_size($encrypt);
 
         // through diffie-hellman key exchange a symmetric key is obtained
         $this->kex_algorithm = self::array_intersect_first($kex_algorithms, $this->kex_algorithms);
@@ -1857,7 +1852,7 @@ class SSH2
      * Maps an encryption algorithm name to the number of key bytes.
      *
      * @param string $algorithm Name of the encryption algorithm
-     * @return int|null Number of bytes as an integer or null for unknown
+     * @return int Number of key bytes
      */
     private function encryption_algorithm_to_key_size(string $algorithm): int
     {
@@ -1865,6 +1860,7 @@ class SSH2
             return 16;
         }
 
+        // @phpstan-ignore match.unhandled (Negotiated names are constrained by the built-in supported-algorithm lists; keep unsupported values failing.)
         return match ($algorithm) {
             'none'
                 => 0,
@@ -2020,10 +2016,12 @@ class SSH2
                         case 'keyboard-interactive':
                             $hasArray = $hasString = false;
                             foreach ($args as $arg) {
+                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see FLOW-008-ssh2-mfa-argument-selection.md.)
                                 if ($hasArray || is_array($arg)) {
                                     $hasArray = true;
                                     break;
                                 }
+                                // @phpstan-ignore booleanOr.leftAlwaysFalse (FLOW-008: suspected MFA selection defect remains open; preserve behavior pending validation; see FLOW-008-ssh2-mfa-argument-selection.md.)
                                 if ($hasString || is_string($arg)) {
                                     $hasString = true;
                                     break;
@@ -2231,7 +2229,7 @@ class SSH2
     private function keyboard_interactive_process(string|array ...$responses): bool
     {
         if (strlen($this->last_interactive_response)) {
-            $response = $this->last_interactive_response;
+            $orig = $response = $this->last_interactive_response;
         } else {
             $orig = $response = $this->get_binary_packet_or_close();
         }
@@ -2256,17 +2254,15 @@ class SSH2
                 }
                 $responses = array_values($responses);
 
-                if (isset($this->keyboard_requests_responses)) {
-                    for ($i = 0; $i < $num_prompts; $i++) {
-                        [
-                            $prompt, // prompt - ie. "Password: "; must not be empty
-                            // echo
-                        ] = Strings::unpackSSH2('sC', $response);
-                        foreach ($this->keyboard_requests_responses as $key => $value) {
-                            if (substr($prompt, 0, strlen($key)) == $key) {
-                                $responses[] = $value;
-                                break;
-                            }
+                for ($i = 0; $i < $num_prompts; $i++) {
+                    [
+                        $prompt, // prompt - ie. "Password: "; must not be empty
+                        // echo
+                    ] = Strings::unpackSSH2('sC', $response);
+                    foreach ($this->keyboard_requests_responses as $key => $value) {
+                        if (substr($prompt, 0, strlen($key)) == $key) {
+                            $responses[] = $value;
+                            break;
                         }
                     }
                 }
@@ -2278,7 +2274,7 @@ class SSH2
                     $this->updateLogHistory('UNKNOWN (60)', 'SSH_MSG_USERAUTH_INFO_REQUEST');
                 }
 
-                if (!count($responses) && $num_prompts) {
+                if (count($responses) < $num_prompts) {
                     $this->last_interactive_response = $orig;
                     return false;
                 }
@@ -2345,8 +2341,12 @@ class SSH2
     {
         $publickey = $privatekey->getPublicKey();
 
+        // a private key always matches the family of its public key, so the
+        // instanceof checks below establish the concrete family of $privatekey
         if ($publickey instanceof RSA) {
-            $privatekey = $privatekey->withPadding(RSA::SIGNATURE_PKCS1);
+            /** @var RSA\PrivateKey|Identity $rsa */
+            $rsa = $privatekey;
+            $privatekey = $rsa->withPadding(RSA::SIGNATURE_PKCS1);
             $algos = ['rsa-sha2-256', 'rsa-sha2-512', 'ssh-rsa'];
             if (isset($this->preferred['hostkey'])) {
                 $algos = array_intersect($algos, $this->preferred['hostkey']);
@@ -2367,7 +2367,9 @@ class SSH2
                     $signatureType = 'ssh-rsa';
             }
         } elseif ($publickey instanceof EC) {
-            $privatekey = $privatekey->withSignatureFormat('SSH2');
+            /** @var EC\PrivateKey|Identity $ec */
+            $ec = $privatekey;
+            $privatekey = $ec->withSignatureFormat('SSH2');
             $curveName = $privatekey->getCurve();
             switch ($curveName) {
                 case 'Ed25519':
@@ -2393,7 +2395,9 @@ class SSH2
                     throw new UnsupportedCurveException('Named Curve of ' . $curveName . ' is not supported by phpseclib4\'s SSH2 implementation');
             }
         } elseif ($publickey instanceof DSA) {
-            $privatekey = $privatekey->withSignatureFormat('SSH2');
+            /** @var DSA\PrivateKey|Identity $dsa */
+            $dsa = $privatekey;
+            $privatekey = $dsa->withSignatureFormat('SSH2');
             $hash = 'sha1';
             $signatureType = 'ssh-dss';
         } else {
@@ -2501,8 +2505,6 @@ class SSH2
 
     /**
      * Get the output from stdError
-     *
-     * @psalm-api
      */
     public function getStdError(): string
     {
@@ -2581,7 +2583,7 @@ class SSH2
      * If $callback is set to false then \phpseclib4\Net\SSH2::get_channel_packet(self::CHANNEL_EXEC) will need to be called manually.
      * In all likelihood, this is not a feature you want to be taking advantage of (SCP.php uses it)
      *
-     * @psalm-return ($callback is callable ? null : string)
+     * @return ($callback is callable ? null : string)
      */
     public function exec(string $command, ?\Closure $callback = null): ?string
     {
@@ -2628,8 +2630,6 @@ class SSH2
 
     /**
      * Opens a channel
-     *
-     * @psalm-suppress InvalidReturnType
      */
     protected function open_channel(int $channel, bool $skip_extended = false): bool
     {
@@ -2665,7 +2665,6 @@ class SSH2
 
         $this->channel_status[$channel] = MessageType::CHANNEL_OPEN;
 
-        /** @psalm-suppress InvalidReturnStatement */
         return $this->get_channel_packet($channel, $skip_extended);
     }
 
@@ -2914,7 +2913,6 @@ class SSH2
      * if there's sufficient demand for such a feature.
      *
      * @see self::stopSubsystem()
-     * @psalm-api
      */
     public function startSubsystem(string $subsystem): bool
     {
@@ -2947,8 +2945,6 @@ class SSH2
      * Stops a subsystem.
      *
      * @see self::startSubsystem()
-     *
-     * @psalm-api
      */
     public function stopSubsystem(): void
     {
@@ -3153,6 +3149,7 @@ class SSH2
         foreach ($this->auth as $auth) {
             $result = $this->login(...$auth);
         }
+        // @phpstan-ignore variable.undefined (Reachable reconnect paths have recorded authentication attempts, so this loop assigns $result.)
         return $result;
     }
 
@@ -3321,7 +3318,7 @@ class SSH2
                     $packet->plain = $this->decrypt->decrypt($raw);
                     break;
                 case 'chacha20-poly1305@openssh.com':
-                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    // This should be impossible, but we are checking anyway to narrow the type.
                     if (!($this->decrypt instanceof ChaCha20)) {
                         throw new InvalidStateException('$this->decrypt is not a ' . ChaCha20::class);
                     }
@@ -3421,16 +3418,13 @@ class SSH2
                     $this->decompress_context = inflate_init(ZLIB_ENCODING_RAW, ['window' => $cinfo + 8]);
                     $payload = substr($payload, 2);
                 }
-                if ($this->decompress_context) {
-                    $payload = inflate_add($this->decompress_context, $payload, ZLIB_PARTIAL_FLUSH);
-                }
+                $payload = inflate_add($this->decompress_context, $payload, ZLIB_PARTIAL_FLUSH);
         }
 
         $this->get_seq_no++;
 
         if (defined('NET_SSH2_LOGGING')) {
             $current = microtime(true);
-            /** @psalm-suppress InvalidArrayAccess */
             $message_number = sprintf(
                 '<- %s (since last: %s, network: %ss)',
                 ($constantName = MessageType::findConstantNameByValue($value = ord($payload[0])))
@@ -3795,6 +3789,7 @@ class SSH2
         }
 
         while (true) {
+            unset($channel);
             try {
                 $response = $this->get_binary_packet();
             } catch (TimeoutException) {
@@ -3834,8 +3829,7 @@ class SSH2
                         }
                         */
                         // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
-                        [$data_type_code, $data] = Strings::unpackSSH2('Ns', $response);
-                        unset($data_type_code); // suppress psalm error
+                        [, $data] = Strings::unpackSSH2('Ns', $response);
 
                         $this->stdErrorLog .= $data;
                         if ($skip_extended || $this->quiet_mode) {
@@ -3924,8 +3918,6 @@ class SSH2
                                 }
                                 return $this->get_channel_packet($client_channel, $skip_extended);
                         }
-                        /** @psalm-suppress UnevaluatedCode */
-                        break;
                     case MessageType::CHANNEL_REQUEST:
                         switch ($type) {
                             case MessageType::CHANNEL_SUCCESS:
@@ -3964,6 +3956,7 @@ class SSH2
                     */
                     [$data] = Strings::unpackSSH2('s', $response);
 
+                    // @phpstan-ignore variable.undefined (the 's' decode above throws unless the packet carries a full data string, impossible without the channel field that assigned $channel)
                     if ($channel == self::CHANNEL_AGENT_FORWARD) {
                         $agent_response = $this->agent->forwardData($data);
                         if (isset($agent_response)) {
@@ -3978,6 +3971,14 @@ class SSH2
                     $this->channel_buffers[$channel][] = chr($type) . $data;
                     break;
                 case MessageType::CHANNEL_CLOSE:
+                    if (!isset($channel)) {
+                        $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
+                        throw new UnexpectedValueException('SSH_MSG_CHANNEL_CLOSE packet is missing a recipient channel');
+                    }
+                    if (!isset($this->channel_status[$channel])) {
+                        $this->disconnect_helper(DisconnectReason::PROTOCOL_ERROR);
+                        throw new UnexpectedValueException('SSH_MSG_CHANNEL_CLOSE received for an unknown channel');
+                    }
                     $this->curTimeout = 5;
 
                     $this->close_channel_bitmap($channel);
@@ -4040,9 +4041,7 @@ class SSH2
                     $this->compress_context = deflate_init(ZLIB_ENCODING_RAW, ['window' => 15]);
                     $header = "\x78\x9C";
                 }
-                if ($this->compress_context) {
-                    $data = $header . deflate_add($this->compress_context, $data, ZLIB_PARTIAL_FLUSH);
-                }
+                $data = $header . deflate_add($this->compress_context, $data, ZLIB_PARTIAL_FLUSH);
         }
 
         // 4 (packet length) + 1 (padding length) + 4 (minimal padding amount) == 9
@@ -4089,7 +4088,7 @@ class SSH2
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
-                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    // This should be impossible, but we are checking anyway to narrow the type.
                     if (!($this->encrypt instanceof ChaCha20)) {
                         throw new InvalidStateException('$this->encrypt is not an instance of ' . ChaCha20::class);
                     }
@@ -4144,7 +4143,7 @@ class SSH2
             $current = microtime(true);
             $message_number = sprintf(
                 '-> %s (since last: %s, network: %ss)',
-                ($constantName = MessageType::findConstantNameByValue($value = ord($logged[0]), false))
+                ($constantName = MessageType::findConstantNameByValue($value = ord($logged[0])))
                     ? "SSH_MSG_$constantName"
                     : "UNKNOWN ($value)",
                 round($current - $this->last_packet, 4),
@@ -4206,7 +4205,7 @@ class SSH2
     /**
      * Logs data packet helper
      *
-     * @param resource &$realtime_log_file
+     * @param resource|false|closed-resource|null &$realtime_log_file
      */
     protected function append_log_helper(int $constant, string $message_number, string $message, array &$message_number_log, array &$message_log, ?int &$log_size, mixed &$realtime_log_file, ?bool &$realtime_log_wrap, ?int &$realtime_log_size): void
     {
@@ -4412,8 +4411,6 @@ class SSH2
      * Returns a log of the packets that have been sent and received.
      *
      * Returns a string if NET_SSH2_LOGGING == self::LOG_COMPLEX, an array if NET_SSH2_LOGGING == self::LOG_SIMPLE and false if !defined('NET_SSH2_LOGGING')
-     *
-     * @psalm-api
      */
     public function getLog(): array|string|null
     {
@@ -4466,8 +4463,6 @@ class SSH2
 
     /**
      * Get Debug Messages
-     *
-     * @psalm-api
      */
     public function getDebugMessages(): array
     {
@@ -4515,8 +4510,6 @@ class SSH2
      * string." The implication is that lines preceeeding the version string are *not* part of the
      * version string. getServerIdentification() returns the server string. This function returns
      * the server string and the lines preceeding it.
-     *
-     * @psalm-api
      */
     public function getRawServerIdentification(): string
     {
@@ -4527,8 +4520,6 @@ class SSH2
 
     /**
      * Returns a list of algorithms the server supports
-     *
-     * @psalm-api
      */
     public function getServerAlgorithms(): array
     {
@@ -4800,8 +4791,6 @@ class SSH2
 
     /**
      * Force multiple channels (even if phpseclib has decided to disable them)
-     *
-     * @psalm-api
      */
     public function forceMultipleChannels(): void
     {
@@ -4810,8 +4799,6 @@ class SSH2
 
     /**
      * Allows you to set the terminal
-     *
-     * @psalm-api
      */
     public function setTerminal(string $term): void
     {
@@ -4929,8 +4916,6 @@ class SSH2
      *
      * Quoting from the RFC, "in some jurisdictions, sending a warning message before
      * authentication may be relevant for getting legal protection."
-     *
-     * @psalm-api
      */
     public function getBannerMessage(): string
     {
@@ -5002,6 +4987,8 @@ class SSH2
                 throw new NoSupportedAlgorithmsException('Unsupported signature format');
         }
 
+        // the server host key is a public key, so loadFormat() returned the concrete public key class
+        /** @var DSA\PublicKey|EC\PublicKey|RSA\PublicKey $key */
         if (!$key->verify($this->exchange_hash, $signature)) {
             $this->disconnect_helper(DisconnectReason::HOST_KEY_NOT_VERIFIABLE);
             return null;
@@ -5023,8 +5010,6 @@ class SSH2
 
     /**
      * Returns the number of columns for the terminal window size.
-     *
-     * @psalm-api
      */
     public function getWindowColumns(): int
     {
@@ -5033,8 +5018,6 @@ class SSH2
 
     /**
      * Returns the number of rows for the terminal window size.
-     *
-     * @psalm-api
      */
     public function getWindowRows(): int
     {
@@ -5043,8 +5026,6 @@ class SSH2
 
     /**
      * Sets the number of columns for the terminal window size.
-     *
-     * @psalm-api
      */
     public function setWindowColumns(int $value): void
     {
@@ -5053,8 +5034,6 @@ class SSH2
 
     /**
      * Sets the number of rows for the terminal window size.
-     *
-     * @psalm-api
      */
     public function setWindowRows(int $value): void
     {
@@ -5063,8 +5042,6 @@ class SSH2
 
     /**
      * Sets the number of columns and rows for the terminal window size.
-     *
-     * @psalm-api
      */
     public function setWindowSize(int $columns = 80, int $rows = 24): void
     {
@@ -5097,7 +5074,6 @@ class SSH2
     {
         if (array_key_exists($id, self::$connections)) {
             /**
-             * @psalm-ignore-var
              * @var SSH2|null $ssh2
              */
             $ssh2 =  self::$connections[$id]->get();
@@ -5141,8 +5117,6 @@ class SSH2
      * Return the list of authentication methods that may productively continue authentication.
      *
      * @see https://tools.ietf.org/html/rfc4252#section-5.1
-     *
-     * @psalm-api
      */
     public function getAuthMethodsToContinue(): ?array
     {
@@ -5151,8 +5125,6 @@ class SSH2
 
     /**
      * Enables "smart" multi-factor authentication (MFA)
-     *
-     * @psalm-api
      */
     public function enableSmartMFA(): void
     {
@@ -5161,8 +5133,6 @@ class SSH2
 
     /**
      * Disables "smart" multi-factor authentication (MFA)
-     *
-     * @psalm-api
      */
     public function disableSmartMFA(): void
     {
@@ -5171,8 +5141,6 @@ class SSH2
 
     /**
      * How many bytes until the next key re-exchange?
-     *
-     * @psalm-api
      */
     public function setBytesUntilKeyReexchange(int $bytes): void
     {

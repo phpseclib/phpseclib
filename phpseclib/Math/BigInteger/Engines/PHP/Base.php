@@ -21,7 +21,6 @@ use phpseclib4\Math\BigInteger\Engines\PHP;
  * PHP Modular Exponentiation Engine
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class Base extends PHP
 {
@@ -66,6 +65,8 @@ abstract class Base extends PHP
      * uses a trick involving the Chinese Remainder Theorem to factor the even modulo into two numbers - one odd and
      * the other, a power of two - and recombine them, later.  This is the method that this modPow function uses.
      * {@link http://islab.oregonstate.edu/papers/j34monex.pdf Montgomery Reduction with Even Modulus} elaborates.
+     *
+     * @param class-string<PHP> $class
      */
     protected static function powModHelper(PHP $x, PHP $e, PHP $n, string $class): PHP
     {

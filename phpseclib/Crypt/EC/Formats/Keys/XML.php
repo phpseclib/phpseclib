@@ -41,7 +41,6 @@ use phpseclib4\Math\Common\FiniteField\Integer;
  * XML Formatted EC Key Handler
  *
  * @author  Jim Wigginton <terrafrost@php.net>
- * @psalm-api
  */
 abstract class XML
 {
@@ -59,8 +58,6 @@ abstract class XML
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -153,7 +150,7 @@ abstract class XML
         $node = $nodes->item(0);
         $ns_name = $node->lookupPrefix($ns);
         if ($ns_name) {
-            $node->removeAttributeNS($ns, $ns_name);
+            $node->removeAttributeNS($ns, $ns_name); // @phpstan-ignore method.notFound (XPath selects elements; DOM list typing is broader)
         }
         return $dom->saveXML($node);
     }
@@ -173,16 +170,17 @@ abstract class XML
     {
         $x = self::query($xpath, 'publickey/x');
         $y = self::query($xpath, 'publickey/y');
-        if (!$x->length || !$x->item(0)->hasAttribute('Value')) {
+        if (!$x->length || !$x->item(0)->hasAttribute('Value')) { // @phpstan-ignore method.notFound (XPath selects the X element; DOM list typing is broader)
             throw new UnexpectedValueException('Public Key / X coordinate not found');
         }
-        if (!$y->length || !$y->item(0)->hasAttribute('Value')) {
+        if (!$y->length || !$y->item(0)->hasAttribute('Value')) { // @phpstan-ignore method.notFound (XPath selects the Y element; DOM list typing is broader)
             throw new UnexpectedValueException('Public Key / Y coordinate not found');
         }
         $point = [
-            $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))),
-            $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))),
+            $curve->convertInteger(new BigInteger($x->item(0)->getAttribute('Value'))), // @phpstan-ignore method.notFound (XPath selects the X element; DOM list typing is broader)
+            $curve->convertInteger(new BigInteger($y->item(0)->getAttribute('Value'))), // @phpstan-ignore method.notFound (XPath selects the Y element; DOM list typing is broader)
         ];
+        // @phpstan-ignore method.notFound (XML's private loaders construct Prime curves or named Prime/Binary curves from the fixed OID table; these implement verifyPoint().)
         if (!$curve->verifyPoint($point)) {
             throw new UnexpectedValueException('Unable to verify that point exists on curve');
         }
@@ -197,7 +195,7 @@ abstract class XML
     {
         $namedCurve = self::query($xpath, 'namedcurve');
         if ($namedCurve->length == 1) {
-            $oid = $namedCurve->item(0)->getAttribute('URN');
+            $oid = $namedCurve->item(0)->getAttribute('URN'); // @phpstan-ignore method.notFound (XPath selects the NamedCurve element; DOM list typing is broader)
             $oid = preg_replace('#[^\d.]#', '', $oid);
             $name = array_search($oid, Curves::OIDs);
             if ($name === false) {
@@ -246,7 +244,7 @@ abstract class XML
         switch ($type) {
             case 'prime-field':
                 $curve = new PrimeCurve();
-                /** @psalm-suppress UndefinedVariable $p */
+                // @phpstan-ignore variable.undefined ($p is assigned by the variable-variable loop above only when the prime-field query matched, which is exactly the case selected here.)
                 $curve->setModulo(new BigInteger($p, 256));
                 $curve->setCoefficients(
                     new BigInteger($a, 256),
@@ -297,7 +295,7 @@ abstract class XML
             case 'prime-field':
                 $curve = new PrimeCurve();
 
-                /** @psalm-suppress UndefinedVariable $p */
+                // @phpstan-ignore variable.undefined ($p is assigned by the variable-variable loop above only when the prime-field query matched, which is exactly the case selected here.)
                 $p = str_replace(["\r", "\n", ' ', "\t"], '', $p);
                 $curve->setModulo(new BigInteger($p));
 
@@ -362,14 +360,16 @@ abstract class XML
             throw new UnsupportedCurveException('TwistedEdwards and Montgomery Curves are not supported');
         }
 
-        if (empty(static::$namespace)) {
+        if (empty(self::$namespace)) {
             $pre = $post = '';
         } else {
-            $pre = static::$namespace . ':';
-            $post = ':' . static::$namespace;
+            $pre = self::$namespace . ':';
+            $post = ':' . self::$namespace;
         }
 
         if (self::$rfc4050) {
+            // XML-002 remains open; see XML-002-rfc4050-binary-coordinate-encoding.md.
+            // @phpstan-ignore binaryOp.invalid, binaryOp.invalid (XML-002: X/Y binary coordinates are emitted as decimal, not RFC4050 hex octets; no runtime fix.)
             return '<' . $pre . 'ECDSAKeyValue xmlns' . $post . '="http://www.w3.org/2001/04/xmldsig-more#">' . "\r\n" .
                    self::encodeXMLParameters($curve, $pre, $options) . "\r\n" .
                    '<' . $pre . 'PublicKey>' . "\r\n" .
@@ -410,6 +410,8 @@ abstract class XML
                     $xml .= '<' . $pre . 'PrimeFieldParamsType>' . "\r\n" .
                            '<' . $pre . 'P>' . $temp['fieldID']['parameters'] . '</' . $pre . 'P>' . "\r\n" .
                            '</' . $pre . 'PrimeFieldParamsType>' . "\r\n";
+                    // encodeParameters emits explicit prime-field parameters only for PrimeCurve instances.
+                    /** @var PrimeCurve $curve */
                     $a = $curve->getA();
                     $b = $curve->getB();
                     [$x, $y] = $curve->getBasePoint();

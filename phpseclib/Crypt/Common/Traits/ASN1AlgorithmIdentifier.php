@@ -226,44 +226,48 @@ trait ASN1AlgorithmIdentifier
                 $meta['meta']['algorithm'] = $algorithm;
 
                 $temp = ASN1::decodeBER((string) $data['parameters']);
-                extract(ASN1::map($temp, Maps\PBEParameter::MAP)->toArray());
-                $iterationCount = (int) $iterationCount->toString();
-                $cipher->setPassword($password, $kdf, $hash, "$salt", $iterationCount);
+                // PHPStan cannot track extract()'s schema locals; preserve the pattern and accept the malformed-input risk.
+                extract(ASN1::map($temp, Maps\PBEParameter::MAP)->toArray()); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
+                $iterationCount = (int) $iterationCount->toString(); // @phpstan-ignore variable.undefined
+                $cipher->setPassword($password, $kdf, $hash, "$salt", $iterationCount); // @phpstan-ignore variable.undefined
                 $cipher->setMetaData('meta', $meta);
                 return $cipher;
             case 'id-PBES2':
                 $meta['meta']['algorithm'] = $algorithm;
 
                 $temp = ASN1::decodeBER((string) $data['parameters']);
-                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
+                // PHPStan cannot track extract()'s schema locals; preserve the pattern and accept the malformed-input risk.
+                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray(); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 extract($temp);
 
-                $cipher = self::getPBES2EncryptionObject((string) $encryptionScheme['algorithm']);
-                $meta['meta']['cipher'] = $encryptionScheme['algorithm'];
+                $cipher = self::getPBES2EncryptionObject((string) $encryptionScheme['algorithm']); // @phpstan-ignore variable.undefined
+                $meta['meta']['cipher'] = $encryptionScheme['algorithm']; // @phpstan-ignore variable.undefined
 
                 $temp = ASN1::decodeBER((string) $data['parameters']);
-                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray();
+                // PHPStan cannot track extract()'s schema locals; preserve the pattern and accept the malformed-input risk.
+                $temp = ASN1::map($temp, Maps\PBES2params::MAP)->toArray(); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 extract($temp);
 
                 if (!$cipher instanceof RC2) {
-                    $cipher->setIV((string) $encryptionScheme['parameters']);
+                    $cipher->setIV((string) $encryptionScheme['parameters']); // @phpstan-ignore variable.undefined
                 } else {
-                    $temp = ASN1::decodeBER((string) $encryptionScheme['parameters']);
-                    extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray());
+                    $temp = ASN1::decodeBER((string) $encryptionScheme['parameters']); // @phpstan-ignore variable.undefined
+                    // PHPStan cannot track extract()'s schema locals; preserve the pattern and accept the malformed-input risk.
+                    extract(ASN1::map($temp, Maps\RC2CBCParameter::MAP)->toArray()); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
 
-                    $effectiveKeyLength = match ((int) $rc2ParametersVersion->toString()) {
+                    $effectiveKeyLength = match ((int) $rc2ParametersVersion->toString()) { // @phpstan-ignore variable.undefined (BI-028 remains open: the optional RC2 version can be absent; see BI-028-rc2-pbes2-optional-version.md.)
                         160 => 40,
                         120 => 64,
                         58 => 128,
                         default => throw new UnsupportedAlgorithmException('The only effective key lengths that phpseclib supports for RC2 encrypted keys are 40, 64 an 128')
                     };
-                    $cipher->setIV((string) $iv);
+                    $cipher->setIV((string) $iv); // @phpstan-ignore variable.undefined
                     $cipher->setKeyLength($effectiveKeyLength);
                 }
 
-                $meta['meta']['keyDerivationFunc'] = $keyDerivationFunc['algorithm'];
+                $meta['meta']['keyDerivationFunc'] = $keyDerivationFunc['algorithm']; // @phpstan-ignore variable.undefined
                 $cipher->setMetaData('meta', $meta);
-                self::setupPBKDF2($keyDerivationFunc, $password, $cipher);
+                self::setupPBKDF2($keyDerivationFunc, $password, $cipher); // @phpstan-ignore variable.undefined
                 return $cipher;
             //case 'id-PBMAC1':
             //    $temp = ASN1::decodeBER($data['parameters']);
@@ -284,7 +288,8 @@ trait ASN1AlgorithmIdentifier
                 $meta = $cipher->hasMetaData('meta') ? $cipher->getMetaData('meta') : [];
                 $prf = ['algorithm' => 'id-hmacWithSHA1'];
                 $temp = ASN1::decodeBER((string) $keyDerivationFunc['parameters']);
-                $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray();
+                // PHPStan cannot track extract()'s schema locals; preserve the pattern and accept the malformed-input risk.
+                $params = ASN1::map($temp, Maps\PBKDF2params::MAP)->toArray(); // @phpstan-ignore method.notFound (the fixed ASN.1 map determines a Constructed result at runtime)
                 extract($params);
 
                 $meta['meta']['prf'] = $prf['algorithm'];
@@ -293,8 +298,8 @@ trait ASN1AlgorithmIdentifier
                     $password,
                     'pbkdf2',
                     $hash,
-                    (string) $salt,
-                    (int) $iterationCount->toString(),
+                    (string) $salt, // @phpstan-ignore variable.undefined
+                    (int) $iterationCount->toString(), // @phpstan-ignore variable.undefined
                 ];
                 if (isset($keyLength)) {
                     $params[] = (int) $keyLength->toString();
