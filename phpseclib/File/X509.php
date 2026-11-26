@@ -144,14 +144,12 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
             // of time, however, phpseclib, making no assumptions on the underlying filesystem, doesn't
             // really have a mechanism to do this. if you want to save CRLs to some sort of DB then you can
             // replace this function with one that'll cache to the DB and pull from the DB when appropriate
-            /** @psalm-suppress UnusedClosureParam */
             self::$inCRLFunction = function (string $url, BigInteger $serial): bool {
                 return false;
             };
         }
 
         if (!isset(self::$urlFetchCallback)) {
-            /** @psalm-suppress UnusedClosureParam */
             self::$urlFetchCallback = function (string $host, string $ip, int $port, string $scheme): bool {
                 return false;
             };
@@ -344,7 +342,6 @@ class X509 implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cert[$offset];
     }
 

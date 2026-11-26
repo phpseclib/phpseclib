@@ -36,11 +36,8 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public Constructed|array $encryptedKey;
     public EncryptedData $cms;
     public KeyAgreeRecipient $recipient;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Constructed $parent;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array $key)
@@ -173,7 +170,6 @@ class EncryptedKey implements DerivableKey, SearchableKey, \ArrayAccess, \Counta
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->encryptedKey[$offset];
     }
 

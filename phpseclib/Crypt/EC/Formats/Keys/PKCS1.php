@@ -146,7 +146,6 @@ abstract class PKCS1 extends Progenitor
      * Convert a private key to the appropriate format.
 ?     *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         #[\SensitiveParameter] BigInteger $privateKey,

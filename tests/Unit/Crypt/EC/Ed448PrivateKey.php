@@ -9,7 +9,6 @@ use phpseclib4\Exception\LengthException;
 
 class Ed448PrivateKey
 {
-    /** @psalm-suppress PossiblyUnusedParam */
     public static function load(
         #[\SensitiveParameter] string $key,
         #[\SensitiveParameter] ?string $password = null

@@ -210,7 +210,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->cms[$offset];
     }
 
@@ -571,7 +570,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
-    /** @psalm-suppress PossiblyUnusedReturnValue */
     public function createNewRecipientFromX509(X509 $x509, int $type = CMS::ISSUER_AND_DN): KeyTransRecipient|KeyAgreeRecipient
     {
         // @phpstan-ignore isset.initializedProperty (EncryptedData::load() bypasses the constructor; recipient creation requires a content key, just like the password and KEK recipient paths.)
@@ -629,7 +627,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
             $this->placeRecipient($recipient, 'ktri');
         } else {
             $privateKey = EC::createKey($publicKey->getCurve());
-            /** @psalm-suppress InvalidArgument */
             // @phpstan-ignore argument.type (CMS-002 remains open: X509 can hold EC/Common\PublicKey implementations that DH::computeSecret() rejects; see CMS-002-cms-recipient-custom-ec-public-key.md.)
             $secret = \phpseclib4\Crypt\DH::computeSecret($privateKey, $publicKey);
             $parameters = new ASN1\Element(ASN1::encodeDER(['algorithm' => 'id-aes128-wrap'], Maps\AlgorithmIdentifier::MAP));
@@ -655,7 +652,6 @@ class EncryptedData implements \ArrayAccess, \Countable, \Iterator
         return $recipient;
     }
 
-    /** @psalm-suppress InvalidPropertyFetch */
     private function placeRecipient(Recipient $recipient, string $type): void
     {
         if (isset($this->cms['content']['recipientInfos'])) {

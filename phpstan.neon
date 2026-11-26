@@ -14,7 +14,7 @@ parameters:
     checkMissingOverrideMethodAttribute: false
 
     ignoreErrors:
-        # Existing field-specific Psalm allowance: one unread ANSI option field.
+        # One ANSI option field is written but never read.
         -
             identifier: property.onlyWritten
             rawMessage: 'Property phpseclib4\File\ANSI::$old_x is never read, only written.'
@@ -104,8 +104,7 @@ parameters:
 
         # Engine/provider capability boundary: protected backend algorithms are
         # supplied by the concrete families; no universal Engine API is implied.
-        # The previous Psalm gate broadly tolerated UndefinedMethod; this policy
-        # is bounded to the reviewed files (no per-method precision).
+        # This policy is bounded to the reviewed files (no per-method precision).
         -
             identifier: method.notFound
             path: phpseclib/Math/BigInteger/Engines/Engine.php

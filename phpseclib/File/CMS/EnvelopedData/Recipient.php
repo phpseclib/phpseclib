@@ -32,11 +32,8 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
 
     public Constructed|array|null $recipient;
     public ?EncryptedData $cms = null;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public ?Choice $parent;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $recipient = null)
@@ -77,7 +74,6 @@ abstract class Recipient implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->recipient[$offset];
     }
 

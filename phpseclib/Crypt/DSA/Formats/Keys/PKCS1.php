@@ -143,8 +143,6 @@ abstract class PKCS1 extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(
         BigInteger $p,

@@ -35,8 +35,6 @@ abstract class MontgomeryPublic
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -58,7 +56,6 @@ abstract class MontgomeryPublic
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(MontgomeryCurve $curve, array $publicKey, array $options = []): string
     {

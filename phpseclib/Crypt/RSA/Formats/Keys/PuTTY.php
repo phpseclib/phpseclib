@@ -79,8 +79,6 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,
@@ -104,8 +102,6 @@ abstract class PuTTY extends Progenitor
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {

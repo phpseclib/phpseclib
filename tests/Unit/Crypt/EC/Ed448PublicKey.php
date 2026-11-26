@@ -12,7 +12,6 @@ class Ed448PublicKey
 {
     use Common;
 
-    /** @psalm-suppress PossiblyUnusedParam */
     public static function load(
         #[\SensitiveParameter] string $key,
         #[\SensitiveParameter] ?string $password = null

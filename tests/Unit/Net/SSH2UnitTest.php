@@ -587,7 +587,6 @@ class SSH2UnitTest extends PhpseclibTestCase
         $this->assertSame(1, self::getVar($ssh, 'channelCount'));
     }
 
-    /** @psalm-suppress InvalidReturnType, InvalidReturnStatement */
     protected function createSSHMock(): SSH2
     {
         return $this->getMockBuilder('phpseclib4\Net\SSH2')

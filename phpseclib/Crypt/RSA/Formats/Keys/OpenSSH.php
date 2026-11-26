@@ -105,8 +105,6 @@ abstract class OpenSSH extends Progenitor
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,

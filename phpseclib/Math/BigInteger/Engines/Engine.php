@@ -692,7 +692,6 @@ abstract class Engine implements \JsonSerializable
         }
 
         $temp = new $class();
-        /** @psalm-suppress UndefinedPropertyAssignment */
         $temp->value = static::reduce($result, $n_value, $class);
 
         return $temp;
@@ -1084,7 +1083,6 @@ abstract class Engine implements \JsonSerializable
                 return $r;
             };');
         }
-        /** @psalm-suppress UndefinedThisPropertyFetch */
         $n = $this->value;
         return eval('return function(' . static::class . ' $x) use ($n, $fqengine, $class) {
             $r = new $class();

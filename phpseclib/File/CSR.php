@@ -249,7 +249,6 @@ class CSR implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->csr[$offset];
     }
 

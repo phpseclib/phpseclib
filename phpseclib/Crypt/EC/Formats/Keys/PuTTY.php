@@ -121,7 +121,6 @@ abstract class PuTTY extends Progenitor
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(BaseCurve $curve, array $publicKey, array $options = []): string
     {

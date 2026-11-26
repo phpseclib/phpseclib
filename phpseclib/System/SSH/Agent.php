@@ -213,8 +213,6 @@ class Agent
 
     /**
      * Request agent forwarding of remote server
-     *
-     * @psalm-suppress UnusedReturnValue
      */
     private function request_forwarding(SSH2 $ssh): bool
     {

@@ -594,8 +594,6 @@ class SFTP extends SSH2
 
     /**
      * Returns the current directory name
-     *
-     * @psalm-suppress InvalidReturnType, InvalidReturnStatement
      */
     public function pwd(): string
     {
@@ -876,7 +874,6 @@ class SFTP extends SSH2
      *
      * @param null|\Closure(string, string, array):void $onFile Callback invoked for each file found. The parameters are: directory, filename, attributes.
      * @return ($raw is true ? array<array-key, array<array-key, mixed>> : list<string>)
-     * @psalm-suppress InvalidReturnType
      */
     private function readlist(string $dir, bool $raw = true, ?\Closure $onFile = null): array
     {
@@ -1884,7 +1881,6 @@ class SFTP extends SSH2
         if (!isset($local_file)) {
             $content = '';
         } elseif (is_resource($local_file)) {
-            /** @psalm-suppress NoValue */
             $fp = $local_file;
         } elseif (is_string($local_file)) {
             $fp = Files::open($local_file, 'wb');
@@ -2208,8 +2204,6 @@ class SFTP extends SSH2
 
     /**
      * Gets last access time of file
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileatime(string $path): int|float
     {
@@ -2218,8 +2212,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file modification time
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filemtime(string $path): int|float
     {
@@ -2228,8 +2220,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file permissions
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileperms(string $path): int
     {
@@ -2238,8 +2228,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file owner
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function fileowner(string $path): int|string
     {
@@ -2250,8 +2238,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file group
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filegroup(string $path): int|string
     {
@@ -2279,8 +2265,6 @@ class SFTP extends SSH2
 
     /**
      * Gets file size
-     *
-     * @psalm-suppress InvalidReturnStatement, InvalidReturnType
      */
     public function filesize(string $path, bool $recursive = false): int|float
     {
@@ -2407,8 +2391,6 @@ class SFTP extends SSH2
      * Parse Attributes
      *
      * See '7.  File Attributes' of draft-ietf-secsh-filexfer-13 for more info.
-     *
-     * @psalm-suppress UndefinedConstant
      */
     protected static function parseAttributes(int $version, string &$response): array
     {

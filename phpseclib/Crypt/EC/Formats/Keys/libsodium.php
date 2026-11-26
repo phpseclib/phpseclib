@@ -45,8 +45,6 @@ abstract class libsodium
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -87,7 +85,6 @@ abstract class libsodium
      * Convert an EC public key to the appropriate format
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(Ed25519 $curve, array $publicKey, array $options = []): string
     {
@@ -98,7 +95,6 @@ abstract class libsodium
      * Convert a private key to the appropriate format.
      *
      * @param Integer[] $publicKey
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         #[\SensitiveParameter] BigInteger $privateKey,

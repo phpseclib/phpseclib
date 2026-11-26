@@ -252,8 +252,6 @@ class Binary extends Base
      * "Due to patent issues the compressed option is disabled by default for binary curves
      *  and can be enabled by defining the preprocessor macro OPENSSL_EC_BIN_PT_COMP at
      *  compile time."
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public function derivePoint(string $m): array
     {

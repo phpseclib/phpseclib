@@ -37,8 +37,6 @@ abstract class EvalBarrett extends Base
      *
      * This calls a dynamically generated loop unrolled function that's specific to a given modulo.
      * Array lookups are avoided as are if statements testing for how many bits the host OS supports, etc.
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected static function reduce(array $n, array $m, string $class): array
     {

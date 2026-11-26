@@ -87,7 +87,7 @@ abstract class AsymmetricKey
      * Algorithm Name
      *
      * This really shouldn't be needed. The child classes that extend AsymmetricKey define it so
-     * there's no need for this class to do so, however, if this class doesn't define it then psalm
+     * there's no need for this class to do so, however, if this class doesn't define it then phpstan
      * will complain
      *
      * @see self::load()
@@ -474,7 +474,6 @@ abstract class AsymmetricKey
      * want to use it at some point
      *
      * @return BigInteger
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function computek(string $h1): BigInteger
     {
@@ -519,8 +518,6 @@ abstract class AsymmetricKey
 
     /**
      * Integer to Octet String
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     private function int2octets(BigInteger $v): string
     {
@@ -538,8 +535,6 @@ abstract class AsymmetricKey
 
     /**
      * Bit String to Integer
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     protected function bits2int(string $in): BigInteger
     {
@@ -555,8 +550,6 @@ abstract class AsymmetricKey
 
     /**
      * Bit String to Octet String
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     private function bits2octets(string $in): string
     {

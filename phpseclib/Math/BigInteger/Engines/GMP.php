@@ -425,8 +425,6 @@ class GMP extends Engine
 
     /**
      * Performs some post-processing for randomRangePrime
-     *
-     * @psalm-suppress UndefinedPropertyFetch
      */
     protected static function randomRangePrimeInner(Engine $x, Engine $min, Engine $max): ?GMP
     {

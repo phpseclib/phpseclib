@@ -1021,7 +1021,6 @@ abstract class SymmetricKey
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $this->decryptIV);
                         // @phpstan-ignore binaryOp.invalid (Valid ECB block/key; preserve the established OpenSSL success contract.)
                         $ciphertext .= $plaintext[$i] ^ $xor;
-                        /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
                     }
 
@@ -1340,7 +1339,6 @@ abstract class SymmetricKey
                         $xor = openssl_encrypt($iv, $this->cipher_name_openssl_ecb, $this->key, OPENSSL_RAW_DATA, $this->decryptIV);
                         // @phpstan-ignore binaryOp.invalid (Valid ECB block/key; preserve the established OpenSSL success contract.)
                         $plaintext .= $ciphertext[$i] ^ $xor;
-                        /** @psalm-suppress InvalidArrayAccess */
                         $iv = substr($iv, 1) . $xor[0];
                     }
 

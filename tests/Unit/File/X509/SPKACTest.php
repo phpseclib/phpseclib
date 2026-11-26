@@ -43,7 +43,6 @@ class SPKACTest extends PhpseclibTestCase
 
         $pubKey = $spkac->getPublicKey();
 
-        /** @psalm-suppress InvalidCast */
         $this->assertIsString("$pubKey"); // @phpstan-ignore encapsedStringPart.nonString (This fixed, successfully verified SPKAC fixture loads a concrete public key that supports its existing string representation.)
     }
 

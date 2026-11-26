@@ -35,8 +35,6 @@ abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -121,8 +119,6 @@ abstract class XML
 
     /**
      * Convert a private key to the appropriate format.
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePrivateKey(
         BigInteger $n,
@@ -156,8 +152,6 @@ abstract class XML
 
     /**
      * Convert a public key to the appropriate format
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(BigInteger $n, BigInteger $e, array $options = []): string
     {

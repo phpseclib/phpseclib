@@ -64,8 +64,6 @@ class ANSI
 
     /**
      * Old Column
-     *
-     * @psalm-suppress UnusedProperty
      */
     private int $old_x;
 

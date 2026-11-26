@@ -534,7 +534,6 @@ class Rijndael extends BlockCipher
                     $this->dw[$row] = $temp;
                 }
 
-                /** @psalm-suppress LoopInvalidation */
                 $col = 0;
                 $row++;
             }

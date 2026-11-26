@@ -53,8 +53,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
      * Curve Order
      *
      * Used for deterministic ECDSA
-     *
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $q;
 
@@ -65,8 +63,6 @@ final class PrivateKey extends EC implements Common\PrivateKey
      * with x you have x * the base point yielding an (x, y)-coordinate that is the
      * public key. But the x is different depending on which side of the equal sign
      * you're on. It's less ambiguous if you do dA * base point = (x, y)-coordinate.
-     *
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $x;
 

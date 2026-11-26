@@ -467,8 +467,6 @@ class ASN1Test extends PhpseclibTestCase
 
     /**
      * Test that an exception is thrown on bad decodes
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('badDecodes')]
     public function testExceptionsOnBadDecodes(string $data, array $map, ?string $path, ?string $key): void

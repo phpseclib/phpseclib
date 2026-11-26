@@ -34,8 +34,6 @@ abstract class XML
 {
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -115,8 +113,6 @@ abstract class XML
      * Convert a public key to the appropriate format
      *
      * See https://www.w3.org/TR/xmldsig-core/#sec-DSAKeyValue
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function savePublicKey(
         BigInteger $p,

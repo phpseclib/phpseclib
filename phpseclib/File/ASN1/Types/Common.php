@@ -114,7 +114,6 @@ trait Common
         }
     }
 
-    /** @psalm-suppress PossiblyUnusedReturnValue, InvalidReturnType */
     public function getTypeID(): int
     {
         $reflection = new \ReflectionClassConstant(static::class, 'TYPE');

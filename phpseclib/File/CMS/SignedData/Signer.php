@@ -77,11 +77,8 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
 
     public Constructed|array|null $signer;
     public ?SignedData $cms = null;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public Constructed|null $parent;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int $depth = 0;
-    /** @psalm-suppress PossiblyUnusedProperty */
     public int|string $key;
 
     public function __construct(Constructed|array|null $signer = null)
@@ -200,7 +197,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
         }
     }
 
-    /** @psalm-suppress UndefinedPropertyAssignment */
     public static function mapInAttrs(Constructed $attr): void
     {
         if (self::extensionMatch('id-aa-timeStampToken', $attr['type'])) {
@@ -240,7 +236,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 $attr['value'][$i]->parent = $attr['value'];
                 // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->key = $i;
-                /** @psalm-suppress InvalidPropertyFetch */
                 // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                 $attr['value'][$i]->depth = $attr['value']->depth + 1;
             }
@@ -601,7 +596,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 // the following errors out and idk why
                 //$attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0]['directoryName'] = $x509['tbsCertificate']['issuer'];
                 // consequently we do this:
-                /** @psalm-suppress InvalidArrayOffset */
                 $attr['value'][0]['certs'][0]['issuerSerial']['issuer'][0] = ['directoryName' => $x509['tbsCertificate']['issuer']];
                 $attr['value'][0]['certs'][0]['issuerSerial']['serialNumber'] = $x509['tbsCertificate']['serialNumber'];
                 break;
@@ -634,7 +628,6 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->signer[$offset];
     }
 

@@ -2630,8 +2630,6 @@ class SSH2
 
     /**
      * Opens a channel
-     *
-     * @psalm-suppress InvalidReturnType
      */
     protected function open_channel(int $channel, bool $skip_extended = false): bool
     {
@@ -2667,7 +2665,6 @@ class SSH2
 
         $this->channel_status[$channel] = MessageType::CHANNEL_OPEN;
 
-        /** @psalm-suppress InvalidReturnStatement */
         return $this->get_channel_packet($channel, $skip_extended);
     }
 
@@ -3321,7 +3318,7 @@ class SSH2
                     $packet->plain = $this->decrypt->decrypt($raw);
                     break;
                 case 'chacha20-poly1305@openssh.com':
-                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    // This should be impossible, but we are checking anyway to narrow the type.
                     if (!($this->decrypt instanceof ChaCha20)) {
                         throw new InvalidStateException('$this->decrypt is not a ' . ChaCha20::class);
                     }
@@ -3428,7 +3425,6 @@ class SSH2
 
         if (defined('NET_SSH2_LOGGING')) {
             $current = microtime(true);
-            /** @psalm-suppress InvalidArrayAccess */
             $message_number = sprintf(
                 '<- %s (since last: %s, network: %ss)',
                 ($constantName = MessageType::findConstantNameByValue($value = ord($payload[0])))
@@ -3833,8 +3829,7 @@ class SSH2
                         }
                         */
                         // currently, there's only one possible value for $data_type_code: NET_SSH2_EXTENDED_DATA_STDERR
-                        [$data_type_code, $data] = Strings::unpackSSH2('Ns', $response);
-                        unset($data_type_code); // suppress psalm error
+                        [, $data] = Strings::unpackSSH2('Ns', $response);
 
                         $this->stdErrorLog .= $data;
                         if ($skip_extended || $this->quiet_mode) {
@@ -4093,7 +4088,7 @@ class SSH2
                     $packet = $temp . $this->encrypt->encrypt(substr($packet, 4));
                     break;
                 case 'chacha20-poly1305@openssh.com':
-                    // This should be impossible, but we are checking anyway to narrow the type for Psalm.
+                    // This should be impossible, but we are checking anyway to narrow the type.
                     if (!($this->encrypt instanceof ChaCha20)) {
                         throw new InvalidStateException('$this->encrypt is not an instance of ' . ChaCha20::class);
                     }
@@ -5079,7 +5074,6 @@ class SSH2
     {
         if (array_key_exists($id, self::$connections)) {
             /**
-             * @psalm-ignore-var
              * @var SSH2|null $ssh2
              */
             $ssh2 =  self::$connections[$id]->get();

@@ -381,11 +381,8 @@ abstract class RSA extends AsymmetricKey
         $privatekey->k = $bits >> 3;
         $privatekey->publicExponent = $e;
         $privatekey->exponent = $d;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->primes = $primes;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->exponents = $exponents;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $privatekey->coefficients = $coefficients;
 
         /*

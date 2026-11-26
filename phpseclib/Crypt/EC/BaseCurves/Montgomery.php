@@ -73,8 +73,6 @@ class Montgomery extends Base
 
     /**
      * The modulo
-     *
-     * @psalm-suppress PossiblyUnusedProperty
      */
     protected BigInteger $modulo;
 

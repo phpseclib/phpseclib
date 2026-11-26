@@ -101,7 +101,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
                     case 'id-data': // id-data from CMS specs
                         $decoded = ASN1::decodeBER((string) $content['content']);
                         $cms[$key]['content'] = ASN1::map($decoded, ASN1\Maps\SafeContents::MAP);
-                        /** @psalm-suppress UndefinedPropertyAssignment */
                         // @phpstan-ignore property.notFound (BI-026 remains open: malformed ASN.1 blob-mode metadata write; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
                         $cms[$key]['content']->parent = $cms[$key];
                         // @phpstan-ignore foreach.nonIterable (BI-026 remains open: malformed SafeContents recovery may yield a non-iterable root; see BI-026-asn1-loadstring-blob-root-typeerrors.md.)
@@ -139,7 +138,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
             }
 
             $pfx['authSafe']['content'] = $cms;
-            /** @psalm-suppress UndefinedPropertyAssignment */
             // @phpstan-ignore property.notFound (Reaching this point requires successful AuthenticatedSafe iteration; malformed roots fail earlier.)
             $pfx['authSafe']['content']->parent = $pfx['authSafe'];
         } finally {
@@ -497,7 +495,6 @@ class PFX implements \ArrayAccess, \Countable, \Iterator
     public function &offsetGet(mixed $offset): mixed
     {
         $this->compile();
-        /** @psalm-suppress NonVariableReferenceReturn */
         return $this->pfx[$offset];
     }
 

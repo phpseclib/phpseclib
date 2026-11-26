@@ -47,8 +47,6 @@ abstract class IEEE
 
     /**
      * Returns a signature in the appropriate format
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function save(BigInteger $r, BigInteger $s, string $curve, int $length): string
     {

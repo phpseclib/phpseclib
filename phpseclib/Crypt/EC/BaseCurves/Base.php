@@ -35,8 +35,6 @@ abstract class Base
 
     /**
      * Returns a random integer
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function randomInteger(): Integer
     {
@@ -46,8 +44,6 @@ abstract class Base
 
     /**
      * Converts a BigInteger to a \phpseclib4\Math\FiniteField\Integer integer
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function convertInteger(BigInteger $x): Integer
     {
@@ -57,8 +53,6 @@ abstract class Base
 
     /**
      * Returns the length, in bytes, of the modulo
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function getLengthInBytes(): int
     {
@@ -68,8 +62,6 @@ abstract class Base
 
     /**
      * Returns the length, in bits, of the modulo
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function getLength(): int
     {
@@ -154,8 +146,6 @@ abstract class Base
 
     /**
      * Use a custom defined modular reduction function
-     *
-     * @psalm-suppress UndefinedThisPropertyFetch
      */
     public function setReduction(\Closure $func): void
     {

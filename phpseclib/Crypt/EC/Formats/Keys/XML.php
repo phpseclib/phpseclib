@@ -58,8 +58,6 @@ abstract class XML
 
     /**
      * Break a public or private key down into its constituent components
-     *
-     * @psalm-suppress PossiblyUnusedParam
      */
     public static function load(
         #[\SensitiveParameter] string $key,
@@ -246,7 +244,6 @@ abstract class XML
         switch ($type) {
             case 'prime-field':
                 $curve = new PrimeCurve();
-                /** @psalm-suppress UndefinedVariable $p */
                 // @phpstan-ignore variable.undefined ($p is assigned by the variable-variable loop above only when the prime-field query matched, which is exactly the case selected here.)
                 $curve->setModulo(new BigInteger($p, 256));
                 $curve->setCoefficients(
@@ -298,7 +295,6 @@ abstract class XML
             case 'prime-field':
                 $curve = new PrimeCurve();
 
-                /** @psalm-suppress UndefinedVariable $p */
                 // @phpstan-ignore variable.undefined ($p is assigned by the variable-variable loop above only when the prime-field query matched, which is exactly the case selected here.)
                 $p = str_replace(["\r", "\n", ' ', "\t"], '', $p);
                 $curve->setModulo(new BigInteger($p));

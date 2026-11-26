@@ -25,7 +25,6 @@ namespace phpseclib4\File\ASN1;
  */
 class Element
 {
-    /** @psalm-suppress PossiblyUnusedProperty */
     public array $metadata = [];
 
     /**

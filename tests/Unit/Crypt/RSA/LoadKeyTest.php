@@ -1175,7 +1175,6 @@ n9dyFZYXxil/cgFG/PDMnuXy1Wcl8hb8iwQag4Y7ohiLXVTJa/0BAgMBAAE=
             'p' => $key['primes'][1],
             'q' => $key['primes'][2],
         ];
-        /** @psalm-suppress InvalidCast */
         $str2 = (string) PublicKeyLoader::loadPrivateKey($key); // @phpstan-ignore cast.string (The fixed Raw RSA private components load as a concrete serializable RSA private key, compared with its original encoding below.)
         $this->assertSame($str1, $str2);
 
