@@ -298,6 +298,37 @@ ybcPA9iklr0wAwYBAAMBAA==
         X509::clearCAStore();
     }
 
+    /**
+     * Some signers (eg. BouncyCastle based ones) use id-ecPublicKey as the SignerInfo
+     * signatureAlgorithm, with the hash given separately in digestAlgorithm.
+     */
+    public function testECDSAWithIdEcPublicKeySignatureAlgorithm(): void
+    {
+        $private = EC::createKey('nistp256');
+        $x509 = new X509($private->getPublicKey());
+        $x509->setDN('O=phpseclib demo');
+        $x509->makeCA();
+        $private->sign($x509);
+
+        $cms = new SignedData('hello, world!');
+        $signer = $cms->addSigner($x509);
+        $private->sign($signer);
+
+        $cms = CMS::load("$cms");
+        $cms['content']['signerInfos'][0]['signatureAlgorithm']['algorithm'] = new ASN1\Types\OID('id-ecPublicKey');
+        $cms = CMS::load("$cms");
+
+        $this->assertSame('id-ecPublicKey', (string) $cms['content']['signerInfos'][0]['signatureAlgorithm']['algorithm']);
+        $this->assertTrue($cms->validateSignature(false));
+
+        $signature = (string) $cms['content']['signerInfos'][0]['signature'];
+        $signature[20] = chr(ord($signature[20]) ^ 0xff);
+        $cms['content']['signerInfos'][0]['signature'] = new ASN1\Types\OctetString($signature);
+        $cms = CMS::load("$cms");
+
+        $this->assertFalse($cms->validateSignature(false));
+    }
+
     public function testNewSecondSigner(): void
     {
         $private = EC::createKey('nistp256');
