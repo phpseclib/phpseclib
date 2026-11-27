@@ -502,6 +502,21 @@ class Signer implements \ArrayAccess, \Countable, \Iterator, Signable
                 throw new UnsupportedAlgorithmException($this->signer['digestAlgorithm']['algorithm'] . ' is not a supported digest algorithm');
             }
         }
+        // some signers (eg. BouncyCastle based ones) put the public key algorithm (id-ecPublicKey) in
+        // signatureAlgorithm, with the hash given separately in digestAlgorithm, as is done with rsaEncryption
+        if ($algo == 'id-ecPublicKey') {
+            $algo = match ((string) $this->signer['digestAlgorithm']['algorithm']) {
+                'id-sha1' => 'ecdsa-with-SHA1',
+                'id-sha224' => 'ecdsa-with-SHA224',
+                'id-sha256' => 'ecdsa-with-SHA256',
+                'id-sha384' => 'ecdsa-with-SHA384',
+                'id-sha512' => 'ecdsa-with-SHA512',
+                default => null
+            };
+            if (!isset($algo)) {
+                throw new UnsupportedAlgorithmException($this->signer['digestAlgorithm']['algorithm'] . ' is not a supported digest algorithm');
+            }
+        }
         /*
         The IMPLICIT [0] tag in the signedAttrs is not used for the DER
         encoding, rather an EXPLICIT SET OF tag is used.  That is, the DER
