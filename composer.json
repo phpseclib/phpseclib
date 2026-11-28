@@ -62,11 +62,11 @@
     },
     "require-dev": {
         "ext-xml": "*",
-        "brianium/paratest": "7.28.0",
-        "phpunit/phpunit": "13.4.7",
+        "brianium/paratest": "7.29.0",
+        "phpunit/phpunit": "13.4.8",
         "php-parallel-lint/php-parallel-lint": "1.4.0",
         "squizlabs/php_codesniffer": "4.0.4",
-        "vimeo/psalm": "7.6.0"
+        "vimeo/psalm": "7.13.2"
     },
     "suggest": {
         "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
